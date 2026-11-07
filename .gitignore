@@ -17,3 +17,6 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+
+# local assistant eval output
+eval_results.md
