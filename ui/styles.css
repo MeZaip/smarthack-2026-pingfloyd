@@ -139,7 +139,6 @@ button { font: inherit; cursor: pointer; color: var(--text); }
 .seg { display: inline-flex; background: var(--surface-2); border-radius: 999px; padding: 4px; gap: 2px; }
 .seg button { border: 0; background: transparent; border-radius: 999px; min-width: 48px; min-height: 44px; padding: 0 .8rem; font-weight: 700; }
 .seg button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow); color: var(--primary); }
-.size-btn.s0 { font-size: 1rem; } .size-btn.s1 { font-size: 1.2rem; } .size-btn.s2 { font-size: 1.4rem; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip-btn {
@@ -1032,85 +1031,6 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
 .brand-logo .b-house { font-weight: 400; color: #9ca3af; }
 
 /* =====================================================================================
-   THREAT PATH (scroll-telling): vulnerable devices on isometric platforms, joined by a data line
-   that is drawn while scrolling. Orange / red accents = vulnerabilities, always with words too.
-   ===================================================================================== */
-.hero.premium .glass { display: none; }          /* no floating badge over the 3D house any more */
-.tour { --tour-line: #ff7a1a; }
-.tour-map { position: relative; margin-top: 8px; border-radius: 24px; overflow: hidden; isolation: isolate;
-  background: radial-gradient(1000px 600px at 50% 0%, rgba(255, 122, 26, .07), transparent 60%), #0b0c0f; border: 1px solid var(--line); }
-.tour-map::before {                                 /* tech grid, drifts slower than the page (parallax) */
-  content: ""; position: absolute; inset: -200px 0; z-index: -1; transform: translateY(var(--py, 0px));
-  background-image: linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
-  background-size: 48px 48px;
-  -webkit-mask-image: linear-gradient(transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(transparent, #000 15%, #000 85%, transparent);
-}
-.tour-svg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: visible; }
-.tour-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.tour-base { stroke: rgba(255, 122, 26, .28); stroke-width: 2; stroke-dasharray: 2 10; animation: tourFlow 1.2s linear infinite; }
-.tour-glow { stroke: var(--tour-line); stroke-width: 9; opacity: .18; filter: blur(4px); }
-.tour-line { stroke: var(--tour-line); stroke-width: 2.5; }
-.tour-packet { fill: #fff3e6; filter: drop-shadow(0 0 6px var(--tour-line)) drop-shadow(0 0 14px var(--tour-line)); transition: opacity .2s; }
-@keyframes tourFlow { to { stroke-dashoffset: -24; } }
-
-.tour-nodes { list-style: none; margin: 0; padding: 72px 40px 96px; display: grid; gap: 14vh; position: relative; z-index: 1; }
-.tour-node { --a: var(--muted); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 40px; min-height: 46vh; }
-.tour-node.sev-high { --a: #ff4a3d; } .tour-node.sev-medium { --a: #ff8a1f; } .tour-node.sev-low { --a: #ffc23d; } .tour-node.end { --a: #34d399; }
-.tour-node.right .tour-stage { order: 2; }
-
-/* isometric platform: three stacked diamonds (rotateX 60 + rotateZ 45) + a device tile standing on it */
-.tour-stage { position: relative; height: 280px; display: grid; place-items: center;
-  transform: translateY(calc(var(--dist, 0) * -40px)); transition: transform .1s linear; }
-.iso { position: absolute; top: 50%; left: 50%; width: 200px; height: 200px; margin: -60px 0 0 -100px;
-  transform: rotateX(60deg) rotateZ(45deg); transform-style: preserve-3d; }
-.iso-plate { position: absolute; inset: 0; border-radius: 18px; }
-.iso-plate.p1 { background: linear-gradient(135deg, #2a2f39, #15181e); border: 1px solid rgba(255, 255, 255, .12); transform: translateZ(0); }
-.iso-plate.p2 { background: #101217; transform: translateZ(-14px); }
-.iso-plate.p3 { background: #08090b; transform: translateZ(-28px); box-shadow: 0 0 60px rgba(0, 0, 0, .7); }
-.iso-ring { position: absolute; inset: 26px; border-radius: 12px; border: 2px dashed color-mix(in srgb, var(--a) 55%, transparent); transform: translateZ(1px); transition: border-color .4s, box-shadow .4s; }
-.iso-device { position: relative; z-index: 1; width: 96px; height: 96px; margin-top: -70px; display: grid; place-items: center; border-radius: 22px;
-  color: var(--a); background: linear-gradient(160deg, #262a33, #111318); border: 1px solid rgba(255, 255, 255, .12);
-  box-shadow: 0 18px 30px rgba(0, 0, 0, .55); transition: box-shadow .4s, transform .4s, color .4s; }
-.iso-device .ico { width: 46px; height: 46px; }
-.tour-num { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); font: 700 1rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; color: var(--muted); }
-
-/* focus states */
-.tour-node .tour-card { opacity: 0; transform: translateY(28px); transition: opacity .5s ease, transform .5s ease; }
-.tour-node.is-done .tour-card { opacity: .55; transform: none; }
-.tour-node.is-active .tour-card { opacity: 1; transform: none; }
-.tour-node.is-active .iso-device { transform: translateY(-8px); box-shadow: 0 0 0 1px var(--a), 0 0 34px color-mix(in srgb, var(--a) 55%, transparent), 0 24px 40px rgba(0, 0, 0, .6); }
-.tour-node.is-active .iso-ring { border-style: solid; border-color: var(--a); box-shadow: 0 0 26px color-mix(in srgb, var(--a) 60%, transparent), inset 0 0 26px color-mix(in srgb, var(--a) 35%, transparent); }
-.tour-node.is-active .iso-plate.p1 { border-color: color-mix(in srgb, var(--a) 60%, transparent); }
-.tour-node.is-active .tour-num { color: var(--a); }
-
-.tour-card { background: rgba(17, 17, 20, .92); border: 1px solid color-mix(in srgb, var(--a) 35%, var(--line)); border-radius: 18px; padding: 1.5rem 1.6rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, .45); max-width: 520px; }
-.tour-node.right .tour-card { justify-self: end; }
-.tour-eyebrow { margin: 0 0 .3rem; text-transform: uppercase; letter-spacing: .08em; color: var(--a); font-weight: 700; }
-.tour-card h4 { margin: 0; font-size: 1.4rem; }
-.tour-ip { margin: .2rem 0 .8rem; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.tour-probs { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 10px; }
-.tour-probs li { display: grid; gap: 2px; padding: .7rem .9rem; border-radius: 12px; background: var(--surface-2); border-left: 3px solid var(--muted); }
-.tour-probs li.sev-high { border-left-color: #ff4a3d; } .tour-probs li.sev-medium { border-left-color: #ff8a1f; } .tour-probs li.sev-low { border-left-color: #ffc23d; }
-.tour-port { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.tour-fix { margin: .35rem 0 0; color: var(--text-2, var(--text)); }
-.tour-node.end .tour-card p { color: var(--text-2, var(--text)); }
-
-@media (max-width: 760px) {
-  .tour-nodes { padding: 48px 16px 64px; gap: 10vh; }
-  .tour-node { grid-template-columns: minmax(0, 1fr); gap: 8px; min-height: 0; }
-  .tour-node.right .tour-stage { order: 0; }
-  .tour-stage { height: 220px; width: 64%; }
-  .tour-node.right .tour-stage { justify-self: end; }
-  .iso { width: 150px; height: 150px; margin: -46px 0 0 -75px; }
-  .tour-node.right .tour-card { justify-self: stretch; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tour-base { animation: none; } .tour-stage { transform: none; }
-  .tour-node .tour-card, .iso-device, .iso-ring { transition: none; }
-}
-
-/* =====================================================================================
    3D device models (ui/device3d.js): every device picture is a square slot with a 2D canvas the shared
    WebGL renderer draws into. The SVG inside the slot is shown only when WebGL is not available.
    ===================================================================================== */
@@ -1123,10 +1043,6 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
 .dev-ico.dev3d.lg.ready { width: 104px; height: 104px; }
 .tile .dev-ico.dev3d.ready { width: 88px; height: 88px; background: radial-gradient(closest-side, rgba(255, 255, 255, .07), transparent); }
 .check-head .dev-ico.dev3d.ready { width: 72px; height: 72px; }
-/* threat-path pedestals: the model floats on the platform, no rounded square behind it */
-.iso-device.dev3d.ready { width: 132px; height: 132px; margin-top: -96px; background: none !important; border: 0 !important; box-shadow: none !important; }
-.tour-node.is-active .iso-device.dev3d.ready { box-shadow: none !important; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--a) 55%, transparent)); }
-@media (max-width: 760px) { .iso-device.dev3d.ready { width: 108px; height: 108px; margin-top: -78px; } }
 
 /* =====================================================================================
    NETWORK TOPOLOGY (Home > devices found): glowing gateway core, devices on rings around it,
@@ -1146,7 +1062,7 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
   --grain-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 -.95'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
   --scratch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.002 .55' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 3.2 -2.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
   --stains: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='480'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 .35 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
-  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 0px; gap: 0; min-height: 620px;
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 0px; gap: 0;
   border-radius: 24px; border: 1px solid var(--line); overflow: hidden; isolation: isolate; color: var(--text);
   background: radial-gradient(700px 420px at 50% 55%, rgba(56, 189, 248, .08), transparent 70%), #0b0c0f;
   transition: grid-template-columns .45s cubic-bezier(.2, .8, .2, 1); }
@@ -1171,8 +1087,8 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
   -webkit-mask-composite: source-over; mask-composite: add;
 }
 
-.topo-main { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
-.topo-graph { position: relative; min-height: 560px; }
+.topo-main { display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-width: 0; align-content: start; }
+.topo-graph { position: relative; }
 .topo-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .topo-ring { fill: none; stroke: rgba(56, 189, 248, .14); stroke-width: 1; stroke-dasharray: 2 7; }
 .topo-link { fill: none; stroke: var(--c); stroke-width: 1.5; stroke-dasharray: 3 7; animation: topoFlow 1.1s linear infinite; opacity: .75; transition: opacity .3s, stroke-width .3s; }
@@ -1180,7 +1096,6 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
 .topo.open .topo-link:not(.is-on) { opacity: .25; }
 .topo-pkt { fill: color-mix(in srgb, var(--c) 45%, #fff); filter: drop-shadow(0 0 4px var(--c)); transition: opacity .3s; }
 .topo.open .topo-pkt { opacity: .35; }
-.topo .topo-link.is-filtered, .topo.open .topo-link.is-filtered, .topo .topo-pkt.is-filtered { opacity: .07; }
 @keyframes topoFlow { to { stroke-dashoffset: -20; } }
 
 /* radar sweep around the gateway (the angle is animated, so the ellipse itself never rotates) */
@@ -1217,10 +1132,6 @@ div.topo-node { cursor: default; }
 .topo-node:focus-visible { outline: none; }
 .topo-node:focus-visible .topo-label { outline: 3px solid var(--focus); outline-offset: 2px; }
 .topo-node.is-dim { opacity: .4; }
-.topo-node.is-filtered { opacity: .16; }
-.topo-node.is-dim.is-match { opacity: 1; }
-.topo.open .topo-link.is-match:not(.is-on) { opacity: .75; }
-.topo-node.is-filtered:hover, .topo-node.is-filtered:focus-visible { opacity: .6; }
 /* many devices: small glowing dots, name on hover / focus */
 .topo-node.dot .topo-orb { width: 20px; height: 20px; } .topo-node.dot .topo-orb .ico, .topo-node.dot .topo-orb::after { display: none; }
 .topo-node.dot .topo-label { position: absolute; top: 26px; opacity: 0; pointer-events: none; transition: opacity .2s; }
@@ -1267,10 +1178,8 @@ div.topo-node { cursor: default; }
 
 /* legend chips (filter) */
 .topo-bar { position: relative; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px 18px 0; }
-.topo-bar-k { color: var(--muted); font-weight: 600; margin-right: 2px; }
 .btn-hud.chip { min-height: 44px; padding: .4rem .8rem .4rem .7rem; border-radius: 999px; font-weight: 600; }
 .btn-hud.chip::after { border-radius: 999px; }
-.btn-hud.chip.all { --c: #a1a1aa; }
 .btn-hud.chip .ico { color: var(--c); }
 .chip-n { min-width: 1.6em; padding: .1rem .45rem; border-radius: 6px; background: rgba(255, 255, 255, .08); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1rem; text-align: center; }
 .btn-hud.chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 18%, transparent); border-color: var(--c); }
@@ -1334,15 +1243,15 @@ div.topo-node { cursor: default; }
 @keyframes topoIn { from { opacity: 0; transform: translateY(10px); filter: blur(2px); } }
 
 @media (max-width: 760px) {                        /* phones: the panel becomes a bottom sheet over the graph */
-  .topo, .topo.open { grid-template-columns: minmax(0, 1fr); min-height: 660px; }
-  .topo-graph { min-height: 600px; }
+  .topo, .topo.open { grid-template-columns: minmax(0, 1fr); }
   .topo-bar { padding: 14px 14px 0; gap: 8px; }
   .topo-orb { width: 56px; height: 56px; } .topo-orb .ico { width: 24px; height: 24px; }
   .topo-node.core .topo-orb { width: 84px; height: 84px; } .topo-node.core .topo-orb .ico { width: 34px; height: 34px; }
   .topo-node { gap: 6px; }
-  .topo-panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 80%; overflow-y: auto; border-left: 0;
+  .topo-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-height: 78vh; overflow-y: auto; border-left: 0;   /* stays on screen however long the tree is */
     border-top: 1px solid color-mix(in srgb, var(--c) 45%, transparent); border-radius: 20px 20px 0 0; transform: translateY(30px);
     background: linear-gradient(180deg, color-mix(in srgb, var(--c) 10%, transparent), transparent 220px), rgba(16, 17, 21, .86); }
+  .topo-panel { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }   /* the bottom menu covers ~115px of the sheet */
   .topo-esc { display: none; }                     /* no keyboard on phones */
   .topo-label { white-space: normal; max-width: 120px; }
 }
@@ -1352,8 +1261,101 @@ div.topo-node { cursor: default; }
   .topo-panel.is-revealing .topo-scan, .topo-panel.is-revealing > :not(.topo-scan) { animation: none; }
 }
 
+/* ---------- network tree: branch buttons, "+N more", wires, search, threat-path navigation ---------- */
+.topo-graph { min-height: 0; transition: height .45s cubic-bezier(.2, .8, .2, 1); }
+.topo-hub, .topo-more { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; white-space: nowrap;
+  background-color: #101216; transition: left .5s cubic-bezier(.2, .8, .2, 1), top .5s cubic-bezier(.2, .8, .2, 1), opacity .3s, background .2s, border-color .2s, box-shadow .2s; }
+.topo-hub { min-height: 48px; font-weight: 700; }
+.topo-hub .hub-top { display: inline-flex; align-items: center; gap: 8px; }
+.topo-hub .hub-top .ico { color: var(--c); }
+.btn-hud[hidden] { display: none; }
+.topo-hub[aria-pressed="true"] { background-color: color-mix(in srgb, var(--c) 18%, #101216); }
+.topo-hub.is-off { opacity: .55; }
+.topo-hub.is-off:hover, .topo-hub.is-off:focus-visible { opacity: 1; }
+.topo-more { border-style: dashed; color: var(--text-2); }
+.topo-more .ico { color: var(--c); }
+.topo-trace { fill: none; stroke: none; }
+.topo-trace.is-on { stroke: var(--c); stroke-width: 3; opacity: .95; filter: drop-shadow(0 0 6px var(--c)); }
+.topo-trace-pkt { opacity: 0; }
+.topo.open .topo-trace-pkt.is-on { opacity: 1; fill: #fff; filter: drop-shadow(0 0 6px var(--c)) drop-shadow(0 0 12px var(--c)); }
+
+.topo-search { position: relative; flex: 1 1 240px; max-width: 360px; display: flex; align-items: center; }
+.topo-search > .ico { position: absolute; left: 14px; width: 1.2em; height: 1.2em; color: var(--muted); pointer-events: none; }
+.topo-search-in { width: 100%; min-height: 48px; padding: .5rem .9rem .5rem 44px; border-radius: 10px; font: inherit; font-size: 1rem; color: var(--text);
+  background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .14); transition: border-color .2s, box-shadow .2s; }
+.topo-search-in::placeholder { color: var(--muted); opacity: 1; }
+.topo-search-in:hover { border-color: rgba(255, 255, 255, .28); }
+.topo-search-in:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-color: var(--safe-c); }
+.topo-status { color: var(--muted); font-weight: 600; }
+.topo-status:empty { display: none; }
+.btn-hud.primary.start { width: auto; min-height: 48px; font-size: 1rem; margin-left: auto; --c: var(--high-c); }
+.btn-hud .ico.back { transform: rotate(180deg); }
+.btn-hud:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+.btn-hud:disabled::after { opacity: 0; }
+
+/* threat path inside the panel: Previous / "Device 2 of 37" / Next */
+.topo-nav { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+.topo-step { flex: 1; min-width: 0; text-align: center; font: 700 1rem/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text-2); }
+.topo-nav .topo-next { --c: var(--safe-c); }
+.topo-nav:has(.topo-prev) .topo-next { flex: none; }
+.topo-nav:not(:has(.topo-prev)) .topo-next { flex: 1; }
+.topo-finds { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.topo-finds li { --c: var(--safe-c); display: grid; gap: 2px; padding: 8px 10px 9px 13px; border-radius: 6px; background: rgba(0, 0, 0, .28);
+  border: 1px solid rgba(255, 255, 255, .06); box-shadow: inset 3px 0 0 var(--c); }
+.topo-finds li.sev-high { --c: var(--high-c); } .topo-finds li.sev-medium { --c: var(--med-c); } .topo-finds li.sev-low { --c: var(--low-c); }
+.topo-fport { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.topo-fix { margin: .2rem 0 0; color: var(--text-2); }
+.topo-fix b { color: var(--c); }
+@media (max-width: 760px) {
+  .topo-search { max-width: none; flex-basis: 100%; }
+  .btn-hud.primary.start { width: 100%; margin-left: 0; }
+  .topo-hub { padding-left: .65rem; padding-right: .65rem; }
+}
+@media (prefers-reduced-motion: reduce) { .topo-graph, .topo-hub, .topo-more { transition: none; } }
+
 /* 3D device models in the network topology: the model fills the orb, the HUD ring keeps turning around it */
 .topo-orb > .dev3d.topo-model { position: absolute; inset: -14%; border-radius: 50%; }
 .topo-node.core .topo-orb > .dev3d.topo-model { inset: -10%; }
 .topo-orb > .dev3d.topo-model.ready > .dev3d-canvas { cursor: pointer; }
 .topo-ph .dev-ico.dev3d.ready { width: 88px; height: 88px; }
+
+/* ---------- network map: risk chips above the map (they filter it) ---------- */
+.topo-legend { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px 0; }
+.topo-legend:empty { display: none; }
+.topo-legend .topo-hub { position: static; transform: none; min-height: 40px; padding: .3rem .85rem; font-size: .95rem; }
+.topo-legend .topo-hub .hub-top { display: contents; }
+.topo-legend .topo-hub .hub-top .ico { order: -2; }
+.topo-legend .topo-hub .hub-word { order: -1; }
+.topo-more { min-height: 40px; }
+@media (max-width: 760px) { .topo-legend { padding: 10px 14px 0; gap: 6px; } }
+
+/* ---------- sidebar: a slim rail, icon and name on one row ---------- */
+@media (min-width: 761px) {
+  :root { --rail: 176px; }
+  .nav { padding: 22px 12px; gap: 2px; border-right: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .025), transparent 45%); }
+  .nav a.nav-brand { margin: 0 6px 26px; padding: 2px; }
+  .nav .brand-logo { gap: 8px; }
+  .nav .brand-logo img.brand-mark, .nav .brand-mark { height: 30px; width: auto; }
+  .nav .brand-text { font-size: 1.15rem; }
+  .nav-item { position: relative; flex-direction: row; justify-content: flex-start; gap: 12px; width: 100%; min-height: 42px;
+    padding: 0 12px; border-radius: 10px; font-size: .95rem; font-weight: 600; color: var(--muted); transition: background .15s, color .15s; }
+  .nav .nav-ico { width: auto; height: auto; background: transparent !important; transition: color .15s; }
+  .nav .nav-ico .ico { width: 19px; height: 19px; }
+  .nav-item:hover { background: rgba(255, 255, 255, .05); color: var(--text); }
+  .nav-item[aria-current="page"] { background: color-mix(in srgb, var(--primary) 13%, transparent); color: var(--text); }
+  .nav-item[aria-current="page"] .nav-ico { color: var(--primary); }
+  .nav-item[aria-current="page"]::before { content: ""; position: absolute; left: -12px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0;
+    background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+  :root[data-theme="light"] .nav-item:hover { background: rgba(0, 0, 0, .05); }
+}
+@media (prefers-reduced-motion: reduce) { .nav-item, .nav .nav-ico { transition: none; } }
+
+/* computer: the details panel lies over the right column and scrolls inside, so the map decides the height */
+@media (min-width: 761px) {
+  .topo-panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 44%); overflow-y: auto; overscroll-behavior: contain; }
+}
+
+/* the size of a node must not depend on where it sits (an absolute box shrinks near the right edge): the map measures
+   every node once and keeps that room free around it */
+.topo-graph .topo-node, .topo-graph .topo-more { width: max-content; }
