@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT))
 from netcheck import history  # noqa: E402
 from netcheck.core.analysis import analyze_file, scan_files_in  # noqa: E402
 from netcheck.core.device import DEVICE_LABELS  # noqa: E402
+from netcheck.explain.simple_texts import GLOSSARY, SIMPLE, WHO  # noqa: E402
 from netcheck.explain.texts import LANGS, SEVERITY_LABELS, TEXTS, score_band  # noqa: E402
 
 SYN = ROOT / "tests" / "fixtures" / "synthetic"
@@ -64,6 +65,9 @@ def main(argv=None) -> int:
         "history": history_entry(Path(args.history[0]), Path(args.history[1])),
         "texts": {code: {**{lang: t[lang] for lang in LANGS}, "refs": t.get("refs", [])}
                   for code, t in TEXTS.items()},
+        "simple": SIMPLE,
+        "who": WHO,
+        "glossary": {lang: [{"term": a, "meaning": b} for a, b in items] for lang, items in GLOSSARY.items()},
         "severity": SEVERITY_LABELS,
         "deviceLabels": DEVICE_LABELS,
     }

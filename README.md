@@ -50,7 +50,12 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
 * **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
   (score chart + before/after, *Delete my history*), **Ask** (grounded answers: every sentence cites
   its evidence; the demo switch slips in an invented claim and the checker blocks it).
-* RO/EN, light/dark, keyboard navigable, text ≥ 16 px, colour always with icon + label (NFR-08/09).
+* Written for **children and older people first**: plain words in RO/EN (`netcheck/explain/simple_texts.py`:
+  title without jargon, ≤ 2 short sentences using the "your home has doors" picture, ≤ 3 steps, and who can do
+  it: *you* / *ask someone who knows computers* / *ask the IT company*), urgency words instead of severity
+  levels, a glossary, and text size buttons (A / A+ / A++). IP, ports, MAC, evidence and CIS/OWASP are one
+  click away under *Details for people who know computers*.
+* RO/EN, light/dark, keyboard navigable, base text 18 px, buttons ≥ 52 px, colour always with icon + label (NFR-08/09).
   Scan text is inserted only as text, never as HTML (NFR-03).
 * Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`.
 

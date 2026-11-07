@@ -13,34 +13,41 @@
     <div class="wrap">
       <div class="top-row">
         <div class="brand">
-          <div class="brand-mark" aria-hidden="true">nc</div>
+          <div class="brand-mark" aria-hidden="true">🏠</div>
           <div>
             <h1>netcheck</h1>
-            <small data-i18n="tagline">Rețeaua ta, explicată simplu</small>
+            <small data-i18n="tagline">Verificăm dacă rețeaua din casa ta e sigură și îți spunem simplu ce să faci</small>
           </div>
         </div>
         <div class="controls">
-          <label class="field">
-            <span data-i18n="scanFile">Scanare</span>
-            <select id="scan-select"></select>
-          </label>
+          <div class="seg" role="group" id="size-group" aria-label="Mărimea textului">
+            <button type="button" id="size-0" aria-pressed="true" class="size-btn s0">A</button>
+            <button type="button" id="size-1" aria-pressed="false" class="size-btn s1">A+</button>
+            <button type="button" id="size-2" aria-pressed="false" class="size-btn s2">A++</button>
+          </div>
           <div class="seg" role="group" aria-label="Limba / Language">
             <button type="button" id="lang-ro" aria-pressed="true">RO</button>
             <button type="button" id="lang-en" aria-pressed="false">EN</button>
           </div>
         </div>
       </div>
-      <nav class="tabs" role="tablist" aria-label="Secțiuni">
-        <button role="tab" id="tab-home" aria-controls="panel-home" aria-selected="true" data-i18n="tabHome">Acasă</button>
-        <button role="tab" id="tab-devices" aria-controls="panel-devices" aria-selected="false" tabindex="-1" data-i18n="tabDevices">Dispozitive</button>
-        <button role="tab" id="tab-findings" aria-controls="panel-findings" aria-selected="false" tabindex="-1" data-i18n="tabFindings">Probleme și reparații</button>
-        <button role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1" data-i18n="tabHistory">Istoric</button>
-        <button role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" tabindex="-1" data-i18n="tabAsk">Întreabă</button>
+      <nav class="tabs" role="tablist" aria-label="Secțiuni / Sections">
+        <button role="tab" id="tab-home" aria-controls="panel-home" aria-selected="true"><span aria-hidden="true">🏠</span> <span data-i18n="tabHome">Acasă</span></button>
+        <button role="tab" id="tab-devices" aria-controls="panel-devices" aria-selected="false" tabindex="-1"><span aria-hidden="true">📱</span> <span data-i18n="tabDevices">Aparatele mele</span></button>
+        <button role="tab" id="tab-findings" aria-controls="panel-findings" aria-selected="false" tabindex="-1"><span aria-hidden="true">🔧</span> <span data-i18n="tabFindings">Ce trebuie reparat</span></button>
+        <button role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1"><span aria-hidden="true">📈</span> <span data-i18n="tabHistory">Mai sigur acum?</span></button>
+        <button role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" tabindex="-1"><span aria-hidden="true">💬</span> <span data-i18n="tabAsk">Întreabă</span></button>
       </nav>
     </div>
   </header>
 
   <main id="main" class="wrap">
+    <div class="demo-bar">
+      <label class="field">
+        <span data-i18n="scanFile">Verificarea afișată</span>
+        <select id="scan-select"></select>
+      </label>
+    </div>
     <section class="panel" id="panel-home" role="tabpanel" aria-labelledby="tab-home"></section>
     <section class="panel" id="panel-devices" role="tabpanel" aria-labelledby="tab-devices" hidden></section>
     <section class="panel" id="panel-findings" role="tabpanel" aria-labelledby="tab-findings" hidden></section>
@@ -50,7 +57,7 @@
 
   <footer>
     <div class="wrap">
-      <p data-i18n="footer">Datele vin din analiza fișierelor nmap XML. MAC-urile sunt mascate, iar istoricul rămâne doar pe acest calculator.</p>
+      <p><span aria-hidden="true">🔒 </span><span data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</span></p>
     </div>
   </footer>
 
