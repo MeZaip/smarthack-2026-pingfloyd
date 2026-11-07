@@ -14,22 +14,24 @@ HTTP admin = service `http` without `tunnel="ssl"` and title containing login/ad
 SMB one finding per device (445 else 139), OUTDATED in addition to the service finding, UNKNOWN_DEVICE with empty port.
 Score = max(0, 100 − Σ points). Validation Set: 24/24 rows, 0 extra, 8/8 scores (automated test).
 
-**AI use (governed, free, local).** Findings, severities and scores never touch the LLM. Default model: `qwen2.5:7b` via Ollama on the
-laptop (no account, no data leaves the machine); Claude optional. The model gets the verified scan context and can call only our tools
-(`get_scan_summary`, `list_findings`, `get_fix`, `compare_with_previous`, …). A **grounding validator** rejects any answer naming an IP,
-port, finding code, CVE, link or phone number not present in the scan evidence and shows the verified built-in text instead.
-Live scans requested in chat go through the guardrail **and** a human yes. No model / timeout → built-in assistant, same UX.
+**AI use (governed).** Findings, severities and scores never touch the LLM. The app holds **no API key**: it sends the question
+plus a minimal scan context (device type, vendor, private IP, open ports, findings; never hostnames, MACs or raw XML) to our
+stateless **AI gateway**, which holds the key and calls Claude Haiku 5.5 (optional: a local Ollama model). Gateway limits: strict
+request contract, per-IP rate limit, daily cap, no logging of content. A **grounding validator** (in the gateway and again in the app)
+rejects any answer naming an IP, port, CVE, link or phone number not in the scan and shows the verified built-in text instead.
+Gateway down / no key / timeout → built-in answers, same UX. Conversations keep the last 6 turns in the app only.
 
 **Differentiators.** Home map with personal device names (HMAC device IDs, no MAC stored); „Dovedește!” one-click targeted re-check
 (unprivileged `nmap -sT`, same rules) + Ed25519-signed before/after certificate with scan SHA-256s (tamper → verification fails);
 „Paznic” unprivileged watch mode (ARP table + top-100 connect scan, desktop notifications, auto-pause on network change).
 
-**Security & privacy.** Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
+**Security & privacy.** One-click app (`NetCheck.cmd`): the page is a thin client of a local agent on 127.0.0.1 (host check +
+SameSite session cookie + origin check against CSRF/DNS rebinding); only nmap is elevated, via the OS permission dialog. Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
 masked MACs, local-only history with one-click delete, hostile-input tests (XXE, entity bomb, XSS in titles), secrets only via env vars
 (`gitleaks` clean).
 
-**Assumptions.** Service names are taken exactly as nmap reports them (e.g. `http-proxy` is not `http`). Samba version "3.X - 4.X"
-counts as 3.x. A host with no MAC entry at all counts as "no MAC vendor". Only `.xml` files are analysed in batch mode (`--all-files` to override).
+**Assumptions.** Service names are taken exactly as nmap reports them (e.g. `http-proxy` is not `http`). Samba version ranges such as "3.X - 4.X"
+are judged by their upper bound (not outdated) — to confirm with the mentors. A host with no MAC entry at all counts as "no MAC vendor". Only `.xml` files are analysed in batch mode (`--all-files` to override).
 
 **Limitations / next steps.** Device-type guess is heuristic. No mDNS/SSDP passive listener yet. Router-model-specific guides and
 an insurer-ready signed PDF are next.

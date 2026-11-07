@@ -39,15 +39,20 @@ def _out(s: str = "") -> None:
 
 
 def cmd_analyze(args) -> int:
-    files = scan_files_in(args.path)
+    from .core.analysis import skipped_files_in
+    files = scan_files_in(args.path, args.all_files)
     if not files:
-        _out(f"No .xml files found in {args.path}")
+        _out(f"No .xml files found in {args.path}" + ("" if args.all_files else " (use --all-files to read every file)"))
         return 2
-    results = analyze_folder(args.path)
+    results = analyze_folder(args.path, args.all_files)
     f_csv, s_csv = write_results(results, args.out)
     for r in results:
         status = f"score {r.score:>3}  findings {len(r.findings)}" if r.ok else f"ERROR: {r.error}"
         _out(f"{r.file:<40} {status}")
+    skipped = [] if args.all_files else skipped_files_in(args.path)
+    if skipped:
+        _out(f"\n⚠ Not analysed (not .xml): {', '.join(skipped)}. If any of them is a scan file, "
+             "re-run with --all-files so it gets its row (ERROR if unreadable).")
     _out(f"\nWrote {f_csv} and {s_csv}")
     return 0
 
@@ -247,6 +252,11 @@ def cmd_scan(args) -> int:
     except guardrail.ScopeError as e:
         return _refused(e, args.lang)
     except netdetect.NetworkDetectError as e:
+        if args.target:   # an explicit target is still judged: public / too large / no allowlist -> REFUSED
+            try:
+                guardrail.check_target(args.target, [], confirmed=True)
+            except guardrail.ScopeError as se:
+                return _refused(se, args.lang)
         _out(f"✖ {e}")
         return 3
     _out(("Scanez " if args.lang == "ro" else "Scanning ") + f"{target} (≤ {scanner.MAX_RATE} pkt/s). "
@@ -377,6 +387,8 @@ def main(argv=None) -> int:
     s = sub.add_parser("analyze", help="analyse a folder of nmap XML files and write the standard CSVs")
     s.add_argument("path")
     s.add_argument("--out", default="results")
+    s.add_argument("--all-files", action="store_true",
+                   help="read every (non-hidden) file in the folder, not only *.xml; unreadable ones get ERROR")
     s.set_defaults(fn=cmd_analyze)
 
     s = sub.add_parser("report", help="plain-language report for one scan file")

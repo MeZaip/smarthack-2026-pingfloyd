@@ -29,7 +29,8 @@ def private_home(tmp_path, monkeypatch):
 
 
 def _with_real_nmap_header(xml: bytes) -> bytes:
-    body = re.sub(rb"^<\?xml[^>]*\?>\s*(<\?xml-stylesheet[^>]*\?>\s*)?", b"", xml)
+    # replace whatever header the fixture has (it may already be the real nmap one) by exactly NMAP_HEAD
+    body = re.sub(rb"^<\?xml[^>]*\?>\s*(<!DOCTYPE nmaprun>\s*)?(<\?xml-stylesheet[^>]*\?>\s*)?", b"", xml)
     return NMAP_HEAD + body
 
 
@@ -288,3 +289,32 @@ def test_cli_scan_end_to_end_with_fake_nmap(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "score 40/100" in out and "history #1" in out
     assert cli.main(["history", "list"]) == 0 and "scan_test.xml" in capsys.readouterr().out
+
+
+
+# ------------------------------------------------------------------ live check 4 also works with no network
+@pytest.mark.parametrize("target", ["8.8.8.8", "1.1.1.0/24", "100.64.1.1", "10.20.0.0/24"])
+def test_scan_refuses_even_without_a_network(monkeypatch, capsys, target):
+    from netcheck import cli
+
+    def no_net():
+        raise netdetect.NetworkDetectError("no active IPv4 network found")
+    monkeypatch.setattr(netdetect, "detect", no_net)
+    assert cli.main(["scan", target, "--confirm", "--lang", "en"]) == 3
+    assert "REFUSED" in capsys.readouterr().out
+
+
+# ------------------------------------------------------------------ Test Set day: an unreadable file with another extension
+def test_all_files_gives_every_file_a_row(tmp_path, capsys):
+    import shutil
+    from netcheck import cli
+    shutil.copy(FIX / "V1_home_basic.xml", tmp_path / "T1.xml")
+    (tmp_path / "T9_broken.nmap").write_bytes(b"<nmaprun><host>")
+    (tmp_path / ".hidden").write_text("x")
+    assert cli.main(["analyze", str(tmp_path), "--out", str(tmp_path / "r1")]) == 0
+    out = capsys.readouterr().out
+    assert "T9_broken.nmap" in out and "--all-files" in out                 # warned, not silently skipped
+    assert (tmp_path / "r1" / "scores.csv").read_text().count("\n") == 2
+    assert cli.main(["analyze", str(tmp_path), "--out", str(tmp_path / "r2"), "--all-files"]) == 0
+    rows = (tmp_path / "r2" / "scores.csv").read_text().splitlines()
+    assert rows == ["file,network_score", "T1.xml,90", "T9_broken.nmap,ERROR"]

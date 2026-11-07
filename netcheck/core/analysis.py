@@ -70,16 +70,27 @@ def analyze_file(path: str | os.PathLike) -> Analysis:
     return Analysis(file=name, scan=scan, findings=findings, score=network_score(findings))
 
 
-def scan_files_in(folder: str | os.PathLike) -> list[Path]:
+def scan_files_in(folder: str | os.PathLike, all_files: bool = False) -> list[Path]:
+    """Scan files of a folder, by name. Default: *.xml. all_files=True: every non-hidden file, so an
+    unreadable file with another extension still gets its ERROR row in scores.csv."""
     p = Path(folder)
     if p.is_file():
         return [p]
-    return sorted((f for f in p.iterdir() if f.is_file() and f.suffix.lower() == ".xml"),
-                  key=lambda f: f.name)
+    return sorted((f for f in p.iterdir() if f.is_file() and not f.name.startswith(".")
+                   and (all_files or f.suffix.lower() == ".xml")), key=lambda f: f.name)
 
 
-def analyze_folder(folder: str | os.PathLike) -> list[Analysis]:
-    return [analyze_file(f) for f in scan_files_in(folder)]
+def skipped_files_in(folder: str | os.PathLike) -> list[str]:
+    """Non-hidden files that the default (*.xml) analysis does not read - shown as a warning."""
+    p = Path(folder)
+    if p.is_file():
+        return []
+    return sorted(f.name for f in p.iterdir() if f.is_file() and not f.name.startswith(".")
+                  and f.suffix.lower() != ".xml")
+
+
+def analyze_folder(folder: str | os.PathLike, all_files: bool = False) -> list[Analysis]:
+    return [analyze_file(f) for f in scan_files_in(folder, all_files)]
 
 
 def _csv_safe(value) -> str:

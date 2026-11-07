@@ -97,3 +97,55 @@ def test_banner_text_is_kept_as_data():
     scan = parse_bytes(xml)
     assert scan.hosts[0].ports[0].http_title.startswith("<script>")
     assert sorted(f.code for f in evaluate(scan)) == ["HTTP_ADMIN_CLEARTEXT", "UNKNOWN_DEVICE"]
+
+
+# ---- parser traps for the secret Test Set ------------------------------------
+def _file_codes(host_xml):
+    x = ('<?xml version="1.0"?>\n<!DOCTYPE nmaprun>\n<nmaprun>' + host_xml + '</nmaprun>').encode()
+    return sorted((f.port, f.code) for f in evaluate(parse_bytes(x)))
+
+
+_ADDR = '<address addr="10.0.0.5" addrtype="ipv4"/><address addr="00:11:22:33:44:55" addrtype="mac" vendor="Acme"/>'
+_HN = '<hostnames><hostname name="dev" type="PTR"/></hostnames>'
+
+
+def _http_host(script, status='<status state="up"/>'):
+    return (f'<host>{status}{_ADDR}{_HN}<ports><port protocol="tcp" portid="80"><state state="open"/>'
+            f'<service name="http"/>{script}</port></ports></host>')
+
+
+def test_redirect_text_is_not_a_title():
+    s = ('<script id="http-title" output="Site doesn&apos;t have a title (text/html).&#xa;'
+         'Requested resource was http://10.0.0.5/login.php">'
+         '<elem key="redirect_url">http://10.0.0.5/login.php</elem></script>')
+    assert _file_codes(_http_host(s)) == []
+
+
+def test_redirect_line_ignored_when_title_elem_present():
+    s = ('<script id="http-title" output="Welcome&#xa;Requested resource was /admin">'
+         '<elem key="title">Welcome</elem><elem key="redirect_url">/admin</elem></script>')
+    assert _file_codes(_http_host(s)) == []
+
+
+@pytest.mark.parametrize("output,expected", [
+    ("Router Login", [(80, "HTTP_ADMIN_CLEARTEXT")]),
+    ("Site doesn&apos;t have a title (text/html; charset=utf-8).", []),
+    ("Did not follow redirect to http://10.0.0.5/admin/", []),
+    ("Home&#xa;Requested resource was /login", []),
+])
+def test_title_from_output_only_files(output, expected):
+    s = f'<script id="http-title" output="{output}"/>'
+    assert _file_codes(_http_host(s)) == expected
+
+
+def test_host_without_status_is_evaluated():
+    s = '<script id="http-title" output="Admin"><elem key="title">Admin</elem></script>'
+    assert _file_codes(_http_host(s, status="")) == [(80, "HTTP_ADMIN_CLEARTEXT")]
+
+
+def test_vendor_unknown_counts_as_no_vendor():
+    x = ('<host><status state="up"/><address addr="10.0.0.6" addrtype="ipv4"/>'
+         '<address addr="AA:BB:CC:00:00:01" addrtype="mac" vendor="Unknown"/>'
+         '<ports><port protocol="tcp" portid="9999"><state state="open"/><service name="abyss"/></port>'
+         '</ports></host>')
+    assert _file_codes(x) == [(None, "UNKNOWN_DEVICE")]

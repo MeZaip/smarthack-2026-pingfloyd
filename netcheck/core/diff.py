@@ -70,9 +70,20 @@ def _finding_dicts(keys) -> list[dict]:
     return [{"ip": i, "port": p, "code": c} for i, p, c in sorted(keys, key=str)]
 
 
+def _device_changes(before: Snapshot, after: Snapshot) -> tuple[list[str], list[str]]:
+    """New / removed devices. Identity is the MAC (IPs change with DHCP), but phones and laptops now
+    use private MAC addresses that can change between scans: a device that keeps its IP while its
+    MAC changes is the same device with a new private address, not "one gone + one new"."""
+    b_only = {k: ip for k, ip in before.devices.items() if k not in after.devices}
+    a_only = {k: ip for k, ip in after.devices.items() if k not in before.devices}
+    b_ips, a_ips = set(b_only.values()), set(a_only.values())
+    new = sorted(ip for ip in a_only.values() if ip not in b_ips)
+    removed = sorted(ip for ip in b_only.values() if ip not in a_ips)
+    return new, removed
+
+
 def compare_snapshots(before: Snapshot, after: Snapshot) -> dict:
-    new_devices = sorted(after.devices[k] for k in after.devices.keys() - before.devices.keys())
-    removed_devices = sorted(before.devices[k] for k in before.devices.keys() - after.devices.keys())
+    new_devices, removed_devices = _device_changes(before, after)
     opened = after.open_ports - before.open_ports
     closed = before.open_ports - after.open_ports
     upgraded = _upgrades(opened, closed)
