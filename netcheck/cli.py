@@ -113,7 +113,10 @@ def cmd_history_add(args) -> int:
     if ch and ch["alerts"]:
         _out("\n⚠ " + ", ".join(
             [f"new device {ip}" for ip in ch["new_devices"]]
-            + [f"new open port {p['ip']}:{p['port']}/{p['protocol']}" for p in ch["opened_ports"]]))
+            + [f"new open port {p['ip']}:{p['port']}/{p['protocol']}" for p in ch["new_port_alerts"]]))
+    if ch:
+        for u in ch["secured_ports"]:
+            _out(f"✔ {u['ip']}: {u['service']} moved from port {u['from_port']} to secure port {u['to_port']}")
     _out(f"\nHistory: {history.db_path(args.db)}")
     return code
 

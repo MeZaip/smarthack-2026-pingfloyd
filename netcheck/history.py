@@ -57,7 +57,8 @@ CREATE TABLE IF NOT EXISTS ports (
     ip       TEXT    NOT NULL,
     protocol TEXT    NOT NULL,
     port     INTEGER NOT NULL,
-    service  TEXT    NOT NULL
+    service  TEXT    NOT NULL,
+    tls      INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS findings (
     finding_id   INTEGER PRIMARY KEY,
@@ -92,6 +93,8 @@ def connect(path: Optional[str | os.PathLike] = None) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")   # off by default in SQLite; needed for ON DELETE CASCADE
     conn.executescript(SCHEMA)
+    if "tls" not in {r["name"] for r in conn.execute("PRAGMA table_info(ports)")}:
+        conn.execute("ALTER TABLE ports ADD COLUMN tls INTEGER NOT NULL DEFAULT 0")   # databases made before tls
     return conn
 
 
@@ -138,8 +141,9 @@ def save(conn: sqlite3.Connection, a: Analysis) -> tuple[int, bool]:
             [(scan_id, key(h), h.ip, mask_mac(h.mac), h.vendor, h.hostname, guess_type(h)) for h in hosts],
         )
         conn.executemany(
-            "INSERT INTO ports (scan_id, ip, protocol, port, service) VALUES (?, ?, ?, ?, ?)",
-            [(scan_id, h.ip, p.protocol, p.portid, p.service) for h in hosts for p in h.open_ports],
+            "INSERT INTO ports (scan_id, ip, protocol, port, service, tls) VALUES (?, ?, ?, ?, ?, ?)",
+            [(scan_id, h.ip, p.protocol, p.portid, p.service, int(p.tunnel == "ssl"))
+             for h in hosts for p in h.open_ports],
         )
         conn.executemany(
             "INSERT INTO findings (scan_id, ip, port, protocol, finding_code, severity, points, evidence)"
@@ -166,8 +170,9 @@ def load_snapshot(conn: sqlite3.Connection, scan_id: int) -> Snapshot:
         raise KeyError(f"no saved scan with id {scan_id}")
     devices = {r["device_key"]: r["ip"] for r in
                conn.execute("SELECT device_key, ip FROM devices WHERE scan_id = ?", (scan_id,))}
-    ports = frozenset((r["ip"], r["protocol"], r["port"], r["service"]) for r in
-                      conn.execute("SELECT ip, protocol, port, service FROM ports WHERE scan_id = ?", (scan_id,)))
+    ports = frozenset((r["ip"], r["protocol"], r["port"], r["service"], bool(r["tls"])) for r in
+                      conn.execute("SELECT ip, protocol, port, service, tls FROM ports WHERE scan_id = ?",
+                                   (scan_id,)))
     findings = frozenset((r["ip"], r["port"], r["finding_code"]) for r in
                          conn.execute("SELECT ip, port, finding_code FROM findings WHERE scan_id = ?", (scan_id,)))
     return Snapshot(file=s["file"], score=s["network_score"], devices=devices,

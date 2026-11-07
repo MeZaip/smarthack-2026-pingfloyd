@@ -104,3 +104,44 @@ def test_cli_add_list_changes_delete(db, capsys):
     assert main(["history", "delete", "--yes", "--db", str(db)]) == 0
     assert not db.exists()
     assert main(["history", "changes", "--db", str(db)]) == 1   # empty again
+
+
+def _router(*ports):
+    return Host(ip="192.168.1.1", mac="50:C7:BF:11:22:33", vendor="TP-Link", ports=list(ports))
+
+
+def test_http_to_https_is_a_fix_not_an_alert():
+    from netcheck.core.diff import compare
+    ch = compare(analyze_file(SYN / "V6a_before.xml"), analyze_file(SYN / "V6b_after.xml"))
+    assert ch["secured_ports"] == [{"ip": "192.168.1.1", "service": "http", "from_port": 80,
+                                    "to_port": 443, "protocol": "tcp"}]
+    assert ch["new_port_alerts"] == [] and ch["alerts"] is False
+    assert [p["port"] for p in ch["opened_ports"]] == [443]        # still reported as a fact
+
+
+def test_telnet_to_ssh_is_a_fix():
+    from netcheck.core.diff import compare
+    before = _analysis("a.xml", [_router(Port("tcp", 23, "open", "telnet"))])
+    after = _analysis("b.xml", [_router(Port("tcp", 22, "open", "ssh"))], start=1_800_000_100)
+    ch = compare(before, after)
+    assert ch["secured_ports"][0]["to_port"] == 22 and ch["alerts"] is False
+
+
+def test_unrelated_new_port_still_alerts():
+    from netcheck.core.diff import compare
+    before = _analysis("a.xml", [_router(Port("tcp", 80, "open", "http"))])
+    after = _analysis("b.xml", [_router(Port("tcp", 443, "open", "http", tunnel="ssl"),
+                                        Port("tcp", 3389, "open", "ms-wbt-server"))], start=1_800_000_100)
+    ch = compare(before, after)
+    assert [p["port"] for p in ch["new_port_alerts"]] == [3389]
+    assert ch["alerts"] is True
+
+
+def test_old_database_without_tls_column_is_upgraded(db):
+    import sqlite3
+    old = sqlite3.connect(db)
+    old.executescript(history.SCHEMA.replace(",\n    tls      INTEGER NOT NULL DEFAULT 0", ""))
+    old.close()
+    with history.open_history(db) as conn:
+        history.save(conn, analyze_file(SYN / "V6a_before.xml"))
+        assert conn.execute("SELECT COUNT(*) FROM ports WHERE tls = 0").fetchone()[0] > 0
