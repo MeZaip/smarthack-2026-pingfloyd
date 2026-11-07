@@ -2,7 +2,7 @@
 {% block body %}
 <section class="card"><h2>💬 {{ question }}</h2>
 <div style="white-space:pre-wrap">{{ answer }}</div>
-<p class="muted small">{% if mode == 'ai' %}🤖 {{ t.mode_ai_local }}{% if provider %} · {{ provider }}{% endif %}{% elif mode == 'rejected' %}🛑 {{ t.mode_rejected }}{% else %}📘 {{ t.mode_offline }}{% endif %}</p></section>
+<p class="muted small">{% if mode == 'ai' %}🤖 {{ t.mode_ai }}{% elif mode == 'rejected' %}🛑 {{ t.mode_rejected }}{% else %}📘 {{ t.mode_offline }}{% endif %}</p></section>
 <section class="card noprint">
   <form action="/ask?lang={{ lang }}" method="post" class="row">
     <input type="hidden" name="scan_id" value="{{ scan_id or '' }}">

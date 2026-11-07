@@ -1,96 +1,158 @@
-# NetCheck — Secure Networks, Simply Explained
+# smarthack-2026-pingfloyd — netcheck
 
-R Systems Hackathon 2026. A tool that scans a small network **you own**, explains every risk in plain
-Romanian and English, tells you what to fix first, and proves the fix with before/after history.
+**Secure Networks, Simply Explained** — R Systems Hackathon 2026.
+Scans a small network *you own*, explains the risks in plain Romanian/English and tells you exactly how to fix them.
 
-## One-command setup
+## Setup
+
+Python 3.10+. The core needs only the standard library.
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+pip install -r requirements.txt      # defusedxml (safer XML) + pytest
+cp .env.example .env                 # optional: only if you change defaults (users need nothing)
 ```
-Live scans also need nmap (`brew install nmap` on macOS, `sudo apt install nmap` on Linux).
-**Free local AI (recommended, do it at home — ~2–5 GB):** `brew install ollama`, `ollama serve`, `ollama pull qwen2.5:7b`
-(weaker laptop: `ollama pull qwen2.5:3b` and `export NETCHECK_OLLAMA_MODEL=qwen2.5:3b`). Check with `python -m netcheck ai-status`.
-No account, no key, and scan data never leaves the laptop. Without Ollama everything still works with built-in texts.
-Claude is optional: `NETCHECK_LLM=anthropic` + `ANTHROPIC_API_KEY` in `.env` (**never commit `.env`**).
 
-## Use it
+## Run the app (web UI)
 
-| What | Command |
-|---|---|
-| Analyse a folder of nmap XML files → `findings.csv` + `scores.csv` (offline, no root) | `.venv/bin/python -m netcheck analyze <folder> --out results --history` |
-| Show my network (interface, subnet, gateway) | `.venv/bin/python -m netcheck detect` |
-| Live scan of my hotspot (guardrail + `--confirm` required) | `.venv/bin/python -m netcheck scan --confirm` |
-| Talk to the assistant | `.venv/bin/python -m netcheck chat --scan scans/scan_01.xml` |
-| Guided step-by-step check-up | `.venv/bin/python -m netcheck chat --guide` |
-| Web UI (http://127.0.0.1:8000) | `.venv/bin/python -m netcheck serve` |
-| List / delete local history | `.venv/bin/python -m netcheck history [--delete]` |
-| „Dovedește!” — re-check one fixed problem (TCP: no root) | `.venv/bin/python -m netcheck verify <ip> <port> --confirm` |
-| Signed before/after certificate / detect a forged one | `.venv/bin/python -m netcheck cert --before 3 --after 4` · `cert-verify certificate.json` |
-| „Paznic” — notify me about new devices / open ports (no root) | `.venv/bin/python -m netcheck watch --confirm --interval 30` |
-| Data contract JSON (`service_data_contracts.md`): §1 raw / §2 evaluated / §4 delta | `.venv/bin/python -m netcheck parse <file.xml>` · `analyze <folder> --contracts` · `diff a.xml b.xml --json` |
-| Which AI is active | `.venv/bin/python -m netcheck ai-status` |
-| Tests (Validation Set answer key, guardrail, hostile XML, XSS) | `.venv/bin/python -m pytest -q` |
-
-Add `--lang en` before the sub-command for English output in the terminal, e.g. `python -m netcheck --lang en chat`.
-
-### Test Set day (hour 20)
 ```bash
-.venv/bin/python -m netcheck analyze /path/to/TestSet --out results/testset --history --source testset
+./run.sh            # venv + requirements, AI gateway (if a key is set), UI on http://127.0.0.1:8000
+./run.sh --demo     # same, with a separate demo history pre-loaded from the synthetic test scans
+./run.sh --no-ai    # UI only; the assistant answers from the built-in texts
 ```
-Upload `results/testset/findings.csv` and `results/testset/scores.csv`, screenshot the **All files** page.
-**Do not change code after uploading.** Then `git tag final`.
 
-## What makes NetCheck different
-> *Your home has doors. NetCheck shows them on a map, helps you close them, **proves** they are closed, and keeps watch afterwards.*
+Or by hand: `python -m netcheck serve` (UI + JSON API) and, on the team machine, `python -m gateway`.
+Upload nmap `.xml` files in the UI, or fill the history from the CLI (`netcheck history add`, `netcheck scan`).
+The UI runs unprivileged and listens on 127.0.0.1 only.
 
-1. **Home map** — every device is a room, every open port a door (red = dangerous, icon + text, not colour only).
-   The worst room says „👉 Începe aici”. Give rooms personal names („Camera bebelușului”); every explanation and the
-   assistant use them. Devices are recognised across scans by an HMAC of the MAC with a local secret — the MAC itself is never stored.
-2. **„Dovedește!”** — after a fix, one click re-checks just that IP:port in seconds (unprivileged TCP connect scan, same
-   guardrail, same rules) and turns the door green. **Signed certificate**: before/after scores, resolved findings, SHA-256 of both
-   scan files, Ed25519 signature. Change one digit and verification fails — something you can hand to an insurer or IT supplier.
-3. **Paznic (guard)** — runs quietly without root, reads the ARP table after a rate-limited sweep, and sends a desktop
-   notification when a new device joins or a new door opens (and says if it is dangerous). Pauses itself on a different network.
-4. **Governed, free, local AI** — Ollama model on the laptop; every AI answer is checked against the scan: any IP, port,
-   finding code, CVE, link or phone number not in the evidence → the answer is rejected and the verified text is shown.
+JSON API (read-only, formats from `service_data_contracts.md`): `GET /api/scans`, `/api/scans/latest` (§2),
+`/api/scans/{id}` (§2), `/api/scans/{id}/delta[?previous=<id>]` (§4).
 
-## How the hotspot lab works (and where the data goes)
+## Analyse scan files (offline, no admin rights)
+
+```bash
+python -m netcheck analyze <folder-with-xml> --out results     # -> results/findings.csv, results/scores.csv
+python -m netcheck report  scan.xml --lang ro                  # plain-language report
+python -m netcheck ask     scan.xml "Ce să repar primul?"      # AI assistant (falls back to built-in text)
+python -m netcheck chat    scan.xml                            # conversation with the assistant
+python -m netcheck diff    before.xml after.xml                # what changed / what got fixed
+```
+
+Unreadable files get `ERROR` in `scores.csv`; the run continues with the other files.
+
+## Scan history (score trend, before/after)
+
+```bash
+python -m netcheck history add scan_monday.xml scan_friday.xml   # save scans (alerts on new devices / new open ports)
+python -m netcheck history list                                  # score trend
+python -m netcheck history changes                               # before/after between the last two saved scans
+python -m netcheck history delete                                # "Delete my history": removes the database file
+```
+
+Stored in SQLite at `~/.netcheck/history.sqlite` (override with `--db` or `NETCHECK_DB`), outside the repo,
+owner-only permissions. Tables: `scans`, `devices`, `ports`, `findings` (children use `ON DELETE CASCADE`).
+**The full MAC is never written to disk**: only the masked MAC (`XX:XX:XX:XX:1A:2B`, last two bytes only, for display)
+and a keyed hash of the full MAC, used to recognise the same device across scans even when its IP changes
+or two devices share a vendor. The hash key is random per history file and is deleted with it.
+
+## How it works
+
+| Layer | What | LLM? |
+|---|---|---|
+| `netcheck/core/parser.py` | Safe nmap XML parsing: no DTD/entities, size limit, untrusted text clipped | no |
+| `netcheck/core/rules.py` | Official finding catalog + detection rules, standard score | **no**: deterministic |
+| `netcheck/core/diff.py` | Before/after comparison, new device / new port alerts | no |
+| `netcheck/core/contract.py` | §2 Evaluated Scan Data + §4 History & Deltas JSON (data contract) | no |
+| `netcheck/history.py` | Local SQLite history: trend, before/after, delete-my-history | no |
+| `netcheck/web/` | FastAPI web UI (dashboard, house map, findings, history, report, Q&A) + read-only JSON API | no (the Q&A uses `netcheck/ai/`) |
+| `netcheck/explain/texts.py` | Human-reviewed RO/EN explanations (max 2 sentences) + 1–5 fix steps, CIS/OWASP refs | no |
+| `netcheck/ai/` | Q&A assistant client: sends a minimal, privacy-preserving context to our gateway; every answer is checked by a grounding guard (no IPs, ports, CVEs, links or phone numbers not in the scan) | yes, optional |
+| `gateway/` | Team-hosted AI gateway: holds the API key, calls Claude Haiku 5.5 (or optional local Ollama); users configure nothing | yes |
+
+Findings, severities and scores never come from the LLM. If the API is unavailable, slow, or an answer
+fails the grounding check, the assistant returns a deterministic built-in answer.
+
+### Rule assumptions (to confirm with mentors)
+* Only ports with state exactly `open` count (`open|filtered` does not).
+* `HTTP_ADMIN_CLEARTEXT` requires service name `http` without `tunnel="ssl"`.
+* Samba ranges like `3.X - 4.X` are judged by the upper bound (not flagged).
+
+## AI assistant: app → our gateway → Claude
 
 ```
- [Phone A: hotspot RSH-<team>]  ← only the Wi-Fi "router". It does not collect or send anything to us.
-        │ Wi-Fi
-        ├── [Laptop 1: SCANNER]  runs NetCheck + nmap. nmap sends small probe packets over the Wi-Fi to
-        │                        each device and writes the answers to scans/scan_*.xml ON THIS LAPTOP.
-        ├── [Laptop 2: TARGET]   python lab/fake_services.py   (+ optional docker compose -f lab/docker-compose.yml up -d)
-        └── [old phone / Pi]     optional extra target (e.g. an FTP server app)
+netcheck app (user, no key) --HTTPS--> gateway (team machine, has the key) --HTTPS--> Claude API (Haiku 5.5)
+     ^ falls back to built-in text if the gateway is down, over its limits, or the answer is not grounded
 ```
-Nothing has to be copied from the phone: the scanner laptop talks to the devices directly through the hotspot.
-Check first that laptops see each other: `ping <other laptop IP>` (some phones isolate clients — try another
-phone, or use the single-laptop Docker fallback, Setup D, and say so in the pitch).
 
-Before/after demo: scan with `fake_services.py` → stop it, run `fake_services.py --fixed` → scan again.
-The UI's History page shows the resolved findings and the score going up.
+* **Users configure nothing and hold no key.** The app calls `NETCHECK_AI_URL` (default `http://127.0.0.1:8787`).
+  For a distributed app, point the default at the gateway's public `https://` address.
+* **The API key lives only on the gateway machine**, in `.env` (git-ignored). Tests check that the app code
+  never reads a key and that the gateway never prints it.
+* **Privacy:** only device type, vendor, private IP, open ports and findings are sent. Hostnames,
+  MAC addresses, raw XML and history never leave the user's machine. The gateway whitelists fields
+  and does not log request content or client IPs.
+* **Cost / abuse protection:** per-IP rate limit, daily cap on model calls (`NETCHECK_GATEWAY_DAILY_LIMIT`),
+  body limit, max 1024 output tokens (thinking off by default), strict request contract, `/health` never calls the model.
+  A question costs roughly a tenth of a cent with Haiku 5.5; also set a spend limit in the Claude Console.
+* **Grounding:** the gateway checks every answer (one retry), the app checks it again.
+* **Conversations:** the gateway is stateless; the app keeps the last 6 question/answer pairs and sends
+  them with each question (`Conversation` in `netcheck/ai/assistant.py`, `python -m netcheck chat`).
+* **Errors:** model errors (bad key, no credits, unknown model) are printed in the gateway console and
+  shown by the app with the reason; the key is never included.
+* Optional: `NETCHECK_GATEWAY_BACKEND=ollama` runs a local model instead (no key needed).
 
-## Safety (rules of engagement)
-* Guardrail: refuses public IPs, carrier-NAT (100.64/10), loopback/multicast, anything outside the allowlist
-  (default = connected subnet; extra private ranges via `--allow` or `NETCHECK_ALLOWLIST`), anything bigger than /22,
-  and any live scan without `--confirm`. Rate is capped at 100 packets/s.
-* Only `nmap` runs with sudo; analyser, UI and assistant run unprivileged.
-* MAC addresses are masked everywhere (`XX:XX:XX:XX:1A:2B`, only the last two bytes visible); history lives only in `~/.netcheck/history.db`;
-  "Delete my history" button in the UI / `netcheck history --delete`.
-* Scan files are treated as hostile: defusedxml (no XXE / entity bombs), 50 MB limit, all text escaped in the UI.
-* No secrets in the repo: run `gitleaks detect --source .` (install: `brew install gitleaks`).
+### Run the gateway (team machine)
 
-## Repository map
+```powershell
+copy .env.example .env        # put your key in ANTHROPIC_API_KEY=
+powershell -ExecutionPolicy Bypass -File gateway\run.ps1      # or: python -m gateway
+python -m netcheck ask tests\fixtures\synthetic\V2_smart_home.xml "Ce repar primul?"
+python tools/eval_assistant.py                               # 10 fixed questions -> eval_results.md
 ```
-netcheck/parser.py     safe nmap XML parser        netcheck/rules.py     official catalog, literal rules
-netcheck/analyzer.py   score, device type, CSV     netcheck/guardrail.py scope enforcement
-netcheck/netdetect.py  interface/subnet/gateway    netcheck/scanner.py   nmap live scan
-netcheck/explain/      RO/EN texts + fixes         netcheck/history.py   SQLite history, diff, alerts
-netcheck/assistant.py  AI assistant + offline      netcheck/chat.py      terminal chat + guide mode
-netcheck/web/          FastAPI UI                  lab/                  fake banner targets, docker targets
-tests/fixtures/        validation answer key + synthetic validation files
+
+To make it reachable for users on other machines, expose it through an HTTPS tunnel
+(e.g. Cloudflare Tunnel) and set `NETCHECK_GATEWAY_TOKEN` + `NETCHECK_GATEWAY_TRUST_PROXY=1`.
+
+## Tests
+
+```bash
+python tools/make_synthetic_fixtures.py   # synthetic look-alikes of the Validation Set
+python -m pytest -q
 ```
-Put the **official** Validation Set files into `tests/fixtures/validation/` at kickoff; the tests use it
-automatically instead of the synthetic copies. Our own lab scans go into `tests/fixtures/lab/`.
+
+Put the real Validation Set (with `expected_findings.csv` / `expected_scores.csv`) in
+`tests/fixtures/validation/`; the golden test picks it up automatically.
+
+
+## Live scan of your own network (Core Engine & CLI — `netcheck/net/`)
+
+Needs nmap (`brew install nmap`) and the laptop connected **only** to the team hotspot.
+
+```bash
+python -m netcheck detect                         # interface, subnet, gateway (FR-01); --json = contract "network"
+python -m netcheck scan --confirm                 # scan the connected subnet (FR-02/04); sudo only for nmap
+python -m netcheck scan 8.8.8.8 --confirm         # ⛔ REFUZAT / REFUSED — guardrail demo (live check 4)
+python -m netcheck parse scans/scan_x.xml         # §1 Raw Parsed Data JSON (service_data_contracts.md)
+python -m netcheck verify scans/scan_x.xml 172.20.10.5 8080 --confirm   # „Dovedește!”: re-check one fix, no root
+python -m netcheck watch --confirm --interval 30  # „Paznic”: desktop alert for a new device / newly opened port
+```
+
+Guardrail: refuses public IPs, carrier-NAT (100.64/10), loopback/multicast/link-local, ranges bigger than /22,
+anything outside the allowlist (default = the connected subnet; extra *private* ranges via `--allow` or
+`NETCHECK_ALLOWLIST`) and any live scan without `--confirm`. Rate ≤ 100 packets/s. Messages in RO (default) and EN (`--lang en`).
+`scan` saves the XML + `<scan>.raw.json` in `scans/` (git-ignored: real network data) and adds the result to the history.
+Lab targets (banner-only fake services, no real login behind them): `python lab/fake_services.py` (`--fixed` = the "after" state).
+
+## Secrets check
+
+```bash
+gitleaks detect --source . -v
+```
+
+## Status
+
+- [x] FR-05/06/09/15: analyser, catalog rules, standard score, CSV export
+- [x] FR-07/08: RO/EN explanations and fixes
+- [x] FR-10/13 (core): diff + alerts
+- [x] FR-12: grounded AI assistant with fallback
+- [x] FR-01/02/04: network detection, scope guardrail, live scan (`netcheck/net/`)
+- [x] FR-11: web UI + history storage + "delete my history" (`netcheck serve`, `./run.sh`)

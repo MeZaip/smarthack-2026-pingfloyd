@@ -1,194 +1,248 @@
-"""FR-10 history + FR-13 change alerts. Stored ONLY locally (NFR-02) in SQLite.
+"""Local scan history in SQLite: score trend + before/after between saved scans (FR-10, FR-13, NFR-02).
 
-Raw MAC addresses are never stored — only the analysed ScanResult (masked MACs).
+Privacy by design:
+* The full MAC address is never written to disk. We store the masked MAC
+  (only the last two bytes, XX:XX:XX:XX:1A:2B, for display) and a keyed hash of the full MAC used only
+  to recognise the same device across scans. The hash key is random per
+  history file, so it is useless outside this machine and is destroyed
+  together with the history.
+* The database lives outside the repository by default (~/.netcheck/), is
+  created with owner-only permissions, and `delete_history` removes the file
+  itself (not just the rows, which SQLite could leave in free pages).
 """
 from __future__ import annotations
 
-import json
+import hashlib
+import hmac
 import os
+import secrets
 import sqlite3
-from datetime import datetime
+import time
+from contextlib import closing
 from pathlib import Path
+from typing import Optional
 
-from .identity import home_dir
-from .models import ScanResult
+from .core.analysis import Analysis
+from .core.device import guess_type, mask_mac
+from .core.diff import Snapshot, compare_snapshots
+from .core.models import Finding, Host, Port, ScanResult
 
+DEFAULT_DB = Path.home() / ".netcheck" / "history.sqlite"
 
-def db_path() -> Path:
-    return home_dir() / "history.db"
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS scans (
+    scan_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    file          TEXT    NOT NULL,
+    scanned_at    INTEGER,            -- nmap start time (unix), may be missing
+    saved_at      INTEGER NOT NULL,
+    network_score INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS devices (
+    device_id   INTEGER PRIMARY KEY,
+    scan_id     INTEGER NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    device_key  TEXT    NOT NULL,     -- keyed hash of the full MAC, or "ip:<ip>" when nmap saw no MAC
+    ip          TEXT    NOT NULL,
+    masked_mac  TEXT,
+    vendor      TEXT,
+    hostname    TEXT,
+    device_type TEXT    NOT NULL,
+    UNIQUE (scan_id, device_key)
+);
+CREATE TABLE IF NOT EXISTS ports (
+    scan_id  INTEGER NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    ip       TEXT    NOT NULL,
+    protocol TEXT    NOT NULL,
+    port     INTEGER NOT NULL,
+    service  TEXT    NOT NULL,
+    tls      INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS findings (
+    finding_id   INTEGER PRIMARY KEY,
+    scan_id      INTEGER NOT NULL REFERENCES scans(scan_id) ON DELETE CASCADE,
+    ip           TEXT    NOT NULL,
+    port         INTEGER,             -- NULL for device-level findings
+    protocol     TEXT,
+    finding_code TEXT    NOT NULL,
+    severity     TEXT    NOT NULL,
+    points       INTEGER NOT NULL,
+    evidence     TEXT    NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_devices_scan  ON devices(scan_id);
+CREATE INDEX IF NOT EXISTS idx_ports_scan    ON ports(scan_id);
+CREATE INDEX IF NOT EXISTS idx_findings_scan ON findings(scan_id);
+"""
 
-
-def _now() -> str:
-    return datetime.now().isoformat(timespec="seconds")
-
-
-def _conn() -> sqlite3.Connection:
-    c = sqlite3.connect(db_path())
-    c.row_factory = sqlite3.Row
-    c.executescript("""
-    CREATE TABLE IF NOT EXISTS scans(
-        id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, source TEXT NOT NULL,
-        file TEXT NOT NULL, score INTEGER, ok INTEGER NOT NULL, data TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS nicknames(device_id TEXT PRIMARY KEY, name TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS verifications(
-        id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, scan_id INTEGER, device_id TEXT,
-        ip TEXT NOT NULL, port INTEGER, code TEXT NOT NULL, status TEXT NOT NULL, evidence TEXT);
-    CREATE TABLE IF NOT EXISTS watch_events(
-        id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, kind TEXT NOT NULL,
-        device_id TEXT, ip TEXT, detail TEXT);
-    CREATE TABLE IF NOT EXISTS kv(key TEXT PRIMARY KEY, value TEXT NOT NULL);
-    """)
-    return c
-
-
-# ---------------------------------------------------------------- nicknames ("Camera bebelușului")
-MAX_NICK = 40
-
-
-def set_nickname(dev_id: str, name: str) -> None:
-    name = " ".join((name or "").split())[:MAX_NICK]
-    with _conn() as c:
-        if name:
-            c.execute("INSERT INTO nicknames(device_id, name) VALUES(?,?) "
-                      "ON CONFLICT(device_id) DO UPDATE SET name=excluded.name", (dev_id, name))
-        else:
-            c.execute("DELETE FROM nicknames WHERE device_id = ?", (dev_id,))
-
-
-def nicknames() -> dict[str, str]:
-    with _conn() as c:
-        return {r["device_id"]: r["name"] for r in c.execute("SELECT device_id, name FROM nicknames")}
-
-
-# ---------------------------------------------------------------- targeted re-checks ("Dovedește!")
-def add_verification(scan_id: int | None, dev_id: str, ip: str, port: int | None, code: str,
-                     status: str, evidence: str) -> None:
-    with _conn() as c:
-        c.execute("INSERT INTO verifications(ts, scan_id, device_id, ip, port, code, status, evidence) "
-                  "VALUES (?,?,?,?,?,?,?,?)", (_now(), scan_id, dev_id, ip, port, code, status, evidence))
-
-
-def verifications_for(scan_id: int) -> dict[tuple, dict]:
-    """Latest verification per (ip, port, code) for this scan."""
-    with _conn() as c:
-        rows = c.execute("SELECT * FROM verifications WHERE scan_id = ? ORDER BY id", (scan_id,)).fetchall()
-    return {(r["ip"], r["port"], r["code"]): dict(r) for r in rows}
+# Chronological order: when the scan was taken, then insertion order as tie-break.
+_ORDER = "COALESCE(scanned_at, saved_at), scan_id"
 
 
-# ---------------------------------------------------------------- watch mode ("Paznic")
-def add_watch_event(kind: str, dev_id: str, ip: str, detail: str) -> None:
-    with _conn() as c:
-        c.execute("INSERT INTO watch_events(ts, kind, device_id, ip, detail) VALUES (?,?,?,?,?)",
-                  (_now(), kind, dev_id, ip, detail))
+def db_path(path: Optional[str | os.PathLike] = None) -> Path:
+    return Path(path or os.environ.get("NETCHECK_DB") or DEFAULT_DB)
 
 
-def watch_events(limit: int = 20) -> list[dict]:
-    with _conn() as c:
-        return [dict(r) for r in c.execute("SELECT * FROM watch_events ORDER BY id DESC LIMIT ?", (limit,))]
+def connect(path: Optional[str | os.PathLike] = None) -> sqlite3.Connection:
+    p = db_path(path)
+    if not p.parent.exists():
+        p.parent.mkdir(mode=0o700, parents=True)   # history is personal data: owner-only (NFR-02)
+    if not p.exists():
+        p.touch(mode=0o600)
+    conn = sqlite3.connect(p)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")   # off by default in SQLite; needed for ON DELETE CASCADE
+    conn.executescript(SCHEMA)
+    if "tls" not in {r["name"] for r in conn.execute("PRAGMA table_info(ports)")}:
+        conn.execute("ALTER TABLE ports ADD COLUMN tls INTEGER NOT NULL DEFAULT 0")   # databases made before tls
+    return conn
 
 
-def kv_get(key: str, default=None):
-    with _conn() as c:
-        r = c.execute("SELECT value FROM kv WHERE key = ?", (key,)).fetchone()
-    return json.loads(r["value"]) if r else default
+def _salt(conn: sqlite3.Connection) -> bytes:
+    row = conn.execute("SELECT value FROM meta WHERE key = 'device_salt'").fetchone()
+    if row:
+        return bytes.fromhex(row["value"])
+    salt = secrets.token_bytes(16)
+    conn.execute("INSERT INTO meta (key, value) VALUES ('device_salt', ?)", (salt.hex(),))
+    return salt
 
 
-def kv_set(key: str, value) -> None:
-    with _conn() as c:
-        c.execute("INSERT INTO kv(key, value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-                  (key, json.dumps(value)))
+def _key_fn(salt: bytes):
+    def key(host: Host) -> str:
+        mac = (host.mac or "").replace("-", ":").upper()
+        if not mac:
+            return f"ip:{host.ip}"
+        return hmac.new(salt, mac.encode(), hashlib.sha256).hexdigest()[:20]
+    return key
 
 
-def save(result: ScanResult, source: str = "lab") -> int:
-    with _conn() as c:
-        cur = c.execute(
-            "INSERT INTO scans(created_at, source, file, score, ok, data) VALUES (?,?,?,?,?,?)",
-            (_now(), source, result.file,
-             result.score, int(result.ok), json.dumps(result.to_dict())),
+def save(conn: sqlite3.Connection, a: Analysis) -> tuple[int, bool]:
+    """Store one analysed scan. Returns (scan_id, created). Unreadable scans are rejected."""
+    if not a.ok:
+        raise ValueError(f"{a.file} is not readable: {a.error}")
+    with conn:
+        dup = conn.execute(
+            "SELECT scan_id FROM scans WHERE file = ? AND scanned_at IS ?",
+            (a.file, a.scan.start_time),
+        ).fetchone()
+        if dup:
+            return dup["scan_id"], False
+
+        key = _key_fn(_salt(conn))
+        cur = conn.execute(
+            "INSERT INTO scans (file, scanned_at, saved_at, network_score) VALUES (?, ?, ?, ?)",
+            (a.file, a.scan.start_time, int(time.time()), a.score),
         )
-        return int(cur.lastrowid)
+        scan_id = cur.lastrowid
+        hosts = a.scan.up_hosts
+        conn.executemany(
+            "INSERT OR IGNORE INTO devices (scan_id, device_key, ip, masked_mac, vendor, hostname, device_type)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [(scan_id, key(h), h.ip, mask_mac(h.mac), h.vendor, h.hostname, guess_type(h)) for h in hosts],
+        )
+        conn.executemany(
+            "INSERT INTO ports (scan_id, ip, protocol, port, service, tls) VALUES (?, ?, ?, ?, ?, ?)",
+            [(scan_id, h.ip, p.protocol, p.portid, p.service, int(p.tunnel == "ssl"))
+             for h in hosts for p in h.open_ports],
+        )
+        conn.executemany(
+            "INSERT INTO findings (scan_id, ip, port, protocol, finding_code, severity, points, evidence)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [(scan_id, f.ip, f.port, f.protocol, f.code, f.severity, f.points, f.evidence) for f in a.findings],
+        )
+    return scan_id, True
 
 
-def list_scans(source: str | None = None) -> list[dict]:
-    with _conn() as c:
-        q = "SELECT id, created_at, source, file, score, ok FROM scans"
-        args: tuple = ()
-        if source:
-            q += " WHERE source = ?"
-            args = (source,)
-        return [dict(r) for r in c.execute(q + " ORDER BY id", args)]
+def trend(conn: sqlite3.Connection) -> list[dict]:
+    """All saved scans, oldest first, with score and number of findings."""
+    rows = conn.execute(
+        "SELECT s.scan_id, s.file, s.scanned_at, s.saved_at, s.network_score,"
+        " (SELECT COUNT(*) FROM findings f WHERE f.scan_id = s.scan_id) AS findings,"
+        " (SELECT COUNT(*) FROM devices d WHERE d.scan_id = s.scan_id) AS devices"
+        f" FROM scans s ORDER BY {_ORDER}"
+    ).fetchall()
+    return [dict(r) for r in rows]
 
 
-def load(scan_id: int) -> ScanResult | None:
-    with _conn() as c:
-        r = c.execute("SELECT data FROM scans WHERE id = ?", (scan_id,)).fetchone()
-    return ScanResult.from_dict(json.loads(r["data"])) if r else None
+def load_snapshot(conn: sqlite3.Connection, scan_id: int) -> Snapshot:
+    s = conn.execute("SELECT file, network_score FROM scans WHERE scan_id = ?", (scan_id,)).fetchone()
+    if not s:
+        raise KeyError(f"no saved scan with id {scan_id}")
+    devices = {r["device_key"]: r["ip"] for r in
+               conn.execute("SELECT device_key, ip FROM devices WHERE scan_id = ?", (scan_id,))}
+    ports = frozenset((r["ip"], r["protocol"], r["port"], r["service"], bool(r["tls"])) for r in
+                      conn.execute("SELECT ip, protocol, port, service, tls FROM ports WHERE scan_id = ?",
+                                   (scan_id,)))
+    findings = frozenset((r["ip"], r["port"], r["finding_code"]) for r in
+                         conn.execute("SELECT ip, port, finding_code FROM findings WHERE scan_id = ?", (scan_id,)))
+    return Snapshot(file=s["file"], score=s["network_score"], devices=devices,
+                    open_ports=ports, findings=findings)
 
 
-def previous_of(scan_id: int) -> int | None:
-    with _conn() as c:
-        row = c.execute("SELECT source FROM scans WHERE id = ?", (scan_id,)).fetchone()
-        if not row:
+def changes(conn: sqlite3.Connection, before_id: Optional[int] = None,
+            after_id: Optional[int] = None) -> Optional[dict]:
+    """Before/after between two saved scans; by default the last two. None if fewer than two exist."""
+    if before_id is None or after_id is None:
+        ids = [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans ORDER BY {_ORDER}")]
+        if len(ids) < 2:
             return None
-        r = c.execute("SELECT id FROM scans WHERE source = ? AND id < ? AND ok = 1 ORDER BY id DESC LIMIT 1",
-                      (row["source"], scan_id)).fetchone()
-    return int(r["id"]) if r else None
+        before_id, after_id = ids[-2], ids[-1]
+    result = compare_snapshots(load_snapshot(conn, before_id), load_snapshot(conn, after_id))
+    return {"before_scan_id": before_id, "after_scan_id": after_id, **result}
 
 
-def find_by_file(file: str, source: str | None = None) -> int | None:
-    with _conn() as c:
-        q, args = "SELECT id FROM scans WHERE file = ?", [file]
-        if source:
-            q += " AND source = ?"
-            args.append(source)
-        r = c.execute(q + " ORDER BY id DESC LIMIT 1", args).fetchone()
-    return int(r["id"]) if r else None
+def scan_ids(conn: sqlite3.Connection) -> list[int]:
+    """All saved scan ids, oldest first (same order as trend())."""
+    return [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans ORDER BY {_ORDER}")]
 
 
-def latest_id() -> int | None:
-    with _conn() as c:
-        r = c.execute("SELECT id FROM scans WHERE ok = 1 ORDER BY id DESC LIMIT 1").fetchone()
-    return int(r["id"]) if r else None
+def previous_id(conn: sqlite3.Connection, scan_id: int) -> Optional[int]:
+    """The saved scan just before `scan_id` in time, or None."""
+    ids = scan_ids(conn)
+    i = ids.index(scan_id) if scan_id in ids else -1
+    return ids[i - 1] if i > 0 else None
 
 
-def delete_all() -> None:
-    """One-click 'delete my history' (NFR-02)."""
-    p = db_path()
-    if p.exists():
-        p.unlink()
+def load_analysis(conn: sqlite3.Connection, scan_id: int) -> Analysis:
+    """Rebuild an Analysis from the stored rows (for the UI / JSON API after a restart).
+
+    Only what the history keeps comes back: open ports with service + TLS flag (no product,
+    version or banners) and the stored findings. `Host.mac` holds the *masked* MAC
+    (mask_mac is idempotent); never save() such an analysis again.
+    """
+    s = conn.execute("SELECT file, scanned_at, network_score FROM scans WHERE scan_id = ?",
+                     (scan_id,)).fetchone()
+    if not s:
+        raise KeyError(f"no saved scan with id {scan_id}")
+    ports: dict[str, list[Port]] = {}
+    for r in conn.execute("SELECT ip, protocol, port, service, tls FROM ports WHERE scan_id = ?"
+                          " ORDER BY rowid", (scan_id,)):
+        ports.setdefault(r["ip"], []).append(
+            Port(r["protocol"], r["port"], "open", r["service"], tunnel="ssl" if r["tls"] else ""))
+    hosts = [Host(ip=r["ip"], mac=r["masked_mac"], vendor=r["vendor"],
+                  hostnames=[r["hostname"]] if r["hostname"] else [], ports=ports.get(r["ip"], []))
+             for r in conn.execute("SELECT ip, masked_mac, vendor, hostname FROM devices WHERE scan_id = ?"
+                                   " ORDER BY device_id", (scan_id,))]
+    findings = [Finding(r["ip"], r["port"], r["protocol"], r["finding_code"], r["severity"], r["points"],
+                        r["evidence"])
+                for r in conn.execute("SELECT ip, port, protocol, finding_code, severity, points, evidence"
+                                      " FROM findings WHERE scan_id = ? ORDER BY finding_id", (scan_id,))]
+    scan = ScanResult(source=s["file"], hosts=hosts, start_time=s["scanned_at"])
+    return Analysis(file=s["file"], scan=scan, findings=findings, score=s["network_score"])
 
 
-def diff(old: ScanResult, new: ScanResult) -> dict:
-    old_dev = {d.ip: d for d in old.devices}
-    new_dev = {d.ip: d for d in new.devices}
-
-    def ports(r: ScanResult) -> set[tuple]:
-        return {(d.ip, p["port"], p["protocol"], p["service"]) for d in r.devices for p in d.open_ports}
-
-    def fkeys(r: ScanResult) -> dict:
-        return {(f.ip, f.port, f.code): f for f in r.findings}
-
-    of, nf = fkeys(old), fkeys(new)
-    return {
-        "old_file": old.file, "new_file": new.file,
-        "old_score": old.score, "new_score": new.score,
-        "score_delta": (new.score or 0) - (old.score or 0),
-        "new_devices": [new_dev[ip].to_dict() for ip in sorted(set(new_dev) - set(old_dev))],
-        "removed_devices": [old_dev[ip].to_dict() for ip in sorted(set(old_dev) - set(new_dev))],
-        "opened_ports": sorted(ports(new) - ports(old), key=str),
-        "closed_ports": sorted(ports(old) - ports(new), key=str),
-        "resolved_findings": [of[k].to_dict() for k in sorted(set(of) - set(nf), key=str)],
-        "new_findings": [nf[k].to_dict() for k in sorted(set(nf) - set(of), key=str)],
-    }
+def delete_history(path: Optional[str | os.PathLike] = None) -> bool:
+    """One-click 'Delete my history': removes the database file and its journals. True if anything was deleted."""
+    p = db_path(path)
+    removed = False
+    for f in (p, p.with_name(p.name + "-wal"), p.with_name(p.name + "-shm"), p.with_name(p.name + "-journal")):
+        if f.exists():
+            f.unlink()
+            removed = True
+    return removed
 
 
-def alerts(d: dict, lang: str = "ro") -> list[str]:
-    """FR-13: new device / newly opened port since previous scan."""
-    out = []
-    for dev in d["new_devices"]:
-        out.append(("Dispozitiv nou în rețea: " if lang == "ro" else "New device on the network: ")
-                   + f"{dev['ip']} ({dev['vendor'] or dev['hostname'] or '?'})")
-    for ip, port, proto, svc in d["opened_ports"]:
-        out.append(("Port nou deschis: " if lang == "ro" else "Newly opened port: ")
-                   + f"{ip} {port}/{proto} ({svc or '?'})")
-    return out
+def open_history(path: Optional[str | os.PathLike] = None):
+    """`with open_history() as conn:` closes the connection afterwards."""
+    return closing(connect(path))

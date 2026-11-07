@@ -1,61 +1,66 @@
-"""Read-only JSON API over the scan history, in the formats of service_data_contracts.md.
+"""Read-only JSON API over the local scan history, in the formats of service_data_contracts.md.
 
-  GET /api/scans[?source=]                     list of stored scans
-  GET /api/scans/latest                        §2 Evaluated Scan Data, latest readable scan
+  GET /api/scans                               list of saved scans, oldest first
+  GET /api/scans/latest                        §2 Evaluated Scan Data, most recent scan
   GET /api/scans/{id}                          §2 Evaluated Scan Data
-  GET /api/scans/{id}/delta[?previous=<id>]    §4 History & Deltas (default: previous readable scan, same source)
+  GET /api/scans/{id}/delta[?previous=<id>]    §4 History & Deltas (default: the scan just before it)
 
-Runs inside `netcheck serve` (127.0.0.1, unprivileged). Payloads are built only by netcheck/contracts.py.
+Runs inside the web app (127.0.0.1, unprivileged). Payloads are built only by netcheck/core/contract.py.
+Unreadable files are never saved to the history, so they do not appear here (they get ERROR in scores.csv).
 """
 from __future__ import annotations
 
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 
-from .. import contracts, history
-from ..models import ScanResult
+from .. import history
+from ..core import contract
 
 router = APIRouter(prefix="/api", tags=["api"])
 
 
-def _load(scan_id: int) -> ScanResult:
-    r = history.load(scan_id)
-    if r is None:
-        raise HTTPException(status_code=404, detail=f"scan {scan_id} not found")
-    return r
+def _analysis(conn, scan_id: int):
+    from .app import get_analysis   # deferred: app imports this module
+    try:
+        return get_analysis(conn, scan_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"scan {scan_id} not found") from None
 
 
 @router.get("/scans")
-def list_scans(source: str | None = None) -> list[dict]:
-    return [{
-        "id": s["id"],
-        "scan_id": contracts.scan_id(s["file"]),
-        "created_at": s["created_at"],
-        "source": s["source"],
-        "network_score": s["score"] if s["ok"] else None,
-    } for s in history.list_scans(source)]
+def list_scans() -> list[dict]:
+    with history.open_history() as conn:
+        return [{
+            "id": s["scan_id"],
+            "scan_id": contract.scan_id(s["file"]),
+            "scanned_at": s["scanned_at"],
+            "saved_at": s["saved_at"],
+            "network_score": s["network_score"],
+        } for s in history.trend(conn)]
 
 
 @router.get("/scans/latest")
 def latest_scan() -> dict:
-    sid = history.latest_id()
-    if sid is None:
-        raise HTTPException(status_code=404, detail="no readable scan in history yet")
-    return contracts.evaluated_scan(_load(sid))
+    with history.open_history() as conn:
+        ids = history.scan_ids(conn)
+        if not ids:
+            raise HTTPException(status_code=404, detail="no scan in history yet")
+        return contract.evaluated_scan(_analysis(conn, ids[-1]))
 
 
 @router.get("/scans/{scan_id}")
 def get_scan(scan_id: int) -> dict:
-    return contracts.evaluated_scan(_load(scan_id))
+    with history.open_history() as conn:
+        return contract.evaluated_scan(_analysis(conn, scan_id))
 
 
 @router.get("/scans/{scan_id}/delta")
-def get_delta(scan_id: int, previous: int | None = None) -> dict:
-    current = _load(scan_id)
-    prev_id = previous if previous is not None else history.previous_of(scan_id)
-    if prev_id is None:
-        raise HTTPException(status_code=404, detail=f"scan {scan_id} has no earlier scan to compare with")
-    prev = _load(prev_id)
-    for sid, r in ((scan_id, current), (prev_id, prev)):
-        if not r.ok:
-            raise HTTPException(status_code=422, detail=f"scan {sid} could not be read: {r.error}")
-    return contracts.delta(prev, current)
+def get_delta(scan_id: int, previous: Optional[int] = None) -> dict:
+    with history.open_history() as conn:
+        after = _analysis(conn, scan_id)
+        prev_id = previous if previous is not None else history.previous_id(conn, scan_id)
+        if prev_id is None:
+            raise HTTPException(status_code=404, detail=f"scan {scan_id} has no earlier scan to compare with")
+        before = _analysis(conn, prev_id)
+        return contract.delta(history.changes(conn, prev_id, scan_id), before, after)

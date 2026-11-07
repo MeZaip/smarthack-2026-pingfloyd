@@ -3,21 +3,14 @@
 
 # Core Engine & CLI — Ștefan
 /netcheck/cli.py        @Stevenenson
-/netcheck/scanner.py    @Stevenenson
-/netcheck/guardrail.py  @Stevenenson
-/netcheck/netdetect.py  @Stevenenson
-/netcheck/parser.py     @Stevenenson
-/netcheck/verify.py     @Stevenenson
-/netcheck/watch.py      @Stevenenson
-/netcheck/contracts.py  @Stevenenson
+/netcheck/net/          @Stevenenson
 /lab/                   @Stevenenson
 
 # Rule & Scoring + Data Layer — TODO
-# /netcheck/rules.py /netcheck/analyzer.py /netcheck/models.py /netcheck/history.py
-# /netcheck/identity.py /netcheck/certificate.py /tests/
+# /netcheck/core/ /netcheck/history.py /tests/
 
 # LLM Service — TODO
-# /netcheck/llm.py /netcheck/assistant.py /netcheck/chat.py /netcheck/explain/
+# /netcheck/ai/ /netcheck/explain/ /gateway/
 
 # Web API & Frontend — TODO
-# /netcheck/web/
+# /netcheck/web/ /run.sh

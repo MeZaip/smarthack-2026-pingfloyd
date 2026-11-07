@@ -1,14 +1,32 @@
-.venv/
+# secrets
+.env
+*.key
+*.pem
+
+# local data (privacy: history and scans stay on this machine)
+results/
+data/
+*.sqlite
+*.db
+scans/private/
+
+# python
 __pycache__/
 *.pyc
-.env
-results/
-.netcheck/
-*.db
 .pytest_cache/
-.DS_Store
+.venv/
+venv/
+*.egg-info/
 
-# brief is already in the repo as cerinta.pdf
-R Systems Hackathon 2026 - Participant Brief.pdf
+# local assistant eval output
+eval_results.md
+# Local data (privacy: scan history and results stay on this machine)
+results/
+data/
+*.sqlite
+*.sqlite-*
+*.db
+scans/private/
+
+# live scans contain real network data (commit lab fixtures into tests/fixtures/lab/ on purpose)
 scans/
-certificate.json

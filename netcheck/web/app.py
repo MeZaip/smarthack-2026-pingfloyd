@@ -1,32 +1,67 @@
-"""Web UI (FR-11). Local only (127.0.0.1), runs unprivileged (NFR-04).
-Jinja2 autoescape is ON, so banners/titles/nicknames can't inject HTML (NFR-03)."""
+"""Web UI (FR-11) on top of the core engine and the local history.
+
+Local only (127.0.0.1), runs unprivileged (NFR-04). Jinja2 autoescape is ON, so banners,
+titles and hostnames from hostile scan files can't inject HTML (NFR-03).
+Findings and scores come only from netcheck.core; the AI assistant (netcheck.ai) answers
+questions and falls back to built-in text when the gateway is unavailable.
+"""
 from __future__ import annotations
 
-import json
 import secrets
+from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from .. import certificate, explain, history, verify
-from ..analyzer import analyze_bytes, most_dangerous, ranked_findings
-from ..assistant import Assistant, Session
-from ..models import Host
-from ..parser import MAX_FILE_BYTES
+from .. import history
+from ..ai.assistant import ask as ai_ask
+from ..core.analysis import Analysis
+from ..core.parser import MAX_FILE_BYTES, ScanFileError, parse_bytes
+from ..core.rules import evaluate, network_score
 from .api import router as api_router
-from .house import display_name, rooms
+from .house import rooms
 from .i18n import UI
+from .views import Explain, alerts, scan_view
 
 app = FastAPI(title="NetCheck", docs_url=None, redoc_url=None)
 app.include_router(api_router)
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 templates.env.autoescape = True
 
-_assistants: dict[tuple[int, str], Assistant] = {}
 _flash: dict[str, dict] = {}
-MAX_CERT_BYTES = 1_000_000
+_cache: dict[tuple[str, int], Analysis] = {}   # full analyses of scans uploaded in this process
+MAX_CACHE = 50
+
+
+# ------------------------------------------------------------------ helpers
+def analyze_bytes(data: bytes, name: str) -> Analysis:
+    """Same pipeline as core.analysis.analyze_file, for an uploaded file."""
+    try:
+        scan = parse_bytes(data, name)
+    except ScanFileError as e:
+        return Analysis(file=name, error=str(e))
+    except Exception as e:  # never crash on one bad file
+        return Analysis(file=name, error=f"unexpected error: {e.__class__.__name__}")
+    findings = evaluate(scan)
+    return Analysis(file=name, scan=scan, findings=findings, score=network_score(findings))
+
+
+def _db_key() -> str:
+    return str(history.db_path())
+
+
+def get_analysis(conn, scan_id: int) -> Analysis:
+    """Full analysis if uploaded in this process, else rebuilt from the history rows. KeyError if unknown."""
+    return _cache.get((_db_key(), scan_id)) or history.load_analysis(conn, scan_id)
+
+
+def _remember(scan_id: int, a: Analysis) -> None:
+    if len(_cache) >= MAX_CACHE:
+        _cache.pop(next(iter(_cache)))
+    _cache[(_db_key(), scan_id)] = a
 
 
 def _lang(request: Request) -> str:
@@ -35,7 +70,7 @@ def _lang(request: Request) -> str:
 
 
 def _ctx(request: Request, lang: str, **kw) -> dict:
-    return {"request": request, "lang": lang, "t": UI[lang], "ex": explain, **kw}
+    return {"request": request, "lang": lang, "t": UI[lang], "ex": Explain, "scan_id": None, **kw}
 
 
 def _render(request: Request, name: str, ctx: dict) -> HTMLResponse:
@@ -44,175 +79,113 @@ def _render(request: Request, name: str, ctx: dict) -> HTMLResponse:
     return resp
 
 
-def _first_and_last_ok(source: str) -> tuple[int | None, int | None]:
-    ok = [s for s in history.list_scans(source) if s["ok"]]
-    return (ok[0]["id"], ok[-1]["id"]) if len(ok) >= 2 else (None, None)
+def _when(row: dict) -> str:
+    ts = row.get("scanned_at") or row.get("saved_at")
+    return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M") if ts else "—"
 
 
+def _scan_list(conn) -> list[dict]:
+    return [{**s, "when": _when(s)} for s in history.trend(conn)]
+
+
+# ------------------------------------------------------------------ pages
 @app.get("/", response_class=HTMLResponse)
-def dashboard(request: Request, id: int | None = None, flash: str | None = None):
+def dashboard(request: Request, id: Optional[int] = None, flash: Optional[str] = None):
     lang = _lang(request)
-    scan_id = id or history.latest_id()
-    r = history.load(scan_id) if scan_id else None
-    dev = first = diff = alerts = None
-    nick = history.nicknames()
-    ver = history.verifications_for(scan_id) if scan_id else {}
-    est = None
-    if r and r.ok:
-        dev, first = most_dangerous(r)
-        prev = history.previous_of(scan_id)
-        if prev:
-            diff = history.diff(history.load(prev), r)
-            alerts = history.alerts(diff, lang)
-        est = verify.estimated_score(r.score, r.findings, ver)
-    meta = next((s for s in history.list_scans() if s["id"] == scan_id), None)
-    cert_pair = _first_and_last_ok(meta["source"]) if meta else (None, None)
-    findings = ranked_findings(r) if r and r.ok else []
-    anchors, seen = {}, set()
-    for i, f in enumerate(findings):
-        if f.ip not in seen:
-            anchors[i] = f.ip
-            seen.add(f.ip)
+    with history.open_history() as conn:
+        ids = history.scan_ids(conn)
+        sid = id if id in ids else (ids[-1] if ids else None)
+        r = changes = None
+        if sid is not None:
+            r = scan_view(get_analysis(conn, sid), lang)
+            prev = history.previous_id(conn, sid)
+            changes = history.changes(conn, prev, sid) if prev is not None else None
+        scans = _scan_list(conn)
     return _render(request, "dashboard.html", _ctx(
-        request, lang, r=r, scan_id=scan_id, dev=dev, first=first, findings=findings, anchors=anchors,
-        diff=diff, alerts=alerts, scans=history.list_scans()[-30:], rooms=rooms(r, nick, ver, lang),
-        nick=nick, dev_by_ip={d.ip: d for d in (r.devices if r and r.ok else [])},
-        name_of=lambda d: display_name(d, nick, lang), ver=ver, est=est,
-        flash=_flash.pop(flash, None) if flash else None,
-        watch_events=history.watch_events(5), watch_last=history.kv_get("watch:last_check"),
-        cert_pair=cert_pair))
+        request, lang, r=r, scan_id=sid, dev=r.most_dangerous if r else None, first=r.first_fix if r else None,
+        findings=r.findings if r else [], anchors=_anchors(r), diff=changes, alerts=alerts(changes, lang),
+        scans=scans[-30:], rooms=rooms(r, lang), dev_by_ip={d.ip: d for d in (r.devices if r else [])},
+        flash=_flash.pop(flash, None) if flash else None))
+
+
+def _anchors(r) -> dict[int, str]:
+    """Index of the first finding of each device -> its IP (target of the '#dev-<ip>' links)."""
+    out, seen = {}, set()
+    for i, f in enumerate(r.findings if r else []):
+        if f.ip not in seen:
+            out[i] = f.ip
+            seen.add(f.ip)
+    return out
 
 
 @app.post("/upload")
 async def upload(request: Request, files: list[UploadFile] = File(...)):
-    last_id = None
-    batch = len(files) > 1
-    for f in files:
-        data = await f.read(MAX_FILE_BYTES + 1)
-        name = Path(f.filename or "upload.xml").name[:120]
-        res = analyze_bytes(data, name)
-        last_id = history.save(res, source="upload-batch" if batch else "lab")
-    lang = _lang(request)
-    if batch:
-        return RedirectResponse(f"/batch?lang={lang}", status_code=303)
-    return RedirectResponse(f"/?id={last_id}&lang={lang}", status_code=303)
-
-
-@app.post("/device/name")
-def set_name(request: Request, device_id: str = Form(...), name: str = Form(""), scan_id: int = Form(...)):
-    if len(device_id) == 12 and all(c in "0123456789abcdef" for c in device_id):
-        history.set_nickname(device_id, name)
-    return RedirectResponse(f"/?id={scan_id}&lang={_lang(request)}#house", status_code=303)
-
-
-@app.post("/verify")
-def verify_finding(request: Request, scan_id: int = Form(...), ip: str = Form(...), port: int = Form(...),
-                   code: str = Form(...), consent: str | None = Form(None)):
     lang = _lang(request)
     t = UI[lang]
-    r = history.load(scan_id)
-    f = next((x for x in (r.findings if r and r.ok else []) if x.ip == ip and x.port == port and x.code == code), None)
-    if f is None:
-        msg = {"status": "error", "text": t["verify_unknown"]}
-    elif not consent:
-        msg = {"status": "refused", "text": t["verify_need_consent"]}
-    else:
-        d = next(x for x in r.devices if x.ip == ip)
-        res = verify.verify(f, Host(ip=ip, vendor=d.vendor, hostname=d.hostname), scan_id=scan_id,
-                            device_id=d.device_id)
-        msg = {"status": res.status, "text": res.message(lang), "evidence": res.evidence,
-               "where": f"{display_name(d, history.nicknames(), lang)} ({ip}:{port})"}
-    token = secrets.token_urlsafe(8)
-    _flash[token] = msg
-    return RedirectResponse(f"/?id={scan_id}&lang={lang}&flash={token}#flash", status_code=303)
-
-
-@app.get("/batch", response_class=HTMLResponse)
-def batch(request: Request, source: str | None = None):
-    lang = _lang(request)
-    scans = history.list_scans()
-    sources = sorted({s["source"] for s in scans})
-    chosen = source or ("upload-batch" if "upload-batch" in sources else (sources[0] if sources else None))
-    rows = [(s, history.load(s["id"])) for s in scans if s["source"] == chosen]
-    return _render(request, "batch.html", _ctx(request, lang, rows=rows, sources=sources, chosen=chosen))
+    last_id, errors = None, []
+    with history.open_history() as conn:
+        for f in files:
+            data = await f.read(MAX_FILE_BYTES + 1)
+            name = Path(f.filename or "upload.xml").name[:120]
+            a = analyze_bytes(data, name)
+            if not a.ok:
+                errors.append(f"{name}: {a.error}")
+                continue
+            last_id, _created = history.save(conn, a)
+            _remember(last_id, a)
+    url = f"/?lang={lang}" + (f"&id={last_id}" if last_id is not None else "")
+    if errors:
+        token = secrets.token_urlsafe(8)
+        _flash[token] = {"status": "error", "text": f"✖ {t['error_title']}",
+                         "where": " · ".join(errors), "evidence": None, "help": t["error_help"]}
+        url += f"&flash={token}#flash"
+    return RedirectResponse(url, status_code=303)
 
 
 @app.post("/ask", response_class=HTMLResponse)
-def ask(request: Request, question: str = Form(...), scan_id: int | None = Form(None)):
+def ask(request: Request, question: str = Form(...), scan_id: Optional[int] = Form(None)):
     lang = _lang(request)
-    key = (scan_id or 0, lang)
-    if key not in _assistants:
-        s = Session(lang=lang, allow_live_scan=False)
-        if scan_id:
-            s.load_history(scan_id)
-        _assistants[key] = Assistant(s)
-    a = _assistants[key]
-    reply = a.ask(question)
-    provider = getattr(a.provider, "label", "") if a.provider else ""
-    return _render(request, "answer.html", _ctx(request, lang, question=question, answer=reply,
-                                                 mode=a.last_mode, provider=provider, scan_id=scan_id))
+    question = question.strip()[:500]
+    with history.open_history() as conn:
+        ids = history.scan_ids(conn)
+        sid = scan_id if scan_id in ids else (ids[-1] if ids else None)
+        if sid is None:
+            return _render(request, "answer.html", _ctx(request, lang, question=question,
+                                                        answer=UI[lang]["no_scan"], mode="offline"))
+        a = get_analysis(conn, sid)
+        prev = history.previous_id(conn, sid)
+        previous = get_analysis(conn, prev) if prev is not None else None
+    ans = ai_ask(question, a, lang, previous)
+    mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
+    return _render(request, "answer.html", _ctx(request, lang, question=question, answer=ans.text,
+                                                mode=mode, scan_id=sid))
 
 
 @app.get("/history", response_class=HTMLResponse)
-def history_page(request: Request, source: str = "lab"):
+def history_page(request: Request):
     lang = _lang(request)
-    all_scans = history.list_scans()
-    sources = sorted({s["source"] for s in all_scans}) or ["lab"]
-    scans = [s for s in all_scans if s["source"] == source]
-    diffs = []
-    ok_scans = [s for s in scans if s["ok"]]
-    for a, b in zip(ok_scans, ok_scans[1:]):
-        d = history.diff(history.load(a["id"]), history.load(b["id"]))
-        diffs.append((a, b, d, history.alerts(d, lang)))
+    with history.open_history() as conn:
+        scans = _scan_list(conn)
+        diffs = [(a, b, history.changes(conn, a["scan_id"], b["scan_id"])) for a, b in zip(scans, scans[1:])]
     return _render(request, "history.html", _ctx(request, lang, scans=scans, diffs=diffs[::-1],
-                                                  sources=sources, source=source,
-                                                  cert_pair=_first_and_last_ok(source)))
+                                                 alerts_of=lambda d: alerts(d, lang)))
 
 
 @app.post("/history/delete")
 def delete_history(request: Request):
-    history.delete_all()
-    _assistants.clear()
+    history.delete_history()
+    _cache.clear()
     return RedirectResponse(f"/history?lang={_lang(request)}", status_code=303)
 
 
 @app.get("/report/{scan_id}", response_class=HTMLResponse)
 def report(request: Request, scan_id: int):
     lang = _lang(request)
-    r = history.load(scan_id)
-    dev, first = most_dangerous(r) if r and r.ok else (None, None)
-    return _render(request, "report.html", _ctx(request, lang, r=r, dev=dev, first=first,
-                                                 findings=ranked_findings(r) if r and r.ok else []))
-
-
-@app.get("/certificate", response_class=HTMLResponse)
-def certificate_page(request: Request, before: int, after: int):
-    lang = _lang(request)
-    metas = {s["id"]: s for s in history.list_scans()}
-    b, a = history.load(before), history.load(after)
-    if not (b and a and b.ok and a.ok):
-        return _render(request, "certificate.html", _ctx(request, lang, cert=None))
-    cert = certificate.build(b, a, metas[before]["created_at"], metas[after]["created_at"])
-    return _render(request, "certificate.html", _ctx(
-        request, lang, cert=cert, p=cert["payload"], cert_json=json.dumps(cert, ensure_ascii=False, indent=2)))
-
-
-@app.get("/certificate/verify", response_class=HTMLResponse)
-def cert_verify_form(request: Request):
-    return _render(request, "cert_verify.html", _ctx(request, _lang(request), result=None))
-
-
-@app.post("/certificate/verify", response_class=HTMLResponse)
-async def cert_verify(request: Request, file: UploadFile = File(...)):
-    lang = _lang(request)
-    raw = await file.read(MAX_CERT_BYTES + 1)
-    try:
-        if len(raw) > MAX_CERT_BYTES:
-            raise ValueError("too large")
-        cert = json.loads(raw.decode("utf-8"))
-        ok, reason, ours = certificate.verify(cert)
-        payload = cert.get("payload", {}) if ok else None
-    except (ValueError, UnicodeDecodeError, AttributeError):
-        ok, reason, ours, payload = False, "not a valid JSON file", False, None
-    return _render(request, "cert_verify.html", _ctx(request, lang, result={
-        "ok": ok, "reason": reason, "ours": ours, "payload": payload}))
+    with history.open_history() as conn:
+        try:
+            r = scan_view(get_analysis(conn, scan_id), lang)
+        except KeyError:
+            r = None
+    return _render(request, "report.html", _ctx(
+        request, lang, r=r, scan_id=scan_id, dev=r.most_dangerous if r else None,
+        first=r.first_fix if r else None, findings=r.findings if r else []))

@@ -1,22 +1,21 @@
-"""Command line entry point.
+"""Command line interface.
 
-  netcheck analyze <folder|file> [--out results] [--history]   offline, no network, no root
-  netcheck detect                                               show interface / subnet / gateway
-  netcheck scan [target] --confirm [--allow CIDR]               live scan (guardrail + sudo for nmap only)
-  netcheck chat [--scan file.xml] [--guide] [--lang ro|en]      AI assistant (offline fallback)
-  netcheck serve [--port 8000]                                  web UI on http://127.0.0.1:8000
-  netcheck history [--delete]                                   list or delete local history
-  netcheck verify <ip> <port> --confirm [--udp]                 „Dovedește!”: re-check one fix
-  netcheck cert --before ID --after ID [--out f.json]           signed before/after certificate
-  netcheck cert-verify f.json                                   detect a forged certificate
-  netcheck watch --confirm [--interval 60]                      „Paznic”: alerts for new devices/ports
-  netcheck ai-status                                            which AI is active (local Ollama by default)
+  python -m netcheck analyze <folder|file> [--out results]   -> findings.csv + scores.csv
+  python -m netcheck report  <file> [--lang ro|en]           -> plain-language report in the terminal
+  python -m netcheck ask     <file> "question" [--lang ro|en] [--previous <file>]
+  python -m netcheck chat    <file> [--lang ro|en] [--previous <file>]   -> conversation with the assistant
+  python -m netcheck diff    <before.xml> <after.xml> [--lang ro|en]
+  python -m netcheck history add <file|folder>... | list | changes [--before ID --after ID] | delete [--yes]
 
-Data contract (service_data_contracts.md) outputs:
-  netcheck parse <file.xml|folder> [--out DIR]                  §1 Raw Parsed Data JSON (Core CLI -> Rule Engine)
-  netcheck analyze <folder> --contracts                         + §1 and §2 JSON per file in <out>/contracts/
-  netcheck diff <before.xml> <after.xml> [--json]               §4 History & Deltas
-  netcheck detect --json                                        the contract "network" object
+Core Engine & CLI (netcheck/net/):
+  python -m netcheck detect [--json]                              interface / subnet / gateway (FR-01)
+  python -m netcheck scan [target] --confirm [--allow CIDR]       live scan of YOUR network (FR-02, FR-04)
+  python -m netcheck parse <file|folder> [--out DIR]              §1 Raw Parsed Data JSON (data contract)
+  python -m netcheck verify <scan.xml> <ip> <port> --confirm      „Dovedește!": re-check one fixed problem
+  python -m netcheck watch --confirm [--interval 60]              „Paznic": alert on new device / new port
+
+Web UI + JSON API (netcheck/web/):
+  python -m netcheck serve [--port 8000]                          dashboard on http://127.0.0.1:8000 (no root)
 """
 from __future__ import annotations
 
@@ -25,347 +24,447 @@ import json
 import sys
 from pathlib import Path
 
-from . import contracts, explain, guardrail, history, netdetect
-from .analyzer import analyze_file, analyze_folder, list_scan_files, most_dangerous, ranked_findings, write_csvs
-from .parser import ScanFileError, parse_scan, read_file
+from .core.analysis import analyze_file, analyze_folder, scan_files_in, write_results
+from .core.device import DEVICE_LABELS
+from .core.diff import compare
+from .explain.texts import SEVERITY_LABELS, score_band, text_for
 
 
+def _out(s: str = "") -> None:
+    # Windows consoles may not be UTF-8; never crash on printing
+    try:
+        print(s)
+    except UnicodeEncodeError:
+        print(s.encode("ascii", "replace").decode("ascii"))
+
+
+def cmd_analyze(args) -> int:
+    files = scan_files_in(args.path)
+    if not files:
+        _out(f"No .xml files found in {args.path}")
+        return 2
+    results = analyze_folder(args.path)
+    f_csv, s_csv = write_results(results, args.out)
+    for r in results:
+        status = f"score {r.score:>3}  findings {len(r.findings)}" if r.ok else f"ERROR: {r.error}"
+        _out(f"{r.file:<40} {status}")
+    _out(f"\nWrote {f_csv} and {s_csv}")
+    return 0
+
+
+def cmd_report(args) -> int:
+    a = analyze_file(args.file)
+    lang = args.lang
+    if not a.ok:
+        _out(("Fișierul nu poate fi citit: " if lang == "ro" else "The file cannot be read: ") + a.error)
+        return 1
+    band = score_band(a.score, lang)
+    _out(f"{band['icon']}  {'Scor rețea' if lang == 'ro' else 'Network score'}: {a.score}/100 — {band['label']}")
+    top = a.most_dangerous()
+    if top:
+        label = DEVICE_LABELS[top["type"]][lang]
+        _out(("Cel mai periculos dispozitiv: " if lang == "ro" else "Most dangerous device: ")
+             + f"{top['ip']} ({label}{', ' + top['vendor'] if top['vendor'] else ''})")
+    _out()
+    for i, f in enumerate(a.prioritized(), 1):
+        t = text_for(f.code, lang)
+        sev = SEVERITY_LABELS[f.severity]
+        where = f"{f.ip}:{f.port}" if f.port is not None else f.ip
+        _out(f"{i}. {sev['icon']} [{sev[lang]}] {t['title']} — {where}")
+        _out(f"   {t['explain']}")
+        for j, step in enumerate(t["steps"], 1):
+            _out(f"     {j}) {step}")
+        _out(f"   ({'dovadă' if lang == 'ro' else 'evidence'}: {f.evidence})")
+        _out()
+    if not a.findings:
+        _out("Nu am găsit probleme." if lang == "ro" else "No problems found.")
+    return 0
+
+
+def cmd_ask(args) -> int:
+    from .ai.assistant import ask
+    a = analyze_file(args.file)
+    if not a.ok:
+        _out("ERROR: " + a.error)
+        return 1
+    prev = analyze_file(args.previous) if args.previous else None
+    ans = ask(args.question, a, args.lang, prev)
+    _out(ans.text)
+    badge = "AI" if ans.source == "ai" else f"text încorporat / built-in ({ans.reason})"
+    _out(f"\n[{badge}]")
+    return 0
+
+
+def cmd_chat(args) -> int:
+    from .ai.assistant import Conversation
+    a = analyze_file(args.file)
+    if not a.ok:
+        _out("ERROR: " + a.error)
+        return 1
+    prev = analyze_file(args.previous) if args.previous else None
+    conv = Conversation(a, args.lang, prev)
+    ro = args.lang == "ro"
+    _out(("Întreabă orice despre această scanare. „nou” = conversație nouă, „gata” = ieșire." if ro else
+          "Ask anything about this scan. 'new' = new conversation, 'quit' = exit."))
+    while True:
+        try:
+            q = input("\n" + ("Tu: " if ro else "You: ")).strip()
+        except (EOFError, KeyboardInterrupt):
+            _out()
+            return 0
+        if q.lower() in ("gata", "exit", "quit", "q"):
+            return 0
+        if q.lower() in ("nou", "new"):
+            conv.reset()
+            _out("(conversație nouă)" if ro else "(new conversation)")
+            continue
+        if not q:
+            continue
+        ans = conv.ask(q)
+        _out(("Asistent: " if ro else "Assistant: ") + ans.text)
+        if ans.source != "ai":
+            _out(f"[text încorporat / built-in ({ans.reason})]")
+
+
+def cmd_diff(args) -> int:
+    b, a = analyze_file(args.before), analyze_file(args.after)
+    for r in (b, a):
+        if not r.ok:
+            _out(f"ERROR in {r.file}: {r.error}")
+            return 1
+    _out(json.dumps(compare(b, a), indent=2, ensure_ascii=False))
+    return 0
+
+
+def cmd_history_add(args) -> int:
+    from . import history
+    files = [f for path in args.paths for f in scan_files_in(path)]
+    if not files:
+        _out("No .xml files found.")
+        return 2
+    code = 0
+    with history.open_history(args.db) as conn:
+        for f in files:
+            a = analyze_file(f)
+            if not a.ok:
+                _out(f"{a.file:<40} ERROR: {a.error} (not saved)")
+                code = 1
+                continue
+            scan_id, created = history.save(conn, a)
+            _out(f"{a.file:<40} score {a.score:>3}  " + (f"saved as #{scan_id}" if created else f"already saved (#{scan_id})"))
+        ch = history.changes(conn)
+    if ch and ch["alerts"]:
+        _out("\n⚠ " + ", ".join(
+            [f"new device {ip}" for ip in ch["new_devices"]]
+            + [f"new open port {p['ip']}:{p['port']}/{p['protocol']}" for p in ch["new_port_alerts"]]))
+    if ch:
+        for u in ch["secured_ports"]:
+            _out(f"✔ {u['ip']}: {u['service']} moved from port {u['from_port']} to secure port {u['to_port']}")
+    _out(f"\nHistory: {history.db_path(args.db)}")
+    return code
+
+
+def cmd_history_list(args) -> int:
+    from . import history
+    with history.open_history(args.db) as conn:
+        rows = history.trend(conn)
+    if not rows:
+        _out("No saved scans yet. Use: netcheck history add <scan.xml>")
+        return 0
+    prev = None
+    for r in rows:
+        delta = "" if prev is None else f"{r['network_score'] - prev:+d}"
+        bar = "█" * (r["network_score"] // 5)
+        _out(f"#{r['scan_id']:<3} {r['file']:<32} {r['network_score']:>3} {delta:>4}  {bar}"
+             f"  ({r['devices']} devices, {r['findings']} findings)")
+        prev = r["network_score"]
+    return 0
+
+
+def cmd_history_changes(args) -> int:
+    from . import history
+    with history.open_history(args.db) as conn:
+        try:
+            ch = history.changes(conn, args.before, args.after)
+        except KeyError as e:
+            _out(f"ERROR: {e.args[0]}")
+            return 1
+    if ch is None:
+        _out("Need at least two saved scans.")
+        return 1
+    _out(json.dumps(ch, indent=2, ensure_ascii=False))
+    return 0
+
+
+def cmd_history_delete(args) -> int:
+    from . import history
+    path = history.db_path(args.db)
+    if not args.yes:
+        try:
+            answer = input(f"Delete all saved scans in {path}? [y/N] ")
+        except EOFError:
+            answer = ""
+        if answer.strip().lower() not in ("y", "yes", "d", "da"):
+            _out("Nothing deleted.")
+            return 1
+    _out("History deleted." if history.delete_history(path) else "There was no history to delete.")
+    return 0
+
+
+# ---------------------------------------------------------------- Core Engine & CLI (netcheck/net/)
 def _dump(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=2)
 
 
-def _write_json(path: Path, obj) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(_dump(obj) + "\n", encoding="utf-8")
+def _refused(e, lang: str) -> int:
+    _out("⛔ " + (e.message(lang) if hasattr(e, "message") else str(e)))
+    return 3
 
 
-def _hosts(path) -> list | None:
+def cmd_detect(args) -> int:
+    from .net import netdetect
     try:
-        return parse_scan(read_file(path))[0]
-    except ScanFileError:
-        return None
-
-
-def _print_result(r, lang: str) -> None:
-    if not r.ok:
-        print(f"✖ {r.file}: ERROR — {r.error}")
-        return
-    band = explain.score_band(r.score, lang)
-    print(f"\n{r.file}: score {r.score}/100 {band[1]} {band[2]}  ({len(r.devices)} devices, {len(r.findings)} findings)")
-    dev, first = most_dangerous(r)
-    if dev:
-        t = explain.get(first.code, lang)
-        print(f"  ➜ {'Repară primul' if lang == 'ro' else 'Fix first'}: {dev.ip} — {t['title']}: {t['steps'][0]}")
-    for f in ranked_findings(r):
-        port = "" if f.port is None else f":{f.port}"
-        print(f"  {explain.SEVERITY_ICON[f.severity]} {f.severity:<6} {f.ip}{port:<7} {f.code}")
-
-
-def cmd_analyze(a) -> int:
-    target = Path(a.path)
-    if target.is_dir():
-        results = analyze_folder(target, all_files=a.all_files)
-    elif target.is_file():
-        results = [analyze_file(target)]
-    else:
-        print(f"✖ not found: {target}", file=sys.stderr)
-        return 2
-    fp, sp = write_csvs(results, a.out)
-    paths = list_scan_files(target, a.all_files) if target.is_dir() else [target]
-    for path, r in zip(paths, results):
-        _print_result(r, a.lang)
-        if a.history:
-            history.save(r, source=a.source or (target.name if target.is_dir() else "lab"))
-        if a.contracts:
-            hosts = _hosts(path)
-            cdir = Path(a.out) / "contracts"
-            if hosts is not None:
-                _write_json(cdir / f"{contracts.scan_id(r.file)}.raw.json", contracts.raw_from_file(path))
-            _write_json(cdir / f"{contracts.scan_id(r.file)}.evaluated.json", contracts.evaluated_scan(r, hosts))
-    print(f"\nWrote {fp} and {sp}  ({sum(len(r.findings) for r in results)} findings, {len(results)} files)")
-    if a.contracts:
-        print(f"Contract JSON (§1 raw, §2 evaluated) in {Path(a.out) / 'contracts'}")
+        n = netdetect.detect()
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
+        return 1
+    if args.json:
+        _out(_dump({"network": n.contract_network(), "interface": n.interface, "ip": n.ip}))
+        return 0
+    ro = args.lang == "ro"
+    _out(f"{'interfață' if ro else 'interface'}: {n.interface}\n{'IP-ul tău' if ro else 'your IP'}:  {n.ip}\n"
+         f"{'rețea' if ro else 'subnet'}:    {n.subnet}\n{'gateway'}:   {n.gateway or '?'}")
     return 0
 
 
-def cmd_parse(a) -> int:
-    """§1 Raw Parsed Data: facts only, no security evaluation."""
-    target = Path(a.path)
-    files = list_scan_files(target, a.all_files) if target.is_dir() else [target]
-    if not files or not all(f.is_file() for f in files):
-        print(f"✖ not found: {target}", file=sys.stderr)
+def cmd_scan(args) -> int:
+    from .core.parser import ScanFileError, parse_file
+    from .net import contract, guardrail, netdetect, scanner
+    try:
+        net = netdetect.detect()
+        allow = guardrail.build_allowlist(net.subnet, args.allow)
+        target = guardrail.check_target(args.target or net.subnet, allow, confirmed=args.confirm)
+    except guardrail.ScopeError as e:
+        return _refused(e, args.lang)
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
+        return 3
+    _out(("Scanez " if args.lang == "ro" else "Scanning ") + f"{target} (≤ {scanner.MAX_RATE} pkt/s). "
+         + ("nmap are nevoie de drepturi de administrator; s-ar putea să-ți ceară parola."
+            if args.lang == "ro" else "nmap needs admin rights; you may be asked for your password."))
+    try:
+        xml = scanner.run_scan(target, args.out)
+    except scanner.ScanError as e:
+        _out(f"✖ {e}")
+        return 1
+    raw_path = xml.with_suffix(".raw.json")
+    try:  # §1 with the LIVE network facts (gateway is only known during a live scan)
+        raw_path.write_text(_dump(contract.raw_scan(parse_file(xml), net.subnet, net.gateway)) + "\n",
+                            encoding="utf-8")
+    except ScanFileError:
+        raw_path = None
+    a = analyze_file(xml)
+    status = f"score {a.score}/100, {len(a.findings)} findings" if a.ok else f"ERROR: {a.error}"
+    _out(f"{xml.name}: {status}")
+    if a.ok and not args.no_history:
+        from . import history
+        with history.open_history(args.db) as conn:
+            scan_id, _ = history.save(conn, a)
+        _out(f"history #{scan_id} (python -m netcheck history list)")
+    _out(f"Saved {xml}" + (f" + {raw_path.name} (data contract §1)" if raw_path else ""))
+    _out(f"Next: python -m netcheck report {xml}")
+    return 0 if a.ok else 1
+
+
+def cmd_parse(args) -> int:
+    from .core.parser import ScanFileError, parse_file
+    from .net import contract
+    files = scan_files_in(args.path) if Path(args.path).exists() else []
+    if not files:
+        _out(f"✖ no .xml files found in {args.path}")
         return 2
     failed = 0
     for f in files:
         try:
-            payload = contracts.raw_from_file(f)
+            payload = contract.raw_scan(parse_file(f))
         except ScanFileError as e:
             print(f"✖ {f.name}: ERROR — {e}", file=sys.stderr)
             failed += 1
             continue
-        if a.out:
-            out = Path(a.out) / f"{payload['scan_id']}.raw.json"
-            _write_json(out, payload)
-            print(f"✔ {out}")
+        if args.out:
+            out = Path(args.out) / f"{payload['scan_id']}.raw.json"
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(_dump(payload) + "\n", encoding="utf-8")
+            _out(f"✔ {out}")
         else:
-            print(_dump(payload))
-    return 1 if failed and failed == len(files) else 0
+            _out(_dump(payload))
+    return 1 if failed == len(files) else 0
 
 
-def cmd_diff(a) -> int:
-    """§4 History & Deltas between two scan files."""
-    old, new = analyze_file(a.before), analyze_file(a.after)
-    for r in (old, new):
-        if not r.ok:
-            print(f"✖ {r.file}: ERROR — {r.error}", file=sys.stderr)
-            return 1
-    payload = contracts.delta(old, new, _hosts(a.before), _hosts(a.after))
-    if a.json:
-        print(_dump(payload))
-        return 0
-    t, d = payload["score_trend"], payload["deltas"]
-    ro = a.lang == "ro"
-    print(f"{payload['previous_scan_id']} → {payload['current_scan_id']}: "
-          f"{'scor' if ro else 'score'} {t['previous_score']} → {t['current_score']} "
-          f"{'📈' if t['improved'] else '📉' if t['current_score'] < t['previous_score'] else '➖'}")
-    for f in d["resolved_findings"]:
-        print(f"  ✔ {'rezolvat' if ro else 'resolved'}: {f['ip']}:{f['port'] if f['port'] is not None else ''} {f['finding_code']}")
-    for f in d["new_findings"]:
-        print(f"  ⚠ {'nou' if ro else 'new'}: {f['ip']}:{f['port'] if f['port'] is not None else ''} {f['finding_code']}")
-    for x in d["new_devices"]:
-        print(f"  ➕ {'dispozitiv nou' if ro else 'new device'}: {x['ip']} {x['mac_masked'] or ''}")
-    for x in d["removed_devices"]:
-        print(f"  ➖ {'dispozitiv dispărut' if ro else 'device gone'}: {x['ip']}")
-    return 0
-
-
-def cmd_detect(a) -> int:
+def cmd_verify(args) -> int:
+    from .net import guardrail, netdetect, verify
+    if not args.confirm:
+        _out("⛔ " + ("adaugă --confirm (confirmi că dispozitivul e al tău)" if args.lang == "ro"
+                     else "add --confirm (you confirm you own this device)"))
+        return 3
+    a = analyze_file(args.scan)
+    if not a.ok:
+        _out(f"✖ {a.file}: ERROR — {a.error}")
+        return 1
+    proto = "udp" if args.udp else "tcp"
+    targets = [f for f in a.findings if f.ip == args.ip and f.port == args.port and f.protocol == proto]
+    if not targets:
+        _out(f"✖ no finding for {args.ip}:{args.port}/{proto} in {a.file}")
+        return 1
     try:
-        n = netdetect.detect()
+        allow = guardrail.build_allowlist(netdetect.detect().subnet, args.allow)
+    except guardrail.ScopeError as e:
+        return _refused(e, args.lang)
     except netdetect.NetworkDetectError as e:
-        print(f"✖ {e}")
-        return 1
-    if a.json:
-        print(_dump({"network": {"subnet": n.subnet, "gateway": n.gateway or None},
-                     "interface": n.interface, "ip": n.ip}))
-        return 0
-    print(f"interface: {n.interface}\nyour IP:   {n.ip}\nsubnet:    {n.subnet}\ngateway:   {n.gateway}")
-    return 0
-
-
-def cmd_scan(a) -> int:
-    from . import scanner
-    try:
-        net = netdetect.detect()
-        allow = guardrail.build_allowlist(net.subnet, a.allow)
-        target = guardrail.check_target(a.target or net.subnet, allow, confirmed=a.confirm)
-    except (guardrail.ScopeError, netdetect.NetworkDetectError) as e:
-        print(f"⛔ {e}")
+        _out(f"✖ {e}")
         return 3
-    print(f"Scanning {target} (rate ≤ {scanner.MAX_RATE} pkt/s). nmap needs admin rights; you may be asked for your password.")
-    try:
-        xml = scanner.run_scan(target, a.out)
-    except scanner.ScanError as e:
-        print(f"✖ {e}")
-        return 1
-    raw_path = xml.with_suffix(".raw.json")
-    try:  # §1 payload with the LIVE network facts (gateway is only known during a live scan)
-        _write_json(raw_path, contracts.raw_from_file(xml, gateway=net.gateway or None, subnet=net.subnet))
-    except ScanFileError:
-        raw_path = None
-    r = analyze_file(xml)
-    sid = history.save(r, "lab")
-    _print_result(r, a.lang)
-    prev = history.previous_of(sid)
-    if prev:
-        d = history.diff(history.load(prev), r)
-        print(f"\nvs previous scan: score {d['old_score']} → {d['new_score']}, "
-              f"{len(d['resolved_findings'])} resolved, {len(d['new_findings'])} new")
-        for msg in history.alerts(d, a.lang):
-            print("  🔔 " + msg)
-    print(f"\nSaved {xml}" + (f" and {raw_path} (data contract §1)" if raw_path else ""))
-    return 0
+    host = next(h for h in a.scan.hosts if h.ip == args.ip)
+    code = 0
+    for f in targets:
+        res = verify.verify(f, host, allow, allow_udp=args.udp)
+        _out(f"{f.code} {f.ip}:{f.port} → {res.message(args.lang)}  [{res.evidence}]")
+        code = max(code, 0 if res.status == "resolved" else 1)
+    return code
 
 
-def cmd_history(a) -> int:
-    if a.delete:
-        history.delete_all()
-        print("History deleted." if a.lang == "en" else "Istoricul a fost șters.")
-        return 0
-    for s in history.list_scans():
-        print(f"#{s['id']:<4} {s['created_at']}  {s['source']:<20} {s['file']:<30} {s['score'] if s['ok'] else 'ERROR'}")
-    return 0
-
-
-def cmd_serve(a) -> int:
-    import uvicorn
-    print(f"NetCheck UI on http://127.0.0.1:{a.port}  (local only)")
-    uvicorn.run("netcheck.web.app:app", host="127.0.0.1", port=a.port, log_level="warning")
-    return 0
-
-
-def cmd_verify(a) -> int:
-    from . import verify
-    from .models import Host
-    if not a.confirm:
-        print("⛔ add --confirm (you confirm you own this device)")
-        return 3
-    sid = a.scan or history.latest_id()
-    r = history.load(sid) if sid else None
-    proto = "udp" if a.udp else "tcp"
-    fs = [f for f in (r.findings if r and r.ok else []) if f.ip == a.ip and f.port == a.port and f.protocol == proto]
-    if not fs:
-        print(f"✖ no finding for {a.ip}:{a.port}/{proto} in scan #{sid}. Run a scan first (netcheck scan --confirm).")
-        return 1
-    d = next(x for x in r.devices if x.ip == a.ip)
-    try:
-        allow = guardrail.build_allowlist(netdetect.detect().subnet, a.allow)
-    except (guardrail.ScopeError, netdetect.NetworkDetectError) as e:
-        print(f"⛔ {e}")
-        return 3
-    worst = 0
-    for f in fs:
-        res = verify.verify(f, Host(ip=d.ip, vendor=d.vendor, hostname=d.hostname), scan_id=sid,
-                            device_id=d.device_id, allowlist=allow, allow_udp=a.udp)
-        print(f"{f.code} {f.ip}:{f.port} → {res.message(a.lang)}  [{res.evidence}]")
-        worst = max(worst, 0 if res.status == "resolved" else 1)
-    return worst
-
-
-def cmd_cert(a) -> int:
-    import json as _json
-    from . import certificate
-    metas = {s["id"]: s for s in history.list_scans()}
-    b, af = history.load(a.before), history.load(a.after)
-    if not (b and af and b.ok and af.ok):
-        print("✖ both scans must exist and be readable (see: netcheck history)")
-        return 1
-    cert = certificate.build(b, af, metas[a.before]["created_at"], metas[a.after]["created_at"])
-    Path(a.out).write_text(_json.dumps(cert, ensure_ascii=False, indent=2), encoding="utf-8")
-    p = cert["payload"]
-    print(f"📜 {a.out}: score {p['before']['score']} → {p['after']['score']}, {len(p['resolved'])} resolved. "
-          f"Key fingerprint {cert['key_fingerprint']}")
-    return 0
-
-
-def cmd_cert_verify(a) -> int:
-    import json as _json
-    from . import certificate
-    try:
-        cert = _json.loads(Path(a.file).read_text(encoding="utf-8"))
-    except (OSError, ValueError) as e:
-        print(f"⛔ cannot read certificate: {e}")
-        return 1
-    ok, reason, ours = certificate.verify(cert)
-    if ok:
-        print(f"✔ VALID — {reason}. " + ("Issued by this computer." if ours else
-                                         f"Issued by another computer, key {cert.get('key_fingerprint')}."))
-        return 0
-    print(f"⛔ INVALID — {reason}")
-    return 2
-
-
-def cmd_watch(a) -> int:
-    from . import watch
-    if not a.confirm:
-        print("⛔ add --confirm (you confirm you own every device on this network)")
+def cmd_watch(args) -> int:
+    from .net import guardrail, netdetect, watch
+    if not args.confirm:
+        _out("⛔ " + ("adaugă --confirm (confirmi că toate dispozitivele din rețea sunt ale tale)" if args.lang == "ro"
+                     else "add --confirm (you confirm you own every device on this network)"))
         return 3
     try:
-        return watch.run(interval=a.interval, lang=a.lang, extra_allow=a.allow)
-    except (guardrail.ScopeError, netdetect.NetworkDetectError) as e:
-        print(f"⛔ {e}")
+        return watch.run(interval=args.interval, lang=args.lang, extra_allow=args.allow)
+    except guardrail.ScopeError as e:
+        return _refused(e, args.lang)
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
         return 3
 
 
-def cmd_ai_status(a) -> int:
-    from . import llm
-    print(llm.status_report())
+def cmd_serve(args) -> int:
+    try:
+        import uvicorn
+    except ImportError:
+        _out("✖ The web UI needs extra packages: pip install -r requirements.txt")
+        return 2
+    if args.db:
+        import os
+        os.environ["NETCHECK_DB"] = args.db
+    _out(f"NetCheck UI: http://{args.host}:{args.port}   (Ctrl+C to stop)")
+    uvicorn.run("netcheck.web.app:app", host=args.host, port=args.port, log_level="warning")
     return 0
 
 
-def cmd_chat(a) -> int:
-    from .chat import run_chat
-    return run_chat(scan=a.scan, lang=a.lang, guide=a.guide, allow=a.allow)
-
-
-def main(argv: list[str] | None = None) -> int:
+def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="netcheck", description="Secure Networks, Simply Explained")
-    p.add_argument("--lang", choices=["ro", "en"], default="ro")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    s = sub.add_parser("analyze", help="analyse nmap XML file(s) offline and write findings.csv + scores.csv")
+    s = sub.add_parser("analyze", help="analyse a folder of nmap XML files and write the standard CSVs")
     s.add_argument("path")
     s.add_argument("--out", default="results")
-    s.add_argument("--history", action="store_true", help="also save results to local history")
-    s.add_argument("--source", help="history group name (default: folder name)")
-    s.add_argument("--all-files", action="store_true", help="include files without .xml extension")
-    s.add_argument("--contracts", action="store_true", help="also write §1/§2 contract JSON to <out>/contracts/")
     s.set_defaults(fn=cmd_analyze)
+
+    s = sub.add_parser("report", help="plain-language report for one scan file")
+    s.add_argument("file")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_report)
+
+    s = sub.add_parser("ask", help="ask the assistant a question about one scan")
+    s.add_argument("file")
+    s.add_argument("question")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--previous", help="previous scan of the same network, for 'what changed?' questions")
+    s.set_defaults(fn=cmd_ask)
+
+    s = sub.add_parser("chat", help="have a conversation with the assistant about one scan")
+    s.add_argument("file")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--previous", help="previous scan of the same network")
+    s.set_defaults(fn=cmd_chat)
+
+    s = sub.add_parser("diff", help="compare two scans of the same network")
+    s.add_argument("before")
+    s.add_argument("after")
+    s.set_defaults(fn=cmd_diff)
+
+    h = sub.add_parser("history", help="local scan history: score trend, before/after, delete")
+    hsub = h.add_subparsers(dest="history_cmd", required=True)
+    db_help = "history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)"
+
+    s = hsub.add_parser("add", help="analyse scan file(s) and save them to the history")
+    s.add_argument("paths", nargs="+")
+    s.add_argument("--db", help=db_help)
+    s.set_defaults(fn=cmd_history_add)
+
+    s = hsub.add_parser("list", help="score trend of all saved scans")
+    s.add_argument("--db", help=db_help)
+    s.set_defaults(fn=cmd_history_list)
+
+    s = hsub.add_parser("changes", help="before/after between saved scans (default: the last two)")
+    s.add_argument("--before", type=int, help="scan id")
+    s.add_argument("--after", type=int, help="scan id")
+    s.add_argument("--db", help=db_help)
+    s.set_defaults(fn=cmd_history_changes)
+
+    s = hsub.add_parser("delete", help="delete my history (removes the database file)")
+    s.add_argument("--yes", action="store_true", help="do not ask for confirmation")
+    s.add_argument("--db", help=db_help)
+    s.set_defaults(fn=cmd_history_delete)
+
+    # ---- Core Engine & CLI
+    s = sub.add_parser("detect", help="show the network you are connected to (FR-01)")
+    s.add_argument("--json", action="store_true", help="print the data-contract 'network' object")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_detect)
+
+    s = sub.add_parser("scan", help="live scan of YOUR network (needs --confirm; sudo only for nmap)")
+    s.add_argument("target", nargs="?", help="IP/CIDR inside your subnet (default: the connected subnet)")
+    s.add_argument("--confirm", action="store_true", help="I own every device on this network")
+    s.add_argument("--allow", action="append", default=[], help="extra PRIVATE CIDR to allow (repeatable)")
+    s.add_argument("--out", default="scans")
+    s.add_argument("--no-history", action="store_true", help="do not save the result to the local history")
+    s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_scan)
 
     s = sub.add_parser("parse", help="nmap XML -> §1 Raw Parsed Data JSON (offline, no root)")
     s.add_argument("path", help="XML file or folder")
     s.add_argument("--out", help="folder for <scan_id>.raw.json (default: print to stdout)")
-    s.add_argument("--all-files", action="store_true")
     s.set_defaults(fn=cmd_parse)
 
-    s = sub.add_parser("diff", help="compare two scans (§4 History & Deltas)")
-    s.add_argument("before")
-    s.add_argument("after")
-    s.add_argument("--json", action="store_true", help="print the §4 contract JSON")
-    s.set_defaults(fn=cmd_diff)
-
-    s = sub.add_parser("detect", help="show the network you are connected to")
-    s.add_argument("--json", action="store_true", help="print the contract 'network' object")
-    s.set_defaults(fn=cmd_detect)
-
-    s = sub.add_parser("scan", help="live scan of YOUR network (needs --confirm)")
-    s.add_argument("target", nargs="?", help="IP/CIDR inside your subnet (default: connected subnet)")
-    s.add_argument("--confirm", action="store_true", help="I own every device on this network")
-    s.add_argument("--allow", action="append", default=[], help="extra private CIDR to allow (repeatable)")
-    s.add_argument("--out", default="scans")
-    s.set_defaults(fn=cmd_scan)
-
-    s = sub.add_parser("chat", help="talk to the assistant (AI if ANTHROPIC_API_KEY is set, else offline)")
-    s.add_argument("--scan", help="nmap XML file to load")
-    s.add_argument("--guide", action="store_true", help="step-by-step guided check-up")
-    s.add_argument("--allow", action="append", default=[])
-    s.set_defaults(fn=cmd_chat)
-
-    s = sub.add_parser("serve", help="start the web UI")
-    s.add_argument("--port", type=int, default=8000)
-    s.set_defaults(fn=cmd_serve)
-
-    s = sub.add_parser("verify", help="„Dovedește!”: re-check one fixed problem (ip port)")
+    s = sub.add_parser("verify", help="„Dovedește!”: re-check one fixed problem from a scan file")
+    s.add_argument("scan", help="the nmap XML that showed the problem")
     s.add_argument("ip")
     s.add_argument("port", type=int)
     s.add_argument("--udp", action="store_true", help="UDP port (needs admin rights)")
-    s.add_argument("--scan", type=int, help="history scan id (default: latest)")
     s.add_argument("--confirm", action="store_true")
     s.add_argument("--allow", action="append", default=[])
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.set_defaults(fn=cmd_verify)
 
-    s = sub.add_parser("cert", help="create a signed before/after certificate")
-    s.add_argument("--before", type=int, required=True, help="history id of the 'before' scan")
-    s.add_argument("--after", type=int, required=True, help="history id of the 'after' scan")
-    s.add_argument("--out", default="certificate.json")
-    s.set_defaults(fn=cmd_cert)
-
-    s = sub.add_parser("cert-verify", help="check a certificate was not altered")
-    s.add_argument("file")
-    s.set_defaults(fn=cmd_cert_verify)
-
-    s = sub.add_parser("watch", help="„Paznic”: notify me about new devices / new open ports")
+    s = sub.add_parser("watch", help="„Paznic”: notify me about new devices / newly opened ports (no root)")
     s.add_argument("--confirm", action="store_true")
     s.add_argument("--interval", type=int, default=60, help="seconds between checks")
     s.add_argument("--allow", action="append", default=[])
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.set_defaults(fn=cmd_watch)
 
-    s = sub.add_parser("ai-status", help="show which AI is active (local Ollama / Claude / offline)")
-    s.set_defaults(fn=cmd_ai_status)
+    s = sub.add_parser("serve", help="web UI + JSON API on this computer only (no root)")
+    s.add_argument("--host", default="127.0.0.1", choices=["127.0.0.1", "localhost"],
+                   help="local only: the UI shows your network's weak spots")
+    s.add_argument("--port", type=int, default=8000)
+    s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
+    s.set_defaults(fn=cmd_serve)
 
-    s = sub.add_parser("history", help="list or delete local history")
-    s.add_argument("--delete", action="store_true")
-    s.set_defaults(fn=cmd_history)
+    args = p.parse_args(argv)
+    return args.fn(args)
 
-    a = p.parse_args(argv)
-    return a.fn(a)
+
+if __name__ == "__main__":
+    sys.exit(main())

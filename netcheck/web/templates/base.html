@@ -58,7 +58,6 @@ details summary{cursor:pointer;font-weight:700}
   <nav aria-label="main">
     <a href="/?lang={{ lang }}">{{ t.nav_home }}</a>
     <a href="/history?lang={{ lang }}">{{ t.nav_history }}</a>
-    <a href="/batch?lang={{ lang }}">{{ t.nav_batch }}</a>
     <a href="?lang={{ 'en' if lang=='ro' else 'ro' }}{% if scan_id %}&id={{ scan_id }}{% endif %}">🌐 {{ t.other_lang }}</a>
   </nav>
 </header>

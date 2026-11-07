@@ -10,7 +10,7 @@
         {% if rm.start_here %}<div class="badge-start">{{ t.start_here }}</div>{% endif %}
         {% if rm.router %}<div class="small muted">🚪 {{ t.front_door }}</div>{% endif %}
         <h3><span aria-hidden="true">{{ rm.icon }}</span> {{ rm.name }}</h3>
-        <p class="small muted">{{ d.ip }} · {{ rm.type }}{% if rm.nick and d.hostname %} · {{ d.hostname }}{% endif %} ·
+        <p class="small muted">{{ d.ip }} · {{ rm.type }} ·
           {% if d.risk_points >= 20 %}⛔{% elif d.risk_points >= 10 %}⚠️{% elif d.risk_points > 0 %}🔹{% else %}✔{% endif %} {{ d.risk_points }} {{ t.risk|lower }}</p>
         {% if rm.unknown %}<p class="door door-low">❓ {{ t.unknown_room }}</p>{% endif %}
         <ul class="doors">
@@ -22,15 +22,6 @@
         </ul>
         <div class="row small">
           {% if d.risk_points > 0 %}<a href="#dev-{{ d.ip|replace('.', '-') }}">➜ {{ t.see_problems }}</a>{% endif %}
-          {% if d.device_id %}
-          <details><summary>✏️ {{ t.rename }}</summary>
-            <form method="post" action="/device/name?lang={{ lang }}" class="row">
-              <input type="hidden" name="device_id" value="{{ d.device_id }}"><input type="hidden" name="scan_id" value="{{ scan_id }}">
-              <label class="sr" for="n-{{ d.device_id }}">{{ t.rename }}</label>
-              <input id="n-{{ d.device_id }}" type="text" name="name" maxlength="40" value="{{ rm.nick }}" placeholder="{{ t.rename_ph }}">
-              <button type="submit">{{ t.save }}</button>
-            </form></details>
-          {% endif %}
         </div>
       </div>
     {% endfor %}
