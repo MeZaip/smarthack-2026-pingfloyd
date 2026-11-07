@@ -12,13 +12,13 @@ to `unknown.glb`, and if that is missing too, to the SVG icon.
 | `router.glb` | Router / Router | routers "with default settings", old router (V4), the team's **phone hotspot** (the gateway of the lab) | Wi-Fi router with 2-3 antennas and front LEDs |
 | `camera.glb` | Cameră video / Camera | IP camera (V2), cameras in the challenge statement | security camera (bullet on a wall mount, or dome) |
 | `tv.glb` | Televizor / TV | smart TV (V2); also Chromecast / Google speakers (ports 8008/8009) | thin smart TV on a stand |
-| `iot.glb` | Dispozitiv inteligent / Smart device | smart hub (V2), Raspberry Pi, ESP32, smart bulbs / plugs / sensors, MQTT broker | smart bulb (the clearest for non-technical users) |
+| `iot.glb` | Dispozitiv inteligent / Smart device | smart hub (V2), Raspberry Pi, ESP32, smart bulbs / plugs / sensors, MQTT broker | smart speaker (Google Nest / Amazon Echo style) with a glowing LED ring on top |
 | `computer.glb` | Calculator / Computer | "forgotten laptops", laptop (V1), Windows PC (V3, RDP / SMB), the team laptop | open laptop |
 | `printer.glb` | Imprimantă / Printer | printer (V3, port 9100) | office printer with a paper tray |
 | `server.glb` | Server / Server | Linux server (V3), old server (V4), anything with a database or SSH only, Docker services on a laptop | small desktop server / mini-PC (not a data-centre rack) |
 | `nas.glb` | Stocare în rețea (NAS) / Network storage (NAS) | NAS (V3, Synology / QNAP / WD) | box with 2-4 drive bays in front |
 | `phone.glb` | Telefon / tabletă / Phone / tablet | phone (V1), old phone with an FTP app (lab setup B) | smartphone |
-| `unknown.glb` | Dispozitiv necunoscut / Unknown device | unknown device (V4: no vendor, no name, open port) | simple box with a question mark |
+| `unknown.glb` | Dispozitiv necunoscut / Unknown device | unknown device (V4: no vendor, no name, open port) | just a 3D question mark (chrome), the dot is the status light |
 
 Priority: the first six appear in the test scans and the demo; `nas` and `phone` can appear in your own lab scans;
 `unknown` is required as the fallback.

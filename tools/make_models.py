@@ -134,13 +134,16 @@ def tv():
 
 
 def iot():
-    ridges = cat(*[cyl(0.145 if i % 2 else 0.155, (0, 0.03 + i * 0.035, 0), (0, 0.065 + i * 0.035, 0), 32) for i in range(5)])
-    tip = cyl(0.07, (0, 0, 0), (0, 0.03, 0), 24)
-    # revolve() spins the profile around Z; turn it so the bulb axis is Y (up)
-    collar = rotate(creation.revolve(np.array([[0.0, 0.2], [0.17, 0.2], [0.2, 0.26], [0.24, 0.36], [0.0, 0.36]]), sections=48), -90, (1, 0, 0))
-    dome = sphere(0.37, (0, 0.66, 0), 3)
-    dome.vertices[:, 1] = np.maximum(dome.vertices[:, 1], 0.36)      # sits on the collar
-    return {"body": [(collar, "slate"), (cat(ridges, tip), "chrome")], "status": [(dome, "status")]}
+    """Smart speaker (Google Nest / Amazon Echo style): the smart device most people recognise.
+    Fabric-covered cylinder, chrome base ring, dark top with a glowing LED ring (`status`)."""
+    shell = cyl(0.3, (0, 0.02, 0), (0, 0.8, 0), 64)
+    grooves = cat(*[cyl(0.303, (0, y, 0), (0, y + 0.012, 0), 64) for y in np.linspace(0.1, 0.7, 9)])
+    base = cyl(0.29, (0, 0, 0), (0, 0.022, 0), 64)
+    top = cat(cyl(0.3, (0, 0.8, 0), (0, 0.84, 0), 64), cyl(0.22, (0, 0.84, 0), (0, 0.852, 0), 64))
+    ring = rotate(creation.annulus(r_min=0.225, r_max=0.272, height=0.016, sections=64), -90, (1, 0, 0))
+    ring.apply_translation((0, 0.848, 0))
+    dot = sphere(0.018, (0, 0.2, 0.302), 1)                        # small front light
+    return {"body": [(shell, "slate2"), (grooves, "deep"), (cat(top), "slate"), (base, "chrome")], "status": [(cat(ring, dot), "status")]}
 
 
 def computer():
@@ -194,15 +197,16 @@ def phone():
 
 
 def unknown():
-    mono = rbox(0.6, 0.85, 0.6, 0.06, (0, 0.425, 0))
-    plinth = rbox(0.66, 0.04, 0.66, 0.015, (0, 0.02, 0))
-    z = 0.315
-    cx, cy, rr = 0.0, 0.58, 0.11
-    arc = [(cx + rr * math.cos(t), cy + rr * math.sin(t), z) for t in np.linspace(math.radians(165), math.radians(-60), 14)]
-    end = arc[-1]
-    stem = [end, (0.0, 0.46, z), (0.0, 0.4, z)]
-    mark = cat(tube(arc + stem[1:], 0.03), sphere(0.038, (0.0, 0.29, z), 2))
-    return {"body": [(mono, "slate"), (plinth, "chrome")], "status": [(mark, "status")]}
+    """Just a 3D question mark: a thick rounded hook and stem (chrome), the dot is the `status` light."""
+    z = 0.0
+    cx, cy, rr = 0.0, 0.72, 0.2
+    arc = [(cx + rr * math.cos(t), cy + rr * math.sin(t), z) for t in np.linspace(math.radians(160), math.radians(-62), 26)]
+    ex, ey = arc[-1][0], arc[-1][1]
+    bend = [(ex * (1 - k) ** 2, ey - 0.13 * k, z) for k in np.linspace(0.15, 1, 6)]      # eases into the stem
+    stem = bend + [(0.0, ey - 0.2, z)]
+    mark = tube(arc + stem, 0.075, sections=28)
+    dot = sphere(0.088, (0.0, 0.088, z), 3)
+    return {"body": [(mark, "chrome")], "status": [(dot, "status")]}
 
 
 MODELS = {"router": router, "camera": camera, "tv": tv, "iot": iot, "computer": computer, "printer": printer,

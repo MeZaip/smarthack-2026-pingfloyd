@@ -7,7 +7,7 @@
  *   - ONE hidden WebGLRenderer draws every slot in turn and copies the picture into a plain 2D <canvas> in the
  *     slot, so there is no limit on WebGL contexts and slots also work inside the <dialog> sheet.
  *
- * Usage: any element <div class="dev3d" data-type="router" data-tone="red|amber|blue|green" [data-float]>
+ * Usage: any element <div class="dev3d" data-type="router" data-tone="red|amber|blue|green" [data-float] [data-angle]>
  * is picked up by Device3D.scan(); the model rotates gently, can be turned by dragging, and its `status`
  * part (LED) plus a rim light take the risk colour. Without WebGL, or without the bundle, the SVG icon that
  * sits inside the slot stays visible.
@@ -95,8 +95,18 @@
     const key = BUNDLE[type] ? type : "unknown";
     if (!templates[key]) {
       const g = parseGlb(decode(BUNDLE[key]));
-      const box = new T3.Box3().setFromObject(g), sph = box.getBoundingSphere(new T3.Sphere());
-      templates[key] = { group: g, center: sph.center, radius: sph.radius };
+      // the model spins around its own vertical axis (x = z = 0): what must fit in the frame is the widest it can
+      // ever look (the farthest point from that axis) and its height
+      let rxz = 0, ymin = Infinity, ymax = -Infinity;
+      g.traverse((o) => {
+        if (!o.isMesh) return;
+        const a = o.geometry.attributes.position.array;
+        for (let i = 0; i < a.length; i += 3) {
+          rxz = Math.max(rxz, Math.hypot(a[i], a[i + 2]));
+          ymin = Math.min(ymin, a[i + 1]); ymax = Math.max(ymax, a[i + 1]);
+        }
+      });
+      templates[key] = { group: g, rxz, height: ymax - ymin, cy: (ymin + ymax) / 2 };
     }
     return templates[key];
   }
@@ -164,16 +174,22 @@
     const cw = Math.round(w * dpr), ch = Math.round(h * dpr);
     if (s.cv.width !== cw || s.cv.height !== ch) { s.cv.width = cw; s.cv.height = ch; }
     const still = reduce();
-    const angle = (still ? 0.55 : 0.55 + Math.sin(s.spin + time * 0.0006) * 0.45 + (s.hover ? time * 0.0012 : 0)) + s.drag;
+    const fixed = s.el.dataset.angle;                    // optional fixed angle (tests, screenshots)
+    const angle = fixed != null ? Number(fixed) : (still ? 0.55 : 0.55 + Math.sin(s.spin + time * 0.0006) * 0.45 + (s.hover ? time * 0.0012 : 0)) + s.drag;
     holder.clear();
     s.model.rotation.set(0, angle, 0);
-    s.model.position.set(-s.t.center.x, -s.t.center.y + (s.float && !still ? Math.sin(time * 0.0018 + s.spin) * 0.04 : 0), -s.t.center.z);
+    s.model.position.set(0, -s.t.cy + (s.float && !still ? Math.sin(time * 0.0018 + s.spin) * 0.04 : 0), 0);
     holder.add(s.model);
     rim.color.set(s.tone); rim.intensity = 5;
     glow.color.set(s.tone); glow.intensity = 1.6;
     camera.aspect = 1;                                  // slots are square, like the offscreen renderer
-    const dist = (s.t.radius * 0.74) / Math.sin((camera.fov * Math.PI) / 360);   // the bounding sphere is larger than the visible shape
-    camera.position.set(0, dist * 0.34, dist);
+    // fit for every angle of the spin: the footprint circle (radius rxz) and the height, seen from a camera
+    // tilted down by EL; plus the float bob and a small margin
+    const EL = 0.32, r = s.t.rxz, hgt = s.t.height + (s.float ? 0.08 : 0);
+    const halfV = (hgt * Math.cos(EL) + 2 * r * Math.sin(EL)) / 2, halfH = r;
+    const half = Math.max(halfV, halfH) * 1.1;
+    const dist = half / Math.tan((camera.fov * Math.PI) / 360) + r;
+    camera.position.set(0, Math.sin(EL) * dist, Math.cos(EL) * dist);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
