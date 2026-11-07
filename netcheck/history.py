@@ -86,7 +86,8 @@ def db_path(path: Optional[str | os.PathLike] = None) -> Path:
 
 def connect(path: Optional[str | os.PathLike] = None) -> sqlite3.Connection:
     p = db_path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
+    if not p.parent.exists():
+        p.parent.mkdir(mode=0o700, parents=True)   # history is personal data: owner-only (NFR-02)
     if not p.exists():
         p.touch(mode=0o600)
     conn = sqlite3.connect(p)

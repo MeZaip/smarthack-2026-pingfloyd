@@ -145,3 +145,13 @@ def test_old_database_without_tls_column_is_upgraded(db):
     with history.open_history(db) as conn:
         history.save(conn, analyze_file(SYN / "V6a_before.xml"))
         assert conn.execute("SELECT COUNT(*) FROM ports WHERE tls = 0").fetchone()[0] > 0
+
+
+def test_history_folder_and_file_are_owner_only(tmp_path):
+    import os, stat
+    db = tmp_path / "private" / "history.sqlite"
+    with history.open_history(db):
+        pass
+    if os.name == "posix":
+        assert stat.S_IMODE(db.parent.stat().st_mode) == 0o700
+        assert stat.S_IMODE(db.stat().st_mode) == 0o600
