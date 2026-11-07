@@ -18,7 +18,7 @@ from ..core.device import DEVICE_LABELS
 from ..explain.simple_texts import GLOSSARY, SIMPLE, WHO
 from ..explain.texts import LANGS, SEVERITY_LABELS, TEXTS, score_band
 
-MAX_SCANS = 30          # newest scans shown in the "check shown" list
+MAX_SCANS = 100         # newest scans with full details in the page (all of them are listed in Results)
 _LIVE_FILE = re.compile(r"^scan_\d{8}_\d{6}\.xml$")
 
 
@@ -71,15 +71,20 @@ def scan_entry(a: Analysis, row: dict, changes: Optional[dict], me_ip: Optional[
 
 def live_part(load: Callable[[object, int], Analysis], me_ip: Optional[str] = None,
               app_mode: bool = False) -> dict:
-    """Scans saved on this computer, newest first, each with its change since the previous one."""
+    """Files saved on this computer, newest first: readable scans with their change since the previous
+    readable one, unreadable files with their error (shown as ERROR, like scores.csv)."""
     with history.open_history() as conn:
         trend = history.trend(conn)
+        all_rows = history.entries(conn)
+        order = [r["scan_id"] for r in trend]
         scans = []
-        rows = trend[-MAX_SCANS:]
-        for i in range(len(rows) - 1, -1, -1):
-            row = rows[i]
-            prev = trend[trend.index(row) - 1] if trend.index(row) > 0 else None
-            changes = history.changes(conn, prev["scan_id"], row["scan_id"]) if prev else None
+        for row in reversed(all_rows[-MAX_SCANS:]):
+            if row["error"]:
+                scans.append({"scan_id": row["scan_id"], "file": row["file"], "label": label_of(row), "when": _when(row),
+                              "error": row["error"], "devices": [], "findings": [], "changes": None})
+                continue
+            i = order.index(row["scan_id"])
+            changes = history.changes(conn, order[i - 1], row["scan_id"]) if i > 0 else None
             try:
                 a = load(conn, row["scan_id"])
             except KeyError:
@@ -87,7 +92,7 @@ def live_part(load: Callable[[object, int], Analysis], me_ip: Optional[str] = No
             scans.append(scan_entry(a, row, changes, me_ip))
         last = history.changes(conn)
     return {"live": True, "app_mode": app_mode, "me": me_ip, "scans": scans,
-            "history": {"trend": trend, "changes": last}}
+            "history": {"trend": trend, "all": all_rows, "changes": last}}
 
 
 def payload(load: Callable[[object, int], Analysis], me_ip: Optional[str] = None, app_mode: bool = False) -> dict:

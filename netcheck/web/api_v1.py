@@ -8,7 +8,7 @@
   GET    /api/v1/ui-data             everything the SafeHouse page shows (scans saved on this computer)
   POST   /api/v1/upload              one or more nmap XML files -> analysed and saved (broken ones: error)
   POST   /api/v1/export              nmap XML files (e.g. a whole folder) -> ZIP with findings.csv + scores.csv (FR-15)
-  POST   /api/v1/export/history      the same two CSVs for the scans saved on this computer
+  POST   /api/v1/export/history      the same two CSVs for the files saved on this computer (unreadable: ERROR)
   DELETE /api/v1/history             delete my history (one click, NFR-02)
   POST   /api/v1/heartbeat           the open page is alive (app mode)
   POST   /api/v1/shutdown            "Close SafeHouse" (app mode)
@@ -195,19 +195,23 @@ def ui_data():
 
 @router.post("/upload")
 async def upload(request: Request, files: list[UploadFile] = File(...)):
-    """Analyse uploaded scan files with the same core as the CLI. Readable ones are saved to the
-    local history; unreadable ones are reported (never saved, never a crash)."""
+    """Analyse uploaded scan files with the same core as the CLI and save them to the local history.
+    A file that cannot be read is kept by name only (no content), so the list and the CSV export show
+    it with ERROR - never a crash."""
     from ..core.parser import MAX_FILE_BYTES
     from .app import _remember, analyze_bytes
     lang = _lang(request)
+    if len(files) > MAX_EXPORT_FILES:          # never drop files silently: every one must get its row
+        return _error(413, "too_many", lang, f"Maximum {MAX_EXPORT_FILES} files.")
     saved, errors = [], []
     with history.open_history() as conn:
-        for f in files[:20]:
+        for f in files:
             data = await f.read(MAX_FILE_BYTES + 1)
             name = Path(f.filename or "upload.xml").name[:120]
             a = analyze_bytes(data, name)
             if not a.ok:
-                errors.append({"file": name, "error": a.error})
+                bad_id, _created = history.save_error(conn, name, a.error)
+                errors.append({"file": name, "error": a.error, "scan_id": bad_id})
                 continue
             scan_id, _created = history.save(conn, a)
             _remember(scan_id, a)
@@ -276,10 +280,12 @@ async def export(request: Request, files: list[UploadFile] = File(...)):
 
 @router.post("/export/history")
 def export_history(request: Request):
+    from ..core.analysis import Analysis
     from .app import get_analysis
     lang = _lang(request)
     with history.open_history() as conn:
-        results = [get_analysis(conn, sid) for sid in history.scan_ids(conn)]
+        results = [Analysis(file=e["file"], error=e["error"]) if e["error"] else get_analysis(conn, e["scan_id"])
+                   for e in history.entries(conn)]
     results.sort(key=lambda a: a.file)          # by file name, exactly like the CLI and the expected CSVs
     if not results:
         return _error(404, "no_scan", lang, "Nu există verificări salvate." if lang == "ro" else "There are no saved checks.")
