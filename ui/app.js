@@ -31,6 +31,12 @@
       doorsOpen: "Uși lăsate deschise ({n})", doorsSub: "Fiecare card spune ce s-a întâmplat și ce faci, pas cu pas. Cel mai periculos e primul.",
       doorsNone: "Nicio ușă lăsată deschisă. Toate aparatele tale sunt în siguranță.",
       devicesSub2: "Toate aparatele conectate la rețeaua ta. Apasă pe un aparat ca să vezi ce poți face.",
+      trendUp: "Scorul a crescut cu {pts}", trendDown: "Scorul a scăzut cu {pts}",
+      trendSame: "Scorul a rămas la fel ca data trecută", trendFirst: "Prima verificare salvată pentru această rețea",
+      trendNone: "Încă nu avem o verificare anterioară, ca să comparăm scorul",
+      newDev1: "1 aparat nou", newDevN: "{n} aparate noi", newDev0: "Niciun aparat nou",
+      delHistory: "Șterge istoricul", delHistoryAsk: "Ștergi toate verificările salvate pe acest calculator? Nu le mai poți aduce înapoi.",
+      histGone: "Istoricul a fost șters de pe acest calculator.",
       startHere: "Începe de aici", scoreTitle: "Scorul casei tale", scorePending: "Apasă butonul ca să verificăm casa și să afli scorul.",
       netTitle: "Rețeaua de acasă",
       scoreOf: "din 100",
@@ -128,6 +134,12 @@
       doorsOpen: "Doors left open ({n})", doorsSub: "Each card says what is wrong and what to do, step by step. The most dangerous one comes first.",
       doorsNone: "No door left open. All your devices are safe.",
       devicesSub2: "All the devices connected to your network. Tap a device to see what you can do.",
+      trendUp: "Score improved by {pts}", trendDown: "Score dropped by {pts}",
+      trendSame: "Score is the same as last time", trendFirst: "First saved check for this network",
+      trendNone: "No earlier check yet to compare the score with",
+      newDev1: "1 new device", newDevN: "{n} new devices", newDev0: "No new devices",
+      delHistory: "Delete history", delHistoryAsk: "Delete all checks saved on this computer? You cannot get them back.",
+      histGone: "History was deleted from this computer.",
       startHere: "Start here", scoreTitle: "Your home's score", scorePending: "Press the button so we can check the house and show your score.",
       netTitle: "Home network",
       scoreOf: "out of 100",
@@ -411,6 +423,8 @@
     if (!hero || !STATUS[st]) return false;
     const s = scan(), cfg = STATUS[st], toFix = s.error ? 0 : s.findings.filter((x) => x.severity !== "info").length;
     hero.dataset.state = st;
+    const wrap = hero.querySelector(".stage-wrap");
+    if (wrap) wrap.classList.toggle("is-scanning", st === "scanning");   // starts / stops the yoyo scanline
     hero.querySelector(".hs-icon").replaceChildren(icon(cfg.icon, "lg"));
     const other = state.lang === "ro" ? "en" : "ro";
     hero.querySelector(".glass-ico").replaceChildren(icon(cfg.icon, "lg"));
@@ -439,6 +453,54 @@
     }, reducedMotion() ? 0 : SCAN_MS);
   }
 
+  // Points in words: Romanian needs "de" for 20+ ("40 de puncte"), not for 1-19 ("5 puncte").
+  function points(n) {
+    n = Math.abs(n);
+    if (state.lang === "en") return n === 1 ? "1 point" : `${n} points`;
+    const r = n % 100;
+    return n === 1 ? "1 punct" : (r >= 1 && r <= 19 ? `${n} puncte` : `${n} de puncte`);
+  }
+  // What the saved history says about the scan on screen. Only real data, never invented numbers.
+  function historyFor(s) {
+    if (state.historyDeleted || !D.history || !D.history.trend.length) return { kind: "none" };
+    const i = D.history.trend.findIndex((r) => r.file === s.file);
+    if (i < 0) return { kind: "none" };
+    if (i === 0) return { kind: "first" };
+    const ch = D.history.changes;
+    if (!ch || ch.after_file !== s.file) return { kind: "none" };
+    return { kind: "delta", delta: ch.score_change, newDevices: ch.new_devices.length };
+  }
+  function trendRow(s) {
+    const hs = historyFor(s);
+    if (hs.kind !== "delta") return h("p", { class: "trend neutral" }, icon("info"), h("span", { text: hs.kind === "first" ? t("trendFirst") : t("trendNone") }));
+    const up = hs.delta > 0, down = hs.delta < 0;
+    return h("p", { class: "trend " + (up ? "up" : down ? "down" : "neutral") },
+      icon(up ? "trend-up" : down ? "trend-down" : "info"),
+      h("span", { text: up ? t("trendUp", { pts: points(hs.delta) }) : down ? t("trendDown", { pts: points(hs.delta) }) : t("trendSame") }));
+  }
+  function newDeviceBadge(s) {
+    const hs = historyFor(s);
+    if (hs.kind !== "delta") return null;
+    const n = hs.newDevices;
+    if (!n) return h("span", { class: "newdev none" }, icon("check"), t("newDev0"));
+    return h("span", { class: "newdev", role: "status" }, h("span", { class: "pulse-dot", "aria-hidden": "true" }), icon("plus"), n === 1 ? t("newDev1") : t("newDevN", { n }));
+  }
+  // NFR-02: one-click "delete my history", with an inline confirmation (no browser dialog).
+  function privacyRow() {
+    if (state.historyDeleted) {
+      return h("div", { class: "privacy" }, h("p", { class: "with-ico muted", role: "status", style: "margin:0" }, icon("trash"), h("span", { text: t("histGone") })),
+        h("button", { type: "button", class: "btn-link", onclick: () => { state.historyDeleted = false; store.set("historyDeleted", "0"); render(); } }, t("restore")));
+    }
+    if (state.confirmDelete) {
+      return h("div", { class: "privacy confirm-inline", role: "alertdialog", "aria-label": t("delHistory") },
+        h("p", { style: "margin:0", text: t("delHistoryAsk") }),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); focusSel(".privacy .btn-link"); } }, icon("trash"), t("deleteYes")),
+          h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); focusSel(".btn-delete"); } }, t("deleteNo"))));
+    }
+    return h("div", { class: "privacy" }, h("button", { type: "button", class: "btn-delete", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm-inline .btn-danger"); } }, icon("trash"), t("delHistory")));
+  }
+
   function renderHome(root) {
     const s = scan();
     const done = !!state.inspected[s.file];
@@ -456,15 +518,17 @@
       done && !s.error ? traffic(s.score) : null,
       h("p", { class: "lead", text: !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
         : toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }),
+      done && !s.error ? h("div", { class: "changes" }, trendRow(s), newDeviceBadge(s)) : null,
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
         done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null),
+      privacyRow(),
       // screen-reader status (the glass badge over the house is the visible one)
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
         h("div", { class: "hs-icon" }), h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))));
 
     root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "Safehouse" },
-      h("div", { class: "stage-wrap" }, houseScene()), scoreCard));
+      h("div", { class: "stage-wrap" }, houseScene(), h("div", { class: "scanline", "aria-hidden": "true" })), scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
     if (mountEl) window.Safehouse3D.mount(mountEl);
     applyHouseState(st);

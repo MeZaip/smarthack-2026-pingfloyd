@@ -814,3 +814,94 @@ dialog.sheet { background: var(--solid, #111114); border-left: 1px solid var(--l
 .btn-cta { background-color: #1d4ed8; }
 /* glass badge: size to its content, up to the stage width (absolute + left:50% would halve it) */
 .glass { width: max-content; max-width: calc(100% - 32px); }
+
+/* =====================================================================================
+   Polish: header no longer covers the greeting, custom scan select, yoyo scanline,
+   score trend (FR-10), new-device badge (FR-13), one-click delete history (NFR-02).
+   ===================================================================================== */
+/* header: opaque, above the content, so the page title is never blurred or cut */
+.appbar {
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(9, 9, 11, .88); border-bottom: 1px solid var(--line);
+  padding-top: 18px; padding-bottom: 18px;
+}
+:root[data-theme="light"] .appbar { background: rgba(248, 250, 253, .92); }
+main { position: relative; z-index: 0; }
+.page-head { margin-top: 40px; }
+.page-head h2 { line-height: 1.2; padding-top: 2px; }
+
+/* custom select: no native border or arrow, sleek dark chip with an SVG chevron */
+.net-chip {
+  position: relative; gap: 10px; padding: 0 44px 0 16px; border-radius: 14px; min-height: 52px;
+  background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1);
+  transition: border-color .3s ease, background .3s ease;
+}
+.net-chip:hover { border-color: rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .06); }
+.net-chip:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.net-chip select {
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  background: transparent; border: 0; outline: none; color: var(--text); font: inherit; font-size: 1rem; font-weight: 600;
+  min-height: 50px; padding: 0; max-width: 18rem; cursor: pointer;
+}
+.net-chip select::-ms-expand { display: none; }
+.net-chip select option { background: #111114; color: #fafafa; }
+:root[data-theme="light"] .net-chip { background: #fff; border-color: #d4d4d8; }
+:root[data-theme="light"] .net-chip select option { background: #fff; color: #1f1f1f; }
+.select-chev { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.net-chip > .ico:first-of-type { color: var(--primary); }
+
+/* yoyo scanline over the 3D house: top -> bottom, then smoothly back (alternate) */
+.stage-wrap { --scan-top: 84px; --scan-travel: 340px; }
+.scanline {
+  position: absolute; left: 10%; right: 10%; top: var(--scan-top); height: 3px; border-radius: 3px; z-index: 2;
+  pointer-events: none; opacity: 0; transition: opacity .3s ease;
+  background: linear-gradient(90deg, transparent, #22d3ee 14%, #cffafe 50%, #22d3ee 86%, transparent);
+  box-shadow: 0 0 12px 2px rgba(34, 211, 238, .75), 0 0 44px 10px rgba(56, 189, 248, .3);
+}
+.scanline::before, .scanline::after { content: ""; position: absolute; left: 4%; right: 4%; height: 64px; pointer-events: none; }
+.scanline::before { bottom: 3px; background: linear-gradient(to top, rgba(34, 211, 238, .2), transparent); }
+.scanline::after { top: 3px; background: linear-gradient(to bottom, rgba(34, 211, 238, .12), transparent); }
+.stage-wrap.is-scanning .scanline { opacity: 1; animation: scan-yoyo 2s ease-in-out infinite alternate; }
+@keyframes scan-yoyo {
+  from { transform: translateY(0); }
+  to { transform: translateY(var(--scan-travel)); }
+}
+/* result glow behind the house: stronger once the scan is done */
+.hero[data-state="safe"] .stage-wrap::before, .hero[data-state="vulnerable"] .stage-wrap::before { opacity: .8; }
+
+/* score trend (FR-10) and new-device badge (FR-13), always icon + words */
+.changes { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.trend { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 600; }
+.trend.up { color: var(--green-ink); } .trend.down { color: var(--red-ink); } .trend.neutral { color: var(--muted); font-weight: 400; }
+.newdev {
+  display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: .35rem .9rem; font-weight: 600;
+  color: var(--info-ink); background: var(--info-bg); border: 1px solid rgba(59, 130, 246, .35);
+}
+.newdev.none { color: var(--muted); background: transparent; border-color: var(--outline); font-weight: 400; }
+.pulse-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; flex: none; }
+.pulse-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #3b82f6; animation: dot-pulse 1.6s ease-out infinite; }
+@keyframes dot-pulse { from { transform: scale(1); opacity: .7; } to { transform: scale(3); opacity: 0; } }
+
+/* one-click delete history (NFR-02): quiet until needed, inline confirmation */
+.privacy { width: 100%; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 4px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.btn-delete, .btn-link {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: .45rem .9rem; border-radius: 10px;
+  background: transparent; border: 1px solid transparent; font: inherit; font-weight: 600; cursor: pointer; transition: all .3s ease;
+}
+.btn-delete { color: var(--muted); }
+.btn-delete:hover { color: var(--red-ink); background: var(--red-bg); border-color: rgba(239, 68, 68, .3); }
+.btn-link { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.confirm-inline { background: var(--red-bg); border: 1px solid rgba(239, 68, 68, .3); border-radius: 14px; padding: 16px; border-top-width: 1px; }
+.score-card .privacy .actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.score-card .privacy .actions .btn { width: auto; }
+
+@media (max-width: 1000px) { .stage-wrap { --scan-top: 70px; --scan-travel: 290px; } }
+@media (max-width: 760px) {
+  .stage-wrap { --scan-top: 64px; --scan-travel: 250px; }
+  .appbar { position: static; }
+  .net-chip select { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-wrap.is-scanning .scanline { animation: none; transform: translateY(calc(var(--scan-travel) / 2)); }
+  .pulse-dot::after { animation: none; }
+}
