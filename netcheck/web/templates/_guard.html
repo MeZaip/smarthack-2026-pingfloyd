@@ -1,0 +1,9 @@
+<section class="card noprint" aria-labelledby="guard-h">
+  <h2 id="guard-h">🛡️ {{ t.guard }}</h2>
+  {% if watch_last %}
+    <p class="small">{{ t.guard_last }}: <strong>{{ watch_last.ts }}</strong> · {{ watch_last.subnet }} · {{ watch_last.devices }} {{ t.guard_devices }}</p>
+  {% else %}
+    <p class="small">{{ t.guard_none }} <code>python -m netcheck watch --confirm</code></p>
+  {% endif %}
+  {% if watch_events %}<ul>{% for e in watch_events %}<li class="small">{{ e.ts }} — {% if e.kind == 'new_device' %}➕{% elif e.kind == 'new_port' %}🚪{% elif e.kind == 'paused' %}⏸{% else %}✔{% endif %} {{ e.detail }}</li>{% endfor %}</ul>{% endif %}
+</section>

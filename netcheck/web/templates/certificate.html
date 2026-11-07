@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+{% if not cert %}<section class="card warn"><h1>{{ t.need_two }}</h1></section>{% else %}
+<section class="card cert">
+  <h1>📜 {{ t.cert_title }}</h1>
+  <p class="muted">NetCheck · {{ p.issued_at }}</p>
+  <div class="hero" style="grid-template-columns:1fr 1fr">
+    {% for side, label in [(p.before, t.before), (p.after, t.after)] %}
+    {% set band = ex.score_band(side.score, lang) %}
+    <div class="score {{ band[0] }}"><div class="small">{{ label }} · {{ side.scanned_at }}</div>
+      <div class="num">{{ side.score }}</div><div><strong>{{ band[1] }} {{ band[2] }}</strong></div>
+      <div class="small">{{ side.file }} · {{ side.devices }} {{ t.devices|lower }} · {{ side.findings|length }} findings</div></div>
+    {% endfor %}
+  </div>
+  <h2>{{ t.score_change }}: {{ '%+d' % p.score_delta }}</h2>
+  {% if p.resolved %}<h3>✔ {{ t.resolved }} ({{ p.resolved|length }})</h3><ul>{% for x in p.resolved %}<li>{{ ex.get(x.code, lang).title }} — {{ x.ip }}{% if x.port is not none %}:{{ x.port }}{% endif %} <code>{{ x.code }}</code></li>{% endfor %}</ul>{% endif %}
+  {% if p.new %}<h3>⚠ {{ t.new }} ({{ p.new|length }})</h3><ul>{% for x in p.new %}<li>{{ ex.get(x.code, lang).title }} — {{ x.ip }}{% if x.port is not none %}:{{ x.port }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+  <p class="small">{{ t.cert_explain }}</p>
+  <p class="ev small">SHA-256 {{ t.before|lower }}: {{ p.before.sha256 }}<br>SHA-256 {{ t.after|lower }}: {{ p.after.sha256 }}<br>
+  {{ t.cert_key }}: <strong>{{ cert.key_fingerprint }}</strong><br>{{ t.cert_sig }} (Ed25519): {{ cert.signature }}</p>
+</section>
+<p class="noprint row">
+  <a class="btn" download="certificate.json" href="data:application/json;charset=utf-8,{{ cert_json|urlencode }}">{{ t.cert_download }}</a>
+  <button onclick="window.print()">🖨️ {{ t.print }}</button>
+  <a href="/certificate/verify?lang={{ lang }}">{{ t.cert_verify }}</a></p>
+{% endif %}
+{% endblock %}

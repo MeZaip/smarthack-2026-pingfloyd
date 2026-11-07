@@ -1,19 +1,14 @@
-# secrets
-.env
-*.key
-*.pem
-
-# local data (privacy: history and scans stay on this machine)
-results/
-data/
-*.sqlite
-*.db
-scans/private/
-
-# python
+.venv/
 __pycache__/
 *.pyc
+.env
+results/
+.netcheck/
+*.db
 .pytest_cache/
-.venv/
-venv/
-*.egg-info/
+.DS_Store
+
+# brief is already in the repo as cerinta.pdf
+R Systems Hackathon 2026 - Participant Brief.pdf
+scans/
+certificate.json

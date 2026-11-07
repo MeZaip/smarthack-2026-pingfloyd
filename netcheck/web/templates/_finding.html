@@ -1,0 +1,25 @@
+{% set tx = ex.get(f.code, lang) %}
+{% set d = dev_by_ip.get(f.ip) %}
+{% set v = ver.get((f.ip, f.port, f.code)) %}
+<article class="card{% if v and v.status == 'resolved' %} proven{% endif %}" aria-label="{{ tx.title }}"{% if anchor %} id="dev-{{ f.ip|replace('.', '-') }}"{% endif %}>
+  <div class="row">
+    <span class="sev sev-{{ f.severity }}">{{ ex.SEVERITY_ICON[f.severity] }} {{ ex.SEVERITY_LABEL[lang][f.severity] }}</span>
+    <h3>{% if d %}{{ name_of(d) }}: {% endif %}{{ tx.title }}</h3>
+    {% if v %}<span class="sev {{ 'good' if v.status == 'resolved' else 'bad' }}">{{ t.proven if v.status == 'resolved' else t.still_open }}</span>{% endif %}
+  </div>
+  <p class="muted small">{{ f.ip }}{% if f.port is not none %} · port {{ f.port }}/{{ f.protocol }}{% endif %} · <code>{{ f.code }}</code> · −{{ f.points }}</p>
+  <p><strong>{{ t.what }}:</strong> {{ tx.explain }}</p>
+  <p><strong>{{ t.how }}:</strong></p>
+  <ol>{% for s in tx.steps %}<li>{{ s }}</li>{% endfor %}</ol>
+  {% if f.points > 0 and f.port is not none and scan_id %}
+  <form method="post" action="/verify?lang={{ lang }}" class="row noprint verify">
+    <input type="hidden" name="scan_id" value="{{ scan_id }}"><input type="hidden" name="ip" value="{{ f.ip }}">
+    <input type="hidden" name="port" value="{{ f.port }}"><input type="hidden" name="code" value="{{ f.code }}">
+    <label class="small"><input type="checkbox" name="consent" value="1"> {{ t.verify_consent }}</label>
+    <button type="submit">🔍 {{ t.verify_btn }}</button>
+  </form>
+  {% endif %}
+  <details><summary>{{ t.evidence }}</summary><p class="ev">{{ f.evidence }}</p>
+  {% if v %}<p class="ev small">{{ v.ts }}: {{ v.status }} — {{ v.evidence }}</p>{% endif %}
+  {% if tx.refs %}<p class="small">{{ t.refs }}: {{ tx.refs|join(" · ") }}</p>{% endif %}</details>
+</article>

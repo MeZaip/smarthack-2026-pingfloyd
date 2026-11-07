@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block body %}
+{% if flash %}
+<section id="flash" role="alert" class="card {{ 'good' if flash.status == 'resolved' else ('warn' if flash.status in ('needs_root','unsupported','refused') else 'bad') }}">
+  <h2>{{ flash.text }}</h2>{% if flash.where %}<p>{{ flash.where }}</p>{% endif %}
+  {% if flash.evidence %}<p class="ev small">{{ t.evidence }}: {{ flash.evidence }}</p>{% endif %}
+</section>
+{% endif %}
+{% if not r %}
+  <section class="card"><h1>{{ t.no_scan }}</h1></section>
+{% elif not r.ok %}
+  <section class="card err" role="alert"><h1>✖ {{ t.error_title }}: {{ r.file }}</h1>
+  <p>{{ r.error }}</p><p>{{ t.error_help }}</p><p><strong>{{ t.score }}: ERROR</strong></p></section>
+{% else %}
+  {% set band = ex.score_band(r.score, lang) %}
+  <section class="hero">
+    <div class="score {{ band[0] }}" role="status">
+      <div class="small">{{ t.score }}</div>
+      <div class="num">{{ r.score }}</div>
+      <div><strong>{{ band[1] }} {{ band[2] }}</strong></div>
+      <div class="small">{{ t.standard }} · {{ r.file }}</div>
+      {% if est is not none and est != r.score %}<div class="small" style="margin-top:8px">📈 {{ t.est }}: <strong>{{ est }}</strong><br><span class="small">({{ t.est_note }})</span></div>{% endif %}
+    </div>
+    {% if first %}
+      {% set tx = ex.get(first.code, lang) %}
+      <div class="card fixfirst" style="margin:0">
+        <h1>👉 {{ t.fix_first }}</h1>
+        <p><strong>{{ t.most_dangerous }}:</strong> {{ name_of(dev) }} — {{ dev.ip }} ({{ dev.type_guess }}), {{ dev.risk_points }} {{ t.risk|lower }}</p>
+        <h3><span class="sev sev-{{ first.severity }}">{{ ex.SEVERITY_ICON[first.severity] }} {{ ex.SEVERITY_LABEL[lang][first.severity] }}</span> {{ tx.title }}</h3>
+        <p>{{ tx.explain }}</p>
+        <ol>{% for s in tx.steps %}<li>{{ s }}</li>{% endfor %}</ol>
+        <p class="small"><a href="#dev-{{ dev.ip|replace('.', '-') }}">➜ {{ t.verify_btn }}</a></p>
+      </div>
+    {% else %}
+      <div class="card good" style="margin:0"><h1>✔ {{ t.no_problems }}</h1></div>
+    {% endif %}
+  </section>
+
+  {% include "_house.html" %}
+
+  {% if alerts %}<section class="card warn" role="alert"><h2>🔔 {{ t.alerts }}</h2><ul>{% for a in alerts %}<li>{{ a }}</li>{% endfor %}</ul></section>{% endif %}
+  {% if diff %}
+  <section class="card"><h2>📈 {{ t.changes }}</h2>
+    <p>{{ t.score }}: {{ diff.old_score }} → <strong>{{ diff.new_score }}</strong> ({{ '%+d' % diff.score_delta }})</p>
+    {% if diff.resolved_findings %}<p>✔ <strong>{{ t.resolved }}:</strong> {% for f in diff.resolved_findings %}{{ ex.get(f.code, lang).title }} ({{ f.ip }}{% if f.port is not none %}:{{ f.port }}{% endif %}){% if not loop.last %}; {% endif %}{% endfor %}</p>{% endif %}
+    {% if diff.new_findings %}<p>⚠ <strong>{{ t.new }}:</strong> {% for f in diff.new_findings %}{{ ex.get(f.code, lang).title }} ({{ f.ip }}){% if not loop.last %}; {% endif %}{% endfor %}</p>{% endif %}
+  </section>
+  {% endif %}
+
+  <section class="card noprint">
+    <h2>💬 {{ t.ask }}</h2>
+    <form action="/ask?lang={{ lang }}" method="post" class="row">
+      <input type="hidden" name="scan_id" value="{{ scan_id }}">
+      <label for="q" class="small muted">{{ t.ask_note }}</label>
+      <input id="q" type="text" name="question" placeholder="{{ t.ask_ph }}" required maxlength="500">
+      <button type="submit">{{ t.ask_btn }}</button>
+    </form>
+  </section>
+
+  <h2>🔎 {{ t.findings }}</h2>
+  {% for f in findings %}{% set anchor = loop.index0 in anchors %}{% include "_finding.html" %}{% else %}<p>{{ t.no_problems }}</p>{% endfor %}
+
+  <section class="card"><h2>🖥️ {{ t.devices }}</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>{{ t.ip }}</th><th>{{ t.hostname }}</th><th>{{ t.vendor }}</th><th>{{ t.type }}</th><th>{{ t.mac }}</th><th>{{ t.ports }}</th><th>{{ t.risk }}</th></tr></thead>
+    <tbody>{% for d in r.devices|sort(attribute='risk_points', reverse=True) %}<tr>
+      <td>{{ d.ip }}</td><td>{{ name_of(d) }}</td><td>{{ d.vendor or '—' }}</td><td>{{ d.type_guess }}</td><td><code>{{ d.mac_masked or '—' }}</code></td>
+      <td>{% for p in d.open_ports %}{{ p.port }}/{{ p.protocol }} {{ p.service }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</td>
+      <td>{% if d.risk_points >= 20 %}⛔{% elif d.risk_points >= 10 %}⚠️{% elif d.risk_points > 0 %}🔹{% else %}✔{% endif %} {{ d.risk_points }}</td></tr>{% endfor %}
+    </tbody></table></div></section>
+  <p class="noprint row"><a class="btn" href="/report/{{ scan_id }}?lang={{ lang }}">📄 {{ t.report }}</a>
+  {% if cert_pair[0] %}<a class="btn" href="/certificate?before={{ cert_pair[0] }}&after={{ cert_pair[1] }}&lang={{ lang }}">{{ t.cert_btn }}</a>{% endif %}</p>
+{% endif %}
+
+{% include "_guard.html" %}
+
+{% if scans %}
+<section class="card noprint"><h2>{{ t.choose }}</h2>
+<form method="get" action="/" class="row"><input type="hidden" name="lang" value="{{ lang }}">
+<label for="sid" class="small">{{ t.choose }}</label>
+<select id="sid" name="id" style="font:inherit;padding:8px">{% for s in scans|reverse %}<option value="{{ s.id }}" {% if s.id==scan_id %}selected{% endif %}>#{{ s.id }} · {{ s.source }} · {{ s.file }} · {{ s.score if s.ok else 'ERROR' }}</option>{% endfor %}</select>
+<button type="submit">OK</button></form></section>
+{% endif %}
+{% include "_upload.html" %}
+{% endblock %}

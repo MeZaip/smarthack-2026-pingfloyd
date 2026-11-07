@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>🔏 {{ t.cert_verify }}</h1>
+<section class="card"><form method="post" enctype="multipart/form-data" action="/certificate/verify?lang={{ lang }}" class="row">
+  <label for="cf">{{ t.cert_upload }}</label><input id="cf" type="file" name="file" accept=".json,application/json" required>
+  <button type="submit">{{ t.cert_verify }}</button></form></section>
+{% if result %}
+<section class="card {{ 'good' if result.ok else 'bad' }}" role="alert">
+  <h2>{{ t.cert_ok if result.ok else t.cert_bad }}</h2>
+  <p class="small">{{ result.reason }}</p>
+  {% if result.ok %}<p>{{ t.cert_ours if result.ours else t.cert_other }}</p>
+  <p>{{ t.before }}: <strong>{{ result.payload.before.score }}</strong> → {{ t.after }}: <strong>{{ result.payload.after.score }}</strong> · {{ t.resolved }}: {{ result.payload.resolved|length }}</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

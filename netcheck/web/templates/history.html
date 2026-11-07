@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>🕘 {{ t.history }}</h1>
+<form method="get" class="row noprint"><input type="hidden" name="lang" value="{{ lang }}">
+<label for="src">{{ t.group }}</label>
+<select id="src" name="source" style="font:inherit;padding:8px">{% for s in sources %}<option {% if s==source %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+<button type="submit">OK</button></form>
+{% if cert_pair[0] %}<p class="noprint"><a class="btn" href="/certificate?before={{ cert_pair[0] }}&after={{ cert_pair[1] }}&lang={{ lang }}">{{ t.cert_btn }}</a> <a href="/certificate/verify?lang={{ lang }}">{{ t.cert_verify }}</a></p>{% endif %}
+{% set ok = scans|selectattr('ok')|list %}
+{% if ok|length > 1 %}
+<section class="card"><h2>📈 {{ t.trend }}</h2>
+{% set w = 640 %}{% set h = 200 %}{% set n = ok|length %}
+<svg viewBox="0 0 {{ w }} {{ h + 40 }}" width="100%" role="img" aria-label="{{ t.trend }}">
+  <line x1="30" y1="10" x2="30" y2="{{ h }}" stroke="currentColor" opacity=".4"/>
+  <line x1="30" y1="{{ h }}" x2="{{ w }}" y2="{{ h }}" stroke="currentColor" opacity=".4"/>
+  {% for v in [0,50,100] %}<text x="0" y="{{ h - v*(h-10)/100 + 5 }}" font-size="14" fill="currentColor">{{ v }}</text>{% endfor %}
+  <polyline fill="none" stroke="var(--accent)" stroke-width="3" points="{% for s in ok %}{{ 40 + loop.index0*(w-60)/(n-1) }},{{ h - s.score*(h-10)/100 }} {% endfor %}"/>
+  {% for s in ok %}<circle cx="{{ 40 + loop.index0*(w-60)/(n-1) }}" cy="{{ h - s.score*(h-10)/100 }}" r="6" fill="var(--accent)"/>
+  <text x="{{ 40 + loop.index0*(w-60)/(n-1) - 10 }}" y="{{ h - s.score*(h-10)/100 - 12 }}" font-size="15" fill="currentColor">{{ s.score }}</text>
+  <text x="{{ 40 + loop.index0*(w-60)/(n-1) - 10 }}" y="{{ h + 25 }}" font-size="13" fill="currentColor">#{{ s.id }}</text>{% endfor %}
+</svg></section>
+{% endif %}
+{% for a, b, d, al in diffs %}
+<section class="card"><h3>#{{ a.id }} {{ a.file }} → #{{ b.id }} {{ b.file }}</h3>
+<p>{{ t.score }}: {{ d.old_score }} → <strong>{{ d.new_score }}</strong> ({{ '%+d' % d.score_delta }})</p>
+<ul>
+{% for f in d.resolved_findings %}<li>✔ {{ t.resolved }}: {{ ex.get(f.code, lang).title }} — {{ f.ip }}{% if f.port is not none %}:{{ f.port }}{% endif %} <code>{{ f.code }}</code></li>{% endfor %}
+{% for f in d.new_findings %}<li>⚠ {{ t.new }}: {{ ex.get(f.code, lang).title }} — {{ f.ip }}{% if f.port is not none %}:{{ f.port }}{% endif %} <code>{{ f.code }}</code></li>{% endfor %}
+{% for x in d.new_devices %}<li>➕ {{ t.new_devices }}: {{ x.ip }} ({{ x.vendor or x.hostname or '?' }})</li>{% endfor %}
+{% for x in d.removed_devices %}<li>➖ {{ t.removed_devices }}: {{ x.ip }}</li>{% endfor %}
+{% for p in d.opened_ports %}<li>🔓 {{ t.opened }}: {{ p[0] }} {{ p[1] }}/{{ p[2] }} {{ p[3] }}</li>{% endfor %}
+{% for p in d.closed_ports %}<li>🔒 {{ t.closed }}: {{ p[0] }} {{ p[1] }}/{{ p[2] }} {{ p[3] }}</li>{% endfor %}
+</ul></section>
+{% endfor %}
+<section class="card"><div class="scroll"><table><thead><tr><th>#</th><th>{{ t.date }}</th><th>{{ t.file }}</th><th>{{ t.score }}</th></tr></thead><tbody>
+{% for s in scans|reverse %}<tr><td><a href="/?id={{ s.id }}&lang={{ lang }}">#{{ s.id }}</a></td><td>{{ s.created_at }}</td><td>{{ s.file }}</td><td>{{ s.score if s.ok else '✖ ERROR' }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+<form action="/history/delete?lang={{ lang }}" method="post" class="noprint" onsubmit="return confirm('{{ t.delete_confirm }}')">
+<button class="danger" type="submit">🗑️ {{ t.delete }}</button></form>
+{% endblock %}

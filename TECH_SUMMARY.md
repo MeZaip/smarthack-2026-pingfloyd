@@ -1,0 +1,35 @@
+# NetCheck — 1-page technical summary
+
+**Lab setup.** One phone runs hotspot `RSH-<team>` (WPA2/3). Scanner laptop joins only the hotspot. Target laptop runs
+`lab/fake_services.py` (banner-only telnet, FTP vsFTPd 2.3.4, SSH OpenSSH 7.2, VNC, plain-HTTP "Admin Login") and optionally
+Docker Redis / Mosquitto 1.6 / nginx admin page. ≥ 6 catalog finding types. Before/after: `--fixed` turns off telnet, FTP and HTTP admin.
+_TODO at the event: subnet, devices, screenshots, measured score before → after._
+
+**Architecture.** Python 3, one package, five layers:
+`scanner (nmap, sudo only)` → `parser (defusedxml)` → `rules + score (deterministic)` → `explain (RO/EN JSON) / assistant (Claude, optional)` →
+`history (SQLite) + web UI (FastAPI, Jinja2 autoescape) + CSV export`. CLI first, UI second; both call the same functions.
+
+**Rules.** Literal implementation of the official catalog: only `state="open"`, decision by nmap service name, UPnP/SNMP only on UDP,
+HTTP admin = service `http` without `tunnel="ssl"` and title containing login/admin/config/setup/router/settings,
+SMB one finding per device (445 else 139), OUTDATED in addition to the service finding, UNKNOWN_DEVICE with empty port.
+Score = max(0, 100 − Σ points). Validation Set: 24/24 rows, 0 extra, 8/8 scores (automated test).
+
+**AI use (governed, free, local).** Findings, severities and scores never touch the LLM. Default model: `qwen2.5:7b` via Ollama on the
+laptop (no account, no data leaves the machine); Claude optional. The model gets the verified scan context and can call only our tools
+(`get_scan_summary`, `list_findings`, `get_fix`, `compare_with_previous`, …). A **grounding validator** rejects any answer naming an IP,
+port, finding code, CVE, link or phone number not present in the scan evidence and shows the verified built-in text instead.
+Live scans requested in chat go through the guardrail **and** a human yes. No model / timeout → built-in assistant, same UX.
+
+**Differentiators.** Home map with personal device names (HMAC device IDs, no MAC stored); „Dovedește!” one-click targeted re-check
+(unprivileged `nmap -sT`, same rules) + Ed25519-signed before/after certificate with scan SHA-256s (tamper → verification fails);
+„Paznic” unprivileged watch mode (ARP table + top-100 connect scan, desktop notifications, auto-pause on network change).
+
+**Security & privacy.** Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
+masked MACs, local-only history with one-click delete, hostile-input tests (XXE, entity bomb, XSS in titles), secrets only via env vars
+(`gitleaks` clean).
+
+**Assumptions.** Service names are taken exactly as nmap reports them (e.g. `http-proxy` is not `http`). Samba version "3.X - 4.X"
+counts as 3.x. A host with no MAC entry at all counts as "no MAC vendor". Only `.xml` files are analysed in batch mode (`--all-files` to override).
+
+**Limitations / next steps.** Device-type guess is heuristic. No mDNS/SSDP passive listener yet. Router-model-specific guides and
+an insurer-ready signed PDF are next.
