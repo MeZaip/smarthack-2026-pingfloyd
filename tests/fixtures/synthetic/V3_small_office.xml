@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sS -sU -sV -oX scan.xml 192.168.1.0/24" start="1794040000" version="7.95" xmloutputversion="1.05">
+<host starttime="1794040001" endtime="1794040100"><status state="up" reason="arp-response"/>
+<address addr="192.168.1.10" addrtype="ipv4"/>
+<address addr="3C:2A:F4:00:00:10" addrtype="mac" vendor="Brother Industries"/>
+<hostnames>
+<hostname name="printer.lan" type="PTR"/>
+</hostnames><ports>
+<port protocol="tcp" portid="9100"><state state="open" reason="syn-ack"/>
+<service name="jetdirect" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="631"><state state="open" reason="syn-ack"/>
+<service name="ipp" product="CUPS" version="2.4" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/>
+<service name="http" product="Debut embedded httpd" method="probed" conf="10"/>
+<script id="http-title" output="Brother HL-L2350DW"><elem key="title">Brother HL-L2350DW</elem></script>
+</port>
+</ports></host>
+<host starttime="1794040001" endtime="1794040100"><status state="up" reason="arp-response"/>
+<address addr="192.168.1.20" addrtype="ipv4"/>
+<address addr="00:11:32:00:00:20" addrtype="mac" vendor="Synology Incorporated"/>
+<hostnames>
+<hostname name="nas.lan" type="PTR"/>
+</hostnames><ports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack"/>
+<service name="ssh" product="OpenSSH" version="8.2p1" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="139"><state state="open" reason="syn-ack"/>
+<service name="netbios-ssn" product="Samba smbd" version="4.6.2" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="445"><state state="open" reason="syn-ack"/>
+<service name="microsoft-ds" product="Samba smbd" version="4.6.2" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="5001"><state state="open" reason="syn-ack"/>
+<service name="http" tunnel="ssl" method="probed" conf="10"/>
+<script id="http-title" output="Synology DiskStation"><elem key="title">Synology DiskStation</elem></script>
+</port>
+</ports></host>
+<host starttime="1794040001" endtime="1794040100"><status state="up" reason="arp-response"/>
+<address addr="192.168.1.30" addrtype="ipv4"/>
+<address addr="D4:BE:D9:00:00:30" addrtype="mac" vendor="Dell"/>
+<hostnames>
+<hostname name="office-pc" type="PTR"/>
+</hostnames><ports>
+<port protocol="tcp" portid="135"><state state="open" reason="syn-ack"/>
+<service name="msrpc" product="Microsoft Windows RPC" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack"/>
+<service name="ms-wbt-server" product="Microsoft Terminal Services" method="probed" conf="10"/>
+</port>
+</ports></host>
+<host starttime="1794040001" endtime="1794040100"><status state="up" reason="arp-response"/>
+<address addr="192.168.1.40" addrtype="ipv4"/>
+<address addr="52:54:00:00:00:40" addrtype="mac" vendor="QEMU virtual NIC"/>
+<hostnames>
+<hostname name="srv01" type="PTR"/>
+</hostnames><ports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack"/>
+<service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.10" method="probed" conf="10"/>
+</port>
+<port protocol="tcp" portid="3306"><state state="open" reason="syn-ack"/>
+<service name="mysql" product="MySQL" version="8.0.36" method="probed" conf="10"/>
+</port>
+</ports></host>
+<runstats><finished time="1794040200" exit="success"/></runstats></nmaprun>

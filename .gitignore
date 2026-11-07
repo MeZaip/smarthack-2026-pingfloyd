@@ -1,0 +1,19 @@
+# secrets
+.env
+*.key
+*.pem
+
+# local data (privacy: history and scans stay on this machine)
+results/
+data/
+*.sqlite
+*.db
+scans/private/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
