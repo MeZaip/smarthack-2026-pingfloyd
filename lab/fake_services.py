@@ -15,8 +15,11 @@ import socketserver
 import threading
 
 TELNET = b"\xff\xfd\x01\xff\xfd\x1f\xff\xfd\x21\xff\xfb\x01\xff\xfb\x03"
-HTTP_PAGE = (b"HTTP/1.0 200 OK\r\nServer: lab-router\r\nContent-Type: text/html\r\n\r\n"
-             b"<html><head><title>Admin Login</title></head><body>Lab page. No real login.</body></html>")
+# A well-known Server header so nmap -sV names the service "http" (an unknown banner on 8080
+# would keep nmap's table name "http-proxy" and HTTP_ADMIN_CLEARTEXT would not be reported).
+_BODY = b"<html><head><title>Admin Login</title></head><body>Lab page. No real login.</body></html>"
+HTTP_PAGE = (b"HTTP/1.1 200 OK\r\nServer: lighttpd/1.4.59\r\nContent-Type: text/html\r\n"
+             b"Content-Length: " + str(len(_BODY)).encode() + b"\r\nConnection: close\r\n\r\n" + _BODY)
 SERVICES = {
     "telnet": (2323, TELNET, False),
     "ftp": (2121, b"220 (vsFTPd 2.3.4)\r\n", False),
@@ -31,7 +34,9 @@ class Handler(socketserver.BaseRequestHandler):
     is_http = False
 
     def handle(self):
-        self.request.settimeout(3)
+        # nmap -sV first waits ~6 s for a banner (NULL probe) on the same connection; an HTTP
+        # server that hangs up before that is reported as "tcpwrapped" instead of "http".
+        self.request.settimeout(15 if self.is_http else 3)
         try:
             if self.is_http:
                 self.request.recv(2048)       # read (and ignore) the request

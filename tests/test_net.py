@@ -112,6 +112,13 @@ def test_top_ports_from_nmap_services(tmp_path):
     assert scanner.top_tcp_ports(2, [str(svc)]) == "23,80"
 
 
+def test_top_ports_file_found_next_to_custom_nmap(tmp_path, monkeypatch):
+    (tmp_path / "nmap-services").write_text("http\t80/tcp\t0.48\nunk\t49152/tcp\t0.30\n")
+    monkeypatch.setattr(scanner, "find_nmap", lambda: str(tmp_path / "nmap.exe"))
+    monkeypatch.setattr(scanner, "_SERVICES_PATHS", [])
+    assert scanner.top_tcp_ports(1000) == "80,49152"  # ports above 10000 are kept
+
+
 def test_scan_command_follows_rules_of_engagement(tmp_path):
     cmd = scanner.build_command("172.20.10.0/28", tmp_path / "x.xml")
     assert {"-sS", "-sU", "-sV"} <= set(cmd) and cmd[-1] == "172.20.10.0/28"

@@ -11,7 +11,7 @@ import pytest
 from netcheck.core.analysis import analyze_folder, write_results
 
 FIX = Path(__file__).parent / "fixtures"
-SETS = [d for d in (FIX / "validation", FIX / "synthetic") if (d / "expected_findings.csv").exists()]
+SETS = [d for d in (FIX / "validation", FIX / "synthetic", FIX / "lab") if (d / "expected_findings.csv").exists()]
 
 
 def _rows(path):
@@ -44,3 +44,16 @@ def test_before_after_shows_three_resolved():
     diff = compare(analyze_file(d / "V6a_before.xml"), analyze_file(d / "V6b_after.xml"))
     assert len(diff["resolved_findings"]) == 3
     assert diff["score_before"] == 60 and diff["score_after"] == 100
+
+
+def test_lab_before_between_final_improves():
+    """Our own hotspot lab (brief: before/after pair, fix at least two findings)."""
+    from netcheck.core.analysis import analyze_file
+    from netcheck.core.diff import compare
+    d = FIX / "lab"
+    before, between, final = (analyze_file(d / f) for f in
+                               ("lab_01_before.xml", "lab_02_between.xml", "lab_03_final.xml"))
+    assert len({f.code for f in before.findings}) >= 5          # >= 5 finding types in the lab
+    assert before.score < between.score < final.score
+    diff = compare(before, final)
+    assert len(diff["resolved_findings"]) >= 2

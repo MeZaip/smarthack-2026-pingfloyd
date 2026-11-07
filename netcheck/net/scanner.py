@@ -38,9 +38,21 @@ def find_nmap() -> str | None:
     return None
 
 
+def _services_candidates() -> list[str]:
+    found = []
+    nmap = find_nmap()
+    if nmap:
+        here = Path(os.path.realpath(nmap)).parent
+        found += [str(here / "nmap-services"), str(here.parent / "share" / "nmap" / "nmap-services")]
+    return found + [p for p in _SERVICES_PATHS if p not in found]
+
+
 def top_tcp_ports(n: int = 1000, paths: list[str] | None = None) -> str:
-    """Exactly nmap's own top-N TCP ports (by frequency in nmap-services)."""
-    for p in paths or _SERVICES_PATHS:
+    """Exactly nmap's own top-N TCP ports (by frequency in nmap-services).
+
+    The file is looked up next to the nmap binary actually used (custom install
+    folders included), then in the usual install locations."""
+    for p in paths or _services_candidates():
         if not os.path.exists(p):
             continue
         rows = []

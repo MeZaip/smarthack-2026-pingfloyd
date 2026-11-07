@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///opt/homebrew/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.993 scan initiated Sat Nov  7 21:26:37 2026 as: nmap -sS -sU -sV -&#45;version-light -&#45;script http-title -p T:1-1024,1433,1883,2121,2222,2323,3306,3389,5432,5900-5901,6379,8000-8081,8443,8554,9100,27017,U:53,123,161,1900,5353 -&#45;max-rate 100 -oX lab_03_final.xml 172.20.10.0/28 -->
+<nmaprun scanner="nmap" args="nmap -sS -sU -sV -&#45;version-light -&#45;script http-title -p T:1-1024,1433,1883,2121,2222,2323,3306,3389,5432,5900-5901,6379,8000-8081,8443,8554,9100,27017,U:53,123,161,1900,5353 -&#45;max-rate 100 -oX lab_03_final.xml 172.20.10.0/28" start="1794079597" startstr="Sat Nov  7 21:26:37 2026" version="7.993" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="1121" services="1-1024,1433,1883,2121,2222,2323,3306,3389,5432,5900-5901,6379,8000-8081,8443,8554,9100,27017"/>
+<scaninfo type="udp" protocol="udp" numservices="5" services="53,123,161,1900,5353"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.20.10.1" addrtype="ipv4"/>
+<address addr="86:0F:4C:EC:70:64" addrtype="mac"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.20.10.11" addrtype="ipv4"/>
+<address addr="E0:0A:F6:A0:0E:1F" addrtype="mac" vendor="Liteon Technology"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1794079600" endtime="1794079665"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.20.10.1" addrtype="ipv4"/>
+<address addr="86:0F:4C:EC:70:64" addrtype="mac"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="closed" count="1122">
+<extrareasons reason="reset" count="1119" proto="tcp" ports="1-20,22-52,54-1024,1433,1883,2121,2222,2323,3306,3389,5432,5900-5901,6379,8000-8081,8443,8554,9100,27017"/>
+<extrareasons reason="port-unreach" count="3" proto="udp" ports="123,161,1900"/>
+</extraports>
+<port protocol="tcp" portid="21"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="53"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="domain" extrainfo="generic dns response: NXDOMAIN" method="table" conf="3"/></port>
+<port protocol="udp" portid="53"><state state="open" reason="udp-response" reason_ttl="64"/><service name="domain" extrainfo="generic dns response: NXDOMAIN" method="probed" conf="10"/></port>
+<port protocol="udp" portid="5353"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="zeroconf" method="table" conf="3"/></port>
+</ports>
+<times srtt="4594" rttvar="1478" to="100000"/>
+</host>
+<host starttime="1794079600" endtime="1794079665"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="172.20.10.11" addrtype="ipv4"/>
+<address addr="E0:0A:F6:A0:0E:1F" addrtype="mac" vendor="Liteon Technology"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="1119">
+<extrareasons reason="no-response" count="1119" proto="tcp" ports="1-901,903-911,913-1024,1433,1883,2121,2222,2323,3306,3389,5432,5900-5901,6379,8000-8081,8443,8554,9100,27017"/>
+</extraports>
+<port protocol="tcp" portid="902"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="vmware-auth" product="VMware Authentication Daemon" version="1.10" extrainfo="Uses VNC, SOAP" tunnel="ssl" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="912"><state state="open" reason="syn-ack" reason_ttl="128"/><service name="vmware-auth" product="VMware Authentication Daemon" version="1.0" extrainfo="Uses VNC, SOAP" method="probed" conf="10"/></port>
+<port protocol="udp" portid="53"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="domain" method="table" conf="3"/></port>
+<port protocol="udp" portid="123"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="ntp" method="table" conf="3"/></port>
+<port protocol="udp" portid="161"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="snmp" method="table" conf="3"/></port>
+<port protocol="udp" portid="1900"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="upnp" method="table" conf="3"/></port>
+<port protocol="udp" portid="5353"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="zeroconf" method="table" conf="3"/></port>
+</ports>
+<times srtt="5639" rttvar="608" to="100000"/>
+</host>
+<host starttime="1794079665" endtime="1794079697"><status state="up" reason="localhost-response" reason_ttl="0"/>
+<address addr="172.20.10.10" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="closed" count="1124">
+<extrareasons reason="reset" count="1121" proto="tcp" ports="1-1024,1433,1883,2121,2222,2323,3306,3389,5432,5900-5901,6379,8000-8081,8443,8554,9100,27017"/>
+<extrareasons reason="port-unreach" count="3" proto="udp" ports="53,123,161"/>
+</extraports>
+<port protocol="udp" portid="1900"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="upnp" method="table" conf="3"/></port>
+<port protocol="udp" portid="5353"><state state="open" reason="udp-response" reason_ttl="255"/><service name="mdns" product="DNS-based service discovery" method="probed" conf="10"/></port>
+</ports>
+<times srtt="102" rttvar="78" to="100000"/>
+</host>
+<runstats><finished time="1794079697" timestr="Sat Nov  7 21:28:17 2026" summary="Nmap done at Sat Nov  7 21:28:17 2026; 16 IP addresses (3 hosts up) scanned in 100.30 seconds" elapsed="100.30" exit="success"/><hosts up="3" down="13" total="16"/>
+</runstats>
+</nmaprun>
