@@ -527,7 +527,7 @@
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
         h("div", { class: "hs-icon" }), h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))));
 
-    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "Safehouse" },
+    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "SafeHouse" },
       h("div", { class: "stage-wrap" }, houseScene(), h("div", { class: "scanline", "aria-hidden": "true" })), scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
     if (mountEl) window.Safehouse3D.mount(mountEl);

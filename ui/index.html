@@ -4,13 +4,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#09090b">
-  <title>Safehouse</title>
+  <title>SafeHouse</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <!-- Icon set: one stroke style for the whole app (24px grid, 2px round strokes, Lucide/Feather style).
        Used everywhere through an svg.ico element that references one symbol below; no emoji in the interface. -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg" class="sprite" aria-hidden="true" focusable="false">
+    <!-- Logo "The Biometric Home": house silhouette filled with fingerprint ridges, a glowing shield at the core.
+         Colours come from CSS (currentColor = brand emerald, --logo-cut = page background behind the shield). -->
+    <defs>
+      <clipPath id="bio-house"><path d="M6 22 24 6l18 16v18a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z"/></clipPath>
+      <filter id="bio-glow" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#10B981" flood-opacity=".5"/></filter>
+    </defs>
+    <symbol id="logo-bio" viewBox="0 0 48 48">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <g clip-path="url(#bio-house)" opacity=".9">
+          <ellipse vector-effect="non-scaling-stroke" cx="23.30" cy="29.60" rx="8.93" ry="10.07" stroke-dasharray="34.65 4.18 16.13 4.78" stroke-dashoffset="7.17"/>
+          <ellipse vector-effect="non-scaling-stroke" cx="23.65" cy="29.15" rx="12.22" ry="13.78" stroke-dasharray="34.34 4.91 32.70 9.81" stroke-dashoffset="29.43"/>
+          <ellipse vector-effect="non-scaling-stroke" cx="24.00" cy="28.70" rx="15.51" ry="17.49" stroke-dasharray="66.41 7.26 20.75 9.34" stroke-dashoffset="59.15"/>
+          <ellipse vector-effect="non-scaling-stroke" cx="24.35" cy="28.25" rx="18.80" ry="21.20" stroke-dasharray="44.02 7.55 57.86 16.35" stroke-dashoffset="27.67"/>
+          <ellipse vector-effect="non-scaling-stroke" cx="24.70" cy="27.80" rx="22.09" ry="24.91" stroke-dasharray="81.28 8.87 42.86 14.78" stroke-dashoffset="100.50"/>
+        </g>
+        <path d="M6 22 24 6l18 16v18a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      </g>
+      <circle vector-effect="non-scaling-stroke" cx="24" cy="29" r="7.6" style="fill: var(--logo-cut)"/>
+      <g filter="url(#bio-glow)">
+        <path d="M24 21.4l6.4 2.6v5.2c0 3.9-2.7 6.8-6.4 8.4-3.7-1.6-6.4-4.5-6.4-8.4V24z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+        <path d="M20.9 29.3l2.2 2.2 4.2-4.3" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="stroke: var(--logo-cut)"/>
+      </g>
+    </symbol>
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></symbol>
     <symbol id="i-router" viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 17h.01M10 17h.01M15 17h3"/><path d="M12 13V9.5"/><path d="M8.5 7a5 5 0 0 1 7 0"/><path d="M5.5 4a9.5 9.5 0 0 1 13 0"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
@@ -64,7 +87,7 @@
     <!-- One navigation: a side rail on computers, a bottom bar on phones (Google Home / Fing pattern). -->
     <nav class="nav" aria-label="Meniu / Menu">
       <div class="nav-brand" aria-hidden="true">
-        <svg class="logo-mark" viewBox="0 0 40 40"><path class="lm-arc a3" d="M7.74 11.71A16 16 0 0 1 32.26 11.71"/><path class="lm-arc a2" d="M11.57 14.93A11 11 0 0 1 28.43 14.93"/><path class="lm-arc a1" d="M15.4 18.14A6 6 0 0 1 24.6 18.14"/><path class="lm-body" d="M9 21.5V33a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V21.5"/><path class="lm-door" d="M17.5 35v-5.5a2.5 2.5 0 0 1 5 0V35"/></svg>
+        <svg class="logo-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#logo-bio"/></svg>
       </div>
       <button type="button" class="nav-item" data-tab="home"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-home"/></svg></span><span class="nav-label" data-i18n="navHome">Acasă</span></button>
       <button type="button" class="nav-item" data-tab="devices"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-phone"/></svg></span><span class="nav-label" data-i18n="navDevices">Aparate</span></button>
@@ -76,10 +99,10 @@
     <div class="content">
       <header class="appbar">
         <div class="appbar-title">
-          <!-- Logo: a house whose roof is the three Wi-Fi arcs, with the wordmark Safe(bold)house(light). -->
-          <a class="logo" href="#home" aria-label="Safehouse">
-            <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true"><path class="lm-arc a3" d="M7.74 11.71A16 16 0 0 1 32.26 11.71"/><path class="lm-arc a2" d="M11.57 14.93A11 11 0 0 1 28.43 14.93"/><path class="lm-arc a1" d="M15.4 18.14A6 6 0 0 1 24.6 18.14"/><path class="lm-body" d="M9 21.5V33a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V21.5"/><path class="lm-door" d="M17.5 35v-5.5a2.5 2.5 0 0 1 5 0V35"/></svg>
-            <span class="wordmark" aria-hidden="true"><b>Safe</b><span>house</span></span>
+          <!-- Logo: "The Biometric Home" mark + CamelCase wordmark SafeHouse (Safe 800 emerald, House 300 white). -->
+          <a class="logo" href="#home" aria-label="SafeHouse">
+            <svg class="logo-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#logo-bio"/></svg>
+            <span class="wordmark" aria-hidden="true"><b>Safe</b><span>House</span></span>
           </a>
           <label class="net-chip">
             <span class="sr" data-i18n="scanFile">Verificarea afișată</span>

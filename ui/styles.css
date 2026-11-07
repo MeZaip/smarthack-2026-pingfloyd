@@ -905,3 +905,23 @@ main { position: relative; z-index: 0; }
   .stage-wrap.is-scanning .scanline { animation: none; transform: translateY(calc(var(--scan-travel) / 2)); }
   .pulse-dot::after { animation: none; }
 }
+
+/* =====================================================================================
+   Logo "The Biometric Home" + CamelCase wordmark SafeHouse.
+   Emerald #10B981 on dark (8.4:1); light theme uses #047857 and navy so the wordmark stays AA.
+   ===================================================================================== */
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+:root { --logo-green: #10b981; --logo-white: #ffffff; --logo-cut: #09090b; }
+:root[data-theme="light"] { --logo-green: #047857; --logo-white: #0b2545; --logo-cut: #f8fafd; }
+.logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; line-height: 1; }
+.logo-mark { width: 44px; height: 44px; flex: none; color: var(--logo-green); overflow: visible; }
+.wordmark {
+  display: inline-flex; align-items: center;
+  font-family: Inter, Poppins, "SF Pro Display", -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 1.6rem; line-height: 1; letter-spacing: -0.02em;
+}
+.wordmark b { font-weight: 800; color: var(--logo-green); }
+.wordmark span { font-weight: 300; color: var(--logo-white); }
+.nav-brand { background: transparent; border: 0; }
+.nav-brand .logo-mark { width: 46px; height: 46px; }
+@media (max-width: 560px) { .logo-mark { width: 38px; height: 38px; } .wordmark { font-size: 1.4rem; } }
