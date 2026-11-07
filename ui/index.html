@@ -3,38 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07080a">
-  <title>netcheck</title>
+  <meta name="theme-color" content="#09090b">
+  <title>Safehouse</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Icon set: one stroke style for the whole app (24px grid, 2px round strokes, Lucide/Feather style).
+       Used everywhere through an svg.ico element that references one symbol below; no emoji in the interface. -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></symbol>
+    <symbol id="i-router" viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 17h.01M10 17h.01M15 17h3"/><path d="M12 13V9.5"/><path d="M8.5 7a5 5 0 0 1 7 0"/><path d="M5.5 4a9.5 9.5 0 0 1 13 0"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10.5 6-3.5v10l-6-3.5"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="13" rx="2"/><path d="m8 2 4 3 4-3M7 21h10"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-drive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 14h18M7 17h.01M11 17h.01"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.9-.9 1.6v.4M12 17h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></symbol>
+    <symbol id="i-tick" viewBox="0 0 24 24"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 2.4 17.5a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-octagon" viewBox="0 0 24 24"><path d="M8 2.5h8l5.5 5.5v8L16 21.5H8L2.5 16V8z"/><path d="M12 7.5v5M12 16.5h.01"/></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v6c0 4.4 3.2 8.1 7.5 9 4.3-.9 7.5-4.6 7.5-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.4A8.5 8.5 0 1 1 21 12z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+    <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
+    <symbol id="i-present" viewBox="0 0 24 24"><path d="M3 4h18M5 4v11h14V4M12 15v5M8 21l4-1 4 1"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01M2 13v3M22 13v3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.4-6.4L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.4 6.4L3 16M3 21v-5h5"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0M12 20h.01"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-leave" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14M2 20h20M13 20V3L6 5v15M10 12v.01"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0"/><path d="M8.5 14.5s1.3 2 3.5 2 3.5-2 3.5-2M9 9.5h.01M15 9.5h.01"/></symbol>
+  </svg>
+
   <a class="skip" href="#main" data-i18n="skip">Sari la conținut</a>
 
   <div class="app">
-    <!-- Navigation: a slim text rail on computers, a horizontal tab strip on phones. -->
+    <!-- One navigation: a side rail on computers, a bottom bar on phones (Google Home / Fing pattern). -->
     <nav class="nav" aria-label="Meniu / Menu">
-      <div class="nav-brand">
-        <span class="brand-name">NET<b>CHECK</b></span>
-        <span class="brand-line"><span class="live" aria-hidden="true"></span><span data-i18n="navLive">monitorizare locală</span></span>
+      <div class="nav-brand" aria-hidden="true">
+        <svg class="logo-mark" viewBox="0 0 40 40"><path class="lm-arc a3" d="M7.74 11.71A16 16 0 0 1 32.26 11.71"/><path class="lm-arc a2" d="M11.57 14.93A11 11 0 0 1 28.43 14.93"/><path class="lm-arc a1" d="M15.4 18.14A6 6 0 0 1 24.6 18.14"/><path class="lm-body" d="M9 21.5V33a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V21.5"/><path class="lm-door" d="M17.5 35v-5.5a2.5 2.5 0 0 1 5 0V35"/></svg>
       </div>
-      <div class="nav-status" id="nav-status" aria-live="polite"></div>
-      <div class="nav-list" id="nav-list">
-        <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
-        <button type="button" class="nav-item" data-tab="home"><span class="nav-num" aria-hidden="true">01</span><span class="nav-label" data-i18n="navHome">Acasă</span><span class="nav-badge" data-badge="home"></span><kbd class="nav-key" aria-hidden="true">1</kbd></button>
-        <button type="button" class="nav-item" data-tab="devices"><span class="nav-num" aria-hidden="true">02</span><span class="nav-label" data-i18n="navDevices">Aparate</span><span class="nav-badge" data-badge="devices"></span><kbd class="nav-key" aria-hidden="true">2</kbd></button>
-        <button type="button" class="nav-item" data-tab="findings"><span class="nav-num" aria-hidden="true">03</span><span class="nav-label" data-i18n="navFindings">Reparații</span><span class="nav-badge" data-badge="findings"></span><kbd class="nav-key" aria-hidden="true">3</kbd></button>
-        <button type="button" class="nav-item" data-tab="history"><span class="nav-num" aria-hidden="true">04</span><span class="nav-label" data-i18n="navHistory">Istoric</span><span class="nav-badge" data-badge="history"></span><kbd class="nav-key" aria-hidden="true">4</kbd></button>
-        <button type="button" class="nav-item" data-tab="ask"><span class="nav-num" aria-hidden="true">05</span><span class="nav-label" data-i18n="navAsk">Întreabă</span><span class="nav-badge" data-badge="ask"></span><kbd class="nav-key" aria-hidden="true">5</kbd></button>
-      </div>
-      <p class="nav-hint" data-i18n="navHint">Taste 1–5 sau ↑ ↓ pentru meniu</p>
+      <button type="button" class="nav-item" data-tab="home"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-home"/></svg></span><span class="nav-label" data-i18n="navHome">Acasă</span></button>
+      <button type="button" class="nav-item" data-tab="devices"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-phone"/></svg></span><span class="nav-label" data-i18n="navDevices">Aparate</span></button>
+      <button type="button" class="nav-item" data-tab="findings"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg></span><span class="nav-label" data-i18n="navFindings">Reparații</span></button>
+      <button type="button" class="nav-item" data-tab="history"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-chart"/></svg></span><span class="nav-label" data-i18n="navHistory">Istoric</span></button>
+      <button type="button" class="nav-item" data-tab="ask"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-message"/></svg></span><span class="nav-label" data-i18n="navAsk">Întreabă</span></button>
     </nav>
 
     <div class="content">
       <header class="appbar">
         <div class="appbar-title">
-          <span class="appbar-name" data-i18n="appbarName">Panou de securitate</span>
+          <!-- Logo: a house whose roof is the three Wi-Fi arcs, with the wordmark Safe(bold)house(light). -->
+          <a class="logo" href="#home" aria-label="Safehouse">
+            <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true"><path class="lm-arc a3" d="M7.74 11.71A16 16 0 0 1 32.26 11.71"/><path class="lm-arc a2" d="M11.57 14.93A11 11 0 0 1 28.43 14.93"/><path class="lm-arc a1" d="M15.4 18.14A6 6 0 0 1 24.6 18.14"/><path class="lm-body" d="M9 21.5V33a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V21.5"/><path class="lm-door" d="M17.5 35v-5.5a2.5 2.5 0 0 1 5 0V35"/></svg>
+            <span class="wordmark" aria-hidden="true"><b>Safe</b><span>house</span></span>
+          </a>
           <label class="net-chip">
             <span class="sr" data-i18n="scanFile">Verificarea afișată</span>
+            <svg class="ico" aria-hidden="true"><use href="#i-wifi"/></svg>
             <select id="scan-select"></select>
           </label>
         </div>
@@ -60,7 +106,7 @@
       </main>
 
       <footer class="foot">
-        <p data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</p>
+        <p class="with-ico"><svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg><span data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</span></p>
       </footer>
     </div>
   </div>
@@ -69,12 +115,15 @@
   <dialog id="sheet" class="sheet" aria-labelledby="sheet-title">
     <div class="sheet-bar">
       <span class="sheet-handle" aria-hidden="true"></span>
-      <button type="button" class="icon-btn" id="sheet-close"><span aria-hidden="true">X</span><span class="sr" data-i18n="close">Închide</span></button>
+      <button type="button" class="icon-btn" id="sheet-close"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg><span class="sr" data-i18n="close">Închide</span></button>
     </div>
     <div id="sheet-body"></div>
   </dialog>
 
+  <!-- Three.js r159 (MIT, ui/vendor/three.LICENSE) is bundled locally: no internet needed, nothing sent anywhere. -->
+  <script src="vendor/three.min.js"></script>
   <script src="data.js"></script>
+  <script src="safehouse3d.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

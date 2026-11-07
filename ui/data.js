@@ -903,7 +903,7 @@ window.NETCHECK_DATA = {
     "scan_id": 1,
     "file": "V6a_before.xml",
     "scanned_at": 1794040000,
-    "saved_at": 1794056007,
+    "saved_at": 1794063235,
     "network_score": 60,
     "findings": 3,
     "devices": 2
@@ -912,7 +912,7 @@ window.NETCHECK_DATA = {
     "scan_id": 2,
     "file": "V6b_after.xml",
     "scanned_at": 1794040000,
-    "saved_at": 1794056007,
+    "saved_at": 1794063235,
     "network_score": 100,
     "findings": 0,
     "devices": 2
@@ -1683,17 +1683,17 @@ window.NETCHECK_DATA = {
   "self": {
    "ro": "Poți face singur",
    "en": "You can do this yourself",
-   "icon": "🙂"
+   "icon": "user"
   },
   "helper": {
    "ro": "Cere ajutorul cuiva care se pricepe (un părinte, un nepot, un prieten)",
    "en": "Ask someone who knows computers (a parent, a grandchild, a friend)",
-   "icon": "🤝"
+   "icon": "users"
   },
   "it": {
    "ro": "Cere ajutorul firmei IT sau al celui care a instalat aparatul",
    "en": "Ask the IT company or the person who set up the device",
-   "icon": "🧰"
+   "icon": "briefcase"
   }
  },
  "glossary": {
