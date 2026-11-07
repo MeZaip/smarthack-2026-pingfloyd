@@ -78,10 +78,11 @@ python -m netcheck diff    before.xml after.xml                # what changed / 
 
 Unreadable files get `ERROR` in `scores.csv`; the run continues with the other files.
 
-The same export is in the app: **Export CSV** (top bar) → choose a folder (or files) of nmap XML scans, or export
+The same export is in the app: **Export CSV** (Results tab) → choose a folder (or files) of nmap XML scans, or export
 the checks saved on this computer. It runs the same code as `netcheck analyze` (identical `findings.csv` and
 `scores.csv`, tested), downloads them as one ZIP and also saves them in `~/SafeHouse/exports/export_<date>/`.
-Exporting never adds the files to the history. For the Test Set submission the CLI command above is the reference.
+Exporting never adds the files to the history. Files uploaded with "Upload a check" that cannot be read are kept by
+name only (no content): they show as ERROR in the list and in Results, and "export the saved checks" writes them as ERROR. For the Test Set submission the CLI command above is the reference.
 
 ## Scan history (score trend, before/after)
 
@@ -138,6 +139,9 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   events timeline for history. The assistant is a chat with suggestion chips.
 * **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
   device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
+* **Results**: every saved check in one table (number, date, file, standard score, safety rating, devices,
+  problems - `scores.csv` on screen); tap a row to see what it found (device, IP, port, problem, severity, code -
+  `findings.csv` on screen). Unreadable uploads show `ERROR`. "Export CSV" is right there.
 * **Devices and fixes** (one place per device: every problem with its explanation, 1–5 steps, "I fixed it, check", evidence, CIS/OWASP refs), **History**
   (score chart + before/after, *Delete my history*), and the assistant as a **floating chat button**
   (bottom right; in the app: a conversation with the AI assistant, short and simple answers checked against the scan,

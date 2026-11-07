@@ -80,11 +80,24 @@ def test_lab_scans_newest_first_with_changes_and_masked_macs(client):
     assert client.get("/api/v1/ui-data").json()["scans"][0]["scan_id"] == d["scans"][0]["scan_id"]
 
 
-def test_broken_upload_is_an_error_and_is_not_saved(client):
-    r = _upload(client, SYN / "V7_broken.xml")
-    j = r.json()
-    assert j["saved"] == [] and j["errors"][0]["file"] == "V7_broken.xml" and j["message"]
-    assert _data(client)["scans"] == []
+def test_broken_upload_is_kept_as_error_and_exported_with_ERROR(client, tmp_path, monkeypatch):
+    monkeypatch.setenv("NETCHECK_EXPORTS", str(tmp_path / "exports"))
+    j = _upload(client, SYN / "V7_broken.xml").json()
+    assert j["saved"] == [] and j["errors"][0]["file"] == "V7_broken.xml" and j["errors"][0]["scan_id"] and j["message"]
+    d = _data(client)
+    assert [(s["file"], bool(s.get("error"))) for s in d["scans"]] == [("V7_broken.xml", True)]
+    assert d["history"]["trend"] == [] and d["history"]["all"][0]["error"]           # never compared or analysed
+    assert client.get("/api/scans").json() == []                                     # not in the §2 API either
+    assert _upload(client, SYN / "V7_broken.xml").json()["errors"][0]["scan_id"] == j["errors"][0]["scan_id"]  # once
+
+
+def test_export_of_saved_files_matches_the_expected_answers(client, tmp_path, monkeypatch):
+    """Upload the whole validation folder (broken file included), export the saved files: identical to expected."""
+    monkeypatch.setenv("NETCHECK_EXPORTS", str(tmp_path / "exports"))
+    _upload(client, *sorted(SYN.glob("*.xml"), reverse=True))
+    got = _zip(client.post("/api/v1/export/history"))
+    assert got["scores.csv"] == (SYN / "expected_scores.csv").read_text(encoding="utf-8")
+    assert got["findings.csv"] == (SYN / "expected_findings.csv").read_text(encoding="utf-8")
 
 
 def test_upload_and_delete_need_the_session_cookie():
@@ -189,3 +202,29 @@ def test_scans_keep_the_order_they_were_saved_in(client, tmp_path, monkeypatch):
     got = _zip(client.post("/api/v1/export/history"))
     assert [ln.split(",")[0] for ln in got["scores.csv"].splitlines()[1:]] == \
         ["V1_home_basic.xml", "V6a_before.xml", "V6b_after.xml"]                                   # like expected_scores.csv
+
+
+def test_test_set_workflow_import_all_then_export_after_a_restart(client, tmp_path, monkeypatch):
+    """The Test Set day: empty history, import a whole folder (more than 20 files, any order, one broken),
+    restart the app (no in-memory cache), export the saved checks -> identical to the CLI on that folder."""
+    import random
+    import shutil
+    from netcheck.core.analysis import analyze_folder, write_results
+    from netcheck.web import app as web
+    monkeypatch.setenv("NETCHECK_EXPORTS", str(tmp_path / "exports"))
+    folder = tmp_path / "testset"
+    folder.mkdir()
+    sources = sorted(SYN.glob("*.xml")) + sorted(LAB.glob("*.xml"))
+    for i in range(3):                                         # 33 files, names like a real Test Set
+        for p in sources:
+            shutil.copy(p, folder / f"T{i}_{p.name}")
+    files = list(folder.glob("*.xml"))
+    random.Random(7).shuffle(files)
+    r = _upload(client, *files)
+    assert r.status_code == 200 and len(r.json()["saved"]) + len(r.json()["errors"]) == len(files) == 33
+    web._cache.clear()                                         # as after closing and reopening the app
+    got = _zip(client.post("/api/v1/export/history"))
+    cli_f, cli_s = write_results(analyze_folder(folder), tmp_path / "cli")
+    assert got["scores.csv"] == cli_s.read_text(encoding="utf-8")
+    assert got["findings.csv"] == cli_f.read_text(encoding="utf-8")
+    assert got["scores.csv"].count(",ERROR") == 3

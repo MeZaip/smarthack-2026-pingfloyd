@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS scans (
     file          TEXT    NOT NULL,
     scanned_at    INTEGER,            -- nmap start time (unix), may be missing
     saved_at      INTEGER NOT NULL,
-    network_score INTEGER NOT NULL
+    network_score INTEGER NOT NULL,
+    error         TEXT                -- set for a file that could not be read (kept so exports show ERROR)
 );
 CREATE TABLE IF NOT EXISTS devices (
     device_id   INTEGER PRIMARY KEY,
@@ -79,6 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_findings_scan ON findings(scan_id);
 # Order of the saved scans everywhere (list, trend, before/after): the order they were saved in (scan_id),
 # not the time inside the file - an uploaded older file must not jump before the user's newer checks.
 _ORDER = "scan_id"
+_READABLE = "error IS NULL"     # unreadable files are kept (exports show ERROR) but never compared or analysed
 
 
 def db_path(path: Optional[str | os.PathLike] = None) -> Path:
@@ -97,6 +99,8 @@ def connect(path: Optional[str | os.PathLike] = None) -> sqlite3.Connection:
     conn.executescript(SCHEMA)
     if "tls" not in {r["name"] for r in conn.execute("PRAGMA table_info(ports)")}:
         conn.execute("ALTER TABLE ports ADD COLUMN tls INTEGER NOT NULL DEFAULT 0")   # databases made before tls
+    if "error" not in {r["name"] for r in conn.execute("PRAGMA table_info(scans)")}:
+        conn.execute("ALTER TABLE scans ADD COLUMN error TEXT")                        # databases made before errors
     return conn
 
 
@@ -124,7 +128,7 @@ def save(conn: sqlite3.Connection, a: Analysis) -> tuple[int, bool]:
         raise ValueError(f"{a.file} is not readable: {a.error}")
     with conn:
         dup = conn.execute(
-            "SELECT scan_id FROM scans WHERE file = ? AND scanned_at IS ?",
+            "SELECT scan_id FROM scans WHERE file = ? AND scanned_at IS ? AND error IS NULL",
             (a.file, a.scan.start_time),
         ).fetchone()
         if dup:
@@ -155,10 +159,22 @@ def save(conn: sqlite3.Connection, a: Analysis) -> tuple[int, bool]:
     return scan_id, True
 
 
-def trend(conn: sqlite3.Connection) -> list[dict]:
-    """All saved scans in the order they were saved, with score and number of findings."""
+def save_error(conn: sqlite3.Connection, file: str, error: str) -> tuple[int, bool]:
+    """Keep a file that could not be read, so the list and the CSV export show it with ERROR.
+    Nothing from its content is stored. Returns (scan_id, created); the same file is kept once."""
+    with conn:
+        dup = conn.execute("SELECT scan_id FROM scans WHERE file = ? AND error IS NOT NULL", (file,)).fetchone()
+        if dup:
+            return dup["scan_id"], False
+        cur = conn.execute("INSERT INTO scans (file, scanned_at, saved_at, network_score, error) VALUES (?, NULL, ?, 0, ?)",
+                           (file, int(time.time()), (error or "unreadable")[:300]))
+        return cur.lastrowid, True
+
+
+def entries(conn: sqlite3.Connection) -> list[dict]:
+    """Every saved file in the order it was saved, readable or not (error is None when readable)."""
     rows = conn.execute(
-        "SELECT s.scan_id, s.file, s.scanned_at, s.saved_at, s.network_score,"
+        "SELECT s.scan_id, s.file, s.scanned_at, s.saved_at, s.network_score, s.error,"
         " (SELECT COUNT(*) FROM findings f WHERE f.scan_id = s.scan_id) AS findings,"
         " (SELECT COUNT(*) FROM devices d WHERE d.scan_id = s.scan_id) AS devices"
         f" FROM scans s ORDER BY {_ORDER}"
@@ -166,8 +182,19 @@ def trend(conn: sqlite3.Connection) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def trend(conn: sqlite3.Connection) -> list[dict]:
+    """Readable saved scans in the order they were saved, with score and number of findings."""
+    rows = conn.execute(
+        "SELECT s.scan_id, s.file, s.scanned_at, s.saved_at, s.network_score,"
+        " (SELECT COUNT(*) FROM findings f WHERE f.scan_id = s.scan_id) AS findings,"
+        " (SELECT COUNT(*) FROM devices d WHERE d.scan_id = s.scan_id) AS devices"
+        f" FROM scans s WHERE {_READABLE} ORDER BY {_ORDER}"
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def load_snapshot(conn: sqlite3.Connection, scan_id: int) -> Snapshot:
-    s = conn.execute("SELECT file, network_score FROM scans WHERE scan_id = ?", (scan_id,)).fetchone()
+    s = conn.execute(f"SELECT file, network_score FROM scans WHERE scan_id = ? AND {_READABLE}", (scan_id,)).fetchone()
     if not s:
         raise KeyError(f"no saved scan with id {scan_id}")
     devices = {r["device_key"]: r["ip"] for r in
@@ -185,7 +212,7 @@ def changes(conn: sqlite3.Connection, before_id: Optional[int] = None,
             after_id: Optional[int] = None) -> Optional[dict]:
     """Before/after between two saved scans; by default the last two. None if fewer than two exist."""
     if before_id is None or after_id is None:
-        ids = [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans ORDER BY {_ORDER}")]
+        ids = scan_ids(conn)
         if len(ids) < 2:
             return None
         before_id, after_id = ids[-2], ids[-1]
@@ -194,8 +221,8 @@ def changes(conn: sqlite3.Connection, before_id: Optional[int] = None,
 
 
 def scan_ids(conn: sqlite3.Connection) -> list[int]:
-    """All saved scan ids in the order they were saved (same order as trend())."""
-    return [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans ORDER BY {_ORDER}")]
+    """Ids of the readable saved scans in the order they were saved (same order as trend())."""
+    return [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans WHERE {_READABLE} ORDER BY {_ORDER}")]
 
 
 def previous_id(conn: sqlite3.Connection, scan_id: int) -> Optional[int]:
@@ -212,7 +239,7 @@ def load_analysis(conn: sqlite3.Connection, scan_id: int) -> Analysis:
     version or banners) and the stored findings. `Host.mac` holds the *masked* MAC
     (mask_mac is idempotent); never save() such an analysis again.
     """
-    s = conn.execute("SELECT file, scanned_at, network_score FROM scans WHERE scan_id = ?",
+    s = conn.execute(f"SELECT file, scanned_at, network_score FROM scans WHERE scan_id = ? AND {_READABLE}",
                      (scan_id,)).fetchone()
     if not s:
         raise KeyError(f"no saved scan with id {scan_id}")
