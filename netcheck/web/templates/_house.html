@@ -6,13 +6,14 @@
     <div class="rooms">
     {% for rm in rooms %}
       {% set d = rm.dev %}
-      <div class="room lvl-{{ rm.level }}{% if rm.start_here %} start{% endif %}{% if rm.router %} front{% endif %}">
+      <div class="room lvl-{{ rm.level }}{% if rm.start_here %} start{% endif %}{% if rm.router %} front{% endif %}{% if rm.me %} me{% endif %}">
+        {% if rm.me %}<div class="badge-me">{{ t.this_pc }}</div>{% endif %}
         {% if rm.start_here %}<div class="badge-start">{{ t.start_here }}</div>{% endif %}
         {% if rm.router %}<div class="small muted">🚪 {{ t.front_door }}</div>{% endif %}
         <h3><span aria-hidden="true">{{ rm.icon }}</span> {{ rm.name }}</h3>
         <p class="small muted">{{ d.ip }} · {{ rm.type }} ·
           {% if d.risk_points >= 20 %}⛔{% elif d.risk_points >= 10 %}⚠️{% elif d.risk_points > 0 %}🔹{% else %}✔{% endif %} {{ d.risk_points }} {{ t.risk|lower }}</p>
-        {% if rm.unknown %}<p class="door door-low">❓ {{ t.unknown_room }}</p>{% endif %}
+        {% if rm.unknown %}<p class="door door-low">❓ {{ t.unknown_room }} · 🔹 5 {{ t.risk|lower }}</p>{% endif %}
         <ul class="doors">
         {% for dr in rm.doors %}
           <li class="door door-{{ dr.sev }}"><span aria-hidden="true">{{ dr.icon }}</span>

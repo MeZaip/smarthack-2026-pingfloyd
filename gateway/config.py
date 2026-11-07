@@ -76,3 +76,7 @@ class Config:
         return (f"listening on http://{self.host}:{self.port}  backend={self.backend}  model={self.model}  "
                 f"auth={'on' if self.token else 'off'}  rate={self.rate_per_min}/min/IP  "
                 f"daily_limit={self.daily_limit}  concurrency={self.concurrency}")
+
+    def ready(self) -> bool:
+        """Can this machine run the gateway? (claude: a key is set here; ollama: always try)."""
+        return self.backend == "ollama" or (self.backend == "claude" and bool(self.anthropic_api_key))

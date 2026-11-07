@@ -33,7 +33,9 @@ def isolated(tmp_path, monkeypatch):
 def client():
     from fastapi.testclient import TestClient
     from netcheck.web.app import app
-    return TestClient(app)
+    c = TestClient(app)
+    c.get("/api/scans")   # like a real browser: load a page first (sets the session cookie, web/security.py)
+    return c
 
 
 def _same_keys(ours, example, path="$"):

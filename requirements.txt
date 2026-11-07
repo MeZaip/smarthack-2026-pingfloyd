@@ -6,4 +6,5 @@ uvicorn>=0.29
 jinja2>=3.1
 python-multipart>=0.0.9
 httpx>=0.27          # FastAPI TestClient (tests)
-# optional: psutil (network detection on Windows; macOS/Linux work without it)
+psutil>=5.9; sys_platform == "win32"   # network detection on Windows (macOS/Linux work without it)
+# optional: pywebview -> NetCheck opens in its own window instead of an Edge/Chrome app window

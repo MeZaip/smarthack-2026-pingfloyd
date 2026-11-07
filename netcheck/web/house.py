@@ -9,7 +9,8 @@ ICONS = {"router": "📡", "camera": "📷", "printer": "🖨️", "nas": "🗄�
 _DOOR_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3, "none": 4}
 
 
-def rooms(r: ScanView | None, lang: str) -> list[dict]:
+def rooms(r: ScanView | None, lang: str, me_ip: str | None = None) -> list[dict]:
+    """me_ip: the computer NetCheck runs on, highlighted as "this computer"."""
     if not r or not r.ok:
         return []
     worst = r.most_dangerous
@@ -36,6 +37,7 @@ def rooms(r: ScanView | None, lang: str) -> list[dict]:
             "doors": doors,
             "unknown": any(f.code == "UNKNOWN_DEVICE" and f.ip == d.ip for f in r.findings),
             "router": d.type_guess == "router",
+            "me": me_ip is not None and d.ip == me_ip,
             "start_here": worst is not None and d.ip == worst.ip,
             "level": "high" if d.risk_points >= 20 else "medium" if d.risk_points >= 10 else
                      "low" if d.risk_points > 0 else "ok",

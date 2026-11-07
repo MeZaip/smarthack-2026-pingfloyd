@@ -19,8 +19,23 @@ _SERVICES_PATHS = [
 ]
 
 
+_NMAP_WINDOWS = [r"C:\Program Files (x86)\Nmap\nmap.exe", r"C:\Program Files\Nmap\nmap.exe"]
+
+
 class ScanError(Exception):
     pass
+
+
+def find_nmap() -> str | None:
+    """Full path to nmap: PATH first, then the default Windows install folders (the installer
+    does not always add itself to PATH)."""
+    found = shutil.which("nmap")
+    if found:
+        return found
+    for p in _NMAP_WINDOWS if os.name == "nt" else []:
+        if os.path.exists(p):
+            return p
+    return None
 
 
 def top_tcp_ports(n: int = 1000, paths: list[str] | None = None) -> str:
@@ -58,12 +73,19 @@ def build_command(target: str, out_xml: Path) -> list[str]:
 
 def run_scan(target: str, out_dir: str | os.PathLike = "scans") -> Path:
     """target MUST already be validated by guardrail.check_target()."""
-    if not shutil.which("nmap"):
-        raise ScanError("nmap is not installed (macOS: brew install nmap)")
+    nmap = find_nmap()
+    if not nmap:
+        raise ScanError("nmap is not installed (Windows: https://nmap.org/download, macOS: brew install nmap)")
+    if os.name == "nt":
+        from .elevate import is_admin
+        if not is_admin():
+            raise ScanError("on Windows a terminal scan needs an administrator terminal "
+                            "(or use the \"Check my network\" button in the app, which asks for permission)")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_xml = out_dir / f"scan_{datetime.now():%Y%m%d_%H%M%S}.xml"
     cmd = build_command(target, out_xml)
+    cmd[0] = nmap  # full path: the Windows installer does not always put nmap on PATH
     if os.name != "nt" and os.geteuid() != 0:
         cmd = ["sudo"] + cmd  # privilege only for the packet-level scan
     proc = subprocess.run(cmd, capture_output=True, text=True)

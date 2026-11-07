@@ -12,6 +12,38 @@ pip install -r requirements.txt      # defusedxml (safer XML) + pytest
 cp .env.example .env                 # optional: only if you change defaults (users need nothing)
 ```
 
+## For users: one double-click (Windows)
+
+1. Install [Nmap](https://nmap.org/download) (includes Npcap) and Python 3.10+ once.
+2. Double-click **`NetCheck.cmd`**. The first start prepares everything (about a minute); then NetCheck opens
+   in its own window, no terminal.
+3. Press **„Verifică rețeaua mea”**, confirm the network is yours, press **Da** in the Windows permission
+   dialog. The results appear in 1–3 minutes. **„Am reparat — verifică”** re-checks one fixed problem in seconds.
+4. **„Închide”** stops NetCheck (it also stops by itself when the window is closed).
+
+On Linux/macOS: `python -m netcheck app` (same app; the system password dialog replaces the Windows one).
+
+**Team / development on Windows:** `.\run.ps1` (or `run.cmd` from cmd.exe) is the Windows version of `./run.sh`:
+same options (`-Demo`, `-NoAI`, `-Port 9000`, `-App`), its own `.venv-windows`, gateway if a key is in `.env`,
+UI on http://127.0.0.1:8000. Do not scan from WSL: WSL2 sits behind a NAT and cannot see the hotspot's
+devices directly (no ARP/MACs, no SYN scan), even on a private network; run natively on Windows.
+
+### How the pieces talk to each other
+
+```
+UI (page in an app window) ──/api/v1 JSON──▶ local agent (127.0.0.1, unprivileged) ──HTTPS──▶ our AI gateway
+   only shows things and                       scans (only nmap is elevated, via the       stateless, holds the
+   sends requests                              OS permission dialog), guardrail, analysis, API key, stores nothing
+                                               local SQLite history (NFR-02: stays here)
+```
+
+* The page never chooses what to scan: the agent always checks the network it is connected to, after
+  explicit consent, through `net/guardrail.py`.
+* The agent only answers requests addressed to 127.0.0.1 (anti DNS-rebinding), and every state-changing
+  request needs a per-run `SameSite=Strict` session cookie plus a same-origin `Origin` (anti CSRF): other
+  websites open in the browser cannot start a scan or delete the history (`netcheck/web/security.py`).
+* `/api/v1` is documented in `netcheck/web/api_v1.py` and `service_data_contracts.md` §5.
+
 ## Run the app (web UI)
 
 ```bash

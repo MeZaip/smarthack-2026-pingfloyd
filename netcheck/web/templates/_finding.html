@@ -9,6 +9,7 @@
   <p><strong>{{ t.what }}:</strong> {{ tx.explain }}</p>
   <p><strong>{{ t.how }}:</strong></p>
   <ol>{% for s in tx.steps %}<li>{{ s }}</li>{% endfor %}</ol>
+  {% include "_verify.html" %}
   <details><summary>{{ t.evidence }}</summary><p class="ev">{{ f.evidence }}</p>
   {% if tx.refs %}<p class="small">{{ t.refs }}: {{ tx.refs|join(" · ") }}</p>{% endif %}</details>
 </article>

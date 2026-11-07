@@ -49,6 +49,29 @@ details summary{cursor:pointer;font-weight:700}
 .door-none{border-color:var(--line)}
 .proven{border:3px solid var(--good)} .sr{position:absolute;left:-9999px}
 .cert{border:3px double var(--accent)}
+button.big,.btn.big{font-size:22px;padding:16px 28px;border-radius:12px}
+button.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+button:disabled{opacity:.6;cursor:wait}
+header .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.welcome{text-align:center;padding:40px 18px}.welcome h1{font-size:34px}.welcome p{font-size:20px;max-width:640px;margin:12px auto}
+dialog{border:0;border-radius:16px;padding:24px;max-width:560px;width:calc(100% - 32px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.netname{font-size:24px;font-weight:800;word-break:break-word}
+.hint{background:var(--info-bg);color:var(--info);border-radius:10px;padding:12px}
+.bar{height:14px;border-radius:999px;background:var(--line);overflow:hidden;margin:14px 0}
+.bar span{display:block;height:100%;width:40%;background:var(--accent);border-radius:999px;animation:slide 1.6s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+@media (prefers-reduced-motion:reduce){.bar span{animation:none;width:100%;opacity:.5}}
+.verify-out{display:inline-block;margin-left:8px;font-weight:700;border-radius:8px;padding:4px 10px}
+#chat-log{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.bubble{border-radius:12px;padding:10px 14px;max-width:85%;white-space:pre-wrap}
+.bubble.me{align-self:flex-end;background:var(--info-bg);color:var(--info)}
+.bubble.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.closed{font-size:22px;text-align:center;margin-top:20vh}
+details.advanced{margin-top:28px}
+.room.me{outline:4px dashed var(--accent);outline-offset:3px}
+.badge-me{display:inline-block;background:var(--accent);color:var(--card);font-weight:800;border-radius:999px;padding:2px 12px;margin:0 6px 4px 0}
+tr.me-row td{background:var(--info-bg)}
 @media print{header,nav,.noprint{display:none!important} body{background:#fff;color:#000;font-size:14px} .card{border:1px solid #999}}
 </style>
 </head>
@@ -60,9 +83,14 @@ details summary{cursor:pointer;font-weight:700}
     <a href="/history?lang={{ lang }}">{{ t.nav_history }}</a>
     <a href="?lang={{ 'en' if lang=='ro' else 'ro' }}{% if scan_id %}&id={{ scan_id }}{% endif %}">🌐 {{ t.other_lang }}</a>
   </nav>
+  <div class="actions noprint">
+    {% if scan_id %}<button type="button" data-start-scan>{{ t.check_again }}</button>{% endif %}
+    {% if app_mode %}<button type="button" class="secondary" id="close-app">{{ t.close_app }}</button>{% endif %}
+  </div>
 </header>
 <main>
 {% block body %}{% endblock %}
 <p class="muted small">🔒 {{ t.privacy }}</p>
 </main>
+{% include "_scanflow.html" %}
 </body></html>

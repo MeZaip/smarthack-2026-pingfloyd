@@ -21,13 +21,17 @@ from ..ai.assistant import ask as ai_ask
 from ..core.analysis import Analysis
 from ..core.parser import MAX_FILE_BYTES, ScanFileError, parse_bytes
 from ..core.rules import evaluate, network_score
+from . import api_v1
 from .api import router as api_router
+from .security import LocalOnly
 from .house import rooms
 from .i18n import UI
 from .views import Explain, alerts, scan_view
 
-app = FastAPI(title="NetCheck", docs_url=None, redoc_url=None)
-app.include_router(api_router)
+app = FastAPI(title="NetCheck", docs_url=None, redoc_url=None, openapi_url=None)
+app.add_middleware(LocalOnly)          # local host only + session cookie on every state-changing request
+app.include_router(api_router)         # read-only history API (service_data_contracts.md §2/§4)
+app.include_router(api_v1.router)      # actions the page asks the local agent to do
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 templates.env.autoescape = True
 
@@ -64,13 +68,17 @@ def _remember(scan_id: int, a: Analysis) -> None:
     _cache[(_db_key(), scan_id)] = a
 
 
+api_v1.jobs._on_saved = _remember     # a live scan keeps its full analysis (banners, titles) for this session
+
+
 def _lang(request: Request) -> str:
     lang = request.query_params.get("lang") or request.cookies.get("lang") or "ro"
     return lang if lang in ("ro", "en") else "ro"
 
 
 def _ctx(request: Request, lang: str, **kw) -> dict:
-    return {"request": request, "lang": lang, "t": UI[lang], "ex": Explain, "scan_id": None, **kw}
+    return {"request": request, "lang": lang, "t": UI[lang], "ex": Explain, "scan_id": None,
+            "app_mode": api_v1.life.app_mode, **kw}
 
 
 def _render(request: Request, name: str, ctx: dict) -> HTMLResponse:
@@ -88,10 +96,27 @@ def _scan_list(conn) -> list[dict]:
     return [{**s, "when": _when(s)} for s in history.trend(conn)]
 
 
+_me = {"ip": None, "at": 0.0}
+
+
+def this_ip() -> Optional[str]:
+    """IP of the computer NetCheck runs on (cached 30 s): shown as "this is your computer"."""
+    import time
+    from ..net import netdetect
+    if time.time() - _me["at"] > 30:
+        try:
+            _me["ip"] = netdetect.detect().ip
+        except Exception:  # noqa: BLE001 - no network is fine, just no highlight
+            _me["ip"] = None
+        _me["at"] = time.time()
+    return _me["ip"]
+
+
 # ------------------------------------------------------------------ pages
 @app.get("/", response_class=HTMLResponse)
 def dashboard(request: Request, id: Optional[int] = None, flash: Optional[str] = None):
     lang = _lang(request)
+    me = this_ip()
     with history.open_history() as conn:
         ids = history.scan_ids(conn)
         sid = id if id in ids else (ids[-1] if ids else None)
@@ -104,7 +129,7 @@ def dashboard(request: Request, id: Optional[int] = None, flash: Optional[str] =
     return _render(request, "dashboard.html", _ctx(
         request, lang, r=r, scan_id=sid, dev=r.most_dangerous if r else None, first=r.first_fix if r else None,
         findings=r.findings if r else [], anchors=_anchors(r), diff=changes, alerts=alerts(changes, lang),
-        scans=scans[-30:], rooms=rooms(r, lang), dev_by_ip={d.ip: d for d in (r.devices if r else [])},
+        scans=scans[-30:], rooms=rooms(r, lang, me), me_ip=me, dev_by_ip={d.ip: d for d in (r.devices if r else [])},
         flash=_flash.pop(flash, None) if flash else None))
 
 

@@ -30,3 +30,6 @@ scans/private/
 
 # live scans contain real network data (commit lab fixtures into tests/fixtures/lab/ on purpose)
 scans/
+
+# Windows app environment (NetCheck.cmd)
+.venv-windows/
