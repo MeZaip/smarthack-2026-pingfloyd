@@ -36,9 +36,12 @@ def evidence_sets(*analyses: Analysis) -> tuple[set[str], set[int], str]:
 
 
 def check(answer: str, *analyses: Analysis) -> None:
-    """Raise GroundingError with a short reason if the answer is not grounded."""
-    ips, ports, raw = evidence_sets(*analyses)
+    """Raise GroundingError if the answer mentions anything the scan(s) did not show."""
+    check_evidence(answer, *evidence_sets(*analyses))
 
+
+def check_evidence(answer: str, ips: set[str], ports: set[int], raw: str) -> None:
+    """Same check against pre-computed evidence (used by the gateway, which has no Analysis)."""
     for ip in _IPV4.findall(answer):
         if ip not in ips:
             raise GroundingError(f"mentions IP {ip} not in scan")

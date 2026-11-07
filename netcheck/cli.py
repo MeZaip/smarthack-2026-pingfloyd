@@ -3,14 +3,23 @@
   python -m netcheck analyze <folder|file> [--out results]   -> findings.csv + scores.csv
   python -m netcheck report  <file> [--lang ro|en]           -> plain-language report in the terminal
   python -m netcheck ask     <file> "question" [--lang ro|en] [--previous <file>]
+  python -m netcheck chat    <file> [--lang ro|en] [--previous <file>]   -> conversation with the assistant
   python -m netcheck diff    <before.xml> <after.xml> [--lang ro|en]
   python -m netcheck history add <file|folder>... | list | changes [--before ID --after ID] | delete [--yes]
+
+Core Engine & CLI (netcheck/net/):
+  python -m netcheck detect [--json]                              interface / subnet / gateway (FR-01)
+  python -m netcheck scan [target] --confirm [--allow CIDR]       live scan of YOUR network (FR-02, FR-04)
+  python -m netcheck parse <file|folder> [--out DIR]              §1 Raw Parsed Data JSON (data contract)
+  python -m netcheck verify <scan.xml> <ip> <port> --confirm      „Dovedește!": re-check one fixed problem
+  python -m netcheck watch --confirm [--interval 60]              „Paznic": alert on new device / new port
 """
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from .core.analysis import analyze_file, analyze_folder, scan_files_in, write_results
 from .core.device import DEVICE_LABELS
@@ -81,6 +90,37 @@ def cmd_ask(args) -> int:
     badge = "AI" if ans.source == "ai" else f"text încorporat / built-in ({ans.reason})"
     _out(f"\n[{badge}]")
     return 0
+
+
+def cmd_chat(args) -> int:
+    from .ai.assistant import Conversation
+    a = analyze_file(args.file)
+    if not a.ok:
+        _out("ERROR: " + a.error)
+        return 1
+    prev = analyze_file(args.previous) if args.previous else None
+    conv = Conversation(a, args.lang, prev)
+    ro = args.lang == "ro"
+    _out(("Întreabă orice despre această scanare. „nou” = conversație nouă, „gata” = ieșire." if ro else
+          "Ask anything about this scan. 'new' = new conversation, 'quit' = exit."))
+    while True:
+        try:
+            q = input("\n" + ("Tu: " if ro else "You: ")).strip()
+        except (EOFError, KeyboardInterrupt):
+            _out()
+            return 0
+        if q.lower() in ("gata", "exit", "quit", "q"):
+            return 0
+        if q.lower() in ("nou", "new"):
+            conv.reset()
+            _out("(conversație nouă)" if ro else "(new conversation)")
+            continue
+        if not q:
+            continue
+        ans = conv.ask(q)
+        _out(("Asistent: " if ro else "Assistant: ") + ans.text)
+        if ans.source != "ai":
+            _out(f"[text încorporat / built-in ({ans.reason})]")
 
 
 def cmd_diff(args) -> int:
@@ -168,6 +208,142 @@ def cmd_history_delete(args) -> int:
     return 0
 
 
+# ---------------------------------------------------------------- Core Engine & CLI (netcheck/net/)
+def _dump(obj) -> str:
+    return json.dumps(obj, ensure_ascii=False, indent=2)
+
+
+def _refused(e, lang: str) -> int:
+    _out("⛔ " + (e.message(lang) if hasattr(e, "message") else str(e)))
+    return 3
+
+
+def cmd_detect(args) -> int:
+    from .net import netdetect
+    try:
+        n = netdetect.detect()
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
+        return 1
+    if args.json:
+        _out(_dump({"network": n.contract_network(), "interface": n.interface, "ip": n.ip}))
+        return 0
+    ro = args.lang == "ro"
+    _out(f"{'interfață' if ro else 'interface'}: {n.interface}\n{'IP-ul tău' if ro else 'your IP'}:  {n.ip}\n"
+         f"{'rețea' if ro else 'subnet'}:    {n.subnet}\n{'gateway'}:   {n.gateway or '?'}")
+    return 0
+
+
+def cmd_scan(args) -> int:
+    from .core.parser import ScanFileError, parse_file
+    from .net import contract, guardrail, netdetect, scanner
+    try:
+        net = netdetect.detect()
+        allow = guardrail.build_allowlist(net.subnet, args.allow)
+        target = guardrail.check_target(args.target or net.subnet, allow, confirmed=args.confirm)
+    except guardrail.ScopeError as e:
+        return _refused(e, args.lang)
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
+        return 3
+    _out(("Scanez " if args.lang == "ro" else "Scanning ") + f"{target} (≤ {scanner.MAX_RATE} pkt/s). "
+         + ("nmap are nevoie de drepturi de administrator; s-ar putea să-ți ceară parola."
+            if args.lang == "ro" else "nmap needs admin rights; you may be asked for your password."))
+    try:
+        xml = scanner.run_scan(target, args.out)
+    except scanner.ScanError as e:
+        _out(f"✖ {e}")
+        return 1
+    raw_path = xml.with_suffix(".raw.json")
+    try:  # §1 with the LIVE network facts (gateway is only known during a live scan)
+        raw_path.write_text(_dump(contract.raw_scan(parse_file(xml), net.subnet, net.gateway)) + "\n",
+                            encoding="utf-8")
+    except ScanFileError:
+        raw_path = None
+    a = analyze_file(xml)
+    status = f"score {a.score}/100, {len(a.findings)} findings" if a.ok else f"ERROR: {a.error}"
+    _out(f"{xml.name}: {status}")
+    if a.ok and not args.no_history:
+        from . import history
+        with history.open_history(args.db) as conn:
+            scan_id, _ = history.save(conn, a)
+        _out(f"history #{scan_id} (python -m netcheck history list)")
+    _out(f"Saved {xml}" + (f" + {raw_path.name} (data contract §1)" if raw_path else ""))
+    _out(f"Next: python -m netcheck report {xml}")
+    return 0 if a.ok else 1
+
+
+def cmd_parse(args) -> int:
+    from .core.parser import ScanFileError, parse_file
+    from .net import contract
+    files = scan_files_in(args.path) if Path(args.path).exists() else []
+    if not files:
+        _out(f"✖ no .xml files found in {args.path}")
+        return 2
+    failed = 0
+    for f in files:
+        try:
+            payload = contract.raw_scan(parse_file(f))
+        except ScanFileError as e:
+            print(f"✖ {f.name}: ERROR — {e}", file=sys.stderr)
+            failed += 1
+            continue
+        if args.out:
+            out = Path(args.out) / f"{payload['scan_id']}.raw.json"
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(_dump(payload) + "\n", encoding="utf-8")
+            _out(f"✔ {out}")
+        else:
+            _out(_dump(payload))
+    return 1 if failed == len(files) else 0
+
+
+def cmd_verify(args) -> int:
+    from .net import guardrail, netdetect, verify
+    if not args.confirm:
+        _out("⛔ " + ("adaugă --confirm (confirmi că dispozitivul e al tău)" if args.lang == "ro"
+                     else "add --confirm (you confirm you own this device)"))
+        return 3
+    a = analyze_file(args.scan)
+    if not a.ok:
+        _out(f"✖ {a.file}: ERROR — {a.error}")
+        return 1
+    proto = "udp" if args.udp else "tcp"
+    targets = [f for f in a.findings if f.ip == args.ip and f.port == args.port and f.protocol == proto]
+    if not targets:
+        _out(f"✖ no finding for {args.ip}:{args.port}/{proto} in {a.file}")
+        return 1
+    try:
+        allow = guardrail.build_allowlist(netdetect.detect().subnet, args.allow)
+    except guardrail.ScopeError as e:
+        return _refused(e, args.lang)
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
+        return 3
+    host = next(h for h in a.scan.hosts if h.ip == args.ip)
+    code = 0
+    for f in targets:
+        res = verify.verify(f, host, allow, allow_udp=args.udp)
+        _out(f"{f.code} {f.ip}:{f.port} → {res.message(args.lang)}  [{res.evidence}]")
+        code = max(code, 0 if res.status == "resolved" else 1)
+    return code
+
+
+def cmd_watch(args) -> int:
+    from .net import guardrail, netdetect, watch
+    if not args.confirm:
+        _out("⛔ " + ("adaugă --confirm (confirmi că toate dispozitivele din rețea sunt ale tale)" if args.lang == "ro"
+                     else "add --confirm (you confirm you own every device on this network)"))
+        return 3
+    try:
+        return watch.run(interval=args.interval, lang=args.lang, extra_allow=args.allow)
+    except guardrail.ScopeError as e:
+        return _refused(e, args.lang)
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ {e}")
+        return 3
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="netcheck", description="Secure Networks, Simply Explained")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -188,6 +364,12 @@ def main(argv=None) -> int:
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.add_argument("--previous", help="previous scan of the same network, for 'what changed?' questions")
     s.set_defaults(fn=cmd_ask)
+
+    s = sub.add_parser("chat", help="have a conversation with the assistant about one scan")
+    s.add_argument("file")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--previous", help="previous scan of the same network")
+    s.set_defaults(fn=cmd_chat)
 
     s = sub.add_parser("diff", help="compare two scans of the same network")
     s.add_argument("before")
@@ -217,6 +399,44 @@ def main(argv=None) -> int:
     s.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     s.add_argument("--db", help=db_help)
     s.set_defaults(fn=cmd_history_delete)
+
+    # ---- Core Engine & CLI
+    s = sub.add_parser("detect", help="show the network you are connected to (FR-01)")
+    s.add_argument("--json", action="store_true", help="print the data-contract 'network' object")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_detect)
+
+    s = sub.add_parser("scan", help="live scan of YOUR network (needs --confirm; sudo only for nmap)")
+    s.add_argument("target", nargs="?", help="IP/CIDR inside your subnet (default: the connected subnet)")
+    s.add_argument("--confirm", action="store_true", help="I own every device on this network")
+    s.add_argument("--allow", action="append", default=[], help="extra PRIVATE CIDR to allow (repeatable)")
+    s.add_argument("--out", default="scans")
+    s.add_argument("--no-history", action="store_true", help="do not save the result to the local history")
+    s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_scan)
+
+    s = sub.add_parser("parse", help="nmap XML -> §1 Raw Parsed Data JSON (offline, no root)")
+    s.add_argument("path", help="XML file or folder")
+    s.add_argument("--out", help="folder for <scan_id>.raw.json (default: print to stdout)")
+    s.set_defaults(fn=cmd_parse)
+
+    s = sub.add_parser("verify", help="„Dovedește!”: re-check one fixed problem from a scan file")
+    s.add_argument("scan", help="the nmap XML that showed the problem")
+    s.add_argument("ip")
+    s.add_argument("port", type=int)
+    s.add_argument("--udp", action="store_true", help="UDP port (needs admin rights)")
+    s.add_argument("--confirm", action="store_true")
+    s.add_argument("--allow", action="append", default=[])
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_verify)
+
+    s = sub.add_parser("watch", help="„Paznic”: notify me about new devices / newly opened ports (no root)")
+    s.add_argument("--confirm", action="store_true")
+    s.add_argument("--interval", type=int, default=60, help="seconds between checks")
+    s.add_argument("--allow", action="append", default=[])
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.set_defaults(fn=cmd_watch)
 
     args = p.parse_args(argv)
     return args.fn(args)

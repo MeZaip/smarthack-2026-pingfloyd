@@ -1,0 +1,13 @@
+# Optional extra targets (Setup A). Run on the TARGET laptop: docker compose -f lab/docker-compose.yml up -d
+# Stop when leaving: docker compose -f lab/docker-compose.yml down
+services:
+  redis:          # DB_EXPOSED (no real data inside)
+    image: redis:7
+    ports: ["6379:6379"]
+  mqtt:           # MQTT_EXPOSED (1.6 allows anonymous by default)
+    image: eclipse-mosquitto:1.6
+    ports: ["1883:1883"]
+  admin-page:     # HTTP_ADMIN_CLEARTEXT
+    image: nginx:alpine
+    ports: ["8081:80"]
+    volumes: ["./admin_page:/usr/share/nginx/html:ro"]
