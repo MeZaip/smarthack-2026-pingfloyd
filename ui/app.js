@@ -21,6 +21,9 @@
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
+      p3Unchecked: "Încă neverificat. Apasă „Inspectează casa”.", p3Absent: "Nu apare în această verificare.",
+      p3Safe: "Sigur: nicio ușă deschisă.", p3Info: "Doar de știut", p3Port: "port {p}", p3Hint: "Click pe aparat ca să fixezi panoul.",
+      p3Status: "{n} probleme", p3Status1: "O problemă", p3More: "+{n} în Reparații",
       stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
       stScanT: "Inspectez casa…", stScanS: "Verific fiecare aparat și fiecare ușă. Durează câteva secunde.",
       stSafeT: "Casa este sigură", stSafeS: "Toate ușile sunt închise. Nu ai nimic de reparat.",
@@ -118,6 +121,9 @@
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
       inspect: "Inspect house", inspectAgain: "Inspect again",
+      p3Unchecked: "Not checked yet. Press “Inspect house”.", p3Absent: "Not in this check.",
+      p3Safe: "Safe: no open doors.", p3Info: "Just so you know", p3Port: "port {p}", p3Hint: "Click the device to pin this panel.",
+      p3Status: "{n} problems", p3Status1: "One problem", p3More: "+{n} more in Fixes",
       stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
       stScanT: "Inspecting the house…", stScanS: "Checking every device and every door. It takes a few seconds.",
       stSafeT: "The house is safe", stSafeS: "All doors are closed. You have nothing to fix.",
@@ -439,6 +445,47 @@
     }, reducedMotion() ? 0 : SCAN_MS);
   }
 
+  // 3D threat panels: the scan's devices are shown on the five models in the house, matched by type
+  // (router -> router, TV/camera -> TV, computer/phone -> laptop, smart devices -> thermostat / speaker).
+  const SLOT_PREFS = {
+    router: ["router"], tv: ["tv", "camera"], laptop: ["computer", "phone", "server"],
+    thermostat: ["iot", "unknown"], speaker: ["iot", "nas", "printer", "camera", "server", "unknown", "phone", "computer"],
+  };
+  const SLOT_NAME = { router: "Router", tv: "Smart TV", laptop: "Laptop", thermostat: { ro: "Termostat", en: "Thermostat" }, speaker: { ro: "Boxă inteligentă", en: "Smart speaker" } };
+  const SEV_ORDER = ["high", "medium", "low", "info"];
+  function threats3d(s, done) {
+    const slotName = (id) => (typeof SLOT_NAME[id] === "string" ? SLOT_NAME[id] : SLOT_NAME[id][state.lang]);
+    const out = {};
+    if (!done || s.error) {
+      Object.keys(SLOT_PREFS).forEach((id) => { out[id] = { name: slotName(id), sev: "unknown", status: t("p3Unchecked"), items: [] }; });
+      return out;
+    }
+    const free = s.devices.slice(), slots = {};
+    Object.keys(SLOT_PREFS).forEach((id) => {                // best type match first
+      for (const type of SLOT_PREFS[id]) {
+        const i = free.findIndex((d) => d.type === type);
+        if (i >= 0) { slots[id] = free.splice(i, 1)[0]; break; }
+      }
+    });
+    // the rest on any free model, except the router model (only a router goes there)
+    Object.keys(SLOT_PREFS).forEach((id) => { if (id !== "router" && !slots[id] && free.length) slots[id] = free.shift(); });
+    Object.keys(SLOT_PREFS).forEach((id) => {
+      const d = slots[id];
+      if (!d) { out[id] = { name: slotName(id), sev: "absent", status: t("p3Absent"), items: [] }; return; }
+      const fs = s.findings.filter((f) => f.ip === d.ip).sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+      const real = fs.filter((f) => f.severity !== "info");
+      const sev = real.length ? real[0].severity : fs.length ? "info" : "safe";
+      out[id] = {
+        name: deviceName(d), short: deviceLabel(d.type), sub: d.ip, sev, more: t("p3More"),
+        status: real.length ? `${RISK[sev][state.lang]} · ${real.length === 1 ? t("p3Status1") : t("p3Status", { n: real.length })}` : fs.length ? t("p3Info") : t("p3Safe"),
+        items: fs.map((f) => ({ sev: f.severity, sevLabel: RISK[f.severity][state.lang], title: simple(f.code).title,
+          where: f.port != null ? t("p3Port", { p: `${f.port}/${f.protocol}` }) : "" })),
+        note: t("p3Hint"),
+      };
+    });
+    return out;
+  }
+
   function renderHome(root) {
     const s = scan();
     const done = !!state.inspected[s.file];
@@ -466,7 +513,13 @@
     root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "Safehouse" },
       h("div", { class: "stage-wrap" }, houseScene()), scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
-    if (mountEl) window.Safehouse3D.mount(mountEl);
+    if (mountEl) {
+      window.Safehouse3D.mount(mountEl);
+      const th = threats3d(s, done && !state.scanning);
+      if (window.Safehouse3D.setThreats) window.Safehouse3D.setThreats(th);
+      // routes to devices with a high risk turn red
+      if (window.Safehouse3D.setDeviceAlert) ["tv", "laptop", "thermostat", "speaker"].forEach((id) => window.Safehouse3D.setDeviceAlert(id, th[id].sev === "high"));
+    }
     applyHouseState(st);
 
     if (!done) return;                       // results appear after the house is inspected

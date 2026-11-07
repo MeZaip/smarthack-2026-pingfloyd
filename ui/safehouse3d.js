@@ -490,7 +490,30 @@
     const RED = new T3.Color(NEON.red), A = new T3.Vector3(), B = new T3.Vector3(), D = new T3.Vector3();
     let clock = 0, screenClock = 0;
 
+    // ---- interaction: an invisible, generous hit box around every device (easier to hover than the thin
+    // meshes; invisible meshes still answer the raycaster) + the point its info panel hangs from
+    const hitMat = new T3.MeshBasicMaterial({ visible: false });
+    const SLOTS = {
+      router: { box: [RX, 0.62, RZ, 1.1, 1.25, 0.7] },
+      tv: { box: [TVX + 0.08, TVY, TVZ, 0.3, 0.95, 1.45] },
+      laptop: { box: [HX - 0.05, 0.78, -1.25, 1.3, 1.55, 1.45] },
+      thermostat: { box: [0.4, 3.45, -1.98, 0.6, 0.6, 0.3] },
+      speaker: { box: [2.4, 3.3, -1.2, 0.6, 0.8, 0.6] },
+    };
+    const hits = Object.entries(SLOTS).map(([id, sl]) => {
+      const [x, y, z, w, h, d] = sl.box;
+      const m = new T3.Mesh(new T3.BoxGeometry(w, h, d), hitMat);
+      m.position.set(x, y, z);
+      m.userData.slot = id;
+      group.add(m);
+      sl.anchor = new T3.Vector3(x, y + h / 2 + 0.1, z);
+      return m;
+    });
+    let focusId = null;           // device whose data route is highlighted (hover / open panel)
+
     return {
+      hits, slots: SLOTS,
+      setFocus(id) { focusId = id || null; },
       setAlert(id, on) { devices.forEach((d) => { if (d.id === id) d.alert = !!on; }); },
       update(dt, st, still) {
         const run = still ? 0 : RATE[st];
@@ -507,7 +530,8 @@
           L.mult = isHacker && st === "vulnerable" ? 1.7 : 1;
           L.col.copy(L.device.alert || (isHacker && st === "vulnerable") ? RED : L.base);
           L.tubeMat.color.copy(L.col);
-          L.tubeMat.opacity = L.blocked ? 0.04 : 0.14 + 0.08 * (0.5 + 0.5 * Math.sin(clock * 5 + L.length));
+          L.focus = !focusId || focusId === "router" ? 1 : focusId === L.device.id ? 2 : 0.3;
+          L.tubeMat.opacity = L.blocked ? 0.04 : (0.14 + 0.08 * (0.5 + 0.5 * Math.sin(clock * 5 + L.length))) * (L.focus === 2 ? 3 : L.focus);
         });
 
         pulses.forEach((p) => {
@@ -533,8 +557,9 @@
           const fade = Math.min(1, t * 10, (1 - t) * 10);
           p.streak.material.color.copy(L.col);
           p.head.material.color.copy(L.col);
-          p.streak.material.opacity = 0.95 * fade;
-          p.head.material.opacity = fade;
+          p.streak.material.opacity = 0.95 * fade * Math.min(1, L.focus);
+          p.head.material.opacity = fade * Math.min(1, L.focus);
+          p.head.scale.setScalar(L.focus === 2 ? 0.36 : 0.24);
         });
 
         // receivers flash when a pulse lands, then settle (exponential decay)
@@ -550,6 +575,114 @@
     };
   })(world);
   api.setDeviceAlert = (id, on) => network.setAlert(id, on);   // e.g. Safehouse3D.setDeviceAlert("tv", true)
+
+  // ------------------------------------------------------------------ device threat panels (HTML overlays)
+  // CSS2DRenderer is an ES-module add-on and is not part of the bundled three.min.js, so this does the same
+  // job directly: every frame each device's anchor point is projected to the screen and its HTML panel is
+  // moved there. Panels start collapsed (a small pill); hovering a device (raycaster) or the pill opens it,
+  // a click pins it open. The page fills them with Safehouse3D.setThreats(data) (text only, no HTML).
+  const layer = document.createElement("div");
+  layer.className = "h3d-layer";
+  const panels = {};
+  let hoverId = null, viewW = 1, viewH = 1;
+  const isOpen = (id) => panels[id] && (panels[id].pinned || hoverId === id || panels[id].el.contains(document.activeElement));
+  function refreshPanels() {
+    let active = hoverId;
+    Object.keys(panels).forEach((id) => {
+      const P = panels[id], open = isOpen(id);
+      P.el.classList.toggle("open", !!open);
+      P.pill.setAttribute("aria-expanded", String(!!open));
+      if (P.pinned && !active) active = id;
+    });
+    network.setFocus(active);
+  }
+  function setHover(id) {
+    if (id === hoverId) return;
+    hoverId = id;
+    canvas.style.cursor = id ? "pointer" : "";
+    refreshPanels();
+  }
+  function togglePin(id) {
+    if (!id) { Object.values(panels).forEach((P) => { P.pinned = false; }); refreshPanels(); return; }
+    panels[id].pinned = !panels[id].pinned;
+    refreshPanels();
+  }
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  Object.keys(network.slots).forEach((id) => {
+    const root = el("div", "h3d-panel sev-unknown"), inner = el("div", "h3d-inner");
+    root.dataset.slot = id;                                   // CSS gives each device its own leader length
+    const pill = el("button", "h3d-pill");
+    pill.type = "button";
+    const dot = el("span", "h3d-dot"), name = el("span", "h3d-name", id), count = el("span", "h3d-count");
+    pill.append(dot, name, count);
+    const card = el("div", "h3d-card");
+    card.id = "h3d-card-" + id;
+    pill.setAttribute("aria-controls", card.id);
+    inner.append(pill, card);
+    root.append(inner);
+    root.addEventListener("pointerenter", () => setHover(id));
+    root.addEventListener("pointerleave", () => setHover(null));
+    pill.addEventListener("click", () => togglePin(id));
+    root.addEventListener("focusin", refreshPanels);
+    root.addEventListener("focusout", () => setTimeout(refreshPanels, 0));
+    layer.append(root);
+    panels[id] = { el: root, pill, name, count, card, pinned: false };
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") togglePin(null); });
+
+  // data: { router: { name, sub, sev: "high|medium|low|info|safe|unknown|absent", status, items: [{ sev, sevLabel, title, where }], note }, ... }
+  api.setThreats = function (data) {
+    Object.keys(panels).forEach((id) => {
+      const P = panels[id], d = (data && data[id]) || { name: id, sev: "unknown", status: "", items: [] };
+      P.el.className = "h3d-panel sev-" + d.sev + (P.el.classList.contains("open") ? " open" : "");
+      P.name.textContent = d.short || d.name;
+      const n = (d.items || []).filter((x) => x.sev !== "info").length;
+      P.count.textContent = n ? String(n) : "";
+      P.pill.setAttribute("aria-label", `${d.name}: ${d.status}`);
+      const head = el("div", "h3d-head");
+      head.append(el("strong", null, d.name), d.sub ? el("span", "h3d-sub", d.sub) : "");
+      const kids = [head, el("p", "h3d-status", d.status)];
+      if (d.items && d.items.length) {
+        const ul = el("ul", "h3d-list"), MAX = 3;
+        d.items.slice(0, MAX).forEach((x) => {
+          const li = el("li", "sev-" + x.sev);
+          li.append(el("span", "h3d-sev", x.sevLabel), el("span", "h3d-title", x.title), x.where ? el("code", "h3d-where", x.where) : "");
+          ul.append(li);
+        });
+        kids.push(ul);
+        if (d.items.length > MAX && d.more) kids.push(el("p", "h3d-more", d.more.replace("{n}", d.items.length - MAX)));
+      }
+      if (d.note) kids.push(el("p", "h3d-note", d.note));
+      P.card.replaceChildren(...kids);
+    });
+    refreshPanels();
+  };
+
+  const proj = new T3.Vector3();
+  function placePanels() {
+    if (!layer.isConnected) return;
+    const cr = canvas.getBoundingClientRect(), lr = layer.getBoundingClientRect();
+    const ox = cr.left - lr.left, oy = cr.top - lr.top;
+    Object.keys(panels).forEach((id) => {
+      proj.copy(network.slots[id].anchor).project(camera);
+      const P = panels[id], behind = proj.z > 1;
+      P.el.style.visibility = behind ? "hidden" : "";
+      if (behind) return;
+      const x = ox + (proj.x * 0.5 + 0.5) * viewW, y = oy + (-proj.y * 0.5 + 0.5) * viewH;
+      P.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      P.el.style.zIndex = isOpen(id) ? "3" : String(1 + Math.round((1 - proj.z) * 1000) / 1000);
+    });
+  }
+
+  // raycaster: which device is under the pointer?
+  const ray = new T3.Raycaster(), ndc = new T3.Vector2();
+  function pick(e) {
+    const r = canvas.getBoundingClientRect();
+    ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hit = ray.intersectObjects(network.hits, false)[0];
+    return hit ? hit.object.userData.slot : null;
+  }
 
   // lights inside the house (emerald when safe) and at the doorway (orange when a door is open)
   const inside = [new T3.PointLight(EMERALD, 0, 9, 2), new T3.PointLight(EMERALD, 0, 9, 2)];
@@ -596,10 +729,17 @@
   };
 
   let az = 0, userAz = 0, dragging = false, lastX = 0;
-  canvas.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; canvas.setPointerCapture(e.pointerId); });
-  canvas.addEventListener("pointermove", (e) => { if (!dragging) return; userAz = Math.max(-1.1, Math.min(1.1, userAz + (e.clientX - lastX) * 0.006)); lastX = e.clientX; });
-  canvas.addEventListener("pointerup", () => { dragging = false; });
+  let downX = 0, downY = 0, moved = false;
+  canvas.addEventListener("pointerdown", (e) => { dragging = true; moved = false; lastX = downX = e.clientX; downY = e.clientY; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragging) { if (e.pointerType === "mouse") setHover(pick(e)); return; }
+    if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 6) moved = true;
+    userAz = Math.max(-1.1, Math.min(1.1, userAz + (e.clientX - lastX) * 0.006)); lastX = e.clientX;
+  });
+  canvas.addEventListener("pointerup", (e) => { dragging = false; if (!moved) togglePinOrClear(pick(e)); });
   canvas.addEventListener("pointercancel", () => { dragging = false; });
+  canvas.addEventListener("pointerleave", () => { if (!dragging) setHover(null); });
+  function togglePinOrClear(id) { if (id) togglePin(id); else togglePin(null); }
 
   const ease = (x) => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
   let last = performance.now();
@@ -636,6 +776,7 @@
     camera.position.set(Math.sin(a) * r, 10.5, Math.cos(a) * r);
     camera.lookAt(target);
     renderer.render(scene, camera);
+    placePanels();
   }
 
   // ------------------------------------------------------------------ mount (survives page re-renders)
@@ -644,6 +785,7 @@
     if (!observed) return;
     const w = Math.max(1, observed.clientWidth), h = Math.max(1, observed.clientHeight);
     renderer.setSize(w, h, false);
+    viewW = w; viewH = h;
     camera.aspect = w / h;
     camera.fov = w / h < 0.9 ? 40 : 30;                         // narrow phones: widen the view
     camera.updateProjectionMatrix();
@@ -651,6 +793,8 @@
   api.mount = function (el) {
     if (!el) return;
     el.appendChild(canvas);
+    const host = (el.closest && el.closest(".stage-wrap")) || el.parentElement || el;
+    host.appendChild(layer);
     if (observed) ro.unobserve(observed);
     observed = el;
     ro.observe(el);
