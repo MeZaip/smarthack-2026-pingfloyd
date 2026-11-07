@@ -8,8 +8,8 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.1",
-     "mac": "50:C7:BF:XX:XX:XX",
-     "vendor": "TP-Link Technologies",
+     "mac": "XX:XX:XX:XX:0C:8C",
+     "vendor": "TP-Link",
      "hostname": "router.lan",
      "type": "router",
      "open_ports": [
@@ -18,7 +18,7 @@ window.NETCHECK_DATA = {
        "protocol": "tcp",
        "service": "domain",
        "product": "dnsmasq",
-       "version": "2.80",
+       "version": "2.89",
        "tls": false,
        "title": null
       },
@@ -26,19 +26,19 @@ window.NETCHECK_DATA = {
        "port": 80,
        "protocol": "tcp",
        "service": "http",
-       "product": "TP-LINK router http config",
+       "product": "lighttpd",
        "version": "",
        "tls": false,
-       "title": "TP-Link Router Login"
+       "title": "Router Login"
       },
       {
        "port": 443,
        "protocol": "tcp",
        "service": "http",
-       "product": "",
+       "product": "lighttpd",
        "version": "",
        "tls": true,
-       "title": "TP-Link Router Login"
+       "title": "Router Login"
       }
      ],
      "risk_points": 10,
@@ -48,20 +48,20 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.20",
-     "mac": "3C:22:FB:XX:XX:XX",
-     "vendor": "Apple",
-     "hostname": "macbook.lan",
-     "type": "phone",
+     "mac": "XX:XX:XX:XX:72:47",
+     "vendor": "Dell",
+     "hostname": "laptop-ana",
+     "type": "computer",
      "open_ports": [],
      "risk_points": 0,
      "findings": []
     },
     {
-     "ip": "192.168.1.21",
-     "mac": "A4:50:46:XX:XX:XX",
-     "vendor": "Xiaomi Communications",
-     "hostname": null,
-     "type": "phone",
+     "ip": "192.168.1.35",
+     "mac": "XX:XX:XX:XX:2C:D8",
+     "vendor": "Samsung",
+     "hostname": "galaxy-s23",
+     "type": "tv",
      "open_ports": [],
      "risk_points": 0,
      "findings": []
@@ -75,7 +75,7 @@ window.NETCHECK_DATA = {
      "code": "HTTP_ADMIN_CLEARTEXT",
      "severity": "medium",
      "points": 10,
-     "evidence": "80/tcp open, service=http, software=TP-LINK router http config, page title=\"TP-Link Router Login\""
+     "evidence": "80/tcp open, service=http, software=lighttpd, page title=\"Router Login\""
     }
    ]
   },
@@ -86,28 +86,28 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.40",
-     "mac": "C0:56:E3:XX:XX:XX",
-     "vendor": "Hangzhou Hikvision",
-     "hostname": "ipcam.lan",
+     "mac": "XX:XX:XX:XX:0D:65",
+     "vendor": "Hikvision",
+     "hostname": "ipcam",
      "type": "camera",
      "open_ports": [
-      {
-       "port": 554,
-       "protocol": "tcp",
-       "service": "rtsp",
-       "product": "Hikvision rtspd",
-       "version": "",
-       "tls": false,
-       "title": null
-      },
       {
        "port": 80,
        "protocol": "tcp",
        "service": "http",
-       "product": "Hikvision httpd",
+       "product": "Hikvision IP camera httpd",
        "version": "",
        "tls": false,
-       "title": "Camera Login"
+       "title": "Camera Web Login"
+      },
+      {
+       "port": 554,
+       "protocol": "tcp",
+       "service": "rtsp",
+       "product": "Hikvision 7513 POE IP camera rtspd",
+       "version": "",
+       "tls": false,
+       "title": null
       }
      ],
      "risk_points": 30,
@@ -118,8 +118,8 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.1",
-     "mac": "50:C7:BF:XX:XX:XX",
-     "vendor": "TP-Link Technologies",
+     "mac": "XX:XX:XX:XX:2F:6F",
+     "vendor": "TP-Link",
      "hostname": "router.lan",
      "type": "router",
      "open_ports": [
@@ -127,25 +127,16 @@ window.NETCHECK_DATA = {
        "port": 80,
        "protocol": "tcp",
        "service": "http",
-       "product": "",
+       "product": "lighttpd",
        "version": "",
        "tls": false,
-       "title": "Router Settings"
-      },
-      {
-       "port": 443,
-       "protocol": "tcp",
-       "service": "https",
-       "product": "",
-       "version": "",
-       "tls": false,
-       "title": "Router Settings"
+       "title": "TP-Link Router Admin"
       },
       {
        "port": 1900,
        "protocol": "udp",
        "service": "upnp",
-       "product": "miniupnpd",
+       "product": "MiniUPnP",
        "version": "2.1",
        "tls": false,
        "title": null
@@ -159,9 +150,9 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.41",
-     "mac": "B8:27:EB:XX:XX:XX",
+     "mac": "XX:XX:XX:XX:70:E5",
      "vendor": "Raspberry Pi Foundation",
-     "hostname": "smarthub.lan",
+     "hostname": "smarthub",
      "type": "iot",
      "open_ports": [
       {
@@ -169,18 +160,9 @@ window.NETCHECK_DATA = {
        "protocol": "tcp",
        "service": "mqtt",
        "product": "Mosquitto",
-       "version": "1.6.15",
+       "version": "2.0.18",
        "tls": false,
        "title": null
-      },
-      {
-       "port": 8123,
-       "protocol": "tcp",
-       "service": "http",
-       "product": "",
-       "version": "",
-       "tls": false,
-       "title": "Home Assistant"
       }
      ],
      "risk_points": 10,
@@ -190,19 +172,19 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.50",
-     "mac": "8C:79:F5:XX:XX:XX",
-     "vendor": "Samsung Electronics",
-     "hostname": "tv.lan",
+     "mac": "XX:XX:XX:XX:03:51",
+     "vendor": "Google",
+     "hostname": "living-room-tv",
      "type": "tv",
      "open_ports": [
       {
        "port": 8008,
        "protocol": "tcp",
        "service": "http",
-       "product": "",
+       "product": "Google Chromecast httpd",
        "version": "",
        "tls": false,
-       "title": "Chromecast"
+       "title": null
       },
       {
        "port": 8009,
@@ -226,7 +208,7 @@ window.NETCHECK_DATA = {
      "code": "CAMERA_STREAM_EXPOSED",
      "severity": "high",
      "points": 20,
-     "evidence": "554/tcp open, service=rtsp, software=Hikvision rtspd"
+     "evidence": "554/tcp open, service=rtsp, software=Hikvision 7513 POE IP camera rtspd"
     },
     {
      "ip": "192.168.1.1",
@@ -235,7 +217,7 @@ window.NETCHECK_DATA = {
      "code": "HTTP_ADMIN_CLEARTEXT",
      "severity": "medium",
      "points": 10,
-     "evidence": "80/tcp open, service=http, page title=\"Router Settings\""
+     "evidence": "80/tcp open, service=http, software=lighttpd, page title=\"TP-Link Router Admin\""
     },
     {
      "ip": "192.168.1.1",
@@ -244,7 +226,7 @@ window.NETCHECK_DATA = {
      "code": "UPNP_EXPOSED",
      "severity": "medium",
      "points": 10,
-     "evidence": "1900/udp open, service=upnp, software=miniupnpd 2.1"
+     "evidence": "1900/udp open, service=upnp, software=MiniUPnP 2.1"
     },
     {
      "ip": "192.168.1.40",
@@ -253,7 +235,7 @@ window.NETCHECK_DATA = {
      "code": "HTTP_ADMIN_CLEARTEXT",
      "severity": "medium",
      "points": 10,
-     "evidence": "80/tcp open, service=http, software=Hikvision httpd, page title=\"Camera Login\""
+     "evidence": "80/tcp open, service=http, software=Hikvision IP camera httpd, page title=\"Camera Web Login\""
     },
     {
      "ip": "192.168.1.41",
@@ -262,7 +244,7 @@ window.NETCHECK_DATA = {
      "code": "MQTT_EXPOSED",
      "severity": "medium",
      "points": 10,
-     "evidence": "1883/tcp open, service=mqtt, software=Mosquitto 1.6.15"
+     "evidence": "1883/tcp open, service=mqtt, software=Mosquitto 2.0.18"
     }
    ]
   },
@@ -273,20 +255,11 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.30",
-     "mac": "D4:BE:D9:XX:XX:XX",
+     "mac": "XX:XX:XX:XX:2F:C2",
      "vendor": "Dell",
-     "hostname": "office-pc",
+     "hostname": "desk-01",
      "type": "computer",
      "open_ports": [
-      {
-       "port": 135,
-       "protocol": "tcp",
-       "service": "msrpc",
-       "product": "Microsoft Windows RPC",
-       "version": "",
-       "tls": false,
-       "title": null
-      },
       {
        "port": 3389,
        "protocol": "tcp",
@@ -304,9 +277,9 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.40",
-     "mac": "52:54:00:XX:XX:XX",
-     "vendor": "QEMU virtual NIC",
-     "hostname": "srv01",
+     "mac": "XX:XX:XX:XX:B7:B0",
+     "vendor": "Dell",
+     "hostname": "srv-db",
      "type": "server",
      "open_ports": [
       {
@@ -314,7 +287,7 @@ window.NETCHECK_DATA = {
        "protocol": "tcp",
        "service": "ssh",
        "product": "OpenSSH",
-       "version": "8.9p1 Ubuntu 3ubuntu0.10",
+       "version": "8.4p1 Debian 5+deb11u3",
        "tls": false,
        "title": null
       },
@@ -336,9 +309,9 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.20",
-     "mac": "00:11:32:XX:XX:XX",
-     "vendor": "Synology Incorporated",
-     "hostname": "nas.lan",
+     "mac": "XX:XX:XX:XX:6E:AC",
+     "vendor": "Synology",
+     "hostname": "nas",
      "type": "computer",
      "open_ports": [
       {
@@ -346,7 +319,7 @@ window.NETCHECK_DATA = {
        "protocol": "tcp",
        "service": "ssh",
        "product": "OpenSSH",
-       "version": "8.2p1",
+       "version": "8.9p1",
        "tls": false,
        "title": null
       },
@@ -355,7 +328,7 @@ window.NETCHECK_DATA = {
        "protocol": "tcp",
        "service": "netbios-ssn",
        "product": "Samba smbd",
-       "version": "4.6.2",
+       "version": "4.15",
        "tls": false,
        "title": null
       },
@@ -364,18 +337,9 @@ window.NETCHECK_DATA = {
        "protocol": "tcp",
        "service": "microsoft-ds",
        "product": "Samba smbd",
-       "version": "4.6.2",
+       "version": "4.15",
        "tls": false,
        "title": null
-      },
-      {
-       "port": 5001,
-       "protocol": "tcp",
-       "service": "http",
-       "product": "",
-       "version": "",
-       "tls": true,
-       "title": "Synology DiskStation"
       }
      ],
      "risk_points": 10,
@@ -386,20 +350,11 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.10",
-     "mac": "3C:2A:F4:XX:XX:XX",
-     "vendor": "Brother Industries",
-     "hostname": "printer.lan",
+     "mac": "XX:XX:XX:XX:AE:8E",
+     "vendor": "HP",
+     "hostname": "office-printer",
      "type": "printer",
      "open_ports": [
-      {
-       "port": 9100,
-       "protocol": "tcp",
-       "service": "jetdirect",
-       "product": "",
-       "version": "",
-       "tls": false,
-       "title": null
-      },
       {
        "port": 631,
        "protocol": "tcp",
@@ -410,13 +365,13 @@ window.NETCHECK_DATA = {
        "title": null
       },
       {
-       "port": 80,
+       "port": 9100,
        "protocol": "tcp",
-       "service": "http",
-       "product": "Debut embedded httpd",
+       "service": "jetdirect",
+       "product": "",
        "version": "",
        "tls": false,
-       "title": "Brother HL-L2350DW"
+       "title": null
       }
      ],
      "risk_points": 5,
@@ -451,7 +406,7 @@ window.NETCHECK_DATA = {
      "code": "SMB_EXPOSED",
      "severity": "medium",
      "points": 10,
-     "evidence": "445/tcp open, service=microsoft-ds, software=Samba smbd 4.6.2"
+     "evidence": "445/tcp open, service=microsoft-ds, software=Samba smbd 4.15"
     },
     {
      "ip": "192.168.1.10",
@@ -469,7 +424,7 @@ window.NETCHECK_DATA = {
      "code": "SSH_OPEN",
      "severity": "info",
      "points": 0,
-     "evidence": "22/tcp open, service=ssh, software=OpenSSH 8.2p1"
+     "evidence": "22/tcp open, service=ssh, software=OpenSSH 8.9p1"
     },
     {
      "ip": "192.168.1.40",
@@ -478,7 +433,7 @@ window.NETCHECK_DATA = {
      "code": "SSH_OPEN",
      "severity": "info",
      "points": 0,
-     "evidence": "22/tcp open, service=ssh, software=OpenSSH 8.9p1 Ubuntu 3ubuntu0.10"
+     "evidence": "22/tcp open, service=ssh, software=OpenSSH 8.4p1 Debian 5+deb11u3"
     }
    ]
   },
@@ -489,9 +444,9 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.1",
-     "mac": "00:1E:58:XX:XX:XX",
-     "vendor": "D-Link Corporation",
-     "hostname": "oldrouter",
+     "mac": "XX:XX:XX:XX:16:EB",
+     "vendor": "Netgear",
+     "hostname": "gateway",
      "type": "router",
      "open_ports": [
       {
@@ -516,7 +471,7 @@ window.NETCHECK_DATA = {
        "port": 161,
        "protocol": "udp",
        "service": "snmp",
-       "product": "net-snmp",
+       "product": "SNMPv1 server",
        "version": "",
        "tls": false,
        "title": null
@@ -531,10 +486,10 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.60",
-     "mac": "00:0C:29:XX:XX:XX",
-     "vendor": "VMware",
-     "hostname": "oldserver",
-     "type": "unknown",
+     "mac": "XX:XX:XX:XX:C1:28",
+     "vendor": "Dell",
+     "hostname": "oldsrv",
+     "type": "computer",
      "open_ports": [
       {
        "port": 21,
@@ -554,15 +509,15 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.99",
-     "mac": null,
+     "mac": "XX:XX:XX:XX:B9:62",
      "vendor": null,
      "hostname": null,
      "type": "unknown",
      "open_ports": [
       {
-       "port": 5000,
+       "port": 8888,
        "protocol": "tcp",
-       "service": "upnp",
+       "service": "sun-answerbook",
        "product": "",
        "version": "",
        "tls": false,
@@ -610,7 +565,7 @@ window.NETCHECK_DATA = {
      "code": "SNMP_EXPOSED",
      "severity": "medium",
      "points": 10,
-     "evidence": "161/udp open, service=snmp, software=net-snmp"
+     "evidence": "161/udp open, service=snmp, software=SNMPv1 server"
     },
     {
      "ip": "192.168.1.60",
@@ -628,7 +583,7 @@ window.NETCHECK_DATA = {
      "code": "UNKNOWN_DEVICE",
      "severity": "low",
      "points": 5,
-     "evidence": "no MAC vendor, no hostname, 1 open port(s)"
+     "evidence": "no MAC vendor, no hostname, 1 open port(s); the MAC is a private (random) address"
     }
    ]
   },
@@ -639,9 +594,9 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.5",
-     "mac": "B8:27:EB:XX:XX:XX",
-     "vendor": "Raspberry Pi Foundation",
-     "hostname": "pi-a",
+     "mac": "XX:XX:XX:XX:17:74",
+     "vendor": "Espressif",
+     "hostname": "plug-1",
      "type": "iot",
      "open_ports": [
       {
@@ -661,9 +616,9 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.7",
-     "mac": "02:42:AC:XX:XX:XX",
-     "vendor": "Docker",
-     "hostname": "redis-box",
+     "mac": "XX:XX:XX:XX:C2:8E",
+     "vendor": "Raspberry Pi Foundation",
+     "hostname": "cache",
      "type": "server",
      "open_ports": [
       {
@@ -683,17 +638,17 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.6",
-     "mac": "B8:27:EB:XX:XX:XX",
-     "vendor": "Raspberry Pi Foundation",
-     "hostname": "pi-b",
-     "type": "iot",
+     "mac": "XX:XX:XX:XX:28:77",
+     "vendor": "Dahua",
+     "hostname": "nvr",
+     "type": "camera",
      "open_ports": [
       {
        "port": 8081,
        "protocol": "tcp",
        "service": "http",
        "product": "nginx",
-       "version": "1.25.3",
+       "version": "",
        "tls": false,
        "title": "Admin Panel"
       }
@@ -705,10 +660,10 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.8",
-     "mac": "02:42:AC:XX:XX:XX",
-     "vendor": "Docker",
-     "hostname": "web-tls",
-     "type": "unknown",
+     "mac": "XX:XX:XX:XX:BA:53",
+     "vendor": "Ubiquiti",
+     "hostname": "access-point",
+     "type": "router",
      "open_ports": [
       {
        "port": 8443,
@@ -717,7 +672,7 @@ window.NETCHECK_DATA = {
        "product": "nginx",
        "version": "",
        "tls": true,
-       "title": "Login"
+       "title": "Admin Login"
       }
      ],
      "risk_points": 0,
@@ -725,10 +680,10 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.9",
-     "mac": "02:42:AC:XX:XX:XX",
-     "vendor": "Docker",
-     "hostname": "db-fw",
-     "type": "unknown",
+     "mac": "XX:XX:XX:XX:B5:6B",
+     "vendor": "Dell",
+     "hostname": "db-backup",
+     "type": "computer",
      "open_ports": [],
      "risk_points": 0,
      "findings": []
@@ -760,7 +715,7 @@ window.NETCHECK_DATA = {
      "code": "HTTP_ADMIN_CLEARTEXT",
      "severity": "medium",
      "points": 10,
-     "evidence": "8081/tcp open, service=http, software=nginx 1.25.3, page title=\"Admin Panel\""
+     "evidence": "8081/tcp open, service=http, software=nginx, page title=\"Admin Panel\""
     }
    ]
   },
@@ -771,8 +726,8 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.1",
-     "mac": "50:C7:BF:XX:XX:XX",
-     "vendor": "TP-Link Technologies",
+     "mac": "XX:XX:XX:XX:24:57",
+     "vendor": "TP-Link",
      "hostname": "router.lan",
      "type": "router",
      "open_ports": [
@@ -780,7 +735,7 @@ window.NETCHECK_DATA = {
        "port": 80,
        "protocol": "tcp",
        "service": "http",
-       "product": "",
+       "product": "lighttpd",
        "version": "",
        "tls": false,
        "title": "Router Login"
@@ -789,8 +744,8 @@ window.NETCHECK_DATA = {
        "port": 1900,
        "protocol": "udp",
        "service": "upnp",
-       "product": "miniupnpd",
-       "version": "",
+       "product": "MiniUPnP",
+       "version": "2.1",
        "tls": false,
        "title": null
       }
@@ -803,16 +758,16 @@ window.NETCHECK_DATA = {
     },
     {
      "ip": "192.168.1.30",
-     "mac": "B8:27:EB:XX:XX:XX",
-     "vendor": "Raspberry Pi Foundation",
-     "hostname": "pi-old",
+     "mac": "XX:XX:XX:XX:8A:70",
+     "vendor": "Espressif",
+     "hostname": "plug-kitchen",
      "type": "iot",
      "open_ports": [
       {
        "port": 23,
        "protocol": "tcp",
        "service": "telnet",
-       "product": "Linux telnetd",
+       "product": "BusyBox telnetd",
        "version": "",
        "tls": false,
        "title": null
@@ -822,6 +777,16 @@ window.NETCHECK_DATA = {
      "findings": [
       "TELNET_OPEN"
      ]
+    },
+    {
+     "ip": "192.168.1.20",
+     "mac": "XX:XX:XX:XX:53:EC",
+     "vendor": "Lenovo",
+     "hostname": "laptop-ioana",
+     "type": "computer",
+     "open_ports": [],
+     "risk_points": 0,
+     "findings": []
     }
    ],
    "findings": [
@@ -832,7 +797,7 @@ window.NETCHECK_DATA = {
      "code": "TELNET_OPEN",
      "severity": "high",
      "points": 20,
-     "evidence": "23/tcp open, service=telnet, software=Linux telnetd"
+     "evidence": "23/tcp open, service=telnet, software=BusyBox telnetd"
     },
     {
      "ip": "192.168.1.1",
@@ -841,7 +806,7 @@ window.NETCHECK_DATA = {
      "code": "HTTP_ADMIN_CLEARTEXT",
      "severity": "medium",
      "points": 10,
-     "evidence": "80/tcp open, service=http, page title=\"Router Login\""
+     "evidence": "80/tcp open, service=http, software=lighttpd, page title=\"Router Login\""
     },
     {
      "ip": "192.168.1.1",
@@ -850,7 +815,7 @@ window.NETCHECK_DATA = {
      "code": "UPNP_EXPOSED",
      "severity": "medium",
      "points": 10,
-     "evidence": "1900/udp open, service=upnp, software=miniupnpd"
+     "evidence": "1900/udp open, service=upnp, software=MiniUPnP 2.1"
     }
    ]
   },
@@ -861,8 +826,8 @@ window.NETCHECK_DATA = {
    "devices": [
     {
      "ip": "192.168.1.1",
-     "mac": "50:C7:BF:XX:XX:XX",
-     "vendor": "TP-Link Technologies",
+     "mac": "XX:XX:XX:XX:1C:75",
+     "vendor": "TP-Link",
      "hostname": "router.lan",
      "type": "router",
      "open_ports": [
@@ -870,7 +835,7 @@ window.NETCHECK_DATA = {
        "port": 443,
        "protocol": "tcp",
        "service": "http",
-       "product": "",
+       "product": "lighttpd",
        "version": "",
        "tls": true,
        "title": "Router Login"
@@ -880,10 +845,20 @@ window.NETCHECK_DATA = {
      "findings": []
     },
     {
+     "ip": "192.168.1.20",
+     "mac": "XX:XX:XX:XX:A1:CD",
+     "vendor": "Lenovo",
+     "hostname": "laptop-ioana",
+     "type": "computer",
+     "open_ports": [],
+     "risk_points": 0,
+     "findings": []
+    },
+    {
      "ip": "192.168.1.30",
-     "mac": "B8:27:EB:XX:XX:XX",
-     "vendor": "Raspberry Pi Foundation",
-     "hostname": "pi-old",
+     "mac": "XX:XX:XX:XX:21:6C",
+     "vendor": "Espressif",
+     "hostname": "plug-kitchen",
      "type": "iot",
      "open_ports": [],
      "risk_points": 0,
@@ -894,7 +869,7 @@ window.NETCHECK_DATA = {
   },
   {
    "file": "V7_broken.xml",
-   "error": "not a valid XML file (ParseError: unclosed token: line 17, column 0)"
+   "error": "not a valid XML file (ParseError: unclosed token: line 23, column 87)"
   }
  ],
  "history": {
@@ -902,20 +877,20 @@ window.NETCHECK_DATA = {
    {
     "scan_id": 1,
     "file": "V6a_before.xml",
-    "scanned_at": 1794040000,
-    "saved_at": 1794063235,
+    "scanned_at": 1793607841,
+    "saved_at": 1794075825,
     "network_score": 60,
     "findings": 3,
-    "devices": 2
+    "devices": 3
    },
    {
     "scan_id": 2,
     "file": "V6b_after.xml",
-    "scanned_at": 1794040000,
-    "saved_at": 1794063235,
+    "scanned_at": 1793609733,
+    "saved_at": 1794075825,
     "network_score": 100,
     "findings": 0,
-    "devices": 2
+    "devices": 3
    }
   ],
   "changes": {

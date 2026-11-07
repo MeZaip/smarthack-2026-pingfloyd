@@ -22,8 +22,10 @@
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
       topoCore: "Casa ta", topoGateway: "Poarta spre internet", topoHint: "Apasă pe un aparat ca să vezi detaliile.",
-      topoNet: "Rețea", topoWhy: "Ce înseamnă", topoAll: "Toate", topoShow: "Arată:", closeEsc: "Închide (Esc)", portOpen: "Deschis", portVuln: "Vulnerabil", portSecure: "criptat",
-      tourTitle: "Traseul amenințărilor", tourSub: "Dă scroll: urmărim datele de la un aparat la altul, începând cu cel mai periculos.",
+      topoNet: "Rețea", topoWhy: "Ce înseamnă", closeEsc: "Închide (Esc)", portOpen: "Deschis", portVuln: "Vulnerabil", portSecure: "criptat",
+      netTitle: "Rețeaua ta ({n} aparate)", netSub: "{n} aparate au uși deschise. Începe cu cel mai periculos sau apasă pe orice aparat.", netSub1: "Un aparat are uși deschise. Începe cu el sau apasă pe orice aparat.",
+      topoMore: "+{n} mai multe", topoBack: "Toată rețeaua", topoShow: "Filtrează după risc", topoSearch: "Caută IP sau nume", topoResults: "{n} rezultate", topoResult1: "Un rezultat", topoNoResults: "Niciun aparat găsit",
+      topoStart: "Începe cu cel mai periculos", topoPrev: "Aparatul anterior", topoNext: "Următorul", topoFound: "Ce am găsit",
       tourStep: "Aparatul {i} din {n}", tourPort: "port {p}", tourFirst: "Primul pas",
       tourEndT: "Ai parcurs tot traseul", tourEndS1: "Un aparat are uși deschise. Reparațiile, pas cu pas:", tourEndS: "{n} aparate au uși deschise. Reparațiile, pas cu pas:",
       stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
@@ -36,6 +38,12 @@
       doorsOpen: "Uși lăsate deschise ({n})", doorsSub: "Fiecare card spune ce s-a întâmplat și ce faci, pas cu pas. Cel mai periculos e primul.",
       doorsNone: "Nicio ușă lăsată deschisă. Toate aparatele tale sunt în siguranță.",
       devicesSub2: "Toate aparatele conectate la rețeaua ta. Apasă pe un aparat ca să vezi ce poți face.",
+      trendUp: "Scorul a crescut cu {pts}", trendDown: "Scorul a scăzut cu {pts}",
+      trendSame: "Scorul a rămas la fel ca data trecută", trendFirst: "Prima verificare salvată pentru această rețea",
+      trendNone: "Încă nu avem o verificare anterioară, ca să comparăm scorul",
+      newDev1: "1 aparat nou", newDevN: "{n} aparate noi", newDev0: "Niciun aparat nou",
+      delHistory: "Șterge istoricul", delHistoryAsk: "Ștergi toate verificările salvate pe acest calculator? Nu le mai poți aduce înapoi.",
+      histGone: "Istoricul a fost șters de pe acest calculator.",
       startHere: "Începe de aici", scoreTitle: "Scorul casei tale", scorePending: "Apasă butonul ca să verificăm casa și să afli scorul.",
       netTitle: "Rețeaua de acasă",
       scoreOf: "din 100",
@@ -124,8 +132,10 @@
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
       inspect: "Inspect house", inspectAgain: "Inspect again",
       topoCore: "Your home", topoGateway: "Gateway to the internet", topoHint: "Tap a device to see its details.",
-      topoNet: "Network", topoWhy: "What it means", topoAll: "All", topoShow: "Show:", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
-      tourTitle: "Threat path", tourSub: "Scroll: we follow the data from one device to the next, starting with the most dangerous.",
+      topoNet: "Network", topoWhy: "What it means", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
+      netTitle: "Your network ({n} devices)", netSub: "{n} devices have open doors. Start with the most dangerous one or tap any device.", netSub1: "One device has open doors. Start with it or tap any device.",
+      topoMore: "+{n} more", topoBack: "Whole network", topoShow: "Filter by risk", topoSearch: "Search IP or name", topoResults: "{n} results", topoResult1: "One result", topoNoResults: "No device found",
+      topoStart: "Start with the most dangerous", topoPrev: "Previous device", topoNext: "Next", topoFound: "What we found",
       tourStep: "Device {i} of {n}", tourPort: "port {p}", tourFirst: "First step",
       tourEndT: "That's the whole path", tourEndS1: "One device has open doors. The fixes, step by step:", tourEndS: "{n} devices have open doors. The fixes, step by step:",
       stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
@@ -138,6 +148,12 @@
       doorsOpen: "Doors left open ({n})", doorsSub: "Each card says what is wrong and what to do, step by step. The most dangerous one comes first.",
       doorsNone: "No door left open. All your devices are safe.",
       devicesSub2: "All the devices connected to your network. Tap a device to see what you can do.",
+      trendUp: "Score improved by {pts}", trendDown: "Score dropped by {pts}",
+      trendSame: "Score is the same as last time", trendFirst: "First saved check for this network",
+      trendNone: "No earlier check yet to compare the score with",
+      newDev1: "1 new device", newDevN: "{n} new devices", newDev0: "No new devices",
+      delHistory: "Delete history", delHistoryAsk: "Delete all checks saved on this computer? You cannot get them back.",
+      histGone: "History was deleted from this computer.",
       startHere: "Start here", scoreTitle: "Your home's score", scorePending: "Press the button so we can check the house and show your score.",
       netTitle: "Home network",
       scoreOf: "out of 100",
@@ -230,7 +246,6 @@
   };
   const BAND_ICON = { red: "octagon", amber: "alert", green: "check" };
   const DEVICE_ICON = { router: "router", camera: "video", printer: "printer", nas: "drive", iot: "bulb", tv: "tv", phone: "phone", computer: "laptop", server: "server", unknown: "help" };
-  const SIZES = ["100%", "115%", "130%"];
   const TABS = ["home", "devices", "findings", "history", "ask"];
 
   // ---------------------------------------------------------------- state
@@ -240,7 +255,6 @@
   };
   const state = {
     lang: store.get("lang") === "en" ? "en" : "ro",
-    size: Math.min(2, Math.max(0, Number(store.get("size")) || 0)),
     scan: Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")),
     tab: "home",
     devFilter: "all",
@@ -314,8 +328,12 @@
     const b = bandOf(score);
     return h("span", { class: "pill p-" + b }, icon(BAND_ICON[b]), t("band_" + b));
   }
+  // Risk colour of the 3D model's LED and rim light: red high, amber medium, blue low, green safe.
+  const MODEL_TONE = { red: "red", high: "red", amber: "amber", medium: "amber", low: "blue", info: "green", green: "green" };
   function devIco(type, tone, big) {
-    return h("div", { class: "dev-ico" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true" }, icon(DEVICE_ICON[type] || DEVICE_ICON.unknown));
+    const t = DEVICE_ICON[type] ? type : "unknown";
+    return h("div", { class: "dev-ico dev3d" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true",
+      "data-type": t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
   }
   function whoLine(code) {
     const w = D.who[whoOf(code)];
@@ -421,6 +439,8 @@
     if (!hero || !STATUS[st]) return false;
     const s = scan(), cfg = STATUS[st], toFix = s.error ? 0 : s.findings.filter((x) => x.severity !== "info").length;
     hero.dataset.state = st;
+    const wrap = hero.querySelector(".stage-wrap");
+    if (wrap) wrap.classList.toggle("is-scanning", st === "scanning");   // starts / stops the yoyo scanline
     hero.querySelector(".hs-icon").replaceChildren(icon(cfg.icon, "lg"));
     const other = state.lang === "ro" ? "en" : "ro";
     hero.querySelector(".glass-ico").replaceChildren(icon(cfg.icon, "lg"));
@@ -449,107 +469,55 @@
     }, reducedMotion() ? 0 : SCAN_MS);
   }
 
-  // ---------------------------------------------------------------- HOME: threat path (scroll-telling)
-  // The vulnerable devices, most dangerous first, zig-zag down the page on isometric platforms. A data line
-  // leaves each device, goes down, turns 90 degrees and reaches the next one. The line is drawn while you
-  // scroll (stroke-dashoffset = the "drawSVG" effect), a packet rides on its tip, and the device nearest the
-  // middle of the screen is in focus: its platform lights up and its vulnerability card is revealed.
-  // Plain JS (scroll + requestAnimationFrame), no GSAP: the app has to work offline on the hotspot.
-  const SEV_RANK = { high: 0, medium: 1, low: 2 };
-  function threatTour(s) {
-    const list = s.devices.map((d) => ({ d, probs: problemsOf(s, d) })).filter((x) => x.probs.length)
-      .sort((a, b) => SEV_RANK[a.probs[0].severity] - SEV_RANK[b.probs[0].severity] || b.d.risk_points - a.d.risk_points);
-    if (!list.length) return null;
-    const stage = (iconName, label) => h("div", { class: "tour-stage", "aria-hidden": "true" },
-      h("div", { class: "iso" }, h("div", { class: "iso-plate p3" }), h("div", { class: "iso-plate p2" }), h("div", { class: "iso-plate p1" }), h("div", { class: "iso-ring" })),
-      h("div", { class: "iso-device" }, icon(iconName)),
-      label ? h("span", { class: "tour-num", text: label }) : null);
-    const nodes = list.map(({ d, probs }, i) => h("li", { class: `tour-node sev-${probs[0].severity} ${i % 2 ? "right" : "left"}` },
-      stage(DEVICE_ICON[d.type] || DEVICE_ICON.unknown, String(i + 1).padStart(2, "0")),
-      h("article", { class: "tour-card" },
-        h("p", { class: "tour-eyebrow", text: t("tourStep", { i: i + 1, n: list.length }) }),
-        h("h4", { text: deviceName(d) }),
-        h("p", { class: "tour-ip", text: d.ip }),
-        riskPill(probs[0].severity),
-        h("ul", { class: "tour-probs" }, probs.map((f) => {
-          const tx = simple(f.code);
-          return h("li", { class: "sev-" + f.severity },
-            h("strong", { text: tx.title }),
-            f.port != null ? h("span", { class: "tour-port", text: t("tourPort", { p: `${f.port}/${f.protocol}` }) }) : null,
-            tx.steps[0] ? h("p", { class: "tour-fix" }, h("b", { text: t("tourFirst") + ": " }), tx.steps[0]) : null);
-        })))));
-    const end = h("li", { class: `tour-node end ${list.length % 2 ? "right" : "left"}` }, stage("shield"),
-      h("article", { class: "tour-card" },
-        h("h4", { text: t("tourEndT") }),
-        h("p", { text: list.length === 1 ? t("tourEndS1") : t("tourEndS", { n: list.length }) }),
-        h("button", { type: "button", class: "btn btn-filled", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes"))));
-    const svgEl = svg("svg", { class: "tour-svg", "aria-hidden": "true" });
-    ["tour-base", "tour-glow", "tour-line"].forEach((c) => svgEl.append(svg("path", { class: c })));
-    svgEl.append(svg("circle", { class: "tour-packet", r: 6 }));
-    return h("section", { class: "section tour", "aria-labelledby": "tour-title" },
-      h("div", { class: "section-head" }, h("h3", { id: "tour-title", class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("tourTitle") }))),
-      h("p", { class: "section-sub", text: t("tourSub") }),
-      h("div", { class: "tour-map" }, svgEl, h("ol", { class: "tour-nodes" }, nodes, end)));
+  // Points in words: Romanian needs "de" for 20+ ("40 de puncte"), not for 1-19 ("5 puncte").
+  function points(n) {
+    n = Math.abs(n);
+    if (state.lang === "en") return n === 1 ? "1 point" : `${n} points`;
+    const r = n % 100;
+    return n === 1 ? "1 punct" : (r >= 1 && r <= 19 ? `${n} puncte` : `${n} de puncte`);
+  }
+  // What the saved history says about the scan on screen. Only real data, never invented numbers.
+  function historyFor(s) {
+    if (state.historyDeleted || !D.history || !D.history.trend.length) return { kind: "none" };
+    const i = D.history.trend.findIndex((r) => r.file === s.file);
+    if (i < 0) return { kind: "none" };
+    if (i === 0) return { kind: "first" };
+    const ch = D.history.changes;
+    if (!ch || ch.after_file !== s.file) return { kind: "none" };
+    return { kind: "delta", delta: ch.score_change, newDevices: ch.new_devices.length };
+  }
+  function trendRow(s) {
+    const hs = historyFor(s);
+    if (hs.kind !== "delta") return h("p", { class: "trend neutral" }, icon("info"), h("span", { text: hs.kind === "first" ? t("trendFirst") : t("trendNone") }));
+    const up = hs.delta > 0, down = hs.delta < 0;
+    return h("p", { class: "trend " + (up ? "up" : down ? "down" : "neutral") },
+      icon(up ? "trend-up" : down ? "trend-down" : "info"),
+      h("span", { text: up ? t("trendUp", { pts: points(hs.delta) }) : down ? t("trendDown", { pts: points(hs.delta) }) : t("trendSame") }));
+  }
+  function newDeviceBadge(s) {
+    const hs = historyFor(s);
+    if (hs.kind !== "delta") return null;
+    const n = hs.newDevices;
+    if (!n) return h("span", { class: "newdev none" }, icon("check"), t("newDev0"));
+    return h("span", { class: "newdev", role: "status" }, h("span", { class: "pulse-dot", "aria-hidden": "true" }), icon("plus"), n === 1 ? t("newDev1") : t("newDevN", { n }));
+  }
+  // NFR-02: one-click "delete my history", with an inline confirmation (no browser dialog).
+  function privacyRow() {
+    if (state.historyDeleted) {
+      return h("div", { class: "privacy" }, h("p", { class: "with-ico muted", role: "status", style: "margin:0" }, icon("trash"), h("span", { text: t("histGone") })),
+        h("button", { type: "button", class: "btn-link", onclick: () => { state.historyDeleted = false; store.set("historyDeleted", "0"); render(); } }, t("restore")));
+    }
+    if (state.confirmDelete) {
+      return h("div", { class: "privacy confirm-inline", role: "alertdialog", "aria-label": t("delHistory") },
+        h("p", { style: "margin:0", text: t("delHistoryAsk") }),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); focusSel(".privacy .btn-link"); } }, icon("trash"), t("deleteYes")),
+          h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); focusSel(".btn-delete"); } }, t("deleteNo"))));
+    }
+    return h("div", { class: "privacy" }, h("button", { type: "button", class: "btn-delete", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm-inline .btn-danger"); } }, icon("trash"), t("delHistory")));
   }
 
-  let tourState = null;
-  function startTour(section) {
-    const map = section.querySelector(".tour-map"), svgEl = map.querySelector(".tour-svg");
-    const [base, glow, line] = svgEl.querySelectorAll("path"), packet = svgEl.querySelector(".tour-packet");
-    const nodes = [...map.querySelectorAll(".tour-node")];
-    const st = { map, nodes, len: 0, y0: 0, y1: 1, ticking: false };
-    tourState = st;
-    function layout() {                       // the path from node to node: down, 90-degree turn, down
-      const mr = map.getBoundingClientRect();
-      const pts = nodes.map((n) => {
-        const r = n.querySelector(".iso-device").getBoundingClientRect(), p = n.querySelector(".iso").getBoundingClientRect();
-        return { x: r.left + r.width / 2 - mr.left, top: r.top - mr.top - 6, bottom: p.bottom - mr.top - 10 };
-      });
-      let d = `M${pts[0].x.toFixed(1)},${pts[0].bottom.toFixed(1)}`;
-      for (let i = 1; i < pts.length; i++) {
-        const a = pts[i - 1], b = pts[i], mid = (a.bottom + b.top) / 2;
-        d += ` V${mid.toFixed(1)} H${b.x.toFixed(1)} V${b.top.toFixed(1)}`;
-        if (i < pts.length - 1) d += ` M${b.x.toFixed(1)},${b.bottom.toFixed(1)}`;   // the line passes behind the device
-      }
-      svgEl.setAttribute("width", mr.width); svgEl.setAttribute("height", mr.height);
-      svgEl.setAttribute("viewBox", `0 0 ${mr.width} ${mr.height}`);
-      [base, glow, line].forEach((pth) => pth.setAttribute("d", d));
-      st.len = line.getTotalLength();
-      [glow, line].forEach((pth) => { pth.style.strokeDasharray = `${st.len} ${st.len}`; });
-      st.y0 = pts[0].bottom; st.y1 = pts[pts.length - 1].top;
-      update();
-    }
-    function update() {
-      st.ticking = false;
-      if (!map.isConnected) return;
-      const mr = map.getBoundingClientRect(), vh = window.innerHeight, still = reducedMotion();
-      // how far the middle of the screen has travelled between the first and the last device -> line drawn
-      const tip = vh * 0.55 - mr.top;
-      const p = still ? 1 : Math.max(0, Math.min(1, (tip - st.y0) / Math.max(1, st.y1 - st.y0)));
-      const drawn = st.len * p;
-      [glow, line].forEach((pth) => { pth.style.strokeDashoffset = String(st.len - drawn); });
-      const pt = line.getPointAtLength(drawn);
-      packet.setAttribute("cx", pt.x); packet.setAttribute("cy", pt.y);
-      packet.style.opacity = p > 0.002 && p < 0.998 ? "1" : "0";
-      // focus: the device nearest the middle of the screen
-      let best = -1, bestD = Infinity;
-      nodes.forEach((n, i) => {
-        const r = n.querySelector(".tour-stage").getBoundingClientRect(), c = r.top + r.height / 2, dist = c - vh * 0.5;
-        if (Math.abs(dist) < bestD) { bestD = Math.abs(dist); best = i; }
-        n.style.setProperty("--dist", still ? "0" : (dist / vh).toFixed(3));          // parallax of the platforms
-      });
-      nodes.forEach((n, i) => {
-        n.classList.toggle("is-active", still || i === best);
-        n.classList.toggle("is-done", !still && i < best);
-      });
-      map.style.setProperty("--py", still ? "0px" : `${(-mr.top * 0.15).toFixed(1)}px`);   // background drifts slower
-    }
-    st.layout = layout;
-    st.onScroll = () => { if (!st.ticking) { st.ticking = true; requestAnimationFrame(update); } };
-    requestAnimationFrame(layout);
-  }
-  window.addEventListener("scroll", () => { if (tourState) tourState.onScroll(); }, { passive: true });
-  window.addEventListener("resize", () => { if (tourState && tourState.map.isConnected) tourState.layout(); });
+  const SEV_RANK = { high: 0, medium: 1, low: 2 };
 
   function renderHome(root) {
     const s = scan();
@@ -568,15 +536,17 @@
       done && !s.error ? traffic(s.score) : null,
       h("p", { class: "lead", text: !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
         : toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }),
+      done && !s.error ? h("div", { class: "changes" }, trendRow(s), newDeviceBadge(s)) : null,
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
         done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null),
+      privacyRow(),
       // screen-reader status (the glass badge over the house is the visible one)
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
         h("div", { class: "hs-icon" }), h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))));
 
-    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "Safehouse" },
-      h("div", { class: "stage-wrap" }, houseScene()), scoreCard));
+    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "SafeHouse" },
+      h("div", { class: "stage-wrap" }, houseScene(), h("div", { class: "scanline", "aria-hidden": "true" })), scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
     if (mountEl) window.Safehouse3D.mount(mountEl);
     applyHouseState(st);
@@ -584,138 +554,291 @@
     if (!done) return;                       // results appear after the house is inspected
     if (s.error) { root.append(h("div", { class: "section" }, errorBox(s))); return; }
 
-    // Traseul amenințărilor: the vulnerable devices one after another, revealed while scrolling
-    const tour = threatTour(s);
-    root.append(tour || h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("door", "lg"), h("span", { text: t("doorsOpen", { n: 0 }) }))),
-      h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("doorsNone") })))));
-    if (tour) startTour(tour);
-
-    // Aparate găsite: network topology (gateway in the middle, devices around it, click = details panel)
+    // Rețeaua ta: one tree for every device (router -> risk branches -> devices); the threat path lives in its panel
+    const vuln = s.devices.filter((d) => problemsOf(s, d).length).length;
     const topo = topology(s);
     root.append(h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("devicesFound", { n: s.devices.length }) }))),
-      h("p", { class: "section-sub", text: t("topoHint") }),
+      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("netTitle", { n: s.devices.length }) }))),
+      h("p", { class: "section-sub", text: vuln === 0 ? t("doorsNone") : vuln === 1 ? t("netSub1") : t("netSub", { n: vuln }) }),
       topo));
     startTopology(topo, s);
   }
 
-  // ---------------------------------------------------------------- HOME: network topology graph
-  // The router is the glowing core (gateway) with a radar sweep around it; every other device is a node on rings
-  // around it, joined by a thin data line (cyan = safe, orange = medium, red = high risk) with a packet travelling
-  // along it (faster on riskier links). A legend above the graph filters the devices by risk. Rings fill up from
-  // the inside, riskiest first, and get more room the further out they are, so the same layout holds up to ~200
-  // devices (past 14 devices the nodes shrink to glowing dots with the name on hover/focus). Clicking a node
-  // slides in a translucent glass panel with a subtle grunge texture: name, IP + MAC (masked), risk badge, open
-  // ports, a plain explanation and "What I can do"; its boxes appear one by one behind a scan line.
+  // ---------------------------------------------------------------- HOME: the network map
+  // The whole network on one map, however many devices it has: the router (gateway) in the middle and the devices
+  // scattered around it at random (seeded by their address, so the same network always looks the same), each one
+  // wired straight to the router. The risk chips above the map (High / Medium / Low / Safe) filter it; the overview
+  // shows the most dangerous devices of every risk level plus a "+N more" node, a filtered view shows all of them
+  // and turns into glowing dots past 24 devices. The map is only as tall as its devices need. Phones show one level.
+  // The threat path lives in the details panel: "Start with the most dangerous" and Previous / Next walk through
+  // every device with open doors, riskiest first, while a packet runs from the device up its branch to the router.
   const TOPO_SEVS = ["high", "medium", "low", "safe"];
   const PKT_DUR = { high: 1.4, medium: 2.2, low: 2.8, safe: 3.6 };
+  const TOPO_K = 4;          // devices per branch in the overview, before "+N more"
+  const TOPO_DOTS = 24;      // more visible devices than this -> glowing dots (and no 3D models)
   let topoUid = 0;
   function topology(s) {
     const svgEl = svg("svg", { class: "topo-svg", "aria-hidden": "true" });
     return h("div", { class: "topo" },
       h("div", { class: "topo-main" },
-        h("div", { class: "topo-bar", role: "group", "aria-label": t("topoShow") }),
+        h("div", { class: "topo-bar" }),
+        h("div", { class: "topo-legend", role: "group", "aria-label": t("topoShow") }),
         h("div", { class: "topo-graph" }, h("div", { class: "topo-radar", "aria-hidden": "true" }), svgEl)),
       h("aside", { class: "topo-panel grunge", "aria-live": "polite", "aria-label": t("topoNet") }));
   }
   function startTopology(root, s) {
     const graph = root.querySelector(".topo-graph"), svgEl = graph.querySelector(".topo-svg"), panel = root.querySelector(".topo-panel");
-    const bar = root.querySelector(".topo-bar"), radar = graph.querySelector(".topo-radar");
+    const bar = root.querySelector(".topo-bar"), legend = root.querySelector(".topo-legend"), radar = graph.querySelector(".topo-radar");
     const uid = "topo" + ++topoUid, still = reducedMotion();
-    const gw = s.devices.find((d) => d.type === "router") || null;
-    const others = s.devices.filter((d) => d !== gw).map((d) => ({ d, probs: problemsOf(s, d) }))
-      .sort((a, b) => (a.probs.length ? SEV_RANK[a.probs[0].severity] : 9) - (b.probs.length ? SEV_RANK[b.probs[0].severity] : 9) || b.d.risk_points - a.d.risk_points);
     const sevOf = (probs) => (probs.length ? probs[0].severity : "safe");
     const sevLabel = (k) => (k === "safe" ? t("devOk") : RISK[k][state.lang]);
     const sevIcon = (k) => (k === "safe" ? "check" : RISK[k].icon);
-    const small = others.length > 14;
-    let selected = null, filter = null;
+    const rank = (x) => (x.probs.length ? SEV_RANK[x.probs[0].severity] : 9);
+    const byRisk = (a, b) => rank(a) - rank(b) || b.d.risk_points - a.d.risk_points;
+    const entry = (d) => { const probs = problemsOf(s, d); return { d, probs, sev: sevOf(probs) }; };
 
-    function nodeBtn(d, probs, core) {
-      const sev = sevOf(probs), vendor = shortVendor(d.vendor);
-      const b = h("button", { type: "button", class: `topo-node sev-${sev}${core ? " core" : ""}${small && !core ? " dot" : ""}`,
+    const gw = s.devices.find((d) => d.type === "router") || null;
+    const gwItem = gw ? entry(gw) : null;
+    const items = s.devices.filter((d) => d !== gw).map(entry).sort(byRisk);
+    const hubs = TOPO_SEVS.map((k) => ({ k, list: items.filter((x) => x.sev === k) })).filter((x) => x.list.length);
+    // the threat path: every device with open doors (the router too), most dangerous first
+    const trail = (gwItem ? [gwItem, ...items] : items).filter((x) => x.probs.length).sort(byRisk);
+
+    let mode = { kind: "all" }, query = "", narrow = graph.clientWidth > 0 && graph.clientWidth < 600, dots = false;
+    let selected = null, vis = [], mores = [], trace = null, tracePkt = null, openK = null;
+    const elOf = new Map();
+
+    function nodeBtn(it, core, dot) {
+      const d = it.d, sev = it.sev, vendor = shortVendor(d.vendor), ico = DEVICE_ICON[d.type] || DEVICE_ICON.unknown;
+      const b = h("button", { type: "button", class: `topo-node sev-${sev}${core ? " core" : ""}${dot ? " dot" : ""}`,
           "aria-label": `${vendor || deviceLabel(d.type)}, ${deviceLabel(d.type)}, ${d.ip}. ${sevLabel(sev)}`, "aria-pressed": "false" },
-        h("span", { class: "topo-orb" }, icon(DEVICE_ICON[d.type] || DEVICE_ICON.unknown)),
+        h("span", { class: "topo-orb" }, dot ? icon(ico)
+          : h("span", { class: "dev3d topo-model", "aria-hidden": "true", "data-type": DEVICE_ICON[d.type] ? d.type : "unknown",
+              "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
         h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
           h("span", { text: core ? t("topoGateway") : sevLabel(sev) })));
-      b.addEventListener("click", () => select(d, b));
+      b.addEventListener("click", () => select(it));
+      elOf.set(it, b);
       return b;
     }
-    const coreEl = gw ? nodeBtn(gw, problemsOf(s, gw), true)
+    const coreEl = gwItem ? nodeBtn(gwItem, true, false)
       : h("div", { class: "topo-node core sev-safe" }, h("span", { class: "topo-orb" }, icon("home")), h("span", { class: "topo-label" }, h("strong", { text: t("topoCore") })));
-    const items = others.map(({ d, probs }) => ({ d, probs, sev: sevOf(probs), el: nodeBtn(d, probs, false) }));
-    graph.append(coreEl, ...items.map((x) => x.el));
-    const gRings = svg("g", { class: "topo-rings" });
-    svgEl.append(gRings);
-    const paths = items.map((x, i) => { const p = svg("path", { class: "topo-link sev-" + x.sev, id: `${uid}-l${i}` }); svgEl.append(p); return p; });
+    graph.append(coreEl);
 
-    // data packets: one per link, from the device towards the gateway (only the risky links when there are many
-    // devices); none at all with reduced motion
-    const pkts = [];
-    if (!still) items.forEach((x, i) => {
-      if (small && x.sev === "safe") return;
-      const dur = PKT_DUR[x.sev];
-      const c = svg("circle", { class: "topo-pkt sev-" + x.sev, r: small ? 2.5 : 3.5 });
-      const m = svg("animateMotion", { dur: dur + "s", repeatCount: "indefinite", begin: `-${((i * 0.37) % dur).toFixed(2)}s`,
-        keyPoints: "1;0", keyTimes: "0;1", calcMode: "linear" });
-      const mp = svg("mpath", { href: `#${uid}-l${i}` });
-      mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `#${uid}-l${i}`);
-      m.append(mp); c.append(m); svgEl.append(c); pkts.push({ c, i });
+    // top bar: search, "back to the whole network", start of the threat path
+    const search = h("input", { type: "search", class: "topo-search-in", placeholder: t("topoSearch"), "aria-label": t("topoSearch"), autocomplete: "off", spellcheck: "false" });
+    const status = h("span", { class: "topo-status", role: "status", "aria-live": "polite" });
+    const back = h("button", { type: "button", class: "btn-hud topo-back", hidden: true, onclick: () => setMode({ kind: "all" }) }, icon("chevron", "back"), h("span", { text: t("topoBack") }));
+    bar.append(items.length > 1 ? h("label", { class: "topo-search" }, icon("search"), search) : null, status, back,
+      trail.length ? h("button", { type: "button", class: "btn-hud primary start", onclick: () => goTo(0) }, icon("shield"), h("span", { text: t("topoStart") }), icon("chevron", "go")) : null);
+    let searchTimer;
+    const applySearch = () => { clearTimeout(searchTimer); query = search.value.trim().toLowerCase(); setMode(query ? { kind: "search" } : { kind: "all" }); };
+    search.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(applySearch, 120); });
+    search.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); applySearch(); if (mode.kind === "search" && vis[0]) select(vis[0].it, true); }
+      if (e.key === "Escape" && search.value) { e.stopPropagation(); search.value = ""; applySearch(); }
     });
+    const matches = () => items.filter((x) => [x.d.ip, x.d.hostname, x.d.vendor, x.d.mac, deviceLabel(x.d.type)]
+      .some((v) => v && String(v).toLowerCase().includes(query)));
 
-    // legend = filter: "All" + one chip per risk level that is present, each with icon, words and a count
-    const counts = { high: 0, medium: 0, low: 0, safe: 0 };
-    items.forEach((x) => { counts[x.sev]++; });
-    const chips = [h("button", { type: "button", class: "btn-hud chip all", "data-f": "", "aria-pressed": "true" },
-      h("span", { text: t("topoAll") }), h("span", { class: "chip-n", text: String(items.length) }))];
-    TOPO_SEVS.filter((k) => counts[k]).forEach((k) => chips.push(h("button", { type: "button", class: `btn-hud chip sev-${k}`, "data-f": k, "aria-pressed": "false" },
-      icon(sevIcon(k)), h("span", { text: sevLabel(k) }), h("span", { class: "chip-n", text: String(counts[k]) }))));
-    if (items.length) bar.append(h("span", { class: "topo-bar-k", text: t("topoShow") }), ...chips);
-    chips.forEach((c) => c.addEventListener("click", () => setFilter(c.dataset.f && c.dataset.f !== filter ? c.dataset.f : null)));
-    function setFilter(f) {
-      filter = f;
-      chips.forEach((c) => c.setAttribute("aria-pressed", String((c.dataset.f || null) === filter)));
-      items.forEach((x, i) => {
-        const off = !!filter && x.sev !== filter;
-        x.el.classList.toggle("is-filtered", off);
-        paths[i].classList.toggle("is-filtered", off);
-        x.el.classList.toggle("is-match", !!filter && !off);          // stays lit even while a panel dims the rest
-        paths[i].classList.toggle("is-match", !!filter && !off);
-      });
-      pkts.forEach((p) => p.c.classList.toggle("is-filtered", !!filter && items[p.i].sev !== filter));
+    function packet(id, sev, i, cls) {
+      const dur = PKT_DUR[sev] || 1.6;
+      const c = svg("circle", { class: "topo-pkt sev-" + sev + (cls ? " " + cls : ""), r: cls ? 4.5 : 3.5 });
+      const m = svg("animateMotion", { dur: dur + "s", repeatCount: "indefinite", begin: `-${((i * 0.37) % dur).toFixed(2)}s`,
+        keyPoints: "1;0", keyTimes: "0;1", calcMode: "linear" });                         // from the device towards the router
+      const mp = svg("mpath", { href: "#" + id });
+      mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + id);
+      m.append(mp); c.append(m); svgEl.append(c);
+      return c;
     }
 
-    function layout() {
-      const W = graph.clientWidth, H = graph.clientHeight;
-      if (!W) return;
-      const cx = W * 0.5, cy = H * 0.5;
-      const sx = W > H ? 1.35 : 1, sy = H > W ? 1.42 : 1;       // stretch the rings along the long side of the graph
-      coreEl.style.left = cx + "px"; coreEl.style.top = cy + "px";
-      svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
-      gRings.replaceChildren();
-      // rings: radius grows outwards; each ring holds as many nodes as fit at the minimum spacing
-      const narrow = W < 600;
-      const spacing = small ? 34 : narrow ? 120 : 150, r0 = Math.min(W, H) * (small ? 0.2 : narrow ? 0.42 : 0.34), gap = small ? 34 : 120;
-      let k = 0, ring = 0, maxR = r0;
-      while (k < items.length) {
-        const r = r0 + ring * gap, cap = Math.max(1, Math.floor((2 * Math.PI * r) / spacing)), n = Math.min(cap, items.length - k);
-        const off = -Math.PI / 2 + (ring % 2 ? Math.PI / n : 0);
-        gRings.append(svg("ellipse", { class: "topo-ring", cx, cy, rx: r * sx, ry: r * sy }));
-        maxR = r;
-        for (let i = 0; i < n; i++, k++) {
-          const a = n === 1 ? -Math.PI / 2 : off + (i / n) * 2 * Math.PI;
-          const x = cx + Math.cos(a) * r * sx, y = cy + Math.sin(a) * r * sy;
-          const it = items[k];
-          it.el.style.left = x + "px"; it.el.style.top = y + "px";
-          const mx = (cx + x) / 2, my = (cy + y) / 2, bend = 0.18;                          // soft curve, not a straight wire
-          paths[k].setAttribute("d", `M${cx},${cy} Q${mx - (y - cy) * bend},${my + (x - cx) * bend} ${x},${y}`);
-        }
-        ring++;
+    // build the nodes and wires for the current view (positions come from layout())
+    function render() {
+      graph.querySelectorAll(".topo-node:not(.core), .topo-more").forEach((n) => n.remove());
+      svgEl.replaceChildren(); legend.replaceChildren();
+      elOf.clear(); if (gwItem) elOf.set(gwItem, coreEl);
+      vis = []; mores = [];
+      const view = narrow && mode.kind === "all" ? { kind: "branch", k: hubs[0] && hubs[0].k } : mode;   // phones: one branch at a time
+      openK = view.kind === "branch" ? view.k : null;
+      let shown;
+      if (view.kind === "all") shown = hubs.flatMap((hb) => (hb.list.length <= TOPO_K + 1 ? hb.list : hb.list.slice(0, TOPO_K)).map((it) => ({ it, hub: hb.k })));
+      else if (view.kind === "branch") shown = ((hubs.find((x) => x.k === view.k) || { list: [] }).list).map((it) => ({ it, hub: view.k }));
+      else shown = matches().map((it) => ({ it, hub: it.sev }));
+      dots = shown.length > TOPO_DOTS;
+      root.classList.toggle("is-branch", view.kind !== "all");
+      back.hidden = narrow || mode.kind === "all";
+      status.textContent = mode.kind === "search" ? (shown.length === 1 ? t("topoResult1") : shown.length ? t("topoResults", { n: shown.length }) : t("topoNoResults")) : "";
+
+      hubs.forEach((hb) => {
+        const on = openK === hb.k;
+        const b = h("button", { type: "button", class: `btn-hud chip topo-hub sev-${hb.k}${view.kind !== "all" && !on ? " is-off" : ""}`,
+            "aria-pressed": String(on), "aria-label": `${sevLabel(hb.k)}: ${hb.list.length}` },
+          h("span", { class: "hub-top" }, icon(sevIcon(hb.k)), h("span", { class: "chip-n", text: String(hb.list.length) })), h("span", { class: "hub-word", text: sevLabel(hb.k) }));
+        b.addEventListener("click", () => setMode(on && !narrow ? { kind: "all" } : { kind: "branch", k: hb.k }));
+        legend.append(b);
+      });
+      if (view.kind === "all") hubs.forEach((hb) => {
+        if (hb.list.length <= TOPO_K + 1) return;
+        const m = h("button", { type: "button", class: `btn-hud chip topo-more sev-${hb.k}`, onclick: () => setMode({ kind: "branch", k: hb.k }) },
+          icon("plus"), h("span", { text: t("topoMore", { n: hb.list.length - TOPO_K }) }));
+        const p = svg("path", { class: `topo-link sev-${hb.k}` });
+        svgEl.append(p); graph.append(m); mores.push({ k: hb.k, el: m, path: p });
+      });
+      shown.forEach(({ it, hub }, i) => {
+        const el = nodeBtn(it, false, dots), p = svg("path", { class: "topo-link sev-" + it.sev, id: `${uid}-l${i}` });
+        svgEl.append(p); graph.append(el); vis.push({ it, el, hub, path: p });
+      });
+      trace = svg("path", { class: "topo-trace", id: `${uid}-trace` });
+      svgEl.append(trace);
+      tracePkt = null;
+      if (!still) {
+        vis.forEach((v, i) => { if (!dots && v.it.sev !== "safe") packet(`${uid}-l${i}`, v.it.sev, i); });
+        tracePkt = packet(`${uid}-trace`, "high", 0, "topo-trace-pkt");
       }
-      // the radar covers the outer ring (an ellipse like the rings; only its gradient angle turns)
-      radar.style.left = cx + "px"; radar.style.top = cy + "px";
-      radar.style.width = 2 * (maxR * sx + 40) + "px"; radar.style.height = 2 * (maxR * sy + 40) + "px";
+      if (window.Device3D && !dots) window.Device3D.scan(graph);
+    }
+
+    const place = (el, x, y) => { el.style.left = x + "px"; el.style.top = y + "px"; };
+    // a small seeded random generator: the same device always gets the same spot on a map of the same width
+    const hash = (str) => { let x = 2166136261; for (let i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; };
+    const rng = (seed) => () => { seed = (seed + 0x6d2b79f5) | 0; let r = Math.imul(seed ^ (seed >>> 15), 1 | seed); r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r; return ((r ^ (r >>> 14)) >>> 0) / 4294967296; };
+    // the centre of a node's circle, measured from the centre of the node (the label hangs under the circle)
+    const orbDy = (el) => { const o = el.querySelector(".topo-orb"); return o ? o.offsetTop + o.offsetHeight / 2 - el.offsetHeight / 2 : 0; };
+    const curve = (x1, y1, x2, y2, bend) => {                    // soft curve, not a straight wire
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      return `M${x1.toFixed(1)},${y1.toFixed(1)} Q${(mx - (y2 - y1) * bend).toFixed(1)},${(my + (x2 - x1) * bend).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`;
+    };
+    // drop every node at a random free spot around the router; the map starts as small as the nodes allow and only
+    // grows (12% at a time) when they do not fit. "Free" means: room around the box, no wire crossing a device, no
+    // two devices on (almost) the same line from the router, and of a few random free spots the airiest one wins.
+    // Small networks (up to 8 devices) always keep every rule and grow the map instead; big ones cannot keep them on
+    // a compact map, so at every size they try every rule, then without the wire rule, then with half the angle, and
+    // only on a crowded map boxes only (they never overlap).
+    const bendOf = (key) => (hash(key) % 2 ? 1 : -1) * 0.14;
+    function wirePts(x1, y1, x2, y2, bend) {                   // points along the curve(), for the crossing checks
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, qx = mx - (y2 - y1) * bend, qy = my + (x2 - x1) * bend, pts = [];
+      for (let t = 0.1; t < 0.95; t += 0.06) pts.push({ x: (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * qx + t * t * x2, y: (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * qy + t * t * y2 });
+      return pts;
+    }
+    function scatter(W, boxes) {
+      const n = boxes.length, airy = !dots;                           // dots: only keep them apart, there are too many wires
+      const PAD = narrow ? 10 : 18, gap = dots ? (narrow ? 16 : 26) : narrow ? 22 : n <= 8 ? 40 : 28;
+      const cw = coreEl.offsetWidth + (narrow ? 24 : 64), ch = coreEl.offsetHeight + (narrow ? 20 : 32);
+      const coreY = (H) => (narrow ? PAD + ch / 2 : H / 2);         // phones: the router on top, the devices under it
+      const coreDy = orbDy(coreEl);
+      const sizes = boxes.map((b) => ({ w: b.el.offsetWidth + gap, h: b.el.offsetHeight + gap, rw: b.el.offsetWidth + 12, rh: b.el.offsetHeight + 12,
+        dy: b.more ? 0 : orbDy(b.el), bend: bendOf(b.key) }));
+      const area = sizes.reduce((a, s) => a + s.w * s.h, cw * ch);
+      const minAng = airy && n > 1 ? Math.min(26, (0.6 * (narrow ? 180 : 360)) / n) * (Math.PI / 180) : 0;
+      // with the details panel open (computer) the map is at least as tall as a comfortable panel, which scrolls inside
+      const minH = root.classList.contains("open") && !narrow ? 560 : narrow ? 280 : 300;
+      const inBox = (p, b) => Math.abs(p.x - b.x) * 2 < b.rw && Math.abs(p.y - b.y) * 2 < b.rh;
+
+      // one attempt at height H with the rules of `level` (3: every rule, 2: no wire rule, 1: half the angle, 0: boxes only)
+      function attempt(H, level, seed) {
+        const cx = W / 2, cy = coreY(H), sx = cx, sy = cy + coreDy, core = { x: cx, y: cy, w: cw, h: ch }, placed = [];
+        const free = (c) => {
+          if (Math.abs(core.x - c.x) * 2 < core.w + c.w && Math.abs(core.y - c.y) * 2 < core.h + c.h) return false;
+          if (placed.some((p) => Math.abs(p.x - c.x) * 2 < p.w + c.w && Math.abs(p.y - c.y) * 2 < p.h + c.h)) return false;
+          if (level === 0) return true;
+          const a = level === 1 ? minAng / 2 : minAng;
+          if (a && placed.some((p) => { const d = Math.abs(p.ang - c.ang); return Math.min(d, 2 * Math.PI - d) < a; })) return false;
+          if (level < 3) return true;
+          if (c.pts.some((q) => placed.some((p) => inBox(q, p)))) return false;          // my wire through a device
+          return !placed.some((p) => p.pts.some((q) => inBox(q, c)));                    // a wire through me
+        };
+        for (let i = 0; i < n; i++) {
+          const s = sizes[i], rnd = rng(hash(boxes[i].key) + seed * 7919 + level * 131);
+          let best = null, bestScore = -Infinity;
+          const consider = (x, y) => {
+            const ey = y + s.dy, c = { x, y, w: s.w, h: s.h, rw: s.rw, rh: s.rh, ang: Math.atan2(ey - sy, x - sx),
+              pts: level === 3 ? wirePts(sx, sy, x, ey, s.bend).filter((q) => !inBox(q, { x, y, rw: s.rw, rh: s.rh })) : [] };
+            if (!free(c)) return false;
+            // the airiest spot wins; boxes-only is the last resort for crowded maps: pack close to the router instead
+            const score = level === 0 ? -Math.hypot(x - cx, (y - cy) * 1.4) : Math.min(Math.hypot(x - cx, y - cy) * 0.8, ...placed.map((p) => Math.hypot(p.x - x, p.y - y)));
+            if (score > bestScore) { bestScore = score; best = c; }
+            return true;
+          };
+          const x0 = PAD + s.w / 2, y0 = PAD + s.h / 2, xs = Math.max(0, W - 2 * PAD - s.w), ys = Math.max(0, H - 2 * PAD - s.h);
+          for (let k = 0, found = 0; k < 300 && found < (airy ? 8 : 3); k++) if (consider(x0 + rnd() * xs, y0 + rnd() * ys)) found++;
+          if (!best) {                                              // random spots all taken: every free spot on a fine grid
+            const st = dots ? 8 : 14, ox = rnd() * st, oy = rnd() * st;
+            for (let y = y0 + oy; y <= y0 + ys; y += st) for (let x = x0 + ox; x <= x0 + xs; x += st) consider(x, y);
+          }
+          if (!best) return null;
+          placed.push(best);
+        }
+        return { H, out: placed, cy };
+      }
+
+      let H = Math.max(ch + 2 * PAD, minH, Math.ceil((area * 1.45) / Math.max(1, W - 2 * PAD)));
+      for (let tries = 0; tries < 18; tries++, H = Math.ceil(H * 1.12)) {
+        const levels = !airy ? [0] : tries === 17 ? [3, 2, 1, 0] : n <= 8 ? [3] : tries < 3 ? [3, 2] : tries < 6 ? [3, 2, 1] : [3, 2, 1, 0];
+        for (const level of levels) for (let k = 0; k < (level ? 3 : 1); k++) { const r = attempt(H, level, tries * 3 + k); if (r) return r; }
+      }
+      return { H, out: [], cy: coreY(H) };
+    }
+    function layout() {
+      const W = graph.clientWidth;
+      if (!W) return;
+      if ((W < 600) !== narrow) { narrow = W < 600; render(); restoreSel(); }
+      const boxes = [...vis.map((v, i) => ({ el: v.el, path: v.path, key: v.it.d.ip || v.it.d.mac || "n" + i })),
+        ...mores.map((m) => ({ el: m.el, path: m.path, key: "more-" + m.k, more: true }))];
+      const { H, out, cy } = scatter(W, boxes);
+      const cx = W / 2, coreOy = cy + orbDy(coreEl);
+      place(coreEl, cx, cy);
+      place(radar, cx, coreOy);
+      radar.style.width = radar.style.height = Math.min(narrow ? 260 : 340, H * 0.95) + "px";
+      boxes.forEach((b, i) => {
+        const p = out[i];
+        if (!p) return;
+        place(b.el, p.x, p.y);
+        const ty = b.more ? p.y : p.y + orbDy(b.el), bend = bendOf(b.key);
+        b.path.setAttribute("d", curve(cx, coreOy, p.x, ty, bend));       // from the router to the device
+      });
+      graph.style.height = H + "px";
+      svgEl.style.height = H + "px";
+      svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      updateTrace();
+    }
+
+    // the selected device lights up its wire to the router
+    function updateTrace() {
+      if (!trace) return;
+      const v = selected && vis.find((x) => x.it === selected.it);
+      const d = (v && v.path.getAttribute("d")) || "";
+      trace.setAttribute("d", d || "M0,0");
+      trace.setAttribute("class", "topo-trace" + (d ? " is-on sev-" + v.it.sev : ""));
+      if (tracePkt) tracePkt.setAttribute("class", "topo-pkt topo-trace-pkt" + (d ? " is-on sev-" + v.it.sev : ""));
+      vis.forEach((x) => x.path.classList.toggle("is-on", !!d && x === v));
+    }
+
+    function setMode(m) {
+      mode = m;
+      if (m.kind !== "search" && search.value) { search.value = ""; query = ""; }
+      render();
+      restoreSel();
+      layout();
+    }
+    // after a re-render the selected device keeps its panel if it is still on screen
+    function restoreSel() {
+      if (!selected) return;
+      const b = elOf.get(selected.it);
+      if (!b) { close(true); return; }
+      selected.btn = b;
+      b.setAttribute("aria-pressed", "true");
+      graph.querySelectorAll(".topo-node").forEach((n) => n.classList.toggle("is-dim", n !== b && !n.classList.contains("core")));
+    }
+    // walk the threat path; a device hidden behind "+N" opens its branch first
+    function goTo(i) {
+      const it = trail[i];
+      if (!it) return;
+      if (!elOf.has(it)) setMode({ kind: "branch", k: it.sev });
+      select(it, true);
+      const nx = panel.querySelector(".topo-next") || elOf.get(it);
+      if (nx) nx.focus({ preventScroll: true });
+      const el = elOf.get(it);
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
     }
 
     function portsOf(d, probs) {
@@ -728,50 +851,80 @@
           h("span", { class: "topo-state" }, icon(f ? RISK[f.severity].icon : p.tls ? "lock" : "door"), f ? t("portVuln") : t("portOpen")));
       });
     }
-    function select(d, btn) {
-      if (selected && selected.btn === btn) { close(); return; }
-      if (selected) selected.btn.setAttribute("aria-pressed", "false");
-      selected = { d, btn };
+    function navRow(it) {
+      const ti = trail.indexOf(it);
+      if (!trail.length) return null;
+      if (ti < 0) return h("div", { class: "topo-nav", style: "--i:1" },
+        h("button", { type: "button", class: "btn-hud topo-next", onclick: () => goTo(0) }, h("span", { text: t("topoStart") }), icon("chevron", "go")));
+      const last = ti === trail.length - 1;
+      return h("div", { class: "topo-nav", style: "--i:1" },
+        h("button", { type: "button", class: "btn-hud icon topo-prev", "aria-label": t("topoPrev"), title: t("topoPrev"), disabled: ti === 0, onclick: () => goTo(ti - 1) }, icon("chevron", "back")),
+        h("span", { class: "topo-step", text: t("tourStep", { i: ti + 1, n: trail.length }) }),
+        last ? h("button", { type: "button", class: "btn-hud topo-next", onclick: () => setTab("findings") }, icon("shield"), h("span", { text: t("seeFixes") }))
+          : h("button", { type: "button", class: "btn-hud topo-next", onclick: () => goTo(ti + 1) }, h("span", { text: t("topoNext") }), icon("chevron", "go")));
+    }
+    function select(it, fromNav) {
+      const btn = elOf.get(it);
+      if (!btn) return;
+      if (selected && selected.it === it && !fromNav) { close(); return; }
+      if (selected && selected.btn) selected.btn.setAttribute("aria-pressed", "false");
+      selected = { it, btn };
       btn.setAttribute("aria-pressed", "true");
-      const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor), sev = worst ? worst.severity : "safe";
-      const ports = portsOf(d, probs);
+      const d = it.d, probs = it.probs, worst = probs[0], vendor = shortVendor(d.vendor), sev = it.sev;
+      const ports = portsOf(d, probs), ti = trail.indexOf(it);
       const box = (title, i, ...kids) => h("section", { class: "topo-box grunge", style: `--i:${i}` }, h("p", { class: "topo-k", text: title }), kids);
       panel.className = `topo-panel grunge sev-${sev}`;
       panel.replaceChildren(
         h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
           h("div", { class: "grow" }, h("h4", { text: vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
           h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
-            h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: close }, icon("x")))),
-        h("div", { class: "topo-risk", style: "--i:1" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk"))),
-        box(t("topoNet"), 2, h("dl", { class: "topo-dl" }, h("dt", { text: t("ipLabel") }), h("dd", { text: d.ip }), h("dt", { text: t("macLabel") }), h("dd", { text: d.mac || t("unknown") }))),
-        box(t("ports"), 3, ports.length ? h("ul", { class: "topo-ports" }, ports) : h("p", { class: "muted", style: "margin:0", text: t("none") })),
-        box(t("topoWhy"), 4, h("p", { class: "topo-why", text: worst ? simple(worst.code).explain : t("devOkExplain") })),
-        h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:5", onclick: (e) => openDevice(d, e.currentTarget) },
+            h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
+        navRow(it),
+        h("div", { class: "topo-risk", style: "--i:2" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk"))),
+        probs.length ? box(t("topoFound"), 3, h("ul", { class: "topo-finds" }, probs.map((f) => {
+          const tx = simple(f.code);
+          return h("li", { class: "sev-" + f.severity }, h("strong", { text: tx.title }),
+            f.port != null ? h("span", { class: "topo-fport", text: t("tourPort", { p: `${f.port}/${f.protocol}` }) }) : null,
+            tx.steps[0] ? h("p", { class: "topo-fix" }, h("b", { text: t("tourFirst") + ": " }), tx.steps[0]) : null);
+        }))) : null,
+        box(t("topoNet"), 4, h("dl", { class: "topo-dl" }, h("dt", { text: t("ipLabel") }), h("dd", { text: d.ip }), h("dt", { text: t("macLabel") }), h("dd", { text: d.mac || t("unknown") }))),
+        box(t("ports"), 5, ports.length ? h("ul", { class: "topo-ports" }, ports) : h("p", { class: "muted", style: "margin:0", text: t("none") })),
+        box(t("topoWhy"), 6, h("p", { class: "topo-why", text: worst ? simple(worst.code).explain : t("devOkExplain") })),
+        ti >= 0 && ti === trail.length - 1 ? box(t("tourEndT"), 7, h("p", { class: "topo-why", text: trail.length === 1 ? t("tourEndS1") : t("tourEndS", { n: trail.length }) })) : null,
+        h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:8", onclick: (e) => openDevice(d, e.currentTarget) },
           icon("shield"), h("span", { class: "grow", text: t("whatToDo") }), icon("chevron", "go")),
         h("div", { class: "topo-scan", "aria-hidden": "true" }));
+      if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
       // replay the reveal (scan line + boxes one by one) for every device that is opened
       if (!still) { void panel.offsetWidth; panel.classList.add("is-revealing"); }
       panel.scrollTop = 0;
       root.classList.add("open");
       graph.querySelectorAll(".topo-node").forEach((n) => n.classList.toggle("is-dim", n !== btn && !n.classList.contains("core")));
-      paths.forEach((p, i) => p.classList.toggle("is-on", items[i].el === btn));
+      updateTrace();
       requestAnimationFrame(layout);
     }
-    function close() {
+    function close(silent) {
       if (!selected) return;
       const btn = selected.btn;
       btn.setAttribute("aria-pressed", "false");
       selected = null;
       root.classList.remove("open");
       graph.querySelectorAll(".topo-node").forEach((n) => n.classList.remove("is-dim"));
-      paths.forEach((p) => p.classList.remove("is-on"));
+      updateTrace();
       requestAnimationFrame(layout);
-      btn.focus({ preventScroll: true });
+      if (!silent && btn.isConnected) btn.focus({ preventScroll: true });
     }
-    root.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    root.addEventListener("keydown", (e) => {
+      if (e.target === search) return;
+      if (e.key === "Escape") { close(); return; }
+      const ti = selected ? trail.indexOf(selected.it) : -1;
+      if (ti < 0) return;
+      if (e.key === "ArrowRight" && ti < trail.length - 1) { e.preventDefault(); goTo(ti + 1); }
+      if (e.key === "ArrowLeft" && ti > 0) { e.preventDefault(); goTo(ti - 1); }
+    });
+    render();
     // re-layout when the graph area changes size (window resize, panel opening)
-    const ro = new ResizeObserver(() => layout());
-    ro.observe(graph);
+    new ResizeObserver(() => layout()).observe(graph);
     requestAnimationFrame(layout);
   }
 
@@ -842,7 +995,7 @@
       const vendor = shortVendor(d.vendor);
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
-        devIco(d.type),
+        devIco(d.type, tone === "green" ? "green" : worst.severity),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor ? h("div", { class: "tile-sub", text: vendor }) : null),
         h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
@@ -898,6 +1051,7 @@
     lastOpener = opener || null;
     const dlg = document.getElementById("sheet");
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    if (window.Device3D) window.Device3D.scan(body);
     document.getElementById("sheet-close").focus();
   }
   function closeSheet() {
@@ -1139,35 +1293,31 @@
   }
   function render() {
     document.documentElement.lang = state.lang;
-    document.documentElement.style.fontSize = SIZES[state.size];
     document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
     document.getElementById("lang-ro").setAttribute("aria-pressed", String(state.lang === "ro"));
     document.getElementById("lang-en").setAttribute("aria-pressed", String(state.lang === "en"));
-    [0, 1, 2].forEach((i) => document.getElementById("size-" + i).setAttribute("aria-pressed", String(state.size === i)));
-    document.getElementById("size-group").setAttribute("aria-label", state.lang === "en" ? "Text size" : "Mărimea textului");
     const sel = document.getElementById("scan-select");
     sel.setAttribute("aria-label", t("scanFile"));
     sel.replaceChildren(...D.scans.map((s, i) => h("option", { value: String(i), selected: i === state.scan }, s.error ? `${s.file} — ${t("errorWord")}` : `${s.file} — ${s.score}/100`)));
     const panel = document.getElementById("panel-" + state.tab);
     panel.replaceChildren();
     RENDER[state.tab](panel);
+    if (window.Device3D) window.Device3D.scan(panel);       // 3D models into every .dev3d slot
   }
 
   document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; render(); });
   ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { state.lang = l; store.set("lang", l); render(); }));
-  [0, 1, 2].forEach((i) => document.getElementById("size-" + i).addEventListener("click", () => { state.size = i; store.set("size", String(i)); render(); }));
   document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); }));
   const dlg = document.getElementById("sheet");
   document.getElementById("sheet-close").addEventListener("click", closeSheet);
   dlg.addEventListener("close", () => { if (lastOpener && document.body.contains(lastOpener)) lastOpener.focus(); });
   dlg.addEventListener("click", (e) => { if (e.target === dlg) closeSheet(); });   // tap outside the sheet
 
-  // Deep links for the pitch: #ask?q=first&hall=1, #home?lang=en&scan=V3_small_office.xml, #history?theme=light&size=2, #devices?open=192.168.1.40
+  // Deep links for the pitch: #ask?q=first&hall=1, #home?lang=en&scan=V3_small_office.xml, #history?theme=light, #devices?open=192.168.1.40
   (function applyHash() {
     const [tab, query] = location.hash.slice(1).split("?");
     const p = new URLSearchParams(query || "");
     if (p.get("lang") === "en" || p.get("lang") === "ro") state.lang = p.get("lang");
-    if (["0", "1", "2"].includes(p.get("size"))) state.size = Number(p.get("size"));
     const i = D.scans.findIndex((s) => s.file === p.get("scan"));
     if (i >= 0) state.scan = i;
     if (p.get("hall") === "1") state.hallucinate = true;
