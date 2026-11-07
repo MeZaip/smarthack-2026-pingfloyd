@@ -1,36 +1,60 @@
-"""Difference between two analyses of the same network (FR-10, FR-13)."""
+"""Difference between two scans of the same network (FR-10, FR-13).
+
+The comparison works on a `Snapshot`, so the same logic serves two sources:
+two XML files analysed now (`compare`) and two scans read back from the
+local history database (`netcheck.history`).
+"""
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Callable
+
 from .analysis import Analysis
+from .models import Host
+
+PortKey = tuple  # (ip, protocol, port, service)
+FindingKey = tuple  # (ip, port, code)
 
 
-def _device_key(host) -> str:
+@dataclass(frozen=True)
+class Snapshot:
+    file: str
+    score: int
+    devices: dict            # device_key -> ip
+    open_ports: frozenset    # of PortKey
+    findings: frozenset      # of FindingKey
+
+
+def device_key(host: Host) -> str:
     # MAC is the stable identity when we have it (IPs can change via DHCP)
     return (host.mac or "").upper() or f"ip:{host.ip}"
 
 
-def compare(before: Analysis, after: Analysis) -> dict:
-    if not (before.ok and after.ok):
-        raise ValueError("both analyses must be readable")
-    b_hosts = {_device_key(h): h for h in before.scan.up_hosts}
-    a_hosts = {_device_key(h): h for h in after.scan.up_hosts}
+def snapshot_of(a: Analysis, key_fn: Callable[[Host], str] = device_key) -> Snapshot:
+    if not a.ok:
+        raise ValueError(f"{a.file} is not readable: {a.error}")
+    hosts = a.scan.up_hosts
+    return Snapshot(
+        file=a.file,
+        score=a.score,
+        devices={key_fn(h): h.ip for h in hosts},
+        open_ports=frozenset((h.ip, p.protocol, p.portid, p.service) for h in hosts for p in h.open_ports),
+        findings=frozenset((f.ip, f.port, f.code) for f in a.findings),
+    )
 
-    new_devices = sorted(a_hosts[k].ip for k in a_hosts.keys() - b_hosts.keys())
-    removed_devices = sorted(b_hosts[k].ip for k in b_hosts.keys() - a_hosts.keys())
 
-    def open_set(hosts):
-        return {(h.ip, p.protocol, p.portid, p.service) for h in hosts.values() for p in h.open_ports}
+def _port_dicts(keys) -> list[dict]:
+    return [{"ip": i, "protocol": pr, "port": po, "service": s} for i, pr, po, s in sorted(keys)]
 
-    b_open, a_open = open_set(b_hosts), open_set(a_hosts)
-    opened = sorted(a_open - b_open)
-    closed = sorted(b_open - a_open)
 
-    fkey = lambda f: (f.ip, f.port, f.code)
-    b_f = {fkey(f): f for f in before.findings}
-    a_f = {fkey(f): f for f in after.findings}
-    resolved = [b_f[k] for k in sorted(b_f.keys() - a_f.keys(), key=str)]
-    new_findings = [a_f[k] for k in sorted(a_f.keys() - b_f.keys(), key=str)]
+def _finding_dicts(keys) -> list[dict]:
+    return [{"ip": i, "port": p, "code": c} for i, p, c in sorted(keys, key=str)]
 
+
+def compare_snapshots(before: Snapshot, after: Snapshot) -> dict:
+    new_devices = sorted(after.devices[k] for k in after.devices.keys() - before.devices.keys())
+    removed_devices = sorted(before.devices[k] for k in before.devices.keys() - after.devices.keys())
+    opened = after.open_ports - before.open_ports
     return {
         "before_file": before.file,
         "after_file": after.file,
@@ -39,9 +63,15 @@ def compare(before: Analysis, after: Analysis) -> dict:
         "score_change": after.score - before.score,
         "new_devices": new_devices,
         "removed_devices": removed_devices,
-        "opened_ports": [{"ip": i, "protocol": pr, "port": po, "service": s} for i, pr, po, s in opened],
-        "closed_ports": [{"ip": i, "protocol": pr, "port": po, "service": s} for i, pr, po, s in closed],
-        "resolved_findings": [{"ip": f.ip, "port": f.port, "code": f.code} for f in resolved],
-        "new_findings": [{"ip": f.ip, "port": f.port, "code": f.code} for f in new_findings],
+        "opened_ports": _port_dicts(opened),
+        "closed_ports": _port_dicts(before.open_ports - after.open_ports),
+        "resolved_findings": _finding_dicts(before.findings - after.findings),
+        "new_findings": _finding_dicts(after.findings - before.findings),
         "alerts": bool(new_devices or opened),
     }
+
+
+def compare(before: Analysis, after: Analysis) -> dict:
+    if not (before.ok and after.ok):
+        raise ValueError("both analyses must be readable")
+    return compare_snapshots(snapshot_of(before), snapshot_of(after))
