@@ -940,3 +940,27 @@ main { position: relative; z-index: 0; }
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .wordmark span { font-weight: 500; color: var(--logo-white); }
+
+/* =====================================================================================
+   Brand: house + nested security shield + radar/Wi-Fi arcs, one gradient (#0055FF -> #00F0FF),
+   a pulsing cyber-green sensor and a soft cyan glow. Wordmark .brand-title "Safehouse".
+   Dark: Safe #FFFFFF 19.9:1, house #94A3B8 7.9:1. Light: #0b1220 / #475569.
+   ===================================================================================== */
+:root { --brand-g1: #0055ff; --brand-g2: #00f0ff; --brand-safe: #ffffff; --brand-house: #94a3b8; --brand-sensor: #00ff66; }
+:root[data-theme="light"] { --brand-g1: #0047d6; --brand-g2: #0891b2; --brand-safe: #0b1220; --brand-house: #475569; --brand-sensor: #059669; }
+.logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; line-height: 1; }
+.logo-mark { width: 42px; height: 42px; flex: none; overflow: visible; filter: drop-shadow(0 0 8px rgba(0, 240, 255, .4)); }
+:root[data-theme="light"] .logo-mark { filter: drop-shadow(0 0 6px rgba(0, 85, 255, .25)); }
+.logo-sensor { fill: var(--brand-sensor); }
+.logo-sensor-halo { fill: var(--brand-sensor); opacity: .35; transform-box: fill-box; transform-origin: center; animation: sensor-pulse 2.4s ease-in-out infinite; }
+@keyframes sensor-pulse { 0%, 100% { transform: scale(.7); opacity: .45; } 50% { transform: scale(1.5); opacity: 0; } }
+.brand-title {
+  display: inline-flex; align-items: center;
+  font-family: "Inter", system-ui, sans-serif; font-size: 1.55rem; line-height: 1; letter-spacing: -0.03em;
+}
+.brand-title b { font-weight: 800; color: var(--brand-safe); }
+.brand-title span { font-weight: 300; color: var(--brand-house); }
+.nav-brand { background: transparent; border: 0; }
+.nav-brand .logo-mark { width: 44px; height: 44px; }
+@media (max-width: 560px) { .logo-mark { width: 36px; height: 36px; } .brand-title { font-size: 1.35rem; } }
+@media (prefers-reduced-motion: reduce) { .logo-sensor-halo { animation: none; opacity: .3; } }
