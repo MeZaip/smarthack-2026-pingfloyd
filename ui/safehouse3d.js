@@ -88,7 +88,7 @@
 
   const scene = new T3.Scene();
   const camera = new T3.PerspectiveCamera(30, 1, 0.1, 100);
-  const target = new T3.Vector3(0.4, 3.3, 0.6);
+  const target = new T3.Vector3(0.4, 2.6, 0.6);
 
   scene.add(new T3.HemisphereLight("#dbeafe", "#4d7c3a", 1.1));
   const sun = new T3.DirectionalLight("#fff3dd", 2.6);
@@ -270,8 +270,8 @@
     laser.visible = cur.laser > 0.01;
 
     az = reduce() ? 0.62 : 0.62 + Math.sin(now / 4200) * 0.14;
-    const a = az + userAz, r = 23.5;
-    camera.position.set(Math.sin(a) * r, 8.6, Math.cos(a) * r);
+    const a = az + userAz, r = 27;
+    camera.position.set(Math.sin(a) * r, 10.5, Math.cos(a) * r);
     camera.lookAt(target);
     renderer.render(scene, camera);
   }

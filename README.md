@@ -54,6 +54,12 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   glass + point lights inside). **Vulnerable**: the door swings open on an orange glow. A floating glass panel
   over the scene shows an icon and the result in both languages. Drag to turn the house. `buildHouse()` is the
   place to load a `.gltf` model later. Without WebGL the CSS house below is used.
+* **Look** (Apple / Vercel style, dark by default; `#…?theme=light` for light): large whitespace, translucent
+  hairline cards (radius 16px) that lift on hover, semantic colours (safe `#10B981`, warning `#F59E0B`, danger
+  `#EF4444`) always paired with an SVG icon and words. Home = blended 3D house (edges fade into the page, glow
+  tinted by the state, glass badge) next to one centred score card (glowing ring, status pills, gradient CTA),
+  then **Uși lăsate deschise / Doors left open** (grid of fix cards, most dangerous marked *Start here*) and
+  **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
 * **Brand**: inline SVG logo, a house whose roof is the three Wi-Fi arcs, with the wordmark **Safe**house.
 * **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
   defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.

@@ -27,7 +27,11 @@
       stVulnT: "Atenție: O ușă este deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
       stErrT: "Nu am putut citi verificarea", stErrS: "Fișierul verificării e stricat. Alege altă verificare din lista de sus.",
       houseLabel: "Casă 3D într-o grădină. Când o verificăm, o lumină trece peste ea, iar la final ferestrele se aprind.", errorWord: "EROARE",
-      devicesFound: "Aparatele găsite ({n})", ipLabel: "IP", otherLang: "EN", whatToDo: "Ce pot face",
+      devicesFound: "Aparate găsite ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "EN", whatToDo: "Ce pot face",
+      doorsOpen: "Uși lăsate deschise ({n})", doorsSub: "Fiecare card spune ce s-a întâmplat și ce faci, pas cu pas. Cel mai periculos e primul.",
+      doorsNone: "Nicio ușă lăsată deschisă. Toate aparatele tale sunt în siguranță.",
+      devicesSub2: "Toate aparatele conectate la rețeaua ta. Apasă pe un aparat ca să vezi ce poți face.",
+      startHere: "Începe de aici", scoreTitle: "Scorul casei tale", scorePending: "Apasă butonul ca să verificăm casa și să afli scorul.",
       netTitle: "Rețeaua de acasă",
       scoreOf: "din 100",
       band_red: "Risc înalt", band_amber: "Risc mediu", band_green: "Sigur",
@@ -120,7 +124,11 @@
       stVulnT: "Warning: A door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
       stErrT: "We could not read the check", stErrS: "The check file is broken. Pick another check from the list at the top.",
       houseLabel: "3D house in a garden. When we check it, a light passes over it and at the end the windows light up.", errorWord: "ERROR",
-      devicesFound: "Devices found ({n})", ipLabel: "IP", otherLang: "RO", whatToDo: "What I can do",
+      devicesFound: "Devices found ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "RO", whatToDo: "What I can do",
+      doorsOpen: "Doors left open ({n})", doorsSub: "Each card says what is wrong and what to do, step by step. The most dangerous one comes first.",
+      doorsNone: "No door left open. All your devices are safe.",
+      devicesSub2: "All the devices connected to your network. Tap a device to see what you can do.",
+      startHere: "Start here", scoreTitle: "Your home's score", scorePending: "Press the button so we can check the house and show your score.",
       netTitle: "Home network",
       scoreOf: "out of 100",
       band_red: "High risk", band_amber: "Medium risk", band_green: "Safe",
@@ -334,7 +342,7 @@
     s.append(svg("circle", { class: "track", cx: 60, cy: 60, r, fill: "none", "stroke-width": 12 }));
     s.append(svg("circle", { class: "val-" + b, cx: 60, cy: 60, r, fill: "none", "stroke-width": 12, "stroke-linecap": "round",
       "stroke-dasharray": `${(score / 100) * c} ${c}` }));
-    return h("div", { class: "ring" + (small ? " small" : ""), role: "img", "aria-label": `${score} ${t("scoreOf")}, ${t("band_" + b)}` },
+    return h("div", { class: "ring b-" + b + (small === "lg" ? " lg" : small ? " small" : ""), role: "img", "aria-label": `${score} ${t("scoreOf")}, ${t("band_" + b)}` },
       s, h("div", { class: "ring-center", "aria-hidden": "true" }, h("div", { class: "ring-num", text: String(score) }), h("div", { class: "ring-of", text: t("scoreOf") })));
   }
   function traffic(score) {
@@ -435,20 +443,28 @@
     const s = scan();
     const done = !!state.inspected[s.file];
     const st = state.scanning ? "scanning" : done ? resultOf(s) : "idle";
+    const toFix = s.error ? 0 : s.findings.filter((f) => f.severity !== "info").length;
     root.append(pageHead(t("hello"), t("helloSub")));
 
-    const toFix = s.error ? 0 : s.findings.filter((f) => f.severity !== "info").length;
-    const side = h("div", { class: "hero-side" },
-      h("div", { class: "house-status", role: "status", "aria-live": "polite" },
-        h("div", { class: "hs-icon", "aria-hidden": "true" }),
-        h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))),
-      done && !s.error ? h("div", { class: "hero-score" }, ring(s.score, true),
-        h("div", null, traffic(s.score),
-          h("p", { class: "lead", style: "margin:.6rem 0 0", text: toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }))) : null,
+    // right column: score, status pills and the call to action, centred in one card
+    const pendingRing = h("div", { class: "ring b-none lg", "aria-hidden": "true" },
+      (() => { const g = svg("svg", { viewBox: "0 0 120 120" }); g.append(svg("circle", { class: "track", cx: 60, cy: 60, r: 52, fill: "none", "stroke-width": 12 })); return g; })(),
+      h("div", { class: "ring-center" }, h("div", { class: "ring-num", text: "–" }), h("div", { class: "ring-of", text: t("scoreOf") })));
+    const scoreCard = h("div", { class: "score-card" },
+      h("p", { class: "eyebrow muted", text: t("scoreTitle") }),
+      done && !s.error ? ring(s.score, "lg") : pendingRing,
+      done && !s.error ? traffic(s.score) : null,
+      h("p", { class: "lead", text: !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
+        : toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }),
       h("div", { class: "actions" },
-        h("button", { type: "button", class: "btn btn-filled inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
-        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null));
-    root.append(h("section", { class: "hero", "data-state": st, "aria-label": "Safehouse" }, houseScene(), side));
+        h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
+        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null),
+      // screen-reader status (the glass badge over the house is the visible one)
+      h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
+        h("div", { class: "hs-icon" }), h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))));
+
+    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "Safehouse" },
+      h("div", { class: "stage-wrap" }, houseScene()), scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
     if (mountEl) window.Safehouse3D.mount(mountEl);
     applyHouseState(st);
@@ -456,12 +472,23 @@
     if (!done) return;                       // results appear after the house is inspected
     if (s.error) { root.append(h("div", { class: "section" }, errorBox(s))); return; }
 
-    root.append(h("div", { class: "section" },
-      h("div", { class: "section-head" }, h("h3", { text: t("devicesFound", { n: s.devices.length }) })),
+    // Uși lăsate deschise: grid of warning cards, most dangerous first
+    const q = queue(s);
+    root.append(h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("door", "lg"), h("span", { text: t("doorsOpen", { n: q.length }) }))),
+      q.length ? [h("p", { class: "section-sub", text: t("doorsSub") }),
+        h("div", { class: "grid-findings" }, q.map((f, k) => {
+          const card = checkCard(s, f, s.findings.indexOf(f));
+          if (k === 0) card.prepend(h("div", { class: "start-here" }, icon("sparkles"), t("startHere")));
+          return card;
+        }))]
+        : h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("doorsNone") })))));
+
+    // Aparate găsite: grid of device cards
+    root.append(h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("devicesFound", { n: s.devices.length }) }))),
+      h("p", { class: "section-sub", text: t("devicesSub2") }),
       deviceCards(s)));
-    root.append(h("div", { class: "section" }, h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("sparkles"), h("span", { text: t("suggestTitle") }))), suggestion(s)));
-    root.append(h("div", { class: "section glossary" }, h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("book"), h("span", { text: t("glossaryTitle") }))),
-      h("dl", null, D.glossary[state.lang].map((g) => h("div", { class: "g" }, h("dt", { text: g.term }), h("dd", { text: g.meaning }))))));
   }
 
   // Device cards: icon, name, IP and a very simple explanation (max 2 sentences) in both languages.
@@ -470,12 +497,15 @@
   }
   function deviceCards(s) {
     const other = state.lang === "ro" ? "en" : "ro";
-    return h("div", { class: "dcards" }, s.devices.slice().sort((a, b) => b.risk_points - a.risk_points).map((d) => {
+    return h("div", { class: "grid-devices" }, s.devices.slice().sort((a, b) => b.risk_points - a.risk_points).map((d) => {
       const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
-      const name = deviceLabel(d.type) + (vendor ? " " + vendor : "");
-      const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${name}, ${t("ipLabel")} ${d.ip}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
+      const name = vendor || deviceLabel(d.type);
+      const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${deviceLabel(d.type)} ${vendor}, ${t("ipLabel")} ${d.ip}, ${t("macLabel")} ${d.mac || t("unknown")}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
         h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
-          h("div", null, h("h3", { text: name }), h("div", { class: "dcard-ip" }, t("ipLabel") + ": ", h("span", { class: "mono", text: d.ip })))),
+          h("div", null, h("h3", { text: name }), h("div", { class: "sub", text: deviceLabel(d.type) }))),
+        h("dl", { class: "dcard-meta" },
+          h("dt", { text: t("ipLabel") }), h("dd", { class: "mono", text: d.ip }),
+          h("dt", { text: t("macLabel") }), h("dd", { class: "mono", text: d.mac || t("unknown") })),
         worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")),
         h("p", { lang: state.lang, style: "margin-top:.8rem", text: explainIn(state.lang, d, worst) }),
         h("p", { class: "other", lang: other }, h("span", { class: "lang-tag", text: t("otherLang") + ":" }), explainIn(other, d, worst)),
@@ -530,6 +560,7 @@
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
         devIco(d.type),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor ? h("div", { class: "tile-sub", text: vendor }) : null),
+        h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
     }));
   }
@@ -612,8 +643,8 @@
     const card = h("article", { class: "check", id: "finding-" + i, tabindex: "0",
       "aria-label": `${RISK[f.severity][state.lang]}. ${tx.title}. ${deviceLabel(dev.type)}. ${t("cardHint")}` },
       h("div", { class: "check-head" }, devIco(dev.type, toneOf(f.severity)),
-        h("div", { class: "grow" }, h("h3", { style: "margin:0;font-size:1.2rem", text: deviceLabel(dev.type) }), vendor ? h("div", { class: "sub", text: vendor }) : null),
-        riskPill(f.severity)),
+        h("div", { class: "grow" }, h("h3", { style: "margin:0;font-size:1.2rem", text: deviceLabel(dev.type) }), vendor ? h("div", { class: "sub", text: vendor }) : null)),
+      riskPill(f.severity),
       h("h4", { class: "title", text: tx.title }),
       h("p", { text: tx.explain }),
       h("h4", { text: t("doThis") + ":" }),
