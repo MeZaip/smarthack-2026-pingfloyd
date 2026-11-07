@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f8fafd">
+  <meta name="theme-color" content="#07080a">
   <title>netcheck</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -11,23 +11,30 @@
   <a class="skip" href="#main" data-i18n="skip">Sari la conținut</a>
 
   <div class="app">
-    <!-- One navigation: a side rail on computers, a bottom bar on phones (Google Home / Fing pattern). -->
+    <!-- Navigation: a slim text rail on computers, a horizontal tab strip on phones. -->
     <nav class="nav" aria-label="Meniu / Menu">
-      <div class="nav-brand" aria-hidden="true">🏠</div>
-      <button type="button" class="nav-item" data-tab="home"><span class="nav-ico" aria-hidden="true">🏠</span><span class="nav-label" data-i18n="navHome">Acasă</span></button>
-      <button type="button" class="nav-item" data-tab="devices"><span class="nav-ico" aria-hidden="true">📱</span><span class="nav-label" data-i18n="navDevices">Aparate</span></button>
-      <button type="button" class="nav-item" data-tab="findings"><span class="nav-ico" aria-hidden="true">🛡️</span><span class="nav-label" data-i18n="navFindings">Reparații</span></button>
-      <button type="button" class="nav-item" data-tab="history"><span class="nav-ico" aria-hidden="true">📈</span><span class="nav-label" data-i18n="navHistory">Istoric</span></button>
-      <button type="button" class="nav-item" data-tab="ask"><span class="nav-ico" aria-hidden="true">💬</span><span class="nav-label" data-i18n="navAsk">Întreabă</span></button>
+      <div class="nav-brand">
+        <span class="brand-name">NET<b>CHECK</b></span>
+        <span class="brand-line"><span class="live" aria-hidden="true"></span><span data-i18n="navLive">monitorizare locală</span></span>
+      </div>
+      <div class="nav-status" id="nav-status" aria-live="polite"></div>
+      <div class="nav-list" id="nav-list">
+        <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
+        <button type="button" class="nav-item" data-tab="home"><span class="nav-num" aria-hidden="true">01</span><span class="nav-label" data-i18n="navHome">Acasă</span><span class="nav-badge" data-badge="home"></span><kbd class="nav-key" aria-hidden="true">1</kbd></button>
+        <button type="button" class="nav-item" data-tab="devices"><span class="nav-num" aria-hidden="true">02</span><span class="nav-label" data-i18n="navDevices">Aparate</span><span class="nav-badge" data-badge="devices"></span><kbd class="nav-key" aria-hidden="true">2</kbd></button>
+        <button type="button" class="nav-item" data-tab="findings"><span class="nav-num" aria-hidden="true">03</span><span class="nav-label" data-i18n="navFindings">Reparații</span><span class="nav-badge" data-badge="findings"></span><kbd class="nav-key" aria-hidden="true">3</kbd></button>
+        <button type="button" class="nav-item" data-tab="history"><span class="nav-num" aria-hidden="true">04</span><span class="nav-label" data-i18n="navHistory">Istoric</span><span class="nav-badge" data-badge="history"></span><kbd class="nav-key" aria-hidden="true">4</kbd></button>
+        <button type="button" class="nav-item" data-tab="ask"><span class="nav-num" aria-hidden="true">05</span><span class="nav-label" data-i18n="navAsk">Întreabă</span><span class="nav-badge" data-badge="ask"></span><kbd class="nav-key" aria-hidden="true">5</kbd></button>
+      </div>
+      <p class="nav-hint" data-i18n="navHint">Taste 1–5 sau ↑ ↓ pentru meniu</p>
     </nav>
 
     <div class="content">
       <header class="appbar">
         <div class="appbar-title">
-          <span class="appbar-name">netcheck</span>
+          <span class="appbar-name" data-i18n="appbarName">Panou de securitate</span>
           <label class="net-chip">
             <span class="sr" data-i18n="scanFile">Verificarea afișată</span>
-            <span aria-hidden="true">📶</span>
             <select id="scan-select"></select>
           </label>
         </div>
@@ -53,7 +60,7 @@
       </main>
 
       <footer class="foot">
-        <p><span aria-hidden="true">🔒 </span><span data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</span></p>
+        <p data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</p>
       </footer>
     </div>
   </div>
@@ -62,7 +69,7 @@
   <dialog id="sheet" class="sheet" aria-labelledby="sheet-title">
     <div class="sheet-bar">
       <span class="sheet-handle" aria-hidden="true"></span>
-      <button type="button" class="icon-btn" id="sheet-close"><span aria-hidden="true">✕</span><span class="sr" data-i18n="close">Închide</span></button>
+      <button type="button" class="icon-btn" id="sheet-close"><span aria-hidden="true">X</span><span class="sr" data-i18n="close">Închide</span></button>
     </div>
     <div id="sheet-body"></div>
   </dialog>

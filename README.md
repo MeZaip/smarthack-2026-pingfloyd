@@ -46,10 +46,12 @@ python tools/export_ui_data.py          # real tool output -> ui/data.js (scans,
 python -m http.server 8000 -d ui        # then open http://localhost:8000  (or just open ui/index.html)
 ```
 
-* Layout and behaviour follow **Google Home** and **Fing**: navigation rail on computers and a bottom bar on
-  phones, a greeting, a network card with a score ring and a labelled traffic light, a "suggestion for today"
-  card, device tiles that open a side/bottom sheet, fixes grouped by risk like a security check, and an
-  events timeline for history. The assistant is a chat with suggestion chips.
+* **Look**: dark "security console" theme in black and red, no icons (devices are text tags like `[CAM]`,
+  `[RTR]`; risk is always written in words). A slim text menu on the left (`01 HOME` … `05 ASK`) with live
+  counters (score, devices, things to fix), a sliding red marker, keys `1`–`5` and ↑/↓; on phones it becomes
+  a horizontal tab strip. A network card with a HUD score ring and a labelled traffic light, a "suggestion
+  for today" card, device tiles that open a side/bottom sheet, fixes grouped by risk, an events timeline for
+  history, and a terminal-style assistant chat. Only system fonts, so it works offline.
 * **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
   device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
 * **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
