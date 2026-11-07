@@ -60,9 +60,10 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   tinted by the state, glass badge) next to one centred score card (glowing ring, status pills, gradient CTA),
   then **Uși lăsate deschise / Doors left open** (grid of fix cards, most dangerous marked *Start here*) and
   **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
-* **Brand**: inline SVG logo *The Biometric Home* (`#logo-bio` in `ui/index.html`): a house silhouette filled with
-  emerald fingerprint ridges (2px, round caps) and a glowing shield with a check at the core, next to the
-  CamelCase wordmark **Safe**House (Safe 800 emerald `#10B981`, House 300 white; darker emerald + navy on light).
+* **Brand**: inline SVG logo *The Wi-Fi Home* (`#logo-wifi` in `ui/index.html`): a thick rounded house outline
+  with three Wi-Fi arcs under the roof, one cyan `#06b6d4` -> royal blue `#3b82f6` gradient (same family as the
+  main button) and a soft blue glow; wordmark **Safe**House (Safe 800 in the same gradient, House 500 white;
+  darker blues + navy on the light theme).
 * **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
   defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.
 * **SafeHouse** (fallback without WebGL): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan

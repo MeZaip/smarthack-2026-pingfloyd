@@ -925,3 +925,18 @@ main { position: relative; z-index: 0; }
 .nav-brand { background: transparent; border: 0; }
 .nav-brand .logo-mark { width: 46px; height: 46px; }
 @media (max-width: 560px) { .logo-mark { width: 38px; height: 38px; } .wordmark { font-size: 1.4rem; } }
+
+/* =====================================================================================
+   Logo "The Wi-Fi Home" (replaces the fingerprint logo): cyan -> royal blue, like the CTA.
+   Dark: #06b6d4 8.6:1 and #3b82f6 5.4:1 on the page. Light: #0e7490 / #1d4ed8 (both > 5:1).
+   ===================================================================================== */
+:root { --logo-c1: #06b6d4; --logo-c2: #3b82f6; --logo-white: #ffffff; }
+:root[data-theme="light"] { --logo-c1: #0e7490; --logo-c2: #1d4ed8; --logo-white: #0b2545; }
+.logo-mark { color: var(--logo-c2); }
+.wordmark { letter-spacing: -0.02em; }
+.wordmark b {
+  font-weight: 800; color: var(--logo-c2);
+  background: linear-gradient(90deg, var(--logo-c1), var(--logo-c2));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.wordmark span { font-weight: 500; color: var(--logo-white); }
