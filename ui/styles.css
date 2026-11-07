@@ -257,8 +257,11 @@ details.tech > summary {
   color: var(--muted); font-weight: 600; padding-top: .6rem;
 }
 details.tech > summary::-webkit-details-marker { display: none; }
-details.tech > summary::after { content: "▾"; margin-left: auto; }
-details.tech[open] > summary::after { content: "▴"; }
+details.tech > summary::after, .glossary > summary::after {
+  content: ""; margin-left: auto; width: .55em; height: .55em; flex: none;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px);
+}
+details.tech[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
 details.tech[open] > summary { color: var(--text); }
 .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: .6rem 0 1rem; }
 .meta dt { color: var(--muted); }
@@ -519,3 +522,102 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
   .hero[data-state="scanning"] .win { background: var(--h-lit); }
   .door, .doorway, .win, .house-wrap { transition: none; }
 }
+
+
+/* =====================================================================================
+   Icons (SVG sprite in index.html): one stroke style everywhere, aligned with text by flexbox.
+   ===================================================================================== */
+.ico {
+  width: 1.25em; height: 1.25em; flex: none; display: inline-block; vertical-align: middle;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.ico.lg { width: 1.6em; height: 1.6em; }
+.ico.xl { width: 2.4em; height: 2.4em; }
+.ico.ok { color: var(--green-ink); }
+.with-ico { display: flex; align-items: center; gap: 10px; }
+.with-ico > span { min-width: 0; }
+.btn, .chip-btn, .pill, .who, .tile-status, .proof, .why, .seg button, .lamp, .icon-btn { align-items: center; }
+.btn .ico, .chip-btn .ico { width: 1.2em; height: 1.2em; }
+.why { display: flex !important; gap: 8px; }
+.pill .ico { width: 1.15em; height: 1.15em; }
+.nav-ico .ico { width: 24px; height: 24px; }
+.dev-ico .ico { width: 28px; height: 28px; color: var(--text); }
+.dev-ico.lg .ico { width: 34px; height: 34px; }
+.dev-ico.red .ico { color: var(--red-ink); } .dev-ico.amber .ico { color: var(--amber-ink); } .dev-ico.green .ico { color: var(--green-ink); }
+.tile .dev-ico .ico { color: var(--text); }
+.t-ico .ico { width: 26px; height: 26px; }
+.t-ico.green { color: var(--green-ink); } .t-ico.red { color: var(--red-ink); } .t-ico.amber { color: var(--amber-ink); } .t-ico.blue { color: var(--on-pc); }
+.tone-red { color: var(--red-ink); } .tone-amber { color: var(--amber-ink); } .tone-green { color: var(--green-ink); } .tone-low, .tone-info { color: var(--info-ink); }
+.hs-icon .ico { width: 38px; height: 38px; }
+.hero[data-state="safe"] .hs-icon { color: var(--green-ink); }
+.hero[data-state="vulnerable"] .hs-icon { color: var(--amber-ink); }
+.hero[data-state="error"] .hs-icon { color: var(--red-ink); }
+.chart .chart-ico { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn { display: inline-flex; justify-content: center; }
+.foot .with-ico { gap: 8px; }
+
+/* =====================================================================================
+   Logo: house whose roof is the three Wi-Fi arcs + wordmark "Safe" (bold) "house" (light).
+   ===================================================================================== */
+:root { --brand-navy: #0b2545; --brand-blue: #0b57d0; --brand-green: #137333; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand-navy: #e8eefc; --brand-blue: #a8c7fa; --brand-green: #81c995; } }
+:root[data-theme="dark"] { --brand-navy: #e8eefc; --brand-blue: #a8c7fa; --brand-green: #81c995; }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--brand-navy); border-radius: 12px; }
+.logo-mark { width: 40px; height: 40px; flex: none; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.lm-arc { stroke: var(--brand-blue); stroke-width: 3; }
+.lm-arc.a3 { opacity: .55; } .lm-arc.a2 { opacity: .8; }
+.lm-body { stroke: var(--brand-navy); stroke-width: 3; }
+.lm-door { stroke: var(--brand-green); stroke-width: 3; }
+.wordmark {
+  font-family: "SF Pro Display", -apple-system, "Segoe UI Variable Display", "Segoe UI", "Inter", "Poppins", Roboto, system-ui, sans-serif;
+  font-size: 1.5rem; letter-spacing: -.02em; line-height: 1; color: var(--brand-navy);
+}
+.wordmark b { font-weight: 750; }
+.wordmark span { font-weight: 300; }
+.nav-brand { background: var(--pc); }
+.nav-brand .logo-mark { width: 40px; height: 40px; }
+.appbar-name { display: none; }
+
+/* =====================================================================================
+   Safehouse3D stage (WebGL canvas) + floating glass panel.
+   ===================================================================================== */
+.house-stage.is3d {
+  height: 480px; display: block; padding: 0;
+  background: linear-gradient(180deg, #dbeafe 0%, #eef5ff 55%, #f3f7ee 100%);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .house-stage.is3d { background: linear-gradient(180deg, #0f1b2d 0%, #182638 60%, #1b2a1f 100%); } }
+:root[data-theme="dark"] .house-stage.is3d { background: linear-gradient(180deg, #0f1b2d 0%, #182638 60%, #1b2a1f 100%); }
+.house-stage.is3d::after { display: none; }
+.house3d-mount { position: absolute; inset: 0; }
+.house3d-canvas { width: 100% !important; height: 100% !important; display: block; cursor: grab; touch-action: pan-y; }
+.house3d-canvas:active { cursor: grabbing; }
+
+.glass {
+  position: absolute; left: 50%; top: 18px; transform: translate(-50%, -8px); z-index: 3;
+  display: flex; align-items: center; gap: 14px; padding: 14px 20px; max-width: calc(100% - 32px);
+  border-radius: 20px; opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s;
+  background: rgba(255, 255, 255, .82); color: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, .9); box-shadow: 0 8px 32px rgba(15, 30, 60, .18);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .glass { background: rgba(30, 31, 32, .82); color: #e3e3e3; border-color: rgba(255, 255, 255, .14); } }
+:root[data-theme="dark"] .glass { background: rgba(30, 31, 32, .82); color: #e3e3e3; border-color: rgba(255, 255, 255, .14); }
+.hero:not([data-state="idle"]) .glass { opacity: 1; transform: translate(-50%, 0); }
+.glass-ico { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; flex: none; background: var(--surface-2); }
+.glass-ico .ico { width: 30px; height: 30px; }
+.glass-main { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.25; }
+.glass-alt { margin: .15rem 0 0; font-size: 1rem; font-weight: 600; opacity: .9; }
+.hero[data-state="safe"] .glass-ico { background: var(--green-bg); color: var(--green-ink); }
+.hero[data-state="vulnerable"] .glass-ico { background: var(--amber-bg); color: var(--amber-ink); animation: pulse 1.4s ease-in-out infinite; }
+.hero[data-state="error"] .glass-ico { background: var(--red-bg); color: var(--red-ink); }
+.hero[data-state="scanning"] .glass-ico { background: var(--pc); color: var(--on-pc); }
+.glass-main { color: inherit; }
+@media (max-width: 560px) {
+  .house-stage.is3d { height: 400px; }
+  .glass { top: 12px; padding: 10px 14px; gap: 10px; }
+  .glass-ico { width: 44px; height: 44px; }
+  .wordmark { font-size: 1.3rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hero[data-state="vulnerable"] .glass-ico { animation: none; } .glass { transition: none; } }
+/* CSS fallback house keeps its own stage; the glass panel works there too */
+.house-stage:not(.is3d) .glass { top: 14px; }

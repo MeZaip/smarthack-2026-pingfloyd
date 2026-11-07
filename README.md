@@ -46,7 +46,18 @@ python tools/export_ui_data.py          # real tool output -> ui/data.js (scans,
 python -m http.server 8000 -d ui        # then open http://localhost:8000  (or just open ui/index.html)
 ```
 
-* **SafeHouse** (Home): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan
+* **Safehouse3D** (Home, `ui/safehouse3d.js`): a real-time 3D scene with Three.js r159, bundled in `ui/vendor/`
+  (MIT licence included; no CDN, works offline and from `file://`). A modern two-volume house (plaster + wood,
+  big glass windows, flat roofs, hinged door) in a minimalist garden (lawn, stone path, hedge, stylised trees,
+  bushes, grass tufts); textures are drawn in code. *Inspect house* sweeps a glowing laser grid from the roof
+  to the ground in a loop (~4 s, three passes). **Safe**: the laser stops and the windows glow emerald (emissive
+  glass + point lights inside). **Vulnerable**: the door swings open on an orange glow. A floating glass panel
+  over the scene shows an icon and the result in both languages. Drag to turn the house. `buildHouse()` is the
+  place to load a `.gltf` model later. Without WebGL the CSS house below is used.
+* **Brand**: inline SVG logo, a house whose roof is the three Wi-Fi arcs, with the wordmark **Safe**house.
+* **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
+  defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.
+* **SafeHouse** (fallback without WebGL): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan
   bar down the house while the windows light up one by one, then shows one of two states, always icon + words:
   **safe** (green outline, door closes, ✅ *Casa este sigură / The house is safe*) or **vulnerable** (door opens
   on an orange doorway, pulsing ⚠️ *Atenție: O ușă este deschisă / Warning: A door is open*). The state comes from

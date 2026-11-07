@@ -19,14 +19,14 @@
       skip: "Sari la conținut", close: "Închide", scanFile: "Verificarea afișată",
       navHome: "Acasă", navDevices: "Aparate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
-      hello: "Bună! 👋", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
+      hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
       stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
       stScanT: "Inspectez casa…", stScanS: "Verific fiecare aparat și fiecare ușă. Durează câteva secunde.",
       stSafeT: "Casa este sigură", stSafeS: "Toate ușile sunt închise. Nu ai nimic de reparat.",
       stVulnT: "Atenție: O ușă este deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
       stErrT: "Nu am putut citi verificarea", stErrS: "Fișierul verificării e stricat. Alege altă verificare din lista de sus.",
-      houseLabel: "Desen cu o casă. Ferestrele se aprind când o verificăm.",
+      houseLabel: "Casă 3D într-o grădină. Când o verificăm, o lumină trece peste ea, iar la final ferestrele se aprind.", errorWord: "EROARE",
       devicesFound: "Aparatele găsite ({n})", ipLabel: "IP", otherLang: "EN", whatToDo: "Ce pot face",
       netTitle: "Rețeaua de acasă",
       scoreOf: "din 100",
@@ -42,7 +42,7 @@
       doThis: "Ce faci",
       btnDone: "Am făcut asta", btnSkip: "Arată-mi altceva",
       progress: "Lucrul {i} din {n}",
-      doneNote: "✔ Bravo! Ai rezolvat: {title}. Verifică din nou rețeaua mai târziu ca să vezi scorul nou.",
+      doneNote: "Bravo! Ai rezolvat: {title}. Verifică din nou rețeaua mai târziu ca să vezi scorul nou.",
       allDone: "Ai trecut prin toate. Verifică din nou rețeaua ca să vezi cât de sigură e acum.",
       restart: "Ia-o de la capăt",
       noProblems: "Nu am găsit nimic de reparat. Felicitări! Verifică din nou din când în când.",
@@ -70,8 +70,8 @@
       errorDetail: "Detaliu tehnic",
       historyTitle: "A devenit rețeaua mai sigură?", historySub: "Verificările salvate pe acest calculator, înainte și după ce ai reparat lucrurile.",
       before: "Înainte", now: "Acum",
-      bravo: "🎉 Bravo! Ai reparat {n} lucruri.", bravoOne: "🎉 Bravo! Ai reparat un lucru.",
-      worse: "⚠️ Atenție: scorul a scăzut. Uită-te la lucrurile noi de reparat.", same: "Scorul a rămas la fel.",
+      bravo: "Bravo! Ai reparat {n} lucruri.", bravoOne: "Bravo! Ai reparat un lucru.",
+      worse: "Atenție: scorul a scăzut. Uită-te la lucrurile noi de reparat.", same: "Scorul a rămas la fel.",
       events: "Ce s-a întâmplat",
       evFixed: "Ai reparat: {title}", evNew: "Lucru nou de reparat: {title}",
       evSecured: "Setările se deschid acum pe drumul sigur", evSecuredSub: "Din ușa {from} în ușa sigură {to}",
@@ -112,14 +112,14 @@
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
       navHome: "Home", navDevices: "Devices", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
-      hello: "Hi! 👋", helloSub: "Press the button and we will check together if the network in your home is safe.",
+      hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
       inspect: "Inspect house", inspectAgain: "Inspect again",
       stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
       stScanT: "Inspecting the house…", stScanS: "Checking every device and every door. It takes a few seconds.",
       stSafeT: "The house is safe", stSafeS: "All doors are closed. You have nothing to fix.",
       stVulnT: "Warning: A door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
       stErrT: "We could not read the check", stErrS: "The check file is broken. Pick another check from the list at the top.",
-      houseLabel: "Drawing of a house. The windows light up when we check it.",
+      houseLabel: "3D house in a garden. When we check it, a light passes over it and at the end the windows light up.", errorWord: "ERROR",
       devicesFound: "Devices found ({n})", ipLabel: "IP", otherLang: "RO", whatToDo: "What I can do",
       netTitle: "Home network",
       scoreOf: "out of 100",
@@ -135,7 +135,7 @@
       doThis: "What to do",
       btnDone: "I did this", btnSkip: "Show me something else",
       progress: "Thing {i} of {n}",
-      doneNote: "✔ Well done! You fixed: {title}. Check the network again later to see the new score.",
+      doneNote: "Well done! You fixed: {title}. Check the network again later to see the new score.",
       allDone: "You went through everything. Check the network again to see how safe it is now.",
       restart: "Start again",
       noProblems: "We found nothing to fix. Congratulations! Check again from time to time.",
@@ -163,8 +163,8 @@
       errorDetail: "Technical detail",
       historyTitle: "Has the network become safer?", historySub: "The checks saved on this computer, before and after you fixed things.",
       before: "Before", now: "Now",
-      bravo: "🎉 Well done! You fixed {n} things.", bravoOne: "🎉 Well done! You fixed one thing.",
-      worse: "⚠️ Careful: the score went down. Look at the new things to fix.", same: "The score stayed the same.",
+      bravo: "Well done! You fixed {n} things.", bravoOne: "Well done! You fixed one thing.",
+      worse: "Careful: the score went down. Look at the new things to fix.", same: "The score stayed the same.",
       events: "What happened",
       evFixed: "You fixed: {title}", evNew: "New thing to fix: {title}",
       evSecured: "The settings now open on the safe road", evSecuredSub: "From door {from} to safe door {to}",
@@ -205,13 +205,13 @@
 
   // Risk words with icons (never colour alone).
   const RISK = {
-    high: { ro: "Risc înalt", en: "High risk", icon: "❌", tone: "red" },
-    medium: { ro: "Risc mediu", en: "Medium risk", icon: "⚠️", tone: "amber" },
-    low: { ro: "Risc mic", en: "Low risk", icon: "ℹ️", tone: "low" },
-    info: { ro: "Doar de știut", en: "Just so you know", icon: "ℹ️", tone: "info" },
+    high: { ro: "Risc înalt", en: "High risk", icon: "octagon", tone: "red" },
+    medium: { ro: "Risc mediu", en: "Medium risk", icon: "alert", tone: "amber" },
+    low: { ro: "Risc mic", en: "Low risk", icon: "info", tone: "low" },
+    info: { ro: "Doar de știut", en: "Just so you know", icon: "info", tone: "info" },
   };
-  const BAND_ICON = { red: "❌", amber: "⚠️", green: "✅" };
-  const DEVICE_ICON = { router: "📶", camera: "📷", printer: "🖨️", nas: "🗄️", iot: "💡", tv: "📺", phone: "📱", computer: "💻", server: "🖥️", unknown: "❓" };
+  const BAND_ICON = { red: "octagon", amber: "alert", green: "check" };
+  const DEVICE_ICON = { router: "router", camera: "video", printer: "printer", nas: "drive", iot: "bulb", tv: "tv", phone: "phone", computer: "laptop", server: "server", unknown: "help" };
   const SIZES = ["100%", "115%", "130%"];
   const TABS = ["home", "devices", "findings", "history", "ask"];
 
@@ -263,6 +263,12 @@
     for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
     return el;
   }
+  // One SVG icon from the sprite in index.html (2px strokes, currentColor, aligned with text by flexbox).
+  function icon(name, cls) {
+    const el = svg("svg", { class: "ico" + (cls ? " " + cls : ""), "aria-hidden": "true", focusable: "false" });
+    el.append(svg("use", { href: "#i-" + name }));
+    return el;
+  }
   const scan = () => D.scans[state.scan];
   const bandOf = (score) => (score >= 80 ? "green" : score >= 50 ? "amber" : "red");
   const simple = (code) => (D.simple[code] && D.simple[code][state.lang]) || { title: code, explain: "", steps: [] };
@@ -285,21 +291,21 @@
     const v = shortVendor(d.vendor);
     return deviceLabel(d.type) + (v ? ` (${v})` : "");
   }
-  const riskPill = (sev) => h("span", { class: "pill p-" + sev }, h("span", { "aria-hidden": "true", text: RISK[sev].icon }), RISK[sev][state.lang]);
+  const riskPill = (sev) => h("span", { class: "pill p-" + sev }, icon(RISK[sev].icon), RISK[sev][state.lang]);
   function bandPill(score) {
     const b = bandOf(score);
-    return h("span", { class: "pill p-" + b }, h("span", { "aria-hidden": "true", text: BAND_ICON[b] }), t("band_" + b));
+    return h("span", { class: "pill p-" + b }, icon(BAND_ICON[b]), t("band_" + b));
   }
   function devIco(type, tone, big) {
-    return h("div", { class: "dev-ico" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true", text: DEVICE_ICON[type] || DEVICE_ICON.unknown });
+    return h("div", { class: "dev-ico" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true" }, icon(DEVICE_ICON[type] || DEVICE_ICON.unknown));
   }
   function whoLine(code) {
     const w = D.who[whoOf(code)];
-    return h("p", { class: "who" }, h("span", { "aria-hidden": "true", text: w.icon }), w[state.lang]);
+    return h("p", { class: "who" }, icon(w.icon), w[state.lang]);
   }
   const steps = (list) => h("ol", { class: "steps" }, list.map((x) => h("li", { text: x })));
   function techBox(children) {
-    return h("details", { class: "tech" }, h("summary", null, h("span", { "aria-hidden": "true", text: "🔧" }), t("techMore")), h("div", null, children));
+    return h("details", { class: "tech" }, h("summary", null, icon("code"), h("span", { text: t("techMore") })), h("div", null, children));
   }
   function techFor(f) {
     const d = detailed(f.code);
@@ -334,7 +340,7 @@
   function traffic(score) {
     const b = bandOf(score);
     const lamp = (tone, key) => h("span", { class: "lamp " + tone + (b === tone ? " on" : "") },
-      h("span", { class: "dot", "aria-hidden": "true" }), b === tone ? [h("span", { "aria-hidden": "true", text: BAND_ICON[tone] }), t(key)] : t(key));
+      h("span", { class: "dot", "aria-hidden": "true" }), b === tone ? [icon(BAND_ICON[tone]), t(key)] : t(key));
     return h("div", { class: "traffic", role: "img", "aria-label": t("band_" + b) },
       lamp("green", "lampGreen"), lamp("amber", "lampAmber"), lamp("red", "lampRed"));
   }
@@ -352,26 +358,36 @@
 
   function errorBox(s) {
     return h("div", { class: "error", role: "alert" },
-      h("h2", null, h("span", { "aria-hidden": "true", text: "😕 " }), t("errorTitle")),
+      h("h2", { class: "with-ico" }, icon("x-circle", "lg"), h("span", { text: t("errorTitle") })),
       h("p", { class: "lead", text: t("errorBody") }),
       techBox(h("p", null, t("errorDetail") + ": ", h("span", { class: "mono", text: s.file + " — " + s.error }))));
   }
 
   // ---------------------------------------------------------------- HOME: SafeHouse
-  const SCAN_MS = 2600;
+  const SCAN_MS = 4000;      // the laser sweeps roof-to-ground about three times
   const reducedMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const resultOf = (s) => (s.error ? "error" : s.findings.some((f) => f.severity !== "info") ? "vulnerable" : "safe");
   const STATUS = {
-    idle: { icon: "🏠", title: "stIdleT", sub: "stIdleS" },
-    scanning: { icon: "🔎", title: "stScanT", sub: "stScanS" },
-    safe: { icon: "✅", title: "stSafeT", sub: "stSafeS" },
-    vulnerable: { icon: "⚠️", title: "stVulnT", sub: "stVulnS" },
-    error: { icon: "❌", title: "stErrT", sub: "stErrS" },
+    idle: { icon: "home", title: "stIdleT", sub: "stIdleS" },
+    scanning: { icon: "search", title: "stScanT", sub: "stScanS" },
+    safe: { icon: "shield", title: "stSafeT", sub: "stSafeS" },
+    vulnerable: { icon: "alert", title: "stVulnT", sub: "stVulnS" },
+    error: { icon: "x-circle", title: "stErrT", sub: "stErrS" },
   };
 
+  // Floating glass panel over the house: icon + the result in both languages (always icon + words).
+  function glassPanel() {
+    return h("div", { class: "glass", "aria-hidden": "true" },
+      h("div", { class: "glass-ico" }),
+      h("div", null, h("p", { class: "glass-main" }), h("p", { class: "glass-alt" })));
+  }
   function houseScene() {
+    if (window.Safehouse3D && window.Safehouse3D.supported) {
+      const mountEl = h("div", { class: "house3d-mount" });
+      return h("div", { class: "house-stage is3d", role: "img", "aria-label": t("houseLabel") }, mountEl, glassPanel());
+    }
     const f = (cls, kids) => h("div", { class: "face " + cls }, kids);
-    return h("div", { class: "house-stage", role: "img", "aria-label": t("houseLabel") },
+    return h("div", { class: "house-stage", role: "img", "aria-label": t("houseLabel") }, glassPanel(),
       h("div", { class: "scanbar", "aria-hidden": "true" }),
       h("div", { class: "house-wrap", "aria-hidden": "true" },
         h("div", { class: "house" },
@@ -387,7 +403,13 @@
     if (!hero || !STATUS[st]) return false;
     const s = scan(), cfg = STATUS[st], toFix = s.error ? 0 : s.findings.filter((x) => x.severity !== "info").length;
     hero.dataset.state = st;
-    hero.querySelector(".hs-icon").textContent = cfg.icon;
+    hero.querySelector(".hs-icon").replaceChildren(icon(cfg.icon, "lg"));
+    const other = state.lang === "ro" ? "en" : "ro";
+    hero.querySelector(".glass-ico").replaceChildren(icon(cfg.icon, "lg"));
+    hero.querySelector(".glass-main").textContent = t(cfg.title);
+    hero.querySelector(".glass-alt").textContent = T[other][cfg.title];
+    hero.querySelector(".glass-alt").setAttribute("lang", other);
+    if (window.Safehouse3D) window.Safehouse3D.setState(st);
     hero.querySelector(".hs-title").textContent = t(cfg.title);
     hero.querySelector(".hs-sub").textContent = st === "vulnerable" && toFix ? (toFix === 1 ? t("stVulnS1") : t("stVulnS", { n: toFix })) : t(cfg.sub);
     const btn = hero.querySelector(".inspect-btn");
@@ -424,9 +446,11 @@
         h("div", null, traffic(s.score),
           h("p", { class: "lead", style: "margin:.6rem 0 0", text: toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }))) : null,
       h("div", { class: "actions" },
-        h("button", { type: "button", class: "btn btn-filled inspect-btn", onclick: inspect }, h("span", { "aria-hidden": "true", text: "🔎 " }), done ? t("inspectAgain") : t("inspect")),
-        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, "🛡️ " + t("seeFixes")) : null));
-    root.append(h("section", { class: "hero", "data-state": st, "aria-label": "SafeHouse" }, houseScene(), side));
+        h("button", { type: "button", class: "btn btn-filled inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
+        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null));
+    root.append(h("section", { class: "hero", "data-state": st, "aria-label": "Safehouse" }, houseScene(), side));
+    const mountEl = root.querySelector(".house3d-mount");
+    if (mountEl) window.Safehouse3D.mount(mountEl);
     applyHouseState(st);
 
     if (!done) return;                       // results appear after the house is inspected
@@ -435,8 +459,8 @@
     root.append(h("div", { class: "section" },
       h("div", { class: "section-head" }, h("h3", { text: t("devicesFound", { n: s.devices.length }) })),
       deviceCards(s)));
-    root.append(h("div", { class: "section" }, h("div", { class: "section-head" }, h("h3", { text: "⭐ " + t("suggestTitle") })), suggestion(s)));
-    root.append(h("div", { class: "section glossary" }, h("div", { class: "section-head" }, h("h3", { text: "📖 " + t("glossaryTitle") })),
+    root.append(h("div", { class: "section" }, h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("sparkles"), h("span", { text: t("suggestTitle") }))), suggestion(s)));
+    root.append(h("div", { class: "section glossary" }, h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("book"), h("span", { text: t("glossaryTitle") }))),
       h("dl", null, D.glossary[state.lang].map((g) => h("div", { class: "g" }, h("dt", { text: g.term }), h("dd", { text: g.meaning }))))));
   }
 
@@ -452,10 +476,10 @@
       const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${name}, ${t("ipLabel")} ${d.ip}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
         h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
           h("div", null, h("h3", { text: name }), h("div", { class: "dcard-ip" }, t("ipLabel") + ": ", h("span", { class: "mono", text: d.ip })))),
-        worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, h("span", { "aria-hidden": "true", text: "✅" }), t("devOk")),
+        worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")),
         h("p", { lang: state.lang, style: "margin-top:.8rem", text: explainIn(state.lang, d, worst) }),
         h("p", { class: "other", lang: other }, h("span", { class: "lang-tag", text: t("otherLang") + ":" }), explainIn(other, d, worst)),
-        h("button", { type: "button", class: "btn btn-text", onclick: (e) => { e.stopPropagation(); openDevice(d, card); } }, t("whatToDo") + " ›"));
+        h("button", { type: "button", class: "btn btn-text", onclick: (e) => { e.stopPropagation(); openDevice(d, card); } }, t("whatToDo"), icon("chevron")));
       card.addEventListener("click", () => openDevice(d, card));
       card.addEventListener("keydown", (e) => { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDevice(d, card); } });
       return card;
@@ -465,9 +489,9 @@
   function suggestion(s) {
     const q = queue(s);
     const card = h("div", { class: "suggest", "aria-live": "polite" });
-    if (!q.length) { card.append(h("p", { class: "lead", style: "margin:0", text: "✅ " + t("noProblems") })); return card; }
+    if (!q.length) { card.append(h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("noProblems") }))); return card; }
     const i = state.cursor[s.file] || 0;
-    if (state.lastDone[s.file]) card.append(h("div", { class: "note ok", text: t("doneNote", { title: state.lastDone[s.file] }) }));
+    if (state.lastDone[s.file]) card.append(h("div", { class: "note ok with-ico" }, icon("check"), h("span", { text: t("doneNote", { title: state.lastDone[s.file] }) })));
     if (i >= q.length) {
       card.append(h("p", { class: "lead", text: t("allDone") }),
         h("button", { type: "button", class: "btn btn-tonal", onclick: () => { state.cursor[s.file] = 0; state.lastDone[s.file] = null; render(); } }, t("restart")));
@@ -487,10 +511,10 @@
       steps(tx.steps),
       whoLine(f.code),
       h("div", { class: "actions" },
-        h("button", { type: "button", class: "btn btn-filled", onclick: () => { state.lastDone[s.file] = tx.title; state.cursor[s.file] = i + 1; render(); focusSel(".suggest button"); } }, "✔ " + t("btnDone")),
+        h("button", { type: "button", class: "btn btn-filled", onclick: () => { state.lastDone[s.file] = tx.title; state.cursor[s.file] = i + 1; render(); focusSel(".suggest button"); } }, icon("tick"), t("btnDone")),
         q.length > 1 ? h("button", { type: "button", class: "btn", onclick: () => { state.lastDone[s.file] = null; state.cursor[s.file] = (i + 1) % q.length; render(); focusSel(".suggest button"); } }, t("btnSkip")) : null,
         h("span", { class: "progress", text: t("progress", { i: i + 1, n: q.length }) })),
-      h("p", { class: "note" }, h("span", { "aria-hidden": "true", text: "👨‍👩‍👧 " }), t("helpNote")),
+      h("p", { class: "note with-ico" }, icon("users"), h("span", { text: t("helpNote") })),
       techFor(f));
     return card;
   }
@@ -500,13 +524,13 @@
     return h("div", { class: "tiles" }, list.map((d) => {
       const probs = problemsOf(s, d), worst = probs[0];
       const tone = worst ? toneOf(worst.severity) : "green";
-      const status = worst ? `${RISK[worst.severity].icon} ${RISK[worst.severity][state.lang]} · ${plural(probs.length, "devProblem", "devProblems")}` : `✅ ${t("devOk")}`;
+      const status = worst ? `${RISK[worst.severity][state.lang]} · ${plural(probs.length, "devProblem", "devProblems")}` : t("devOk");
       const vendor = shortVendor(d.vendor);
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
-        "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status.replace(/^\S+\s/, "")}` },
+        "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
         devIco(d.type),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor ? h("div", { class: "tile-sub", text: vendor }) : null),
-        h("div", { class: "tile-status", text: status }));
+        h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
     }));
   }
 
@@ -519,7 +543,7 @@
     const chip = (key, label) => h("button", { type: "button", class: "chip-btn", "aria-pressed": String(state.devFilter === key),
       onclick: () => { state.devFilter = key; render(); focusSel(`.chip-btn[aria-pressed="true"]`); } }, label);
     root.append(h("div", { class: "chips", style: "margin-bottom:20px", role: "group" },
-      chip("all", t("fAll", { n: s.devices.length })), chip("problems", "⚠️ " + t("fProblems", { n: withP.length })), chip("safe", "✅ " + t("fSafe", { n: safe.length }))));
+      chip("all", t("fAll", { n: s.devices.length })), chip("problems", [icon("alert"), t("fProblems", { n: withP.length })]), chip("safe", [icon("check"), t("fSafe", { n: safe.length })])));
     const list = (state.devFilter === "problems" ? withP : state.devFilter === "safe" ? safe : s.devices)
       .slice().sort((a, b) => b.risk_points - a.risk_points);
     root.append(tiles(s, list));
@@ -535,7 +559,7 @@
     body.replaceChildren(h("div", null,
       h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true),
         h("div", null, h("h2", { id: "sheet-title", text: deviceLabel(d.type) }), vendor ? h("div", { class: "muted", text: vendor }) : null)),
-      worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, h("span", { "aria-hidden": "true", text: "✅" }), t("devOk")),
+      worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")),
       worst ? h("h3", { style: "margin-top:1rem", text: tx.title }) : null,
       h("p", { class: "lead", style: "margin-top:.6rem", text: worst ? tx.explain : t("devOkExplain") }),
       h("h4", { text: (worst ? t("doThis") : t("keepSafe")) + ":" }),
@@ -543,7 +567,7 @@
       worst ? whoLine(worst.code) : null,
       probs.length > 1 ? [h("h4", { text: t("otherProblems") + ":" }),
         h("div", { class: "chips" }, probs.slice(1).map((f) => h("button", { type: "button", class: "chip-btn",
-          onclick: () => { closeSheet(); setTab("findings"); openFinding(s.findings.indexOf(f)); } }, `${RISK[f.severity].icon} ${simple(f.code).title} ›`)))] : null,
+          onclick: () => { closeSheet(); setTab("findings"); openFinding(s.findings.indexOf(f)); } }, icon(RISK[f.severity].icon), h("span", { text: simple(f.code).title }), icon("chevron"))))] : null,
       techBox([
         h("dl", { class: "meta" },
           h("dt", { text: t("ip") }), h("dd", { class: "mono", text: d.ip }),
@@ -552,7 +576,7 @@
           h("dt", { text: t("hostname") }), h("dd", { text: d.hostname || t("unknown") })),
         h("div", { class: "muted", style: "margin-bottom:.4rem", text: t("ports") }),
         d.open_ports.length ? h("div", { class: "tags" }, d.open_ports.map((p) => h("span", { class: "port" + (risky.has(p.port) ? " risk" : "") },
-          (risky.has(p.port) ? "⚠️ " : "") + `${p.port}/${p.protocol} ${p.service}${p.tls ? " (TLS)" : ""}`))) : h("span", { text: t("none") }),
+          risky.has(p.port) ? icon("alert") : null, `${p.port}/${p.protocol} ${p.service}${p.tls ? " (TLS)" : ""}`))) : h("span", { text: t("none") }),
         worst ? [h("h4", { text: t("techTitle") + ": " + detailed(worst.code).title }), h("div", { class: "evidence mono", text: worst.evidence }),
           h("span", { class: "code-tag", text: `${t("codeLabel")}: ${worst.code}` })] : null,
       ])));
@@ -571,15 +595,15 @@
     const s = scan();
     root.append(pageHead(t("findingsTitle"), t("findingsSub")));
     if (s.error) { root.append(errorBox(s)); return; }
-    if (!s.findings.length) { root.append(h("div", { class: "suggest" }, h("p", { class: "lead", style: "margin:0", text: "✅ " + t("noProblems") }))); return; }
+    if (!s.findings.length) { root.append(h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("noProblems") })))); return; }
     const sums = { high: "sumHigh", medium: "sumMedium", low: "sumLow", info: "sumInfo" };
     root.append(h("div", { class: "chips" }, Object.keys(RISK).filter((k) => s.findings.some((f) => f.severity === k))
-      .map((k) => h("span", { class: "pill p-" + k }, h("span", { "aria-hidden": "true", text: RISK[k].icon }), `${t(sums[k])}: ${s.findings.filter((f) => f.severity === k).length}`))));
+      .map((k) => h("span", { class: "pill p-" + k }, icon(RISK[k].icon), `${t(sums[k])}: ${s.findings.filter((f) => f.severity === k).length}`))));
     Object.keys(RISK).forEach((sev) => {
       const group = s.findings.map((f, i) => ({ f, i })).filter((x) => x.f.severity === sev);
       if (!group.length) return;
       root.append(h("section", { class: "group" },
-        h("div", { class: "group-head" }, h("h3", null, h("span", { "aria-hidden": "true", text: RISK[sev].icon + " " }), `${RISK[sev][state.lang]} (${group.length})`)),
+        h("div", { class: "group-head" }, h("h3", { class: "with-ico" }, icon(RISK[sev].icon, "lg tone-" + RISK[sev].tone), h("span", { text: `${RISK[sev][state.lang]} (${group.length})` }))),
         h("div", { class: "checks" }, group.map(({ f, i }) => checkCard(s, f, i)))));
     });
   }
@@ -615,7 +639,7 @@
   function renderHistory(root) {
     root.append(pageHead(t("historyTitle"), t("historySub")));
     if (state.historyDeleted) {
-      root.append(h("div", { class: "suggest" }, h("p", { class: "lead", role: "status", text: "🗑 " + t("deleted") }),
+      root.append(h("div", { class: "suggest" }, h("p", { class: "lead with-ico", role: "status" }, icon("trash"), h("span", { text: t("deleted") })),
         h("p", { class: "muted", text: t("deletedTech") }),
         h("button", { type: "button", class: "btn btn-tonal", onclick: () => { state.historyDeleted = false; store.set("historyDeleted", "0"); render(); } }, t("restore"))));
       return;
@@ -627,9 +651,9 @@
     const compare = h("div", { class: "suggest" },
       h("div", { class: "compare" },
         h("div", { class: "compare-col" }, h("strong", { text: t("before") }), ring(ch.score_before, true), bandPill(ch.score_before)),
-        h("div", { class: "compare-arrow", "aria-hidden": "true", text: "→" }),
+        h("div", { class: "compare-arrow", "aria-hidden": "true" }, icon("arrow", "xl")),
         h("div", { class: "compare-col" }, h("strong", { text: t("now") }), ring(ch.score_after, true), bandPill(ch.score_after))),
-      h("p", { class: "verdict", text: verdict }),
+      h("p", { class: "verdict with-ico" }, icon(ch.score_change > 0 ? "sparkles" : ch.score_change < 0 ? "alert" : "info", "lg"), h("span", { text: verdict })),
       h("h3", { style: "margin-top:1.5rem", text: t("events") }),
       timeline(ch, trend));
 
@@ -646,7 +670,7 @@
 
     const del = h("div", { class: "suggest", style: "margin-top:20px" },
       h("h3", { text: t("deleteTitle") }), h("p", { class: "muted", text: t("deleteSub") }),
-      h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm button"); } }, "🗑 " + t("deleteBtn")));
+      h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm button"); } }, icon("trash"), t("deleteBtn")));
     if (state.confirmDelete) {
       del.append(h("div", { class: "confirm", role: "alertdialog", "aria-label": t("deleteBtn") },
         h("p", { class: "lead", text: t("deleteConfirm") }),
@@ -658,15 +682,15 @@
   }
 
   function timeline(ch, trend) {
-    const ev = (tone, icon, title, sub) => h("li", null, h("span", { class: "t-ico " + tone, "aria-hidden": "true", text: icon }),
+    const ev = (tone, name, title, sub) => h("li", null, h("span", { class: "t-ico " + tone, "aria-hidden": "true" }, icon(name)),
       h("div", { class: "t-text" }, h("strong", { text: title }), sub ? h("span", { class: "muted", text: sub }) : null));
     const after = [];
-    ch.resolved_findings.forEach((f) => after.push(ev("green", "✅", t("evFixed", { title: simple(f.code).title }), null)));
-    ch.secured_ports.forEach((u) => after.push(ev("blue", "🔒", t("evSecured"), t("evSecuredSub", { from: u.from_port, to: u.to_port }))));
-    ch.new_findings.forEach((f) => after.push(ev("amber", "⚠️", t("evNew", { title: simple(f.code).title }), null)));
-    ch.new_devices.forEach((ip) => after.push(ev("red", "🆕", t("evNewDev"), ip)));
-    ch.removed_devices.forEach((ip) => after.push(ev("", "👋", t("evGoneDev"), ip)));
-    if (!ch.alerts) after.push(ev("green", "👍", t("evQuiet"), null));
+    ch.resolved_findings.forEach((f) => after.push(ev("green", "check", t("evFixed", { title: simple(f.code).title }), null)));
+    ch.secured_ports.forEach((u) => after.push(ev("blue", "lock", t("evSecured"), t("evSecuredSub", { from: u.from_port, to: u.to_port }))));
+    ch.new_findings.forEach((f) => after.push(ev("amber", "alert", t("evNew", { title: simple(f.code).title }), null)));
+    ch.new_devices.forEach((ip) => after.push(ev("red", "plus", t("evNewDev"), ip)));
+    ch.removed_devices.forEach((ip) => after.push(ev("", "leave", t("evGoneDev"), ip)));
+    if (!ch.alerts) after.push(ev("green", "shield", t("evQuiet"), null));
     const first = trend[0];
     return h("div", null,
       h("div", { class: "t-when", text: t("now") }),
@@ -691,7 +715,8 @@
     trend.forEach((r, i) => {
       const cx = L + slot * i + slot / 2, x = cx - bw / 2, top = y(r.network_score), base = y(0), band = bandOf(r.network_score), rr = Math.min(6, (base - top) / 2);
       s.append(svg("path", { class: "bar-" + band, d: `M${x},${base} V${top + rr} Q${x},${top} ${x + rr},${top} H${x + bw - rr} Q${x + bw},${top} ${x + bw},${top + rr} V${base} Z` }));
-      const v = svg("text", { class: "value-text", x: cx, y: top - 8, "text-anchor": "middle" }); v.textContent = `${BAND_ICON[band]} ${r.network_score}`; s.append(v);
+      const v = svg("text", { class: "value-text", x: cx + 11, y: top - 8, "text-anchor": "middle" }); v.textContent = String(r.network_score); s.append(v);
+      s.append(svg("use", { href: "#i-" + BAND_ICON[band], x: cx - 30, y: top - 26, width: 20, height: 20, class: "chart-ico tone-" + band }));
       const name = i === 0 ? t("before") : i === trend.length - 1 ? t("now") : `#${r.scan_id}`;
       const lab = svg("text", { class: "axis-text", x: cx, y: H - B + 24, "text-anchor": "middle" }); lab.textContent = name; s.append(lab);
       const label = `${name}: ${r.network_score} ${t("scoreOf")}, ${t("band_" + band)}`;
@@ -762,25 +787,25 @@
     root.append(pageHead(t("askTitle"), t("askSub")));
     if (s.error) { root.append(errorBox(s)); return; }
     const card = h("div", { class: "suggest chat" });
-    card.append(h("div", { class: "bot-name", text: "🤖 " + t("botName") }), h("div", { class: "bubble bot", text: t("botHello") }));
+    card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
     state.chat.forEach((m) => {
       card.append(h("div", { class: "bubble me", text: m.text }));
       const res = answer(m.kind, s).map((x) => ({ x, r: check(x, s) }));
-      card.append(h("div", { class: "bot-name", text: "🤖 " + t("botName") }));
+      card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
       res.forEach(({ x, r }) => card.append(h("div", { class: "bubble bot" + (r.ok ? "" : " blocked") },
         h("span", { class: "txt", text: x.text }),
-        x.cites.filter((c) => c !== "scan").map((c) => h("span", { class: "proof", title: t("proof") }, h("span", { "aria-hidden": "true", text: "🔎" }), h("span", { class: "sr", text: t("proof") + ": " }), c)),
-        r.ok ? null : h("span", { class: "why" }, h("span", { "aria-hidden": "true", text: "✂️ " }), t("blocked", { r: r.reason })))));
+        x.cites.filter((c) => c !== "scan").map((c) => h("span", { class: "proof", title: t("proof") }, icon("search"), h("span", { class: "sr", text: t("proof") + ": " }), c)),
+        r.ok ? null : h("span", { class: "why" }, icon("scissors"), h("span", { text: t("blocked", { r: r.reason }) })))));
       const bad = res.filter((z) => !z.r.ok).length;
       card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("verified", { ok: res.length - bad, bad }) }));
     });
     const ask = (kind, text) => { state.chat.push({ kind, text }); if (state.chat.length > 4) state.chat.shift(); render(); focusSel("#ask-input"); };
     card.append(h("div", { class: "chips", style: "margin-top:.5rem" },
-      [["first", "q1"], ["devices", "q2"], ["printer", "q3"]].map(([k, key]) => h("button", { type: "button", class: "chip-btn", onclick: () => ask(k, t(key)) }, "💬 " + t(key)))));
+      [["first", "q1"], ["devices", "q2"], ["printer", "q3"]].map(([k, key]) => h("button", { type: "button", class: "chip-btn", onclick: () => ask(k, t(key)) }, icon("message"), t(key)))));
     const input = h("input", { type: "text", id: "ask-input", placeholder: t("askPlaceholder"), maxlength: "200", "aria-label": t("askLabel") });
     card.append(h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) ask(classify(q), q); } },
-      input, h("button", { type: "submit", class: "btn btn-filled" }, t("askBtn"), h("span", { "aria-hidden": "true", text: " ➤" }))));
-    card.append(h("details", { class: "tech", open: state.hallucinate }, h("summary", null, h("span", { "aria-hidden": "true", text: "🎤" }), t("hallToggle")),
+      input, h("button", { type: "submit", class: "btn btn-filled" }, t("askBtn"), icon("send"))));
+    card.append(h("details", { class: "tech", open: state.hallucinate }, h("summary", null, icon("present"), h("span", { text: t("hallToggle") })),
       h("div", null,
         h("label", { class: "switch" }, h("input", { type: "checkbox", checked: state.hallucinate,
           onchange: (e) => { state.hallucinate = e.target.checked; render(); focusSel(".switch input"); } }), t("hallSwitch")),
@@ -807,7 +832,7 @@
     document.getElementById("size-group").setAttribute("aria-label", state.lang === "en" ? "Text size" : "Mărimea textului");
     const sel = document.getElementById("scan-select");
     sel.setAttribute("aria-label", t("scanFile"));
-    sel.replaceChildren(...D.scans.map((s, i) => h("option", { value: String(i), selected: i === state.scan }, s.error ? `${s.file} — ❌` : `${s.file} — ${s.score}/100`)));
+    sel.replaceChildren(...D.scans.map((s, i) => h("option", { value: String(i), selected: i === state.scan }, s.error ? `${s.file} — ${t("errorWord")}` : `${s.file} — ${s.score}/100`)));
     const panel = document.getElementById("panel-" + state.tab);
     panel.replaceChildren();
     RENDER[state.tab](panel);

@@ -9,12 +9,13 @@ the IT supplier). These are the first thing a beginner sees:
 """
 from __future__ import annotations
 
+# "icon" names an SVG symbol in ui/index.html (#i-user, #i-users, #i-briefcase).
 WHO = {
-    "self": {"ro": "Poți face singur", "en": "You can do this yourself", "icon": "🙂"},
+    "self": {"ro": "Poți face singur", "en": "You can do this yourself", "icon": "user"},
     "helper": {"ro": "Cere ajutorul cuiva care se pricepe (un părinte, un nepot, un prieten)",
-               "en": "Ask someone who knows computers (a parent, a grandchild, a friend)", "icon": "🤝"},
+               "en": "Ask someone who knows computers (a parent, a grandchild, a friend)", "icon": "users"},
     "it": {"ro": "Cere ajutorul firmei IT sau al celui care a instalat aparatul",
-           "en": "Ask the IT company or the person who set up the device", "icon": "🧰"},
+           "en": "Ask the IT company or the person who set up the device", "icon": "briefcase"},
 }
 
 SIMPLE: dict[str, dict] = {
