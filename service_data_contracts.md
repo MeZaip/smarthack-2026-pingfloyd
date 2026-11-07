@@ -137,3 +137,24 @@ To satisfy FR-10 and FR-13 (Alert on change), the backend must compare the curre
   }
 }
 ```
+---
+
+## Anexă: note de implementare din modulul CLI (Ștefan)
+Implementarea e în `netcheck/contracts.py`; testele din `tests/test_contracts.py` compară automat cheile cu exemplele JSON de mai sus.
+Câteva convenții acolo unde contractul nu spune nimic. Le putem schimba dacă echipa decide altfel:
+
+| Situație | Convenție |
+|---|---|
+| Valoare necunoscută (`vendor`, `hostname`, `version`, `evidence_banner`, `timestamp`) | `null`, niciodată `""` |
+| Serviciu peste TLS (nmap: `name="http" tunnel="ssl"`) | `"service": "ssl/http"` (notația nmap). Fără asta, Rule Engine ar confunda HTTPS cu HTTP și ar raporta greșit `HTTP_ADMIN_CLEARTEXT` (capcana din V1/V5). |
+| `version` | produs + versiune nmap, ex. `"OpenSSH 7.9p1 Debian 10"`. Rule Engine îl separă la primul cuvânt care începe cu o cifră. |
+| `timestamp` | `nmaprun@start` din XML, în UTC (`...Z`), deci determinist |
+| `network.subnet` pentru un fișier offline | ținta din comanda nmap; altfel /24-ul comun tuturor dispozitivelor |
+| `network.gateway` | doar la scanarea live (`netcheck scan`); pentru fișiere offline e `null` |
+| Fișier ilizibil în §2 | `"network_score": null` + `"error": "..."` (în `scores.csv` rămâne `ERROR`) |
+
+**De discutat:** `mac_masked` respectă formatul de aici (`XX:XX:XX:XX:1A:2B`), dar ultimii octeți sunt partea care identifică
+dispozitivul. Păstrarea primilor 3 (producătorul, care e oricum în `vendor`) ar fi mai bună pentru NFR-02.
+
+Comenzi CLI: `netcheck parse <xml|folder> [--out DIR]` (§1), `netcheck analyze <folder> --contracts` (§1 + §2),
+`netcheck diff <before.xml> <after.xml> --json` (§4), `netcheck detect --json` (obiectul `network`), `netcheck scan` (scrie `.raw.json` lângă XML).

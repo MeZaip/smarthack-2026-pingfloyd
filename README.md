@@ -28,6 +28,7 @@ Claude is optional: `NETCHECK_LLM=anthropic` + `ANTHROPIC_API_KEY` in `.env` (**
 | „Dovedește!” — re-check one fixed problem (TCP: no root) | `.venv/bin/python -m netcheck verify <ip> <port> --confirm` |
 | Signed before/after certificate / detect a forged one | `.venv/bin/python -m netcheck cert --before 3 --after 4` · `cert-verify certificate.json` |
 | „Paznic” — notify me about new devices / open ports (no root) | `.venv/bin/python -m netcheck watch --confirm --interval 30` |
+| Data contract JSON (`service_data_contracts.md`): §1 raw / §2 evaluated / §4 delta | `.venv/bin/python -m netcheck parse <file.xml>` · `analyze <folder> --contracts` · `diff a.xml b.xml --json` |
 | Which AI is active | `.venv/bin/python -m netcheck ai-status` |
 | Tests (Validation Set answer key, guardrail, hostile XML, XSS) | `.venv/bin/python -m pytest -q` |
 

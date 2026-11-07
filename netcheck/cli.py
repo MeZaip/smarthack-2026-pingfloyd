@@ -11,15 +11,39 @@
   netcheck cert-verify f.json                                   detect a forged certificate
   netcheck watch --confirm [--interval 60]                      „Paznic”: alerts for new devices/ports
   netcheck ai-status                                            which AI is active (local Ollama by default)
+
+Data contract (service_data_contracts.md) outputs:
+  netcheck parse <file.xml|folder> [--out DIR]                  §1 Raw Parsed Data JSON (Core CLI -> Rule Engine)
+  netcheck analyze <folder> --contracts                         + §1 and §2 JSON per file in <out>/contracts/
+  netcheck diff <before.xml> <after.xml> [--json]               §4 History & Deltas
+  netcheck detect --json                                        the contract "network" object
 """
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
-from . import explain, guardrail, history, netdetect
-from .analyzer import analyze_file, analyze_folder, most_dangerous, ranked_findings, write_csvs
+from . import contracts, explain, guardrail, history, netdetect
+from .analyzer import analyze_file, analyze_folder, list_scan_files, most_dangerous, ranked_findings, write_csvs
+from .parser import ScanFileError, parse_scan, read_file
+
+
+def _dump(obj) -> str:
+    return json.dumps(obj, ensure_ascii=False, indent=2)
+
+
+def _write_json(path: Path, obj) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_dump(obj) + "\n", encoding="utf-8")
+
+
+def _hosts(path) -> list | None:
+    try:
+        return parse_scan(read_file(path))[0]
+    except ScanFileError:
+        return None
 
 
 def _print_result(r, lang: str) -> None:
@@ -47,11 +71,71 @@ def cmd_analyze(a) -> int:
         print(f"✖ not found: {target}", file=sys.stderr)
         return 2
     fp, sp = write_csvs(results, a.out)
-    for r in results:
+    paths = list_scan_files(target, a.all_files) if target.is_dir() else [target]
+    for path, r in zip(paths, results):
         _print_result(r, a.lang)
         if a.history:
             history.save(r, source=a.source or (target.name if target.is_dir() else "lab"))
+        if a.contracts:
+            hosts = _hosts(path)
+            cdir = Path(a.out) / "contracts"
+            if hosts is not None:
+                _write_json(cdir / f"{contracts.scan_id(r.file)}.raw.json", contracts.raw_from_file(path))
+            _write_json(cdir / f"{contracts.scan_id(r.file)}.evaluated.json", contracts.evaluated_scan(r, hosts))
     print(f"\nWrote {fp} and {sp}  ({sum(len(r.findings) for r in results)} findings, {len(results)} files)")
+    if a.contracts:
+        print(f"Contract JSON (§1 raw, §2 evaluated) in {Path(a.out) / 'contracts'}")
+    return 0
+
+
+def cmd_parse(a) -> int:
+    """§1 Raw Parsed Data: facts only, no security evaluation."""
+    target = Path(a.path)
+    files = list_scan_files(target, a.all_files) if target.is_dir() else [target]
+    if not files or not all(f.is_file() for f in files):
+        print(f"✖ not found: {target}", file=sys.stderr)
+        return 2
+    failed = 0
+    for f in files:
+        try:
+            payload = contracts.raw_from_file(f)
+        except ScanFileError as e:
+            print(f"✖ {f.name}: ERROR — {e}", file=sys.stderr)
+            failed += 1
+            continue
+        if a.out:
+            out = Path(a.out) / f"{payload['scan_id']}.raw.json"
+            _write_json(out, payload)
+            print(f"✔ {out}")
+        else:
+            print(_dump(payload))
+    return 1 if failed and failed == len(files) else 0
+
+
+def cmd_diff(a) -> int:
+    """§4 History & Deltas between two scan files."""
+    old, new = analyze_file(a.before), analyze_file(a.after)
+    for r in (old, new):
+        if not r.ok:
+            print(f"✖ {r.file}: ERROR — {r.error}", file=sys.stderr)
+            return 1
+    payload = contracts.delta(old, new, _hosts(a.before), _hosts(a.after))
+    if a.json:
+        print(_dump(payload))
+        return 0
+    t, d = payload["score_trend"], payload["deltas"]
+    ro = a.lang == "ro"
+    print(f"{payload['previous_scan_id']} → {payload['current_scan_id']}: "
+          f"{'scor' if ro else 'score'} {t['previous_score']} → {t['current_score']} "
+          f"{'📈' if t['improved'] else '📉' if t['current_score'] < t['previous_score'] else '➖'}")
+    for f in d["resolved_findings"]:
+        print(f"  ✔ {'rezolvat' if ro else 'resolved'}: {f['ip']}:{f['port'] if f['port'] is not None else ''} {f['finding_code']}")
+    for f in d["new_findings"]:
+        print(f"  ⚠ {'nou' if ro else 'new'}: {f['ip']}:{f['port'] if f['port'] is not None else ''} {f['finding_code']}")
+    for x in d["new_devices"]:
+        print(f"  ➕ {'dispozitiv nou' if ro else 'new device'}: {x['ip']} {x['mac_masked'] or ''}")
+    for x in d["removed_devices"]:
+        print(f"  ➖ {'dispozitiv dispărut' if ro else 'device gone'}: {x['ip']}")
     return 0
 
 
@@ -61,6 +145,10 @@ def cmd_detect(a) -> int:
     except netdetect.NetworkDetectError as e:
         print(f"✖ {e}")
         return 1
+    if a.json:
+        print(_dump({"network": {"subnet": n.subnet, "gateway": n.gateway or None},
+                     "interface": n.interface, "ip": n.ip}))
+        return 0
     print(f"interface: {n.interface}\nyour IP:   {n.ip}\nsubnet:    {n.subnet}\ngateway:   {n.gateway}")
     return 0
 
@@ -80,6 +168,11 @@ def cmd_scan(a) -> int:
     except scanner.ScanError as e:
         print(f"✖ {e}")
         return 1
+    raw_path = xml.with_suffix(".raw.json")
+    try:  # §1 payload with the LIVE network facts (gateway is only known during a live scan)
+        _write_json(raw_path, contracts.raw_from_file(xml, gateway=net.gateway or None, subnet=net.subnet))
+    except ScanFileError:
+        raw_path = None
     r = analyze_file(xml)
     sid = history.save(r, "lab")
     _print_result(r, a.lang)
@@ -90,7 +183,7 @@ def cmd_scan(a) -> int:
               f"{len(d['resolved_findings'])} resolved, {len(d['new_findings'])} new")
         for msg in history.alerts(d, a.lang):
             print("  🔔 " + msg)
-    print(f"\nSaved {xml}")
+    print(f"\nSaved {xml}" + (f" and {raw_path} (data contract §1)" if raw_path else ""))
     return 0
 
 
@@ -206,9 +299,23 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--history", action="store_true", help="also save results to local history")
     s.add_argument("--source", help="history group name (default: folder name)")
     s.add_argument("--all-files", action="store_true", help="include files without .xml extension")
+    s.add_argument("--contracts", action="store_true", help="also write §1/§2 contract JSON to <out>/contracts/")
     s.set_defaults(fn=cmd_analyze)
 
+    s = sub.add_parser("parse", help="nmap XML -> §1 Raw Parsed Data JSON (offline, no root)")
+    s.add_argument("path", help="XML file or folder")
+    s.add_argument("--out", help="folder for <scan_id>.raw.json (default: print to stdout)")
+    s.add_argument("--all-files", action="store_true")
+    s.set_defaults(fn=cmd_parse)
+
+    s = sub.add_parser("diff", help="compare two scans (§4 History & Deltas)")
+    s.add_argument("before")
+    s.add_argument("after")
+    s.add_argument("--json", action="store_true", help="print the §4 contract JSON")
+    s.set_defaults(fn=cmd_diff)
+
     s = sub.add_parser("detect", help="show the network you are connected to")
+    s.add_argument("--json", action="store_true", help="print the contract 'network' object")
     s.set_defaults(fn=cmd_detect)
 
     s = sub.add_parser("scan", help="live scan of YOUR network (needs --confirm)")

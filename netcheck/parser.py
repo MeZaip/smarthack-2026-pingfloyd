@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 from defusedxml import ElementTree as SafeET
@@ -18,6 +19,12 @@ from .models import Host, Port
 
 MAX_FILE_BYTES = 50 * 1024 * 1024
 MAX_TEXT = 500  # cap any single string we keep from the file
+
+
+@dataclass(frozen=True)
+class ScanMeta:
+    start: int | None = None   # nmaprun@start, Unix seconds
+    args: str = ""             # nmaprun@args, the nmap command line
 
 
 class ScanFileError(Exception):
@@ -51,6 +58,11 @@ def read_file(path: str | os.PathLike) -> bytes:
 
 
 def parse_bytes(data: bytes) -> list[Host]:
+    return parse_scan(data)[0]
+
+
+def parse_scan(data: bytes) -> tuple[list[Host], ScanMeta]:
+    """Hosts plus scan metadata (start time, nmap arguments) needed by the data contract."""
     if len(data) > MAX_FILE_BYTES:
         raise ScanFileError("file too large")
     try:
@@ -90,7 +102,8 @@ def parse_bytes(data: bytes) -> list[Host]:
             for p in ports_el.findall("port"):
                 host.ports.append(_parse_port(p))
         hosts.append(host)
-    return hosts
+    start = root.get("start", "")
+    return hosts, ScanMeta(start=int(start) if start.isdigit() else None, args=_txt(root.get("args")))
 
 
 def _parse_port(p) -> Port:

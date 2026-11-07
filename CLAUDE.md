@@ -6,7 +6,9 @@ R Systems Hackathon 2026, "Secure Networks, Simply Explained". Read `PLAN_ECHIPA
 - **Never change findings/scores logic without a test.** `tests/test_netcheck.py::test_validation_set_matches_answer_key`
   must stay green (24 rows, 0 extra, 8 scores). Test Set accuracy is 30% of the grade.
 - Findings, severities and scores are deterministic code (`rules.py`, `analyzer.py`). **No LLM there, ever.**
-- `netcheck/models.py` is the shared contract (Finding, Device, ScanResult). Changing a field = tell the team first;
+- Payloads between modules follow `service_data_contracts.md` (built/validated in `netcheck/contracts.py`,
+  checked by `tests/test_contracts.py` against the JSON examples in that file).
+- `netcheck/models.py` is the shared in-process contract (Finding, Device, ScanResult). Changing a field = tell the team first;
   new fields need a default so old history still loads.
 - Only `nmap` in `scanner.py` (and `verify --udp`) may run with sudo. Analyser, UI, assistant, watch run unprivileged.
 - Every live scan target goes through `guardrail.check_target()`. Never bypass it.
@@ -17,7 +19,7 @@ R Systems Hackathon 2026, "Secure Networks, Simply Explained". Read `PLAN_ECHIPA
 ## Layout
 | Module | Owner | Files |
 |---|---|---|
-| Core Engine & CLI | Ștefan (@Stevenenson) | `cli.py scanner.py guardrail.py netdetect.py parser.py verify.py watch.py lab/` |
+| Core Engine & CLI | Ștefan (@Stevenenson) | `cli.py contracts.py scanner.py guardrail.py netdetect.py parser.py verify.py watch.py lab/` |
 | Rule & Scoring + Data Layer | see PLAN_ECHIPA.md | `rules.py analyzer.py models.py history.py identity.py certificate.py tests/` |
 | LLM Service | see PLAN_ECHIPA.md | `llm.py assistant.py chat.py explain/` |
 | Web API & Frontend | see PLAN_ECHIPA.md | `web/` |

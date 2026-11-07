@@ -9,6 +9,7 @@
 /netcheck/parser.py     @Stevenenson
 /netcheck/verify.py     @Stevenenson
 /netcheck/watch.py      @Stevenenson
+/netcheck/contracts.py  @Stevenenson
 /lab/                   @Stevenenson
 
 # Rule & Scoring + Data Layer — TODO
