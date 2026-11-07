@@ -21,7 +21,7 @@
   const T = {
     ro: {
       skip: "Sari la conținut", close: "Închide", scanFile: "Verificarea afișată",
-      navHome: "Acasă", navDevices: "Aparate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
+      navHome: "Acasă", navDevices: "Aparate", navResults: "Rezultate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
@@ -142,6 +142,11 @@
       closeApp: "Închide aplicația", closedApp: "Aplicația s-a închis. Poți închide această fereastră.",
       thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.",
       askSubLive: "Îți răspund scurt, doar din verificarea afișată sus. Ca să-ți răspund, trimit întrebarea și un rezumat al verificării, iar noi nu păstrăm nimic.",
+      resTitle: "Toate verificările", resSub: "Fiecare verificare salvată pe acest calculator, cu scorul și cât de sigură e rețeaua. Apasă pe un rând ca să vezi tot ce a găsit.",
+      colNo: "Nr.", colWhen: "Verificare", colFile: "Fișier", colRating: "Siguranță", colDevices: "Aparate", colProblems: "Probleme",
+      resFindings: "Ce a găsit verificarea", colIp: "Adresă (IP)", colPort: "Ușă (port)", colCode: "Cod", colSeverity: "Gravitate",
+      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă",
+      resNoDetail: "Detaliile acestei verificări vechi nu mai sunt afișate aici; exportă CSV-ul ca să le vezi.",
       exportBtn: "Exportă CSV", exportT: "Exportă rezultatele (CSV)",
       exportS: "Fac cele două fișiere standard, findings.csv și scores.csv, pentru un folder întreg de verificări Nmap (.xml). Un fișier care nu poate fi citit primește ERROR.",
       exportFolder: "Alege un folder", exportFiles: "Alege fișiere", exportSaved: "Exportă verificările salvate ({n})",
@@ -151,7 +156,7 @@
     },
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
-      navHome: "Home", navDevices: "Devices", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
+      navHome: "Home", navDevices: "Devices", navResults: "Results", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
       inspect: "Inspect house", inspectAgain: "Inspect again",
@@ -272,6 +277,11 @@
       closeApp: "Close the app", closedApp: "The app is closed. You can close this window.",
       thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.",
       askSubLive: "I answer briefly, only from the check shown at the top. To answer, I send your question and a summary of the check, and we keep nothing.",
+      resTitle: "All checks", resSub: "Every check saved on this computer, with its score and how safe the network is. Tap a row to see everything it found.",
+      colNo: "No.", colWhen: "Check", colFile: "File", colRating: "Safety", colDevices: "Devices", colProblems: "Problems",
+      resFindings: "What the check found", colIp: "Address (IP)", colPort: "Door (port)", colCode: "Code", colSeverity: "Severity",
+      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home",
+      resNoDetail: "The details of this older check are not shown here; export the CSV to see them.",
       exportBtn: "Export CSV", exportT: "Export the results (CSV)",
       exportS: "I make the two standard files, findings.csv and scores.csv, for a whole folder of Nmap checks (.xml). A file that cannot be read gets ERROR.",
       exportFolder: "Choose a folder", exportFiles: "Choose files", exportSaved: "Export the saved checks ({n})",
@@ -290,7 +300,7 @@
   };
   const BAND_ICON = { red: "octagon", amber: "alert", green: "check" };
   const DEVICE_ICON = { router: "router", camera: "video", printer: "printer", nas: "drive", iot: "bulb", tv: "tv", phone: "phone", computer: "laptop", server: "server", unknown: "help" };
-  const TABS = ["home", "devices", "history"];   // "Devices" also holds every fix; the assistant is a floating chat
+  const TABS = ["home", "devices", "history", "results"];   // "Devices" also holds every fix; the assistant is a floating chat
 
   // ---------------------------------------------------------------- state
   const store = {
@@ -313,6 +323,7 @@
     job: null,           // running check: {id, elapsed}
     busy: false,         // a chat answer is on its way
     chatOpen: false,     // the floating assistant panel
+    resSel: null,        // Results tab: the check whose findings are shown
     verify: {},          // "ip|port|code" -> {status, message}
     justDeleted: false,
   };
@@ -1319,7 +1330,7 @@
       h("p", { class: "muted", text: t("deletedTech") })) : needScanBox()); return; }
     // live: the scan on screen compared with the one saved just before it
     const cur = scan();
-    const ch = LIVE ? (cur.changes || null) : D.history.changes, trend = D.history.trend;
+    const ch = LIVE ? (cur.error ? D.history.changes : cur.changes || null) : D.history.changes, trend = D.history.trend;
     if (!ch) {
       root.append(h("div", { class: "two" },
         h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("info", "lg"), h("span", { text: t("histNeedTwo") }))),
@@ -1515,6 +1526,68 @@
       input, h("button", { type: "submit", class: "btn btn-filled", "aria-label": t("askBtn"), disabled: useLive && state.busy }, h("span", { class: "btn-label", text: t("askBtn") }), icon("send"))));
   }
 
+  // ---------------------------------------------------------------- RESULTS: every check in a table (scores.csv + findings.csv on screen)
+  let openExport = null;                               // set by the live app ("Export CSV")
+  function renderResults(root) {
+    root.append(pageHead(t("resTitle"), t("resSub")));
+    // one row per check, in the order they were saved (like scores.csv); unreadable uploads at the end with ERROR
+    const rows = LIVE
+      ? (D.history.all || D.history.trend).map((r, i) => {
+          const x = D.scans.find((y) => y.scan_id === r.scan_id) || null;
+          return { no: i + 1, key: "id" + r.scan_id, s: x, label: (x && x.label) || r.file, when: (x && x.when) || "",
+            file: r.file, score: r.network_score, error: !!r.error, devices: r.devices, problems: r.findings };
+        })
+      : D.scans.map((x, i) => ({ no: i + 1, key: "f" + i, s: x, label: x.file, file: x.file, score: x.score, error: !!x.error,
+          devices: x.devices.length, problems: x.findings.length }));
+    if (!rows.length) { root.append(needScanBox()); return; }
+    const cur = scan();
+    const sel = rows.find((r) => r.key === state.resSel) || rows.find((r) => r.s === cur) || rows[rows.length - 1];
+    const pick = (r) => { state.resSel = r.key; render(); focusSel(`tr[data-key="${r.key}"]`); };
+    const rating = (r) => r.error ? h("span", { class: "pill p-red" }, icon("x-circle"), t("errorWord")) : bandPill(r.score);
+    const table = h("table", { class: "data results" },
+      h("thead", null, h("tr", null, ["colNo", "colWhen", "colFile", "colScore", "colRating", "colDevices", "colProblems"]
+        .map((k) => h("th", { scope: "col", class: "c-" + k, text: t(k) })))),
+      h("tbody", null, rows.map((r) => {
+        const tr = h("tr", { tabindex: "0", "data-key": r.key, class: r === sel ? "is-sel" : "", "aria-selected": String(r === sel) },
+          h("td", { class: "c-colNo mono", text: String(r.no) }),
+          h("td", { class: "c-colWhen" }, h("span", { text: r.when || r.label }),
+            r.when && !/^scan_\d{8}_\d{6}\.xml$/.test(r.file) ? h("span", { class: "mob-file mono", text: r.file }) : null),
+          h("td", { class: "c-colFile mono", text: r.file }),
+          h("td", { class: "c-colScore" }, h("strong", { text: r.error ? "ERROR" : String(r.score) })),
+          h("td", { class: "c-colRating" }, rating(r)),
+          h("td", { class: "c-colDevices", text: r.error ? "–" : String(r.devices) }),
+          h("td", { class: "c-colProblems", text: r.error ? "–" : String(r.problems) }));
+        tr.addEventListener("click", () => pick(r));
+        tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(r); } });
+        return tr;
+      })));
+    root.append(h("div", { class: "suggest" }, h("div", { class: "table-wrap" }, table),
+      LIVE && openExport ? h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: () => openExport() }, icon("chart"), t("exportBtn"))) : null));
+
+    // the findings of the selected check (findings.csv on screen)
+    const x = sel.s;
+    const box = h("div", { class: "suggest", style: "margin-top:20px" },
+      h("h3", { class: "with-ico" }, icon("search", "lg"), h("span", { text: `${t("resFindings")} · ${sel.label}` })));
+    if (sel.error) box.append(errorBox(x || { file: sel.file, error: "" }));
+    else if (!x) box.append(h("p", { class: "muted", text: t("resNoDetail") }));
+    else if (!x.findings.length) box.append(h("p", { class: "lead with-ico" }, icon("check", "ok"), h("span", { text: t("resNone") })));
+    else box.append(h("div", { class: "table-wrap" }, h("table", { class: "data results findings-table" },
+      h("thead", null, h("tr", null, ["colDevice", "colIp", "colPort", "colProblem", "colSeverity", "colCode"].map((k) => h("th", { scope: "col", class: "c-" + k, text: t(k) })))),
+      h("tbody", null, x.findings.map((f) => {
+        const dev = deviceByIp(x, f.ip);
+        return h("tr", null,
+          h("td", { class: "c-colDevice", text: deviceName(dev) }),
+          h("td", { class: "c-colIp mono", text: f.ip }),
+          h("td", { class: "c-colPort mono", text: f.port == null ? "–" : `${f.port}/${f.protocol}` }),
+          h("td", { class: "c-colProblem", text: simple(f.code).title }),
+          h("td", { class: "c-colSeverity" }, f.severity === "info" ? h("span", { class: "pill p-info" }, icon("info"), t("justKnow")) : riskPill(f.severity)),
+          h("td", { class: "c-colCode mono", text: f.code }));
+      })))));
+    if (x && !sel.error) box.append(h("div", { class: "actions" }, h("button", { type: "button", class: "btn btn-tonal", onclick: () => {
+      const i = allScans().indexOf(x); if (i >= 0) { state.scan = i; state.chat = []; } setTab("home"); } }, icon("home"), t("resOpen"))));
+    root.append(box);
+  }
+
   // ---------------------------------------------------------------- the assistant: a floating button + chat panel
   const chatFab = h("button", { type: "button", class: "chat-fab", id: "chat-fab", "aria-haspopup": "dialog", "aria-controls": "chat-panel",
     onclick: () => openChat() }, icon("message"), h("span", { class: "chat-fab-label" }));
@@ -1550,7 +1623,7 @@
   }
 
   // ---------------------------------------------------------------- shell
-  const RENDER = { home: renderHome, devices: renderDevices, history: renderHistory };
+  const RENDER = { home: renderHome, devices: renderDevices, history: renderHistory, results: renderResults };
   function setTab(name) {
     state.tab = name;
     TABS.forEach((n) => { document.getElementById("panel-" + n).hidden = n !== name; });
@@ -1571,7 +1644,6 @@
       s.error ? `${s.label || s.file} — ${t("errorWord")}` : `${s.label || s.file} — ${s.score}/100`)) : [h("option", { value: "0" }, t("noScan"))]));
     // top-bar actions: the words are hidden on small screens, so they are also the button's name and tooltip
     const label = (sel, text) => { const b = document.querySelector(sel); if (!b) return; b.querySelector("span").textContent = text; b.setAttribute("aria-label", text); b.title = text; };
-    label(".export-btn", t("exportBtn"));
     label(".upload-btn", state.uploading ? t("uploading") : t("upload"));
     label("#close-app", t("closeApp"));
     const panel = document.getElementById("panel-" + state.tab);
@@ -1598,12 +1670,11 @@
       const res = await api("POST", "/api/v1/upload", fd);
       state.uploading = false;
       if (!res.ok) { render(); problemSheet(t("probT"), errText(res)); return; }
-      const bad = (res.data.errors || []).map((x) => ({ file: x.file, label: x.file, error: x.error, devices: [], findings: [] }));
-      state.broken = bad.concat(state.broken).slice(0, 5);
+      // unreadable files are kept by the agent too (shown and exported with ERROR)
+      const bad = res.data.errors || [];
       const saved = res.data.saved || [];
       state.justDeleted = false; state.chat = [];
-      await reloadData(saved.length ? saved[saved.length - 1] : -1);
-      if (bad.length && !saved.length) state.scan = 0;            // show the error of the broken file
+      await reloadData(saved.length ? saved[saved.length - 1] : bad.length ? bad[bad.length - 1].scan_id : -1);
       setTab("home");
       if (bad.length) problemSheet(t("errorTitle"), t("uploadBad"), bad.map((b) => `${b.file}: ${b.error}`).join("\n"));
     });
@@ -1618,6 +1689,7 @@
       runExport(all.filter(isXml), all.filter((f) => !isXml(f)).length);
     });
     pickFiles.addEventListener("change", () => { const all = Array.from(pickFiles.files); pickFiles.value = ""; runExport(all, 0); });
+    openExport = () => exportSheet();
     function exportSheet() {
       showSheet(h("div", null,
         h("div", { class: "sheet-head" }, h("div", { class: "dev-ico", "aria-hidden": "true" }, icon("chart")), h("h2", { id: "sheet-title", text: t("exportT") })),
@@ -1626,7 +1698,7 @@
           h("button", { type: "button", class: "btn btn-cta", id: "ex-folder", onclick: () => pickFolder.click() }, icon("drive"), t("exportFolder")),
           h("button", { type: "button", class: "btn", onclick: () => pickFiles.click() }, icon("plus"), t("exportFiles"))),
         D.scans.length ? h("div", { class: "actions" },
-          h("button", { type: "button", class: "btn btn-text", onclick: () => runExport(null, 0) }, icon("chart"), t("exportSaved", { n: D.scans.length }))) : null), exBtn);
+          h("button", { type: "button", class: "btn btn-text", onclick: () => runExport(null, 0) }, icon("chart"), t("exportSaved", { n: D.scans.length }))) : null));
       focusSel("#ex-folder");
     }
     async function runExport(files, skipped) {
@@ -1654,9 +1726,8 @@
         where ? [h("p", { class: "muted", text: t("exportWhere") }), h("p", { class: "evidence mono", text: where })] : null,
         h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
     }
-    const exBtn = h("button", { type: "button", class: "btn btn-text export-btn", onclick: exportSheet }, icon("chart"), h("span", { text: t("exportBtn") }));
     // actions on the right of the top bar (icons only on phones, see styles.css); the file pickers stay hidden
-    document.querySelector(".appbar-actions").prepend(upBtn, exBtn);
+    document.querySelector(".appbar-actions").prepend(upBtn);       // "Export CSV" lives in the Results tab
     document.body.append(file, pickFolder, pickFiles);
     if (D.app_mode) {
       const close = h("button", { type: "button", class: "btn", id: "close-app" }, icon("x"), h("span", { text: t("closeApp") }));

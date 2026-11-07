@@ -1446,3 +1446,36 @@ div.topo-node { cursor: default; }
 }
 @media (prefers-reduced-motion: reduce) { .chat-fab { transition: none; } .chat-fab:hover { transform: none; } }
 @media print { .chat-fab, .chat-panel { display: none; } }
+
+/* =====================================================================================
+   Results: every check in a table (scores.csv + findings.csv on screen)
+   ===================================================================================== */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.results { min-width: 640px; }
+table.results th { white-space: nowrap; }
+table.results td { vertical-align: middle; }
+table.results tbody tr[tabindex] { cursor: pointer; transition: background .15s ease; }
+table.results tbody tr[tabindex]:hover { background: rgba(255, 255, 255, .04); }
+table.results tbody tr[tabindex]:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+table.results tbody tr.is-sel { background: rgba(37, 99, 235, .14); box-shadow: inset 3px 0 0 #2563eb; }
+:root[data-theme="light"] table.results tbody tr.is-sel { background: #e8f0fe; }
+table.results .pill { white-space: nowrap; }
+table.results td.c-colWhen { min-width: 9rem; }
+table.results td.c-colProblem { min-width: 12rem; }
+@media (max-width: 760px) {
+  table.results { min-width: 0; }
+  table.results .c-colFile, table.results .c-colDevices, table.results .c-colCode { display: none; }
+  table.results th, table.results td { padding: 10px 6px; }
+  table.results td.c-colWhen { min-width: 0; }
+  .results td .pill { display: inline-flex !important; }
+  table.findings-table .c-colIp, table.findings-table .c-colPort { display: none; }
+  table.results { font-size: .95rem; }
+  table.results td.c-colProblem { min-width: 0; }
+  table.results .pill { padding-left: 8px; padding-right: 8px; }
+}
+@media (max-width: 420px) {
+  table.results .c-colNo { display: none; }
+  table.results .pill .ico { display: none; }
+}
+table.results .mob-file { display: none; }
+@media (max-width: 760px) { table.results .mob-file { display: block; font-size: .85rem; color: var(--muted); word-break: break-all; } }
