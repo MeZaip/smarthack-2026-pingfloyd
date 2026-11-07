@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>netcheck</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main" data-i18n="skip">Sari la conținut</a>
+
+  <header class="top">
+    <div class="wrap">
+      <div class="top-row">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">nc</div>
+          <div>
+            <h1>netcheck</h1>
+            <small data-i18n="tagline">Rețeaua ta, explicată simplu</small>
+          </div>
+        </div>
+        <div class="controls">
+          <label class="field">
+            <span data-i18n="scanFile">Scanare</span>
+            <select id="scan-select"></select>
+          </label>
+          <div class="seg" role="group" aria-label="Limba / Language">
+            <button type="button" id="lang-ro" aria-pressed="true">RO</button>
+            <button type="button" id="lang-en" aria-pressed="false">EN</button>
+          </div>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Secțiuni">
+        <button role="tab" id="tab-home" aria-controls="panel-home" aria-selected="true" data-i18n="tabHome">Acasă</button>
+        <button role="tab" id="tab-devices" aria-controls="panel-devices" aria-selected="false" tabindex="-1" data-i18n="tabDevices">Dispozitive</button>
+        <button role="tab" id="tab-findings" aria-controls="panel-findings" aria-selected="false" tabindex="-1" data-i18n="tabFindings">Probleme și reparații</button>
+        <button role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1" data-i18n="tabHistory">Istoric</button>
+        <button role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" tabindex="-1" data-i18n="tabAsk">Întreabă</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="panel" id="panel-home" role="tabpanel" aria-labelledby="tab-home"></section>
+    <section class="panel" id="panel-devices" role="tabpanel" aria-labelledby="tab-devices" hidden></section>
+    <section class="panel" id="panel-findings" role="tabpanel" aria-labelledby="tab-findings" hidden></section>
+    <section class="panel" id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden></section>
+    <section class="panel" id="panel-ask" role="tabpanel" aria-labelledby="tab-ask" hidden></section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p data-i18n="footer">Datele vin din analiza fișierelor nmap XML. MAC-urile sunt mascate, iar istoricul rămâne doar pe acest calculator.</p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

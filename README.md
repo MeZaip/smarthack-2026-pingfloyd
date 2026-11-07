@@ -38,6 +38,22 @@ owner-only permissions. Tables: `scans`, `devices`, `ports`, `findings` (childre
 and a keyed hash of the full MAC, used to recognise the same device across scans even when its IP changes
 or two devices share a vendor. The hash key is random per history file and is deleted with it.
 
+## Demo UI (HTML/CSS, no build step)
+
+```bash
+python tools/export_ui_data.py          # real tool output -> ui/data.js (scans, findings, texts, history)
+python -m http.server 8000 -d ui        # then open http://localhost:8000  (or just open ui/index.html)
+```
+
+* **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
+  device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
+* **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
+  (score chart + before/after, *Delete my history*), **Ask** (grounded answers: every sentence cites
+  its evidence; the demo switch slips in an invented claim and the checker blocks it).
+* RO/EN, light/dark, keyboard navigable, text ≥ 16 px, colour always with icon + label (NFR-08/09).
+  Scan text is inserted only as text, never as HTML (NFR-03).
+* Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`.
+
 ## How it works
 
 | Layer | What | LLM? |
