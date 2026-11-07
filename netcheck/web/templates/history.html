@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>🕘 {{ t.history }}</h1>
+{% set ok = scans %}
+{% if ok|length > 1 %}
+<section class="card"><h2>📈 {{ t.trend }}</h2>
+{% set w = 640 %}{% set h = 200 %}{% set n = ok|length %}
+<svg viewBox="0 0 {{ w }} {{ h + 40 }}" width="100%" role="img" aria-label="{{ t.trend }}">
+  <line x1="30" y1="10" x2="30" y2="{{ h }}" stroke="currentColor" opacity=".4"/>
+  <line x1="30" y1="{{ h }}" x2="{{ w }}" y2="{{ h }}" stroke="currentColor" opacity=".4"/>
+  {% for v in [0,50,100] %}<text x="0" y="{{ h - v*(h-10)/100 + 5 }}" font-size="14" fill="currentColor">{{ v }}</text>{% endfor %}
+  <polyline fill="none" stroke="var(--accent)" stroke-width="3" points="{% for s in ok %}{{ 40 + loop.index0*(w-60)/(n-1) }},{{ h - s.network_score*(h-10)/100 }} {% endfor %}"/>
+  {% for s in ok %}<circle cx="{{ 40 + loop.index0*(w-60)/(n-1) }}" cy="{{ h - s.network_score*(h-10)/100 }}" r="6" fill="var(--accent)"/>
+  <text x="{{ 40 + loop.index0*(w-60)/(n-1) - 10 }}" y="{{ h - s.network_score*(h-10)/100 - 12 }}" font-size="15" fill="currentColor">{{ s.network_score }}</text>
+  <text x="{{ 40 + loop.index0*(w-60)/(n-1) - 10 }}" y="{{ h + 25 }}" font-size="13" fill="currentColor">#{{ s.scan_id }}</text>{% endfor %}
+</svg></section>
+{% endif %}
+{% for a, b, d in diffs %}
+<section class="card"><h3>#{{ a.scan_id }} {{ a.file }} → #{{ b.scan_id }} {{ b.file }}</h3>
+<p>{{ t.score }}: {{ d.score_before }} → <strong>{{ d.score_after }}</strong> ({{ '%+d' % d.score_change }})</p>
+{% set al = alerts_of(d) %}{% if al %}<p class="warn small" role="note">🔔 {{ al|join(" · ") }}</p>{% endif %}
+<ul>
+{% for f in d.resolved_findings %}<li>✔ {{ t.resolved }}: {{ ex.get(f.code, lang).title }} — {{ f.ip }}{% if f.port is not none %}:{{ f.port }}{% endif %} <code>{{ f.code }}</code></li>{% endfor %}
+{% for f in d.new_findings %}<li>⚠ {{ t.new }}: {{ ex.get(f.code, lang).title }} — {{ f.ip }}{% if f.port is not none %}:{{ f.port }}{% endif %} <code>{{ f.code }}</code></li>{% endfor %}
+{% for ip in d.new_devices %}<li>➕ {{ t.new_devices }}: {{ ip }}</li>{% endfor %}
+{% for ip in d.removed_devices %}<li>➖ {{ t.removed_devices }}: {{ ip }}</li>{% endfor %}
+{% for p in d.opened_ports %}<li>🔓 {{ t.opened }}: {{ p.ip }} {{ p.port }}/{{ p.protocol }} {{ p.service }}{% if p.tls %} (TLS){% endif %}</li>{% endfor %}
+{% for p in d.closed_ports %}<li>🔒 {{ t.closed }}: {{ p.ip }} {{ p.port }}/{{ p.protocol }} {{ p.service }}{% if p.tls %} (TLS){% endif %}</li>{% endfor %}
+</ul></section>
+{% endfor %}
+<section class="card"><div class="scroll"><table><thead><tr><th>#</th><th>{{ t.date }}</th><th>{{ t.file }}</th><th>{{ t.score }}</th></tr></thead><tbody>
+{% for s in scans|reverse %}<tr><td><a href="/?id={{ s.scan_id }}&lang={{ lang }}">#{{ s.scan_id }}</a></td><td>{{ s.when }}</td><td>{{ s.file }}</td><td>{{ s.network_score }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+<form action="/history/delete?lang={{ lang }}" method="post" class="noprint" onsubmit="return confirm('{{ t.delete_confirm }}')">
+<button class="danger" type="submit">🗑️ {{ t.delete }}</button></form>
+{% endblock %}

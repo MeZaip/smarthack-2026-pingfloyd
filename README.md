@@ -12,6 +12,53 @@ pip install -r requirements.txt      # defusedxml (safer XML) + pytest
 cp .env.example .env                 # optional: only if you change defaults (users need nothing)
 ```
 
+## For users: one double-click (Windows)
+
+1. Install [Nmap](https://nmap.org/download) (includes Npcap) and Python 3.10+ once.
+2. Double-click **`NetCheck.cmd`**. The first start prepares everything (about a minute); then NetCheck opens
+   in its own window, no terminal.
+3. Press **„Verifică rețeaua mea”**, confirm the network is yours, press **Da** in the Windows permission
+   dialog. The results appear in 1–3 minutes. **„Am reparat — verifică”** re-checks one fixed problem in seconds.
+4. **„Închide”** stops NetCheck (it also stops by itself when the window is closed).
+
+On Linux/macOS: `python -m netcheck app` (same app; the system password dialog replaces the Windows one).
+
+**Team / development on Windows:** `.\run.ps1` (or `run.cmd` from cmd.exe) is the Windows version of `./run.sh`:
+same options (`-Demo`, `-NoAI`, `-Port 9000`, `-App`), its own `.venv-windows`, gateway if a key is in `.env`,
+UI on http://127.0.0.1:8000. Do not scan from WSL: WSL2 sits behind a NAT and cannot see the hotspot's
+devices directly (no ARP/MACs, no SYN scan), even on a private network; run natively on Windows.
+
+### How the pieces talk to each other
+
+```
+UI (page in an app window) ──/api/v1 JSON──▶ local agent (127.0.0.1, unprivileged) ──HTTPS──▶ our AI gateway
+   only shows things and                       scans (only nmap is elevated, via the       stateless, holds the
+   sends requests                              OS permission dialog), guardrail, analysis, API key, stores nothing
+                                               local SQLite history (NFR-02: stays here)
+```
+
+* The page never chooses what to scan: the agent always checks the network it is connected to, after
+  explicit consent, through `net/guardrail.py`.
+* The agent only answers requests addressed to 127.0.0.1 (anti DNS-rebinding), and every state-changing
+  request needs a per-run `SameSite=Strict` session cookie plus a same-origin `Origin` (anti CSRF): other
+  websites open in the browser cannot start a scan or delete the history (`netcheck/web/security.py`).
+* `/api/v1` is documented in `netcheck/web/api_v1.py` and `service_data_contracts.md` §5.
+
+## Run the app (web UI)
+
+```bash
+./run.sh            # venv + requirements, AI gateway (if a key is set), UI on http://127.0.0.1:8000
+./run.sh --demo     # same, with a separate demo history pre-loaded from the synthetic test scans
+./run.sh --no-ai    # UI only; the assistant answers from the built-in texts
+```
+
+Or by hand: `python -m netcheck serve` (UI + JSON API) and, on the team machine, `python -m gateway`.
+Upload nmap `.xml` files in the UI, or fill the history from the CLI (`netcheck history add`, `netcheck scan`).
+The UI runs unprivileged and listens on 127.0.0.1 only.
+
+JSON API (read-only, formats from `service_data_contracts.md`): `GET /api/scans`, `/api/scans/latest` (§2),
+`/api/scans/{id}` (§2), `/api/scans/{id}/delta[?previous=<id>]` (§4).
+
 ## Analyse scan files (offline, no admin rights)
 
 ```bash
@@ -35,7 +82,7 @@ python -m netcheck history delete                                # "Delete my hi
 
 Stored in SQLite at `~/.netcheck/history.sqlite` (override with `--db` or `NETCHECK_DB`), outside the repo,
 owner-only permissions. Tables: `scans`, `devices`, `ports`, `findings` (children use `ON DELETE CASCADE`).
-**The full MAC is never written to disk**: only the masked MAC (`AA:BB:CC:XX:XX:XX`, vendor prefix for display)
+**The full MAC is never written to disk**: only the masked MAC (`XX:XX:XX:XX:1A:2B`, last two bytes only, for display)
 and a keyed hash of the full MAC, used to recognise the same device across scans even when its IP changes
 or two devices share a vendor. The hash key is random per history file and is deleted with it.
 
@@ -101,6 +148,9 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
 | `netcheck/core/parser.py` | Safe nmap XML parsing: no DTD/entities, size limit, untrusted text clipped | no |
 | `netcheck/core/rules.py` | Official finding catalog + detection rules, standard score | **no**: deterministic |
 | `netcheck/core/diff.py` | Before/after comparison, new device / new port alerts | no |
+| `netcheck/core/contract.py` | §2 Evaluated Scan Data + §4 History & Deltas JSON (data contract) | no |
+| `netcheck/history.py` | Local SQLite history: trend, before/after, delete-my-history | no |
+| `netcheck/web/` | FastAPI web UI (dashboard, house map, findings, history, report, Q&A) + read-only JSON API | no (the Q&A uses `netcheck/ai/`) |
 | `netcheck/explain/texts.py` | Human-reviewed RO/EN explanations (max 2 sentences) + 1–5 fix steps, CIS/OWASP refs | no |
 | `netcheck/ai/` | Q&A assistant client: sends a minimal, privacy-preserving context to our gateway; every answer is checked by a grounding guard (no IPs, ports, CVEs, links or phone numbers not in the scan) | yes, optional |
 | `gateway/` | Team-hosted AI gateway: holds the API key, calls Claude Haiku 5.5 (or optional local Ollama); users configure nothing | yes |
@@ -192,4 +242,4 @@ gitleaks detect --source . -v
 - [x] FR-10/13 (core): diff + alerts
 - [x] FR-12: grounded AI assistant with fallback
 - [x] FR-01/02/04: network detection, scope guardrail, live scan (`netcheck/net/`)
-- [ ] FR-11: web UI + history storage + "delete my history"
+- [x] FR-11: web UI + history storage + "delete my history" (`netcheck serve`, `./run.sh`)

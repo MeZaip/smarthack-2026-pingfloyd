@@ -1,0 +1,173 @@
+{# "Check my network": consent -> progress -> result. All text via textContent (SSIDs are not trusted). #}
+<dialog id="scanflow" aria-labelledby="sf-title" class="noprint">
+  <div data-step="preparing">
+    <h2 id="sf-title">{{ t.sf_preparing }}</h2>
+    <div class="bar" aria-hidden="true"><span></span></div>
+  </div>
+
+  <div data-step="consent" hidden>
+    <h2>{{ t.sf_network }}</h2>
+    <p class="netname" id="sf-net"></p>
+    <p>{{ t.sf_question }}</p>
+    <div class="row">
+      <button type="button" class="big" id="sf-yes">{{ t.sf_yes }}</button>
+      <button type="button" class="secondary" data-close>{{ t.sf_no }}</button>
+    </div>
+  </div>
+
+  <div data-step="running" hidden>
+    <h2>{{ t.sf_running }}</h2>
+    <div class="bar" role="progressbar" aria-label="{{ t.sf_running }}"><span></span></div>
+    <p class="hint">🔐 {{ t.sf_permission }}</p>
+    <p class="muted">{{ t.sf_wait }}</p>
+    <p class="muted small" aria-live="polite">{{ t.sf_elapsed }}: <span id="sf-elapsed">0:00</span></p>
+  </div>
+
+  <div data-step="done" hidden>
+    <h2>✔ {{ t.sf_done }}</h2>
+  </div>
+
+  <div data-step="problem" hidden role="alert">
+    <h2>⚠️ {{ t.sf_problem }}</h2>
+    <p id="sf-error"></p>
+    <details id="sf-detail-box" hidden><summary class="small">{{ t.sf_details }}</summary><p class="ev small" id="sf-detail"></p></details>
+    <div class="row">
+      <button type="button" id="sf-retry">{{ t.sf_retry }}</button>
+      <button type="button" class="secondary" data-close>{{ t.sf_close }}</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const LANG = {{ lang|tojson }}, APP_MODE = {{ app_mode|tojson }};
+  const T = {{ {"you": t.chat_you, "bot": t.chat_bot, "thinking": t.chat_thinking, "verifying": t.verifying,
+                "session": t.sf_session, "closed": t.closed_app, "mode_ai": t.mode_ai, "mode_offline": t.mode_offline,
+                "mode_rejected": t.mode_rejected}|tojson }};
+
+  async function api(method, path, body) {
+    const opts = {method, credentials: "same-origin", headers: {}};
+    if (body !== undefined) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    let r;
+    try { r = await fetch(path + (path.includes("?") ? "&" : "?") + "lang=" + LANG, opts); }
+    catch (e) { return {ok: false, status: 0, data: {}}; }
+    let data = {};
+    try { data = await r.json(); } catch (e) {}
+    return {ok: r.ok, status: r.status, data};
+  }
+  const errText = (res) => (res.data && res.data.error && res.data.error.message) || T.session;
+
+  // ---------------------------------------------------------------- scan flow
+  const dlg = document.getElementById("scanflow");
+  const show = (name) => dlg.querySelectorAll("[data-step]").forEach(s => s.hidden = s.dataset.step !== name);
+  let timer = null;
+
+  function problem(message, detail) {
+    clearInterval(timer);
+    document.getElementById("sf-error").textContent = message;
+    const box = document.getElementById("sf-detail-box");
+    box.hidden = !detail;
+    document.getElementById("sf-detail").textContent = detail || "";
+    show("problem");
+  }
+
+  function follow(job) {
+    show("running");
+    clearInterval(timer);
+    timer = setInterval(async () => {
+      const res = await api("GET", "/api/v1/scan/" + encodeURIComponent(job.id));
+      if (!res.ok) return problem(errText(res));
+      const j = res.data, m = Math.floor(j.elapsed / 60), s = String(j.elapsed % 60).padStart(2, "0");
+      document.getElementById("sf-elapsed").textContent = m + ":" + s;
+      if (j.status === "done") {
+        clearInterval(timer); show("done");
+        setTimeout(() => location.href = "/?lang=" + LANG + "&id=" + j.scan_id, 900);
+      } else if (j.status === "error") {
+        problem(j.error.message, j.error.detail);
+      }
+    }, 1500);
+  }
+
+  async function open() {
+    if (!dlg.open) dlg.showModal();
+    show("preparing");
+    const res = await api("GET", "/api/v1/status");
+    if (!res.ok) return problem(errText(res));
+    const st = res.data;
+    if (st.scan) return follow(st.scan);
+    if (!st.network.ok) return problem(st.network.message);
+    const net = st.network;
+    document.getElementById("sf-net").textContent = (net.wifi ? "📶 " + net.wifi + "  ·  " : "") + net.subnet;
+    show("consent");
+    document.getElementById("sf-yes").focus();
+  }
+
+  document.getElementById("sf-yes").addEventListener("click", async () => {
+    const res = await api("POST", "/api/v1/scan", {confirm: true});
+    if (!res.ok) return problem(errText(res));
+    follow(res.data);
+  });
+  document.getElementById("sf-retry").addEventListener("click", open);
+  dlg.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => { clearInterval(timer); dlg.close(); }));
+  document.querySelectorAll("[data-start-scan]").forEach(b => b.addEventListener("click", open));
+
+  // ---------------------------------------------------------------- "I fixed it - check"
+  document.querySelectorAll("[data-verify]").forEach(btn => btn.addEventListener("click", async () => {
+    const out = btn.parentElement.querySelector("[data-verify-out]");
+    btn.disabled = true; out.textContent = T.verifying; out.className = "verify-out";
+    const d = btn.dataset;
+    const res = await api("POST", "/api/v1/verify",
+      {scan_id: +d.scanId, ip: d.ip, port: d.port === "" ? null : +d.port, code: d.code});
+    btn.disabled = false;
+    if (!res.ok) { out.textContent = errText(res); out.className = "verify-out bad"; return; }
+    out.textContent = res.data.message;
+    out.className = "verify-out " + (res.data.status === "resolved" ? "good" : (res.data.status === "still_open" ? "bad" : "warn"));
+  }));
+
+  // ---------------------------------------------------------------- assistant: a real conversation
+  const chat = document.getElementById("chat-form");
+  if (chat) {
+    const log = document.getElementById("chat-log"), input = document.getElementById("q");
+    let turns = [];
+    const bubble = (who, text, cls, note) => {
+      const el = document.createElement("div"); el.className = "bubble " + cls;
+      const b = document.createElement("strong"); b.textContent = who + ": ";
+      const p = document.createElement("span"); p.textContent = text;
+      el.append(b, p);
+      if (note) { const n = document.createElement("div"); n.className = "muted small"; n.textContent = note; el.append(n); }
+      log.append(el); el.scrollIntoView({block: "nearest"}); return el;
+    };
+    chat.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const q = input.value.trim(); if (!q) return;
+      input.value = ""; bubble(T.you, q, "me");
+      const wait = bubble(T.bot, T.thinking, "bot");
+      const res = await api("POST", "/api/v1/ask", {question: q, scan_id: +chat.dataset.scanId || null, history: turns.slice(-12)});
+      wait.remove();
+      if (!res.ok) { bubble(T.bot, errText(res), "bot"); return; }
+      const a = res.data;
+      bubble(T.bot, a.answer, "bot", T["mode_" + a.mode]);
+      if (a.source === "ai") turns.push({role: "user", content: q}, {role: "assistant", content: a.answer});
+    });
+    const reset = document.getElementById("chat-new");
+    if (reset) reset.addEventListener("click", () => { turns = []; log.textContent = ""; input.focus(); });
+  }
+
+  // ---------------------------------------------------------------- app mode: heartbeat + Close
+  if (APP_MODE) {
+    const beat = () => api("POST", "/api/v1/heartbeat");
+    beat(); setInterval(beat, 20000);
+    const close = document.getElementById("close-app");
+    if (close) close.addEventListener("click", async () => {
+      await api("POST", "/api/v1/shutdown");
+      document.body.innerHTML = "";
+      const p = document.createElement("p"); p.className = "closed"; p.textContent = T.closed;
+      document.body.append(p);
+      window.close();
+    });
+  }
+
+  // a check already running (e.g. page reloaded): show its progress
+  api("GET", "/api/v1/status").then(res => { if (res.ok && res.data.scan) { dlg.showModal(); follow(res.data.scan); } });
+})();
+</script>

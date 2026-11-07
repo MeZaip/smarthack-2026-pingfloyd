@@ -89,9 +89,34 @@ def parse_bytes(data: bytes, source: str = "<memory>") -> ScanResult:
     )
 
 
+_NO_VENDOR = {"unknown", "(unknown)", "unknown vendor"}
+_NO_TITLE_PREFIXES = ("site doesn't have a title", "did not follow redirect")
+
+
+def _http_title(sc) -> str:
+    """Page title from an http-title script, never the redirect/notes text.
+
+    Modern nmap stores the title in <elem key="title">; when the script has
+    structured elems but no title, the page has no title. Older/hand-made files
+    only carry `output`: use its first line unless it is nmap's "no title" note.
+    """
+    title_elem = sc.find("elem[@key='title']")
+    if title_elem is not None:
+        return title_elem.text or ""
+    if sc.find("elem") is not None or sc.find("table") is not None:
+        return ""
+    first = (sc.get("output") or "").strip().splitlines()
+    first = first[0].strip() if first else ""
+    if first.lower().startswith(_NO_TITLE_PREFIXES):
+        return ""
+    return first
+
+
 def _parse_host(el) -> Host | None:
     status_el = el.find("status")
-    status = status_el.get("state", "unknown") if status_el is not None else "unknown"
+    # A host listed without <status> was still reported by nmap: treat it as up.
+    # Only an explicit non-"up" state makes the rules skip the host.
+    status = (status_el.get("state") or "up") if status_el is not None else "up"
 
     ip = mac = vendor = None
     for a in el.findall("address"):
@@ -101,6 +126,8 @@ def _parse_host(el) -> Host | None:
         elif kind == "mac":
             mac = a.get("addr")
             vendor = (a.get("vendor") or "").strip() or None
+            if vendor and vendor.lower() in _NO_VENDOR:
+                vendor = None
     if not ip:
         return None
 
@@ -156,9 +183,7 @@ def _parse_port(pe) -> Port | None:
             continue
         out = sc.get("output") or ""
         if sid == "http-title":
-            title_elem = sc.find("elem[@key='title']")
-            if title_elem is not None and title_elem.text:
-                out = title_elem.text
+            out = _http_title(sc)
         scripts[sid] = _clip(out.strip())
     return Port(protocol=(pe.get("protocol") or "").lower(), portid=portid, state=state.lower(),
                 service=name, product=product, version=version, extrainfo=extrainfo,

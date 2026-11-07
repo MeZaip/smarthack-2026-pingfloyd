@@ -79,7 +79,7 @@ def test_template_wording_with_bare_scheme_is_allowed(v2):
 
 def test_mac_is_masked_in_views(v2):
     devs = ScanTools(v2, "en").list_devices()
-    assert all(d["mac"] is None or d["mac"].endswith(":XX:XX:XX") for d in devs)
+    assert all(d["mac"] is None or d["mac"].startswith("XX:XX:XX:XX:") for d in devs)
 
 
 def test_app_has_no_api_key_code():

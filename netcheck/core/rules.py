@@ -143,6 +143,14 @@ def _finding(host: Host, port: Optional[Port], code: str, evidence: str) -> Find
     )
 
 
+def _private_mac(mac: Optional[str]) -> bool:
+    """Locally administered ("private Wi-Fi address") MAC: explains why no vendor is known. Evidence only."""
+    try:
+        return bool(int((mac or "").replace("-", ":").split(":")[0], 16) & 0x02)
+    except ValueError:
+        return False
+
+
 def is_admin_http(port: Port) -> bool:
     if port.service not in HTTP_SERVICES or port.tunnel == "ssl":
         return False
@@ -181,8 +189,10 @@ def evaluate_host(host: Host) -> list[Finding]:
 
     # UNKNOWN_DEVICE: no MAC vendor, no hostname, at least one open port
     if not host.vendor and not host.hostnames and open_ports:
+        private = _private_mac(host.mac)
         out.append(_finding(host, None, "UNKNOWN_DEVICE",
-                            f"no MAC vendor, no hostname, {len(open_ports)} open port(s)"))
+                            f"no MAC vendor, no hostname, {len(open_ports)} open port(s)"
+                            + ("; the MAC is a private (random) address" if private else "")))
     return out
 
 

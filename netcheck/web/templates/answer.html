@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="card"><h2>💬 {{ question }}</h2>
+<div style="white-space:pre-wrap">{{ answer }}</div>
+<p class="muted small">{% if mode == 'ai' %}🤖 {{ t.mode_ai }}{% elif mode == 'rejected' %}🛑 {{ t.mode_rejected }}{% else %}📘 {{ t.mode_offline }}{% endif %}</p></section>
+<section class="card noprint">
+  <form action="/ask?lang={{ lang }}" method="post" class="row">
+    <input type="hidden" name="scan_id" value="{{ scan_id or '' }}">
+    <label for="q" class="small muted">{{ t.ask_note }}</label>
+    <input id="q" type="text" name="question" placeholder="{{ t.ask_ph }}" required maxlength="500" autofocus>
+    <button type="submit">{{ t.ask_btn }}</button>
+  </form>
+  <p><a href="/?lang={{ lang }}{% if scan_id %}&id={{ scan_id }}{% endif %}">← {{ t.back }}</a></p>
+</section>
+{% endblock %}

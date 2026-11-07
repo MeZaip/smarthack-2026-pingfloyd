@@ -48,7 +48,7 @@ def test_full_mac_never_written_to_disk(db):
     for mac in macs:
         assert mac.upper().encode() not in raw.upper()
         assert mac.replace(":", "").upper().encode() not in raw.upper()
-    assert all(m.endswith(":XX:XX:XX") for m in stored if m)
+    assert all(m.startswith("XX:XX:XX:XX:") for m in stored if m)
 
 
 def test_same_vendor_devices_stay_distinct(db):
@@ -155,3 +155,21 @@ def test_history_folder_and_file_are_owner_only(tmp_path):
     if os.name == "posix":
         assert stat.S_IMODE(db.parent.stat().st_mode) == 0o700
         assert stat.S_IMODE(db.stat().st_mode) == 0o600
+
+
+def test_private_mac_change_is_the_same_device():
+    """Phones/laptops rotate private MACs: same IP + new MAC is not 'one gone, one new'."""
+    from netcheck.core.diff import compare
+    ch = compare(analyze_file(SYN / "V6a_before.xml"), analyze_file(SYN / "V6b_after.xml"))
+    assert ch["new_devices"] == [] and ch["removed_devices"] == []
+    assert len(ch["resolved_findings"]) == 3 and (ch["score_before"], ch["score_after"]) == (60, 100)
+
+
+def test_really_new_device_is_still_reported():
+    from netcheck.core.diff import compare
+    before = _analysis("a.xml", [_router(Port("tcp", 80, "open", "http"))])
+    extra = Host(ip="192.168.1.77", mac="AA:BB:CC:DD:EE:01", vendor="Acme", hostnames=["cam"],
+                 ports=[Port("tcp", 554, "open", "rtsp")])
+    after = _analysis("b.xml", [_router(Port("tcp", 80, "open", "http")), extra], start=1_800_000_100)
+    ch = compare(before, after)
+    assert ch["new_devices"] == ["192.168.1.77"] and ch["alerts"] is True

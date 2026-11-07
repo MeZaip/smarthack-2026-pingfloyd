@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..core.device import guess_type
+from ..core.device import mask_mac as _mask_mac
 from ..core.models import Host, Port, ScanResult
 
 MAX_STR = 500
@@ -30,14 +31,7 @@ class ContractError(ValueError):
     """Payload does not follow the data contract. Message is user-facing."""
 
 
-def mask_mac(mac: str | None) -> str | None:
-    """Contract format: only the last two bytes stay visible -> 'XX:XX:XX:XX:1A:2B'."""
-    if not mac:
-        return None
-    parts = mac.replace("-", ":").upper().split(":")
-    if len(parts) != 6 or not all(re.fullmatch(r"[0-9A-F]{1,2}", p) for p in parts):
-        return "XX:XX:XX:XX:XX:XX"
-    return ":".join(["XX"] * 4 + [p.zfill(2) for p in parts[4:]])
+mask_mac = _mask_mac   # one rule for the whole app: 'XX:XX:XX:XX:1A:2B' (core/device.py)
 
 
 def iso_utc(unix: int | None) -> str | None:

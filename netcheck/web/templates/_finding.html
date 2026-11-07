@@ -1,0 +1,15 @@
+{% set tx = ex.get(f.code, lang) %}
+{% set d = dev_by_ip.get(f.ip) %}
+<article class="card" aria-label="{{ tx.title }}"{% if anchor %} id="dev-{{ f.ip|replace('.', '-') }}"{% endif %}>
+  <div class="row">
+    <span class="sev sev-{{ f.severity }}">{{ ex.SEVERITY_ICON[f.severity] }} {{ ex.SEVERITY_LABEL[lang][f.severity] }}</span>
+    <h3>{% if d %}{{ d.name }}: {% endif %}{{ tx.title }}</h3>
+  </div>
+  <p class="muted small">{{ f.ip }}{% if f.port is not none %} · port {{ f.port }}/{{ f.protocol }}{% endif %} · <code>{{ f.code }}</code> · −{{ f.points }}</p>
+  <p><strong>{{ t.what }}:</strong> {{ tx.explain }}</p>
+  <p><strong>{{ t.how }}:</strong></p>
+  <ol>{% for s in tx.steps %}<li>{{ s }}</li>{% endfor %}</ol>
+  {% include "_verify.html" %}
+  <details><summary>{{ t.evidence }}</summary><p class="ev">{{ f.evidence }}</p>
+  {% if tx.refs %}<p class="small">{{ t.refs }}: {{ tx.refs|join(" · ") }}</p>{% endif %}</details>
+</article>
