@@ -48,14 +48,14 @@ def test_grounded_answer_passes(v2):
 def test_ungrounded_answers_fall_back_even_if_gateway_missed_them(v2, bad):
     ans = ask("question", v2, "en", provider=FakeGateway(bad))
     assert ans.source == "fallback" and ans.reason.startswith("grounding")
-    assert "Network score: 40/100" in ans.text
+    assert "Your home's score: 40 out of 100" in ans.text
 
 
 def test_gateway_down_gives_useful_built_in_answer(v2):
     ans = ask("Ce fac primul?", v2, "ro", provider=FakeGateway(error="gateway unreachable: URLError"))
     assert ans.source == "fallback"
-    assert "Cel mai periculos dispozitiv: 192.168.1.40" in ans.text
-    assert "Primul pas:" in ans.text
+    assert "Cea mai mare problemă e la" in ans.text and "192.168.1.40" in ans.text
+    assert "Ce faci:" in ans.text
 
 
 def test_disabled_ai(v2):
@@ -112,3 +112,31 @@ def test_conversation_history_is_bounded(v2):
     for i in range(20):
         conv.ask(f"question {i}")
     assert len(conv.history) == 2 * Conversation.MAX_TURNS
+
+
+# ------------------------------------------------------------------ language of the answer = language of the question
+@pytest.mark.parametrize("q,page,expected", [
+    ("What do I fix first?", "ro", "en"),
+    ("Ce repar prima dată?", "en", "ro"),
+    ("e periculoasa imprimanta mea", "en", "ro"),
+    ("?", "en", "en"),                                   # cannot tell: the page language
+])
+def test_answer_language_follows_the_question(v2, q, page, expected):
+    from netcheck.ai.language import detect
+    assert detect(q, page) == expected
+    p = FakeGateway("ok")
+    ask(q, v2, page, provider=p)
+    assert p.calls[0][1] == expected
+
+
+def test_short_follow_up_keeps_the_conversation_language(v2):
+    p = FakeGateway("ok")
+    ask("ok?", v2, "ro", provider=p, history=[{"role": "user", "content": "What is my score?"},
+                                              {"role": "assistant", "content": "It is 40 out of 100."}])
+    assert p.calls[0][1] == "en"
+
+
+def test_fallback_is_in_the_language_of_the_question(v2):
+    from netcheck.ai.providers import NoProvider
+    assert "Your home's score" in ask("What do I fix first?", v2, "ro", provider=NoProvider()).text
+    assert "Scorul casei tale" in ask("Ce repar prima dată?", v2, "en", provider=NoProvider()).text

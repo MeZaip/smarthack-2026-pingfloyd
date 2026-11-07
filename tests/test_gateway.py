@@ -227,7 +227,7 @@ def test_ungrounded_twice_falls_back(gw, v2):
     backend.replies = ["Call +40 721 123 456.", "See CVE-2024-1234."]
     ans = ask("?", v2, "en", provider=RemoteProvider(url=url))
     assert ans.source == "fallback" and "ungrounded" in ans.reason
-    assert "Network score: 40/100" in ans.text
+    assert "Your home's score: 40 out of 100" in ans.text
 
 
 # ------------------------------------------------------------------ protections
@@ -300,7 +300,7 @@ def test_fallback_mentions_changes():
     before, after = analyze_file(FIX / "V6a_before.xml"), analyze_file(FIX / "V6b_after.xml")
     ans = ask("ce s-a schimbat?", after, "ro", previous=before,
               provider=RemoteProvider(url="http://127.0.0.1:9", timeout=2))
-    assert "scor 60 → 100, 3 probleme rezolvate" in ans.text
+    assert "scorul a trecut de la 60 la 100 și ai reparat 3 lucruri" in ans.text
 
 
 def test_local_gateway_ignores_system_proxy(gw, v2, monkeypatch):
@@ -386,3 +386,18 @@ def test_prompt_rules():
     from gateway.prompts import SYSTEM
     for lang in ("ro", "en"):
         assert "Markdown" in SYSTEM[lang] and "JSON" in SYSTEM[lang]
+
+
+def test_long_answers_are_cut_at_a_sentence():
+    from gateway.server import MAX_WORDS, shorten
+    long = " ".join(["Aceasta este o propoziție de test."] * 60) + "\n1. Pas unu."
+    short = shorten(long)
+    assert len(short.split()) <= MAX_WORDS and short.endswith(".")
+    assert shorten("Scurt. Clar.") == "Scurt. Clar."
+
+
+def test_prompt_uses_the_app_name_and_asks_for_short_simple_answers():
+    from gateway.prompts import SYSTEM
+    for lang in ("ro", "en"):
+        assert "SafeHouse" in SYSTEM[lang] and "netcheck" not in SYSTEM[lang].lower()
+        assert "60" in SYSTEM[lang]

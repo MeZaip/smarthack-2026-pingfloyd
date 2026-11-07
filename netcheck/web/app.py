@@ -1,41 +1,38 @@
-"""Web UI (FR-11) on top of the core engine and the local history.
+"""SafeHouse local agent: serves the SafeHouse UI (ui/) and the JSON APIs, on this computer only.
 
-Local only (127.0.0.1), runs unprivileged (NFR-04). Jinja2 autoescape is ON, so banners,
-titles and hostnames from hostile scan files can't inject HTML (NFR-03).
-Findings and scores come only from netcheck.core; the AI assistant (netcheck.ai) answers
+Local only (127.0.0.1), runs unprivileged (NFR-04). The page inserts scan text only as text, never as
+HTML (NFR-03). Findings and scores come only from netcheck.core; the AI assistant (netcheck.ai) answers
 questions and falls back to built-in text when the gateway is unavailable.
 """
 from __future__ import annotations
 
-import secrets
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, Form, Request, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
+from fastapi.responses import FileResponse, Response
+from fastapi.staticfiles import StaticFiles
 
 from .. import history
-from ..ai.assistant import ask as ai_ask
 from ..core.analysis import Analysis
-from ..core.parser import MAX_FILE_BYTES, ScanFileError, parse_bytes
+from ..core.parser import ScanFileError, parse_bytes
 from ..core.rules import evaluate, network_score
-from . import api_v1
+from . import api_v1, uidata
 from .api import router as api_router
 from .security import LocalOnly
-from .house import rooms
-from .i18n import UI
-from .views import Explain, alerts, scan_view
 
-app = FastAPI(title="NetCheck", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="SafeHouse", docs_url=None, redoc_url=None, openapi_url=None)
 app.add_middleware(LocalOnly)          # local host only + session cookie on every state-changing request
 app.include_router(api_router)         # read-only history API (service_data_contracts.md §2/§4)
 app.include_router(api_v1.router)      # actions the page asks the local agent to do
-templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
-templates.env.autoescape = True
 
-_flash: dict[str, dict] = {}
+# The SafeHouse UI (ui/): served by this agent at "/", with live data instead of the demo ui/data.js.
+UI_DIR = Path(__file__).resolve().parent.parent.parent / "ui"
+NO_CACHE = {"Cache-Control": "no-store"}
+for _sub in ("vendor", "assets"):
+    if (UI_DIR / _sub).is_dir():
+        app.mount(f"/{_sub}", StaticFiles(directory=str(UI_DIR / _sub)), name=f"ui-{_sub}")
+
 _cache: dict[tuple[str, int], Analysis] = {}   # full analyses of scans uploaded in this process
 MAX_CACHE = 50
 
@@ -71,36 +68,11 @@ def _remember(scan_id: int, a: Analysis) -> None:
 api_v1.jobs._on_saved = _remember     # a live scan keeps its full analysis (banners, titles) for this session
 
 
-def _lang(request: Request) -> str:
-    lang = request.query_params.get("lang") or request.cookies.get("lang") or "ro"
-    return lang if lang in ("ro", "en") else "ro"
-
-
-def _ctx(request: Request, lang: str, **kw) -> dict:
-    return {"request": request, "lang": lang, "t": UI[lang], "ex": Explain, "scan_id": None,
-            "app_mode": api_v1.life.app_mode, **kw}
-
-
-def _render(request: Request, name: str, ctx: dict) -> HTMLResponse:
-    resp = templates.TemplateResponse(request, name, ctx)
-    resp.set_cookie("lang", ctx["lang"], samesite="strict", httponly=True)
-    return resp
-
-
-def _when(row: dict) -> str:
-    ts = row.get("scanned_at") or row.get("saved_at")
-    return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M") if ts else "—"
-
-
-def _scan_list(conn) -> list[dict]:
-    return [{**s, "when": _when(s)} for s in history.trend(conn)]
-
-
 _me = {"ip": None, "at": 0.0}
 
 
 def this_ip() -> Optional[str]:
-    """IP of the computer NetCheck runs on (cached 30 s): shown as "this is your computer"."""
+    """IP of the computer SafeHouse runs on (cached 30 s): shown as "this is your computer"."""
     import time
     from ..net import netdetect
     if time.time() - _me["at"] > 30:
@@ -112,105 +84,29 @@ def this_ip() -> Optional[str]:
     return _me["ip"]
 
 
-# ------------------------------------------------------------------ pages
-@app.get("/", response_class=HTMLResponse)
-def dashboard(request: Request, id: Optional[int] = None, flash: Optional[str] = None):
-    lang = _lang(request)
-    me = this_ip()
-    with history.open_history() as conn:
-        ids = history.scan_ids(conn)
-        sid = id if id in ids else (ids[-1] if ids else None)
-        r = changes = None
-        if sid is not None:
-            r = scan_view(get_analysis(conn, sid), lang)
-            prev = history.previous_id(conn, sid)
-            changes = history.changes(conn, prev, sid) if prev is not None else None
-        scans = _scan_list(conn)
-    return _render(request, "dashboard.html", _ctx(
-        request, lang, r=r, scan_id=sid, dev=r.most_dangerous if r else None, first=r.first_fix if r else None,
-        findings=r.findings if r else [], anchors=_anchors(r), diff=changes, alerts=alerts(changes, lang),
-        scans=scans[-30:], rooms=rooms(r, lang, me), me_ip=me, dev_by_ip={d.ip: d for d in (r.devices if r else [])},
-        flash=_flash.pop(flash, None) if flash else None))
+def ui_data() -> dict:
+    """window.NETCHECK_DATA for the SafeHouse UI, from the scans saved on this computer."""
+    return uidata.payload(get_analysis, this_ip(), api_v1.life.app_mode)
 
 
-def _anchors(r) -> dict[int, str]:
-    """Index of the first finding of each device -> its IP (target of the '#dev-<ip>' links)."""
-    out, seen = {}, set()
-    for i, f in enumerate(r.findings if r else []):
-        if f.ip not in seen:
-            out[i] = f.ip
-            seen.add(f.ip)
-    return out
+# ------------------------------------------------------------------ SafeHouse UI (the app)
+@app.get("/", include_in_schema=False)
+def ui_index():
+    return FileResponse(UI_DIR / "index.html", media_type="text/html", headers=NO_CACHE)
 
 
-@app.post("/upload")
-async def upload(request: Request, files: list[UploadFile] = File(...)):
-    lang = _lang(request)
-    t = UI[lang]
-    last_id, errors = None, []
-    with history.open_history() as conn:
-        for f in files:
-            data = await f.read(MAX_FILE_BYTES + 1)
-            name = Path(f.filename or "upload.xml").name[:120]
-            a = analyze_bytes(data, name)
-            if not a.ok:
-                errors.append(f"{name}: {a.error}")
-                continue
-            last_id, _created = history.save(conn, a)
-            _remember(last_id, a)
-    url = f"/?lang={lang}" + (f"&id={last_id}" if last_id is not None else "")
-    if errors:
-        token = secrets.token_urlsafe(8)
-        _flash[token] = {"status": "error", "text": f"✖ {t['error_title']}",
-                         "where": " · ".join(errors), "evidence": None, "help": t["error_help"]}
-        url += f"&flash={token}#flash"
-    return RedirectResponse(url, status_code=303)
+@app.get("/data.js", include_in_schema=False)
+def ui_data_js():
+    return Response(uidata.as_script(ui_data()), media_type="application/javascript", headers=NO_CACHE)
 
 
-@app.post("/ask", response_class=HTMLResponse)
-def ask(request: Request, question: str = Form(...), scan_id: Optional[int] = Form(None)):
-    lang = _lang(request)
-    question = question.strip()[:500]
-    with history.open_history() as conn:
-        ids = history.scan_ids(conn)
-        sid = scan_id if scan_id in ids else (ids[-1] if ids else None)
-        if sid is None:
-            return _render(request, "answer.html", _ctx(request, lang, question=question,
-                                                        answer=UI[lang]["no_scan"], mode="offline"))
-        a = get_analysis(conn, sid)
-        prev = history.previous_id(conn, sid)
-        previous = get_analysis(conn, prev) if prev is not None else None
-    ans = ai_ask(question, a, lang, previous)
-    mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
-    return _render(request, "answer.html", _ctx(request, lang, question=question, answer=ans.text,
-                                                mode=mode, scan_id=sid))
+# registered last, so it never shadows the pages above
+_UI_FILES = {"app.js": "application/javascript", "device3d.js": "application/javascript",
+             "safehouse3d.js": "application/javascript", "styles.css": "text/css"}
 
 
-@app.get("/history", response_class=HTMLResponse)
-def history_page(request: Request):
-    lang = _lang(request)
-    with history.open_history() as conn:
-        scans = _scan_list(conn)
-        diffs = [(a, b, history.changes(conn, a["scan_id"], b["scan_id"])) for a, b in zip(scans, scans[1:])]
-    return _render(request, "history.html", _ctx(request, lang, scans=scans, diffs=diffs[::-1],
-                                                 alerts_of=lambda d: alerts(d, lang)))
-
-
-@app.post("/history/delete")
-def delete_history(request: Request):
-    history.delete_history()
-    _cache.clear()
-    return RedirectResponse(f"/history?lang={_lang(request)}", status_code=303)
-
-
-@app.get("/report/{scan_id}", response_class=HTMLResponse)
-def report(request: Request, scan_id: int):
-    lang = _lang(request)
-    with history.open_history() as conn:
-        try:
-            r = scan_view(get_analysis(conn, scan_id), lang)
-        except KeyError:
-            r = None
-    return _render(request, "report.html", _ctx(
-        request, lang, r=r, scan_id=scan_id, dev=r.most_dangerous if r else None,
-        first=r.first_fix if r else None, findings=r.findings if r else []))
+@app.get("/{name}", include_in_schema=False)
+def ui_file(name: str):
+    if name not in _UI_FILES:   # only these files: nothing else from the disk is reachable
+        return Response("not found", status_code=404)
+    return FileResponse(UI_DIR / name, media_type=_UI_FILES[name], headers=NO_CACHE)

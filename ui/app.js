@@ -12,6 +12,10 @@
     document.getElementById("main").textContent = "Lipsește ui/data.js. Rulează: python tools/export_ui_data.py";
     return;
   }
+  // LIVE: the page is served by the local agent (netcheck app / serve): real scans from this computer's
+  // history, a real check of the network, the AI assistant and "I fixed it - check". Otherwise it is the
+  // offline demo built by tools/export_ui_data.py and everything works as a prototype.
+  const LIVE = !!D.live;
 
   // ---------------------------------------------------------------- words (RO / EN, ~12-year-old level)
   const T = {
@@ -66,13 +70,13 @@
       helpNote: "Ești copil? Arată această pagină unui părinte înainte să schimbi ceva. Nu te descurci? Arată-o cuiva de încredere: un nepot, un prieten sau firma care ți-a pus internetul.",
       yourDevices: "Aparatele tale", seeAll: "Vezi toate",
       glossaryTitle: "Cuvinte utile",
-      devicesTitle: "Aparatele mele", devicesSub: "Toate aparatele conectate la internetul tău. Apasă pe un aparat ca să vezi ce are și ce poți face.",
+      devicesTitle: "Aparate și reparații", devicesSub: "Toate aparatele din rețeaua ta, cel mai periculos primul. Apasă pe un aparat ca să vezi ce problemă are și cum o repari, pas cu pas.",
       fAll: "Toate ({n})", fProblems: "Cu probleme ({n})", fSafe: "Sigure ({n})",
       devOk: "Sigur", devProblems: "{n} lucruri de reparat", devProblem: "Un lucru de reparat",
       devOkExplain: "Nu am găsit nicio problemă la acest aparat. Ușile lui sunt bine încuiate.",
       devOkSteps: ["Instalează actualizările când aparatul ți le cere.", "Folosește o parolă lungă, pe care n-o mai ai în altă parte."],
       keepSafe: "Ca să rămână sigur",
-      otherProblems: "Alte lucruri de reparat la acest aparat",
+      otherProblems: "Alte lucruri de reparat la acest aparat", problemN: "Problema {i} din {n}", justKnow: "Doar de știut",
       findingsTitle: "Ce trebuie reparat", findingsSub: "Verificarea de securitate, de la cel mai periculos la cel mai puțin periculos. Fiecare card îți spune ce faci, pas cu pas.",
       sumHigh: "Risc înalt", sumMedium: "Risc mediu", sumLow: "Risc mic", sumInfo: "Doar de știut",
       cardHint: "Apasă Enter ca să vezi detaliile tehnice.",
@@ -111,19 +115,39 @@
       askPlaceholder: "De exemplu: Ce repar prima dată?", askBtn: "Trimite", askLabel: "Întrebarea ta",
       proof: "de unde știu",
       noAnswer: "Verificarea nu-mi arată asta, așa că nu pot să-ți răspund sigur. Încearcă una dintre întrebările de mai sus.",
-      hallToggle: "Pentru prezentare: arată cum oprim o informație inventată",
-      hallSwitch: "Strecoară în răspuns o afirmație inventată",
       blocked: "Am tăiat-o: {r}.",
       rPort: "ușa {port} nu e deschisă pe {ip} în această verificare", rIp: "adresa {ip} nu apare în dovezi",
       rCve: "{cve} nu apare în verificare", rNoCite: "nu are nicio dovadă din verificare",
       verified: "{ok} propoziții verificate, {bad} tăiate",
-      demoNote: "Aici răspunsurile vin din textele noastre. În aplicație le scrie inteligența artificială, iar același verificator taie orice propoziție fără dovadă.",
       aFirst1: "Cea mai mare problemă este la: {name}.", aFirst2: "Începe cu asta: {title}.", aFirst3: "Primul pas: {step}",
       aDevCount: "Am găsit {n} aparate conectate la rețeaua ta.", aDev: "{name}.",
       aPrinterYes: "Da, puțin: oricine din rețea poate trimite documente la imprimanta ta, prin ușa 9100.",
       aPrinterFix: "Ce poți face: {step}", aPrinterNo: "Verificarea nu-mi arată o imprimantă cu problema asta.",
       aClean: "Verificarea nu arată nimic de reparat. Totul e bine!",
-      hall: "Routerul are și ușa Telnet deschisă (portul {port}), deci schimbă-i parola imediat.",
+      // live app (local agent)
+      noScan: "Încă nu ai verificat casa", needScan: "Încă nu avem o verificare. Mergi la Acasă și apasă „Inspectează casa”.", goHome: "Mergi la Acasă",
+      cfTitle: "Verificăm rețeaua ta?", cfNet: "Ești conectat la:", cfAsk: "Este rețeaua ta (de acasă sau a echipei tale)? Verificăm doar rețeaua la care ești conectat acum, nimic altceva.",
+      cfYes: "Da, e rețeaua mea", cfNo: "Nu, renunț", cfPrep: "Mă pregătesc…",
+      cfPerm: "Calculatorul te va întreba dacă permiți aplicației să facă modificări. Apasă „Da”: doar programul de verificare (Nmap) primește permisiunea, doar pentru această verificare.",
+      scanElapsed: "A trecut {t}. De obicei durează 1–3 minute.",
+      probT: "Verificarea nu s-a putut face", tryAgain: "Încearcă din nou",
+      nmapT: "Lipsește programul de verificare", nmapLink: "Deschide pagina de descărcare Nmap",
+      upload: "Încarcă o verificare", uploading: "Se încarcă…", uploadBad: "Fișierul nu poate fi citit: e stricat sau nu e o verificare Nmap.",
+      verifyBtn: "Am reparat, verifică", verifying: "Verific…",
+      histNeedTwo: "Avem o singură verificare. Repară un lucru, apoi apasă din nou „Inspectează casa” ca să vedem dacă rețeaua a devenit mai sigură.",
+      thinking: "Mă gândesc…", newChat: "Conversație nouă",
+      mode_ai: "Răspuns scris de inteligența artificială, doar din ce a văzut verificarea.",
+      mode_offline: "Răspuns din textele noastre (asistentul online nu e disponibil acum).",
+      mode_rejected: "Răspunsul inteligenței artificiale nu a trecut verificarea, așa că îți arăt textele noastre.",
+      closeApp: "Închide aplicația", closedApp: "Aplicația s-a închis. Poți închide această fereastră.",
+      thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.",
+      askSubLive: "Îți răspund scurt, doar din verificarea afișată sus. Ca să-ți răspund, trimit întrebarea și un rezumat al verificării, iar noi nu păstrăm nimic.",
+      exportBtn: "Exportă CSV", exportT: "Exportă rezultatele (CSV)",
+      exportS: "Fac cele două fișiere standard, findings.csv și scores.csv, pentru un folder întreg de verificări Nmap (.xml). Un fișier care nu poate fi citit primește ERROR.",
+      exportFolder: "Alege un folder", exportFiles: "Alege fișiere", exportSaved: "Exportă verificările salvate ({n})",
+      exporting: "Pregătesc fișierele…", exportDoneT: "Gata, fișierele CSV sunt descărcate",
+      exportDone: "{f} fișiere analizate, {e} cu ERROR, {k} probleme găsite.", exportWhere: "Le-am salvat și aici:",
+      exportSkipped: "Am sărit {n} fișiere care nu sunt .xml.", exportNone: "Nu am găsit fișiere .xml în ce ai ales.",
     },
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
@@ -176,13 +200,13 @@
       helpNote: "Are you a child? Show this page to a parent before you change anything. Finding it hard? Show it to someone you trust: a grandchild, a friend or the company that set up your internet.",
       yourDevices: "Your devices", seeAll: "See all",
       glossaryTitle: "Useful words",
-      devicesTitle: "My devices", devicesSub: "All the devices connected to your internet. Tap a device to see what it has and what you can do.",
+      devicesTitle: "Devices and fixes", devicesSub: "Every device on your network, the most dangerous first. Tap a device to see its problem and how to fix it, step by step.",
       fAll: "All ({n})", fProblems: "With problems ({n})", fSafe: "Safe ({n})",
       devOk: "Safe", devProblems: "{n} things to fix", devProblem: "One thing to fix",
       devOkExplain: "We found no problem on this device. Its doors are locked well.",
       devOkSteps: ["Install updates when the device asks you to.", "Use a long password that you do not use anywhere else."],
       keepSafe: "To keep it safe",
-      otherProblems: "Other things to fix on this device",
+      otherProblems: "Other things to fix on this device", problemN: "Problem {i} of {n}", justKnow: "Just so you know",
       findingsTitle: "What needs fixing", findingsSub: "The security check, from most to least dangerous. Each card tells you what to do, step by step.",
       sumHigh: "High risk", sumMedium: "Medium risk", sumLow: "Low risk", sumInfo: "Just so you know",
       cardHint: "Press Enter to see the technical details.",
@@ -221,19 +245,39 @@
       askPlaceholder: "For example: What do I fix first?", askBtn: "Send", askLabel: "Your question",
       proof: "how I know",
       noAnswer: "The check does not show me that, so I cannot answer for sure. Try one of the questions above.",
-      hallToggle: "For the presentation: show how we stop an invented claim",
-      hallSwitch: "Slip an invented claim into the answer",
       blocked: "Crossed out: {r}.",
       rPort: "door {port} is not open on {ip} in this check", rIp: "address {ip} is not in the proof",
       rCve: "{cve} is not in the check", rNoCite: "it has no proof from the check",
       verified: "{ok} sentences checked, {bad} crossed out",
-      demoNote: "Here the answers come from our own texts. In the app, artificial intelligence writes them and the same checker crosses out any sentence without proof.",
       aFirst1: "The biggest problem is on: {name}.", aFirst2: "Start with this: {title}.", aFirst3: "First step: {step}",
       aDevCount: "We found {n} devices connected to your network.", aDev: "{name}.",
       aPrinterYes: "A little: anyone on the network can send documents to your printer, through door 9100.",
       aPrinterFix: "What you can do: {step}", aPrinterNo: "The check does not show me a printer with this problem.",
       aClean: "The check shows nothing to fix. All good!",
-      hall: "The router also has the Telnet door open (port {port}), so change its password right away.",
+      // live app (local agent)
+      noScan: "You have not checked the house yet", needScan: "There is no check yet. Go to Home and press “Inspect house”.", goHome: "Go to Home",
+      cfTitle: "Shall we check your network?", cfNet: "You are connected to:", cfAsk: "Is this your network (at home or your team's)? We only check the network you are connected to right now, nothing else.",
+      cfYes: "Yes, it is my network", cfNo: "No, cancel", cfPrep: "Getting ready…",
+      cfPerm: "The computer will ask if you allow the app to make changes. Press “Yes”: only the checking program (Nmap) gets permission, only for this check.",
+      scanElapsed: "{t} so far. It usually takes 1–3 minutes.",
+      probT: "The check could not be done", tryAgain: "Try again",
+      nmapT: "The checking program is missing", nmapLink: "Open the Nmap download page",
+      upload: "Upload a check", uploading: "Uploading…", uploadBad: "The file cannot be read: it is broken or not an Nmap check.",
+      verifyBtn: "I fixed it, check", verifying: "Checking…",
+      histNeedTwo: "We have only one check. Fix one thing, then press “Inspect house” again so we can see if the network got safer.",
+      thinking: "Thinking…", newChat: "New conversation",
+      mode_ai: "Answer written by artificial intelligence, only from what the check saw.",
+      mode_offline: "Answer from our own texts (the online assistant is not available right now).",
+      mode_rejected: "The AI answer did not pass the check, so I show you our own texts.",
+      closeApp: "Close the app", closedApp: "The app is closed. You can close this window.",
+      thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.",
+      askSubLive: "I answer briefly, only from the check shown at the top. To answer, I send your question and a summary of the check, and we keep nothing.",
+      exportBtn: "Export CSV", exportT: "Export the results (CSV)",
+      exportS: "I make the two standard files, findings.csv and scores.csv, for a whole folder of Nmap checks (.xml). A file that cannot be read gets ERROR.",
+      exportFolder: "Choose a folder", exportFiles: "Choose files", exportSaved: "Export the saved checks ({n})",
+      exporting: "Preparing the files…", exportDoneT: "Done, the CSV files are downloaded",
+      exportDone: "{f} files analysed, {e} with ERROR, {k} problems found.", exportWhere: "I also saved them here:",
+      exportSkipped: "I skipped {n} files that are not .xml.", exportNone: "I found no .xml files in what you chose.",
     },
   };
 
@@ -246,7 +290,7 @@
   };
   const BAND_ICON = { red: "octagon", amber: "alert", green: "check" };
   const DEVICE_ICON = { router: "router", camera: "video", printer: "printer", nas: "drive", iot: "bulb", tv: "tv", phone: "phone", computer: "laptop", server: "server", unknown: "help" };
-  const TABS = ["home", "devices", "findings", "history", "ask"];
+  const TABS = ["home", "devices", "history"];   // "Devices" also holds every fix; the assistant is a floating chat
 
   // ---------------------------------------------------------------- state
   const store = {
@@ -255,16 +299,22 @@
   };
   const state = {
     lang: store.get("lang") === "en" ? "en" : "ro",
-    scan: Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")),
+    scan: LIVE ? 0 : Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")),   // live: newest first
     tab: "home",
     devFilter: "all",
     cursor: {}, lastDone: {},
     historyDeleted: store.get("historyDeleted") === "1",
     confirmDelete: false,
-    hallucinate: false,
     chat: [],            // [{kind, text}]
     inspected: {},       // scan file -> true once the house was inspected
     scanning: false,
+    // live app
+    broken: [],          // uploaded files that could not be read: shown as an error, never saved
+    job: null,           // running check: {id, elapsed}
+    busy: false,         // a chat answer is on its way
+    chatOpen: false,     // the floating assistant panel
+    verify: {},          // "ip|port|code" -> {status, message}
+    justDeleted: false,
   };
 
   // ---------------------------------------------------------------- helpers
@@ -301,7 +351,11 @@
     el.append(svg("use", { href: "#i-" + name }));
     return el;
   }
-  const scan = () => D.scans[state.scan];
+  // live: uploaded files that could not be read come first (shown as an error), then the saved scans
+  const allScans = () => (LIVE ? state.broken.concat(D.scans) : D.scans);
+  const EMPTY = { file: "", label: "", devices: [], findings: [], empty: true };   // live, nothing saved yet
+  const scan = () => allScans()[state.scan] || EMPTY;
+  const isInspected = (s) => !s.empty && (LIVE || !!state.inspected[s.file]);
   const bandOf = (score) => (score >= 80 ? "green" : score >= 50 ? "amber" : "red");
   const simple = (code) => (D.simple[code] && D.simple[code][state.lang]) || { title: code, explain: "", steps: [] };
   const whoOf = (code) => (D.simple[code] && D.simple[code].who) || "helper";
@@ -321,8 +375,9 @@
   function deviceName(d) {
     if (!d) return deviceLabel("unknown");
     const v = shortVendor(d.vendor);
-    return deviceLabel(d.type) + (v ? ` (${v})` : "");
+    return deviceLabel(d.type) + (v ? ` (${v})` : "") + (d.me ? ` · ${t("thisPc")}` : "");
   }
+  const meSuffix = (d) => (d && d.me ? ` · ${t("thisPc")}` : "");   // the computer this app runs on
   const riskPill = (sev) => h("span", { class: "pill p-" + sev }, icon(RISK[sev].icon), RISK[sev][state.lang]);
   function bandPill(score) {
     const b = bandOf(score);
@@ -362,6 +417,150 @@
     return h("div", { class: "page-head" }, h("h2", { text: title }), sub ? h("p", { text: sub }) : null);
   }
   function focusSel(sel) { const el = document.querySelector(sel); if (el) el.focus(); }
+
+  // ---------------------------------------------------------------- LIVE: talking to the local agent (/api/v1)
+  // Same-origin calls only; the agent checks the session cookie and the origin (netcheck/web/security.py).
+  async function api(method, path, body) {
+    const opts = { method, credentials: "same-origin", headers: {} };
+    if (body instanceof FormData) opts.body = body;
+    else if (body !== undefined) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    let r;
+    try { r = await fetch(path + (path.includes("?") ? "&" : "?") + "lang=" + state.lang, opts); }
+    catch (e) { return { ok: false, status: 0, data: {} }; }
+    let data = {};
+    try { data = await r.json(); } catch (e) { /* not JSON */ }
+    return { ok: r.ok, status: r.status, data };
+  }
+  const errText = (res) => (res.data && res.data.error && res.data.error.message) || t("connErr");
+  // Fresh data after a check, an upload or a delete; keeps the scan on screen when it still exists.
+  async function reloadData(selectId) {
+    const keep = selectId != null ? selectId : scan().scan_id;
+    const res = await api("GET", "/api/v1/ui-data");
+    if (!res.ok) return false;
+    Object.assign(D, res.data);
+    const i = allScans().findIndex((s) => s.scan_id != null && s.scan_id === keep);
+    state.scan = i >= 0 ? i : 0;
+    return true;
+  }
+  function needScanBox() {
+    return h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0 0 1rem" }, icon("home"), h("span", { text: t("needScan") })),
+      h("button", { type: "button", class: "btn btn-cta", onclick: () => { if (state.chatOpen) closeChat(); setTab("home"); } }, icon("search"), t("goHome")));
+  }
+  // The side/bottom sheet, also used for the check flow (consent, problems).
+  let lastOpener = null;
+  function showSheet(content, opener) {
+    document.getElementById("sheet-body").replaceChildren(content);
+    lastOpener = opener || document.activeElement || null;
+    const dlg = document.getElementById("sheet");
+    if (!dlg.open) { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); }
+  }
+  function problemSheet(title, message, detail, retry) {
+    showSheet(h("div", { role: "alert" },
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico red", "aria-hidden": "true" }, icon("alert")), h("h2", { id: "sheet-title", text: title })),
+      h("p", { class: "lead", style: "margin-top:.6rem", text: message }),
+      detail ? techBox(h("p", { class: "evidence mono", text: detail })) : null,
+      h("div", { class: "actions" },
+        retry ? h("button", { type: "button", class: "btn btn-cta", onclick: retry }, icon("refresh"), t("tryAgain")) : null,
+        h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
+    focusSel("#sheet .actions .btn");
+  }
+  function nmapSheet(message) {
+    showSheet(h("div", { role: "alert" },
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico amber", "aria-hidden": "true" }, icon("alert")), h("h2", { id: "sheet-title", text: t("nmapT") })),
+      h("p", { class: "lead", style: "margin-top:.6rem", text: message }),
+      h("div", { class: "actions" },
+        h("a", { class: "btn btn-cta", href: "https://nmap.org/download.html", target: "_blank", rel: "noopener noreferrer" }, icon("arrow"), t("nmapLink")),
+        h("button", { type: "button", class: "btn", onclick: () => { closeSheet(); liveInspect(); } }, icon("refresh"), t("tryAgain")))));
+  }
+
+  // "Inspect house" in the app: consent -> one elevated nmap run on THIS network -> results.
+  async function liveInspect() {
+    if (state.scanning) return;
+    showSheet(h("div", { class: "lead", role: "status", text: t("cfPrep") }));
+    const res = await api("GET", "/api/v1/status");
+    if (!res.ok) return problemSheet(t("probT"), errText(res), null, liveInspect);
+    const st = res.data;
+    if (st.scan) { closeSheet(); return followJob(st.scan); }
+    if (!st.network.ok) return problemSheet(t("probT"), st.network.message, null, liveInspect);
+    if (!st.nmap) return nmapSheet(state.lang === "en"
+      ? "To check the network we need Nmap, a free program. Install it (press Next until it finishes), then try again."
+      : "Ca să verificăm rețeaua avem nevoie de Nmap, un program gratuit. Instalează-l (apasă Next până termină), apoi încearcă din nou.");
+    const net = st.network;
+    showSheet(h("div", null,
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico", "aria-hidden": "true" }, icon("wifi")), h("h2", { id: "sheet-title", text: t("cfTitle") })),
+      h("p", { class: "muted", style: "margin-top:.8rem", text: t("cfNet") }),
+      h("p", { class: "lead" }, h("strong", { text: net.wifi || t("topoNet") }), h("span", { class: "mono", text: "  ·  " + net.subnet })),
+      h("p", { text: t("cfAsk") }),
+      h("p", { class: "note with-ico" }, icon("lock"), h("span", { text: t("cfPerm") })),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-cta", id: "cf-yes", onclick: startLiveScan }, icon("shield"), t("cfYes")),
+        h("button", { type: "button", class: "btn", onclick: closeSheet }, t("cfNo")))));
+    focusSel("#cf-yes");
+  }
+  async function startLiveScan() {
+    const res = await api("POST", "/api/v1/scan", { confirm: true });
+    if (!res.ok) return problemSheet(t("probT"), errText(res), null, liveInspect);
+    closeSheet();
+    followJob(res.data);
+  }
+  const mmss = (sec) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+  function showElapsed() {
+    if (!state.job) return;
+    const el = document.querySelector(".hero .sc-lead");
+    if (el) el.textContent = t("scanElapsed", { t: mmss(state.job.elapsed || 0) });
+  }
+  let jobTimer = null;
+  function followJob(job) {
+    state.scanning = true;
+    state.job = { id: job.id, elapsed: job.elapsed || 0 };
+    if (state.tab === "home") { render(); } else setTab("home");
+    clearInterval(jobTimer);
+    jobTimer = setInterval(async () => {
+      const res = await api("GET", "/api/v1/scan/" + encodeURIComponent(job.id));
+      if (!res.ok) { stopJob(); return problemSheet(t("probT"), errText(res), null, liveInspect); }
+      const j = res.data;
+      state.job.elapsed = j.elapsed;
+      showElapsed();
+      if (j.status === "done") {
+        stopJob();
+        state.justDeleted = false;
+        state.chat = [];
+        await reloadData(j.scan_id);
+        render();
+        focusSel(".inspect-btn");
+      } else if (j.status === "error") {
+        stopJob();
+        render();
+        problemSheet(t("probT"), j.error.message, j.error.detail, liveInspect);
+      }
+    }, 1500);
+  }
+  function stopJob() { clearInterval(jobTimer); state.scanning = false; state.job = null; }
+
+  // "I fixed it - check": re-tests one problem without a full scan (TCP ports, no admin rights needed).
+  const canVerify = (s, f) => LIVE && s.scan_id != null && f.port != null && f.protocol === "tcp";
+  function verifyRow(s, f) {
+    if (!canVerify(s, f)) return null;
+    const key = `${f.ip}|${f.port}|${f.code}`, v = state.verify[key];
+    const out = h("p", { class: "verify-out" + (v ? " note with-ico" + (v.status === "resolved" ? " ok" : "") : ""), role: "status", "aria-live": "polite" },
+      v ? [icon(v.status === "resolved" ? "check" : v.status === "pending" ? "search" : "alert"), h("span", { text: v.message })] : null);
+    const btn = h("button", { type: "button", class: "btn btn-tonal", disabled: v && v.status === "pending",
+      onclick: async (e) => {
+        e.stopPropagation();
+        state.verify[key] = { status: "pending", message: t("verifying") };
+        refreshVerify(key, s, f);
+        const res = await api("POST", "/api/v1/verify", { scan_id: s.scan_id, ip: f.ip, port: f.port, code: f.code });
+        state.verify[key] = res.ok ? { status: res.data.status, message: res.data.message } : { status: "error", message: errText(res) };
+        refreshVerify(key, s, f);
+      } }, icon("refresh"), t("verifyBtn"));
+    return h("div", { class: "verify-row", "data-verify": key, style: "margin-top:1rem" }, btn, out);
+  }
+  function refreshVerify(key, s, f) {
+    document.querySelectorAll(`[data-verify="${CSS.escape(key)}"]`).forEach((el) => {
+      const fresh = verifyRow(s, f);
+      if (fresh) el.replaceWith(fresh);
+    });
+  }
 
   // Score ring (Fing) + labelled traffic light.
   function ring(score, small) {
@@ -457,6 +656,7 @@
   }
 
   function inspect() {
+    if (LIVE) { liveInspect(); return; }
     const s = scan();
     if (state.scanning) return;
     state.scanning = true;
@@ -478,6 +678,11 @@
   }
   // What the saved history says about the scan on screen. Only real data, never invented numbers.
   function historyFor(s) {
+    if (LIVE) {                              // every saved scan carries its change since the one before it
+      if (s.empty || s.error) return { kind: "none" };
+      if (s.changes) return { kind: "delta", delta: s.changes.score_change, newDevices: s.changes.new_devices.length };
+      return D.history.trend.length && D.history.trend[0].scan_id === s.scan_id ? { kind: "first" } : { kind: "none" };
+    }
     if (state.historyDeleted || !D.history || !D.history.trend.length) return { kind: "none" };
     const i = D.history.trend.findIndex((r) => r.file === s.file);
     if (i < 0) return { kind: "none" };
@@ -502,7 +707,28 @@
     return h("span", { class: "newdev", role: "status" }, h("span", { class: "pulse-dot", "aria-hidden": "true" }), icon("plus"), n === 1 ? t("newDev1") : t("newDevN", { n }));
   }
   // NFR-02: one-click "delete my history", with an inline confirmation (no browser dialog).
+  // live: really deletes ~/.netcheck/history.sqlite through the agent, then shows the empty house
+  async function liveDelete() {
+    const res = await api("DELETE", "/api/v1/history");
+    state.confirmDelete = false;
+    if (!res.ok) { problemSheet(t("probT"), errText(res)); return; }
+    state.broken = []; state.chat = []; state.verify = {}; state.justDeleted = true;
+    await reloadData(-1);
+    render();
+  }
   function privacyRow() {
+    if (LIVE) {
+      if (state.justDeleted && !D.scans.length) return h("div", { class: "privacy" }, h("p", { class: "with-ico muted", role: "status", style: "margin:0" }, icon("trash"), h("span", { text: t("histGone") })));
+      if (!D.scans.length) return null;
+      if (state.confirmDelete) {
+        return h("div", { class: "privacy confirm-inline", role: "alertdialog", "aria-label": t("delHistory") },
+          h("p", { style: "margin:0", text: t("delHistoryAsk") }),
+          h("div", { class: "actions" },
+            h("button", { type: "button", class: "btn btn-danger", onclick: liveDelete }, icon("trash"), t("deleteYes")),
+            h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); focusSel(".btn-delete"); } }, t("deleteNo"))));
+      }
+      return h("div", { class: "privacy" }, h("button", { type: "button", class: "btn-delete", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm-inline .btn-danger"); } }, icon("trash"), t("delHistory")));
+    }
     if (state.historyDeleted) {
       return h("div", { class: "privacy" }, h("p", { class: "with-ico muted", role: "status", style: "margin:0" }, icon("trash"), h("span", { text: t("histGone") })),
         h("button", { type: "button", class: "btn-link", onclick: () => { state.historyDeleted = false; store.set("historyDeleted", "0"); render(); } }, t("restore")));
@@ -521,7 +747,7 @@
 
   function renderHome(root) {
     const s = scan();
-    const done = !!state.inspected[s.file];
+    const done = isInspected(s) && !state.scanning;
     const st = state.scanning ? "scanning" : done ? resultOf(s) : "idle";
     const toFix = s.error ? 0 : s.findings.filter((f) => f.severity !== "info").length;
     root.append(pageHead(t("hello"), t("helloSub")));
@@ -534,12 +760,13 @@
       h("p", { class: "eyebrow muted", text: t("scoreTitle") }),
       done && !s.error ? ring(s.score, "lg") : pendingRing,
       done && !s.error ? traffic(s.score) : null,
-      h("p", { class: "lead", text: !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
+      h("p", { class: "lead sc-lead", text: state.scanning && state.job ? t("scanElapsed", { t: mmss(state.job.elapsed || 0) })
+        : !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
         : toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }),
       done && !s.error ? h("div", { class: "changes" }, trendRow(s), newDeviceBadge(s)) : null,
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
-        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null),
+        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => showFixes() }, icon("shield"), t("seeFixes")) : null),
       privacyRow(),
       // screen-reader status (the glass badge over the house is the visible one)
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
@@ -616,7 +843,7 @@
           : h("span", { class: "dev3d topo-model", "aria-hidden": "true", "data-type": DEVICE_ICON[d.type] ? d.type : "unknown",
               "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
         h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
-          h("span", { text: core ? t("topoGateway") : sevLabel(sev) })));
+          h("span", { text: (core ? t("topoGateway") : sevLabel(sev)) + meSuffix(d) })));
       b.addEventListener("click", () => select(it));
       elOf.set(it, b);
       return b;
@@ -860,7 +1087,7 @@
       return h("div", { class: "topo-nav", style: "--i:1" },
         h("button", { type: "button", class: "btn-hud icon topo-prev", "aria-label": t("topoPrev"), title: t("topoPrev"), disabled: ti === 0, onclick: () => goTo(ti - 1) }, icon("chevron", "back")),
         h("span", { class: "topo-step", text: t("tourStep", { i: ti + 1, n: trail.length }) }),
-        last ? h("button", { type: "button", class: "btn-hud topo-next", onclick: () => setTab("findings") }, icon("shield"), h("span", { text: t("seeFixes") }))
+        last ? h("button", { type: "button", class: "btn-hud topo-next", onclick: () => showFixes() }, icon("shield"), h("span", { text: t("seeFixes") }))
           : h("button", { type: "button", class: "btn-hud topo-next", onclick: () => goTo(ti + 1) }, h("span", { text: t("topoNext") }), icon("chevron", "go")));
     }
     function select(it, fromNav) {
@@ -874,9 +1101,9 @@
       const ports = portsOf(d, probs), ti = trail.indexOf(it);
       const box = (title, i, ...kids) => h("section", { class: "topo-box grunge", style: `--i:${i}` }, h("p", { class: "topo-k", text: title }), kids);
       panel.className = `topo-panel grunge sev-${sev}`;
-      panel.replaceChildren(
+      panel.replaceChildren(...[                // filter: replaceChildren() would print a skipped part as "null"
         h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
-          h("div", { class: "grow" }, h("h4", { text: vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
+          h("div", { class: "grow" }, h("h4", { text: (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
           h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
             h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
         navRow(it),
@@ -893,7 +1120,7 @@
         ti >= 0 && ti === trail.length - 1 ? box(t("tourEndT"), 7, h("p", { class: "topo-why", text: trail.length === 1 ? t("tourEndS1") : t("tourEndS", { n: trail.length }) })) : null,
         h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:8", onclick: (e) => openDevice(d, e.currentTarget) },
           icon("shield"), h("span", { class: "grow", text: t("whatToDo") }), icon("chevron", "go")),
-        h("div", { class: "topo-scan", "aria-hidden": "true" }));
+        h("div", { class: "topo-scan", "aria-hidden": "true" })].filter(Boolean));
       if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
       // replay the reveal (scan line + boxes one by one) for every device that is opened
       if (!still) { void panel.offsetWidth; panel.classList.add("is-revealing"); }
@@ -996,7 +1223,7 @@
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
         devIco(d.type, tone === "green" ? "green" : worst.severity),
-        h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor ? h("div", { class: "tile-sub", text: vendor }) : null),
+        h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "tile-sub", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null),
         h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
     }));
@@ -1005,11 +1232,16 @@
   function renderDevices(root) {
     const s = scan();
     root.append(pageHead(t("devicesTitle"), t("devicesSub")));
+    if (s.empty) { root.append(needScanBox()); return; }
     if (s.error) { root.append(errorBox(s)); return; }
     const withP = s.devices.filter((d) => problemsOf(s, d).length);
     const safe = s.devices.filter((d) => !problemsOf(s, d).length);
     const chip = (key, label) => h("button", { type: "button", class: "chip-btn", "aria-pressed": String(state.devFilter === key),
       onclick: () => { state.devFilter = key; render(); focusSel(`.chip-btn[aria-pressed="true"]`); } }, label);
+    const sums = { high: "sumHigh", medium: "sumMedium", low: "sumLow" };
+    const real = s.findings.filter((f) => f.severity !== "info");
+    if (real.length) root.append(h("div", { class: "chips", style: "margin-bottom:12px" }, Object.keys(sums).filter((k) => real.some((f) => f.severity === k))
+      .map((k) => h("span", { class: "pill p-" + k }, icon(RISK[k].icon), `${t(sums[k])}: ${real.filter((f) => f.severity === k).length}`))));
     root.append(h("div", { class: "chips", style: "margin-bottom:20px", role: "group" },
       chip("all", t("fAll", { n: s.devices.length })), chip("problems", [icon("alert"), t("fProblems", { n: withP.length })]), chip("safe", [icon("check"), t("fSafe", { n: safe.length })])));
     const list = (state.devFilter === "problems" ? withP : state.devFilter === "safe" ? safe : s.devices)
@@ -1017,25 +1249,33 @@
     root.append(tiles(s, list));
   }
 
-  // The device card (name/type, 2-sentence explanation, numbered steps) shown in a sheet.
-  let lastOpener = null;
+  // The device sheet: what it is, then EVERY problem it has with its fix, step by step (the former
+  // "Fixes" tab lives here now: one place per device, no repetition), then the technical details.
+  function fixBlock(s, f, i, n) {
+    const tx = simple(f.code);
+    return h("section", { class: "fix-block", style: i ? "margin-top:1.6rem;padding-top:1.4rem;border-top:1px solid var(--line, rgba(255,255,255,.08))" : "margin-top:1rem" },
+      h("div", { class: "chips", style: "align-items:center" }, f.severity === "info" ? h("span", { class: "pill p-info" }, icon("info"), t("justKnow")) : riskPill(f.severity),
+        n > 1 ? h("span", { class: "muted", text: t("problemN", { i: i + 1, n }) }) : null),
+      h("h3", { style: "margin-top:.8rem", text: tx.title }),
+      h("p", { class: "lead", style: "margin-top:.5rem", text: tx.explain }),
+      tx.steps.length ? [h("h4", { text: t("doThis") + ":" }), steps(tx.steps)] : null,
+      f.severity !== "info" ? whoLine(f.code) : null,
+      verifyRow(s, f),
+      techFor(f));
+  }
   function openDevice(d, opener) {
-    const s = scan(), probs = problemsOf(s, d), worst = probs[0];
-    const tx = worst ? simple(worst.code) : null, vendor = shortVendor(d.vendor);
+    const s = scan(), probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
+    const all = probs.concat(s.findings.filter((f) => f.ip === d.ip && f.severity === "info"));
     const risky = new Set(probs.filter((f) => f.port != null).map((f) => f.port));
     const body = document.getElementById("sheet-body");
     body.replaceChildren(h("div", null,
       h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true),
-        h("div", null, h("h2", { id: "sheet-title", text: deviceLabel(d.type) }), vendor ? h("div", { class: "muted", text: vendor }) : null)),
-      worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")),
-      worst ? h("h3", { style: "margin-top:1rem", text: tx.title }) : null,
-      h("p", { class: "lead", style: "margin-top:.6rem", text: worst ? tx.explain : t("devOkExplain") }),
-      h("h4", { text: (worst ? t("doThis") : t("keepSafe")) + ":" }),
-      steps(worst ? tx.steps : t("devOkSteps")),
-      worst ? whoLine(worst.code) : null,
-      probs.length > 1 ? [h("h4", { text: t("otherProblems") + ":" }),
-        h("div", { class: "chips" }, probs.slice(1).map((f) => h("button", { type: "button", class: "chip-btn",
-          onclick: () => { closeSheet(); setTab("findings"); openFinding(s.findings.indexOf(f)); } }, icon(RISK[f.severity].icon), h("span", { text: simple(f.code).title }), icon("chevron"))))] : null,
+        h("div", null, h("h2", { id: "sheet-title", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "muted", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null)),
+      worst ? h("p", { class: "muted", style: "margin:.6rem 0 0", text: plural(probs.length, "devProblem", "devProblems") }) : null,
+      all.length ? all.map((f, i) => fixBlock(s, f, i, all.length)) : null,
+      worst ? null : [h("span", { class: "pill p-green", style: "margin-top:1rem" }, icon("check"), t("devOk")),
+        h("p", { class: "lead", style: "margin-top:.6rem", text: t("devOkExplain") }),
+        h("h4", { text: t("keepSafe") + ":" }), steps(t("devOkSteps"))],
       techBox([
         h("dl", { class: "meta" },
           h("dt", { text: t("ip") }), h("dd", { class: "mono", text: d.ip }),
@@ -1045,63 +1285,25 @@
         h("div", { class: "muted", style: "margin-bottom:.4rem", text: t("ports") }),
         d.open_ports.length ? h("div", { class: "tags" }, d.open_ports.map((p) => h("span", { class: "port" + (risky.has(p.port) ? " risk" : "") },
           risky.has(p.port) ? icon("alert") : null, `${p.port}/${p.protocol} ${p.service}${p.tls ? " (TLS)" : ""}`))) : h("span", { text: t("none") }),
-        worst ? [h("h4", { text: t("techTitle") + ": " + detailed(worst.code).title }), h("div", { class: "evidence mono", text: worst.evidence }),
-          h("span", { class: "code-tag", text: `${t("codeLabel")}: ${worst.code}` })] : null,
       ])));
     lastOpener = opener || null;
     const dlg = document.getElementById("sheet");
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
     if (window.Device3D) window.Device3D.scan(body);
+    body.scrollTop = 0;
     document.getElementById("sheet-close").focus();
+  }
+  // "See what needs fixing": the devices with problems, the most dangerous one opened
+  function showFixes() {
+    state.devFilter = "problems";
+    closeSheet();
+    setTab("devices");
+    const s = scan(), top = mostDangerous(s);
+    if (top) openDevice(top);
   }
   function closeSheet() {
     const dlg = document.getElementById("sheet");
     if (dlg.open) { if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open"); }
-  }
-
-  // ---------------------------------------------------------------- FIXES (Fing-style security check)
-  function renderFindings(root) {
-    const s = scan();
-    root.append(pageHead(t("findingsTitle"), t("findingsSub")));
-    if (s.error) { root.append(errorBox(s)); return; }
-    if (!s.findings.length) { root.append(h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("noProblems") })))); return; }
-    const sums = { high: "sumHigh", medium: "sumMedium", low: "sumLow", info: "sumInfo" };
-    root.append(h("div", { class: "chips" }, Object.keys(RISK).filter((k) => s.findings.some((f) => f.severity === k))
-      .map((k) => h("span", { class: "pill p-" + k }, icon(RISK[k].icon), `${t(sums[k])}: ${s.findings.filter((f) => f.severity === k).length}`))));
-    Object.keys(RISK).forEach((sev) => {
-      const group = s.findings.map((f, i) => ({ f, i })).filter((x) => x.f.severity === sev);
-      if (!group.length) return;
-      root.append(h("section", { class: "group" },
-        h("div", { class: "group-head" }, h("h3", { class: "with-ico" }, icon(RISK[sev].icon, "lg tone-" + RISK[sev].tone), h("span", { text: `${RISK[sev][state.lang]} (${group.length})` }))),
-        h("div", { class: "checks" }, group.map(({ f, i }) => checkCard(s, f, i)))));
-    });
-  }
-  function checkCard(s, f, i) {
-    const tx = simple(f.code), dev = deviceByIp(s, f.ip) || { type: "unknown" }, vendor = shortVendor(dev.vendor);
-    const card = h("article", { class: "check", id: "finding-" + i, tabindex: "0",
-      "aria-label": `${RISK[f.severity][state.lang]}. ${tx.title}. ${deviceLabel(dev.type)}. ${t("cardHint")}` },
-      h("div", { class: "check-head" }, devIco(dev.type, toneOf(f.severity)),
-        h("div", { class: "grow" }, h("h3", { style: "margin:0;font-size:1.2rem", text: deviceLabel(dev.type) }), vendor ? h("div", { class: "sub", text: vendor }) : null)),
-      riskPill(f.severity),
-      h("h4", { class: "title", text: tx.title }),
-      h("p", { text: tx.explain }),
-      h("h4", { text: t("doThis") + ":" }),
-      steps(tx.steps),
-      h("div", { class: "foot-row" }, whoLine(f.code), h("span", { class: "code-tag", text: `${t("codeLabel")}: ${f.code}` })),
-      techFor(f));
-    card.addEventListener("keydown", (e) => {
-      if (e.target !== card || (e.key !== "Enter" && e.key !== " ")) return;
-      e.preventDefault();
-      const d = card.querySelector("details.tech");
-      d.open = !d.open;
-    });
-    return card;
-  }
-  function openFinding(i) {
-    const el = document.getElementById("finding-" + i);
-    if (!el) return;
-    el.focus({ preventScroll: true });
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   // ---------------------------------------------------------------- HISTORY (compare + events timeline)
@@ -1113,7 +1315,18 @@
         h("button", { type: "button", class: "btn btn-tonal", onclick: () => { state.historyDeleted = false; store.set("historyDeleted", "0"); render(); } }, t("restore"))));
       return;
     }
-    const ch = D.history.changes, trend = D.history.trend;
+    if (LIVE && !D.scans.length) { root.append(state.justDeleted ? h("div", { class: "suggest" }, h("p", { class: "lead with-ico", role: "status" }, icon("trash"), h("span", { text: t("deleted") })),
+      h("p", { class: "muted", text: t("deletedTech") })) : needScanBox()); return; }
+    // live: the scan on screen compared with the one saved just before it
+    const cur = scan();
+    const ch = LIVE ? (cur.changes || null) : D.history.changes, trend = D.history.trend;
+    if (!ch) {
+      root.append(h("div", { class: "two" },
+        h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("info", "lg"), h("span", { text: t("histNeedTwo") }))),
+        trend.length ? h("div", { class: "suggest" }, h("h3", { text: t("chartTitle") }), chart(trend)) : null));
+      if (LIVE) root.append(h("div", { class: "suggest", style: "margin-top:20px" }, h("h3", { text: t("deleteTitle") }), h("p", { class: "muted", text: t("deleteSub") }), privacyRow()));
+      return;
+    }
     const fixed = ch.resolved_findings.length;
     const verdict = ch.score_change > 0 ? (fixed === 1 ? t("bravoOne") : t("bravo", { n: fixed })) : ch.score_change < 0 ? t("worse") : t("same");
 
@@ -1144,7 +1357,7 @@
       del.append(h("div", { class: "confirm", role: "alertdialog", "aria-label": t("deleteBtn") },
         h("p", { class: "lead", text: t("deleteConfirm") }),
         h("div", { class: "actions" },
-          h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); } }, t("deleteYes")),
+          h("button", { type: "button", class: "btn btn-danger", onclick: LIVE ? liveDelete : () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); } }, t("deleteYes")),
           h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); } }, t("deleteNo")))));
     }
     root.append(del);
@@ -1160,7 +1373,7 @@
     ch.new_devices.forEach((ip) => after.push(ev("red", "plus", t("evNewDev"), ip)));
     ch.removed_devices.forEach((ip) => after.push(ev("", "leave", t("evGoneDev"), ip)));
     if (!ch.alerts) after.push(ev("green", "shield", t("evQuiet"), null));
-    const first = trend[0];
+    const first = (ch.before_scan_id != null && trend.find((r) => r.scan_id === ch.before_scan_id)) || trend[0];
     return h("div", null,
       h("div", { class: "t-when", text: t("now") }),
       h("ul", { class: "timeline" }, after),
@@ -1235,13 +1448,6 @@
       const st = simple(f.code).steps[0];
       if (st) out.push({ text: t("aPrinterFix", { step: st }), cites: [`${f.ip}:9100`] });
     } else return [{ text: t("noAnswer"), cites: ["scan"] }];
-    if (state.hallucinate) {
-      const router = s.devices.find((d) => d.type === "router") || s.devices[0];
-      if (router) {
-        const port = [23, 2323, 3389, 5900].find((p) => !router.open_ports.some((x) => x.port === p));
-        out.splice(1, 0, { text: t("hall", { port }), cites: [router.ip] });
-      }
-    }
     return out;
   }
   function classify(q) {
@@ -1251,13 +1457,41 @@
     if (/(aparat|dispozitiv|device|ce am|what do i have|conectat|connected)/.test(s)) return "devices";
     return "unknown";
   }
-  function renderAsk(root) {
+  // live: a real conversation with the assistant (AI through the team gateway, built-in texts as fallback).
+  // Findings and scores never come from the AI; it only explains what this scan shows (NFR-06).
+  async function liveAsk(q) {
+    q = (q || "").trim().slice(0, 500);
     const s = scan();
-    root.append(pageHead(t("askTitle"), t("askSub")));
+    if (!q || state.busy || s.empty || s.error) return;
+    const turns = [];
+    state.chat.filter((m) => m.source === "ai").slice(-6).forEach((m) => turns.push({ role: "user", content: m.q }, { role: "assistant", content: m.a }));
+    const item = { q, a: null, mode: null, source: null };
+    state.chat.push(item);
+    if (state.chat.length > 20) state.chat.shift();
+    state.busy = true;
+    renderChatPanel();
+    const res = await api("POST", "/api/v1/ask", { question: q, scan_id: s.scan_id, history: turns });
+    state.busy = false;
+    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source });
+    else Object.assign(item, { a: errText(res), mode: "error", source: "error" });
+    renderChatPanel();
+    if (state.chatOpen) focusSel("#ask-input");
+  }
+  function renderChat(root) {
+    const s = scan();
+    root.append(h("p", { class: "muted chat-sub", text: LIVE ? t("askSubLive") : t("askSub") }));
+    if (s.empty) { root.append(needScanBox()); return; }
     if (s.error) { root.append(errorBox(s)); return; }
-    const card = h("div", { class: "suggest chat" });
+    const card = h("div", { class: "chat" });
     card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
     state.chat.forEach((m) => {
+      if (m.q !== undefined) {               // live answer
+        card.append(h("div", { class: "bubble me", text: m.q }));
+        card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
+        card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a })));
+        if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
+        return;
+      }
       card.append(h("div", { class: "bubble me", text: m.text }));
       const res = answer(m.kind, s).map((x) => ({ x, r: check(x, s) }));
       card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
@@ -1268,22 +1502,55 @@
       const bad = res.filter((z) => !z.r.ok).length;
       card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("verified", { ok: res.length - bad, bad }) }));
     });
-    const ask = (kind, text) => { state.chat.push({ kind, text }); if (state.chat.length > 4) state.chat.shift(); render(); focusSel("#ask-input"); };
+    // offline demo (no local agent): answers from our own texts, checked sentence by sentence
+    const demoAsk = (kind, text) => { state.chat.push({ kind, text }); if (state.chat.length > 4) state.chat.shift(); renderChatPanel(); focusSel("#ask-input"); };
+    const useLive = LIVE;
+    const ask = (kind, text) => (useLive ? liveAsk(text) : demoAsk(kind, text));
     card.append(h("div", { class: "chips", style: "margin-top:.5rem" },
-      [["first", "q1"], ["devices", "q2"], ["printer", "q3"]].map(([k, key]) => h("button", { type: "button", class: "chip-btn", onclick: () => ask(k, t(key)) }, icon("message"), t(key)))));
-    const input = h("input", { type: "text", id: "ask-input", placeholder: t("askPlaceholder"), maxlength: "200", "aria-label": t("askLabel") });
-    card.append(h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) ask(classify(q), q); } },
-      input, h("button", { type: "submit", class: "btn btn-filled" }, t("askBtn"), icon("send"))));
-    card.append(h("details", { class: "tech", open: state.hallucinate }, h("summary", null, icon("present"), h("span", { text: t("hallToggle") })),
-      h("div", null,
-        h("label", { class: "switch" }, h("input", { type: "checkbox", checked: state.hallucinate,
-          onchange: (e) => { state.hallucinate = e.target.checked; render(); focusSel(".switch input"); } }), t("hallSwitch")),
-        h("p", { class: "muted", text: t("demoNote") }))));
+      [["first", "q1"], ["devices", "q2"], ["printer", "q3"]].map(([k, key]) => h("button", { type: "button", class: "chip-btn", disabled: useLive && state.busy, onclick: () => ask(k, t(key)) }, icon("message"), t(key))),
+      LIVE && state.chat.length ? h("button", { type: "button", class: "chip-btn", onclick: () => { state.chat = []; renderChatPanel(); focusSel("#ask-input"); } }, icon("refresh"), t("newChat")) : null));
+    const input = h("input", { type: "text", id: "ask-input", placeholder: t("askPlaceholder"), maxlength: useLive ? "500" : "200", "aria-label": t("askLabel") });
     root.append(card);
+    root.append(h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) ask(classify(q), q); } },
+      input, h("button", { type: "submit", class: "btn btn-filled", "aria-label": t("askBtn"), disabled: useLive && state.busy }, h("span", { class: "btn-label", text: t("askBtn") }), icon("send"))));
+  }
+
+  // ---------------------------------------------------------------- the assistant: a floating button + chat panel
+  const chatFab = h("button", { type: "button", class: "chat-fab", id: "chat-fab", "aria-haspopup": "dialog", "aria-controls": "chat-panel",
+    onclick: () => openChat() }, icon("message"), h("span", { class: "chat-fab-label" }));
+  const chatPanel = h("section", { class: "chat-panel", id: "chat-panel", role: "dialog", "aria-labelledby": "chat-title", hidden: true },
+    h("header", { class: "chat-head" }, icon("bot"), h("h2", { id: "chat-title" }),
+      h("button", { type: "button", class: "icon-btn chat-close", onclick: () => closeChat() }, icon("x"), h("span", { class: "sr" }))),
+    h("div", { class: "chat-body" }));
+  chatPanel.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeChat(); } });
+  document.body.append(chatFab, chatPanel);
+  function renderChatPanel() {
+    chatFab.querySelector(".chat-fab-label").textContent = t("askTitle");
+    chatFab.setAttribute("aria-label", t("askTitle"));
+    chatFab.title = t("askTitle");
+    chatPanel.querySelector("#chat-title").textContent = t("botName");
+    chatPanel.querySelector(".chat-close .sr").textContent = t("close");
+    chatFab.hidden = state.chatOpen;
+    chatPanel.hidden = !state.chatOpen;
+    if (!state.chatOpen) return;
+    const body = chatPanel.querySelector(".chat-body");
+    body.replaceChildren();
+    renderChat(body);
+    body.scrollTop = body.scrollHeight;              // newest message in view
+  }
+  function openChat() {
+    state.chatOpen = true;
+    renderChatPanel();
+    focusSel("#ask-input");
+  }
+  function closeChat() {
+    state.chatOpen = false;
+    renderChatPanel();
+    chatFab.focus();
   }
 
   // ---------------------------------------------------------------- shell
-  const RENDER = { home: renderHome, devices: renderDevices, findings: renderFindings, history: renderHistory, ask: renderAsk };
+  const RENDER = { home: renderHome, devices: renderDevices, history: renderHistory };
   function setTab(name) {
     state.tab = name;
     TABS.forEach((n) => { document.getElementById("panel-" + n).hidden = n !== name; });
@@ -1298,34 +1565,143 @@
     document.getElementById("lang-en").setAttribute("aria-pressed", String(state.lang === "en"));
     const sel = document.getElementById("scan-select");
     sel.setAttribute("aria-label", t("scanFile"));
-    sel.replaceChildren(...D.scans.map((s, i) => h("option", { value: String(i), selected: i === state.scan }, s.error ? `${s.file} — ${t("errorWord")}` : `${s.file} — ${s.score}/100`)));
+    const list = allScans();
+    sel.disabled = !list.length;
+    sel.replaceChildren(...(list.length ? list.map((s, i) => h("option", { value: String(i), selected: i === state.scan },
+      s.error ? `${s.label || s.file} — ${t("errorWord")}` : `${s.label || s.file} — ${s.score}/100`)) : [h("option", { value: "0" }, t("noScan"))]));
+    // top-bar actions: the words are hidden on small screens, so they are also the button's name and tooltip
+    const label = (sel, text) => { const b = document.querySelector(sel); if (!b) return; b.querySelector("span").textContent = text; b.setAttribute("aria-label", text); b.title = text; };
+    label(".export-btn", t("exportBtn"));
+    label(".upload-btn", state.uploading ? t("uploading") : t("upload"));
+    label("#close-app", t("closeApp"));
     const panel = document.getElementById("panel-" + state.tab);
     panel.replaceChildren();
     RENDER[state.tab](panel);
+    renderChatPanel();
     if (window.Device3D) window.Device3D.scan(panel);       // 3D models into every .dev3d slot
   }
 
-  document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; render(); });
+  document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; state.confirmDelete = false; render(); });
+
+  // ---------------------------------------------------------------- LIVE: upload a file, close the app, heartbeat
+  if (LIVE) {
+    // "Upload a check": any nmap XML (e.g. from the lab or the Test Set). Readable files are saved to the history;
+    // a broken file is shown with a clear error and is never saved (live check 5).
+    const file = h("input", { type: "file", accept: ".xml,text/xml", multiple: true, class: "sr", tabindex: "-1" });
+    const upBtn = h("button", { type: "button", class: "btn btn-text upload-btn", onclick: () => file.click() }, icon("plus"), h("span", { text: t("upload") }));
+    file.addEventListener("change", async () => {
+      if (!file.files.length) return;
+      const fd = new FormData();
+      Array.from(file.files).forEach((f) => fd.append("files", f, f.name));
+      file.value = "";
+      state.uploading = true; render();
+      const res = await api("POST", "/api/v1/upload", fd);
+      state.uploading = false;
+      if (!res.ok) { render(); problemSheet(t("probT"), errText(res)); return; }
+      const bad = (res.data.errors || []).map((x) => ({ file: x.file, label: x.file, error: x.error, devices: [], findings: [] }));
+      state.broken = bad.concat(state.broken).slice(0, 5);
+      const saved = res.data.saved || [];
+      state.justDeleted = false; state.chat = [];
+      await reloadData(saved.length ? saved[saved.length - 1] : -1);
+      if (bad.length && !saved.length) state.scan = 0;            // show the error of the broken file
+      setTab("home");
+      if (bad.length) problemSheet(t("errorTitle"), t("uploadBad"), bad.map((b) => `${b.file}: ${b.error}`).join("\n"));
+    });
+    // "Export CSV" (FR-15): findings.csv + scores.csv for a whole folder, written by the same code as
+    // `python -m netcheck analyze <folder>`; downloaded as one ZIP and also saved under ~/SafeHouse/exports.
+    const pickFolder = h("input", { type: "file", multiple: true, webkitdirectory: true, class: "sr", tabindex: "-1" });
+    const pickFiles = h("input", { type: "file", multiple: true, accept: ".xml,text/xml", class: "sr", tabindex: "-1" });
+    const isXml = (f) => /\.xml$/i.test(f.name) && !f.name.startsWith(".");
+    pickFolder.addEventListener("change", () => {
+      const all = Array.from(pickFolder.files).filter((f) => !f.name.startsWith("."));
+      pickFolder.value = "";
+      runExport(all.filter(isXml), all.filter((f) => !isXml(f)).length);
+    });
+    pickFiles.addEventListener("change", () => { const all = Array.from(pickFiles.files); pickFiles.value = ""; runExport(all, 0); });
+    function exportSheet() {
+      showSheet(h("div", null,
+        h("div", { class: "sheet-head" }, h("div", { class: "dev-ico", "aria-hidden": "true" }, icon("chart")), h("h2", { id: "sheet-title", text: t("exportT") })),
+        h("p", { class: "lead", style: "margin-top:.6rem", text: t("exportS") }),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "btn btn-cta", id: "ex-folder", onclick: () => pickFolder.click() }, icon("drive"), t("exportFolder")),
+          h("button", { type: "button", class: "btn", onclick: () => pickFiles.click() }, icon("plus"), t("exportFiles"))),
+        D.scans.length ? h("div", { class: "actions" },
+          h("button", { type: "button", class: "btn btn-text", onclick: () => runExport(null, 0) }, icon("chart"), t("exportSaved", { n: D.scans.length }))) : null), exBtn);
+      focusSel("#ex-folder");
+    }
+    async function runExport(files, skipped) {
+      if (files && !files.length) { problemSheet(t("exportT"), t("exportNone")); return; }
+      showSheet(h("p", { class: "lead", role: "status", text: t("exporting") }));
+      let body;
+      if (files) { body = new FormData(); files.forEach((f) => body.append("files", f, f.name)); }
+      let r;
+      try {
+        r = await fetch((files ? "/api/v1/export" : "/api/v1/export/history") + "?lang=" + state.lang,
+          { method: "POST", credentials: "same-origin", body });
+      } catch (e) { problemSheet(t("exportT"), t("connErr")); return; }
+      if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("exportT"), errText({ data })); return; }
+      const blob = await r.blob();
+      const name = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "safehouse_results.zip";
+      const a = h("a", { href: URL.createObjectURL(blob), download: name, style: "display:none" });
+      document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+      const n = (k) => Number(r.headers.get("X-SafeHouse-" + k) || 0);
+      let where = "";
+      try { where = decodeURIComponent(r.headers.get("X-SafeHouse-Saved-To") || ""); } catch (e) { /* keep empty */ }
+      showSheet(h("div", { role: "status" },
+        h("div", { class: "sheet-head" }, h("div", { class: "dev-ico green", "aria-hidden": "true" }, icon("check")), h("h2", { id: "sheet-title", text: t("exportDoneT") })),
+        h("p", { class: "lead", style: "margin-top:.6rem", text: t("exportDone", { f: n("Files"), e: n("Errors"), k: n("Findings") }) }),
+        skipped ? h("p", { class: "note with-ico" }, icon("info"), h("span", { text: t("exportSkipped", { n: skipped }) })) : null,
+        where ? [h("p", { class: "muted", text: t("exportWhere") }), h("p", { class: "evidence mono", text: where })] : null,
+        h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
+    }
+    const exBtn = h("button", { type: "button", class: "btn btn-text export-btn", onclick: exportSheet }, icon("chart"), h("span", { text: t("exportBtn") }));
+    // actions on the right of the top bar (icons only on phones, see styles.css); the file pickers stay hidden
+    document.querySelector(".appbar-actions").prepend(upBtn, exBtn);
+    document.body.append(file, pickFolder, pickFiles);
+    if (D.app_mode) {
+      const close = h("button", { type: "button", class: "btn", id: "close-app" }, icon("x"), h("span", { text: t("closeApp") }));
+      close.addEventListener("click", async () => {
+        await api("POST", "/api/v1/shutdown");
+        document.body.replaceChildren(h("p", { class: "lead", style: "padding:3rem;text-align:center", text: t("closedApp") }));
+        window.close();
+      });
+      document.querySelector(".appbar-actions").append(close);
+      const beat = () => api("POST", "/api/v1/heartbeat");
+      beat(); setInterval(beat, 20000);
+    }
+    // a check already running (e.g. the page was reloaded): follow it
+    api("GET", "/api/v1/status").then((res) => { if (res.ok && res.data.scan && res.data.scan.status === "running") followJob(res.data.scan); });
+  }
   ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { state.lang = l; store.set("lang", l); render(); }));
   document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); }));
+  // the SafeHouse logo (side bar on computers, top bar on phones) always goes back to Home
+  document.querySelectorAll(".nav-brand, .logo").forEach((a) => a.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeSheet();
+    setTab("home");
+    document.getElementById("main").focus({ preventScroll: true });
+  }));
   const dlg = document.getElementById("sheet");
   document.getElementById("sheet-close").addEventListener("click", closeSheet);
   dlg.addEventListener("close", () => { if (lastOpener && document.body.contains(lastOpener)) lastOpener.focus(); });
   dlg.addEventListener("click", (e) => { if (e.target === dlg) closeSheet(); });   // tap outside the sheet
 
-  // Deep links for the pitch: #ask?q=first&hall=1, #home?lang=en&scan=V3_small_office.xml, #history?theme=light, #devices?open=192.168.1.40
+  // Deep links for the pitch: #ask?q=first, #home?lang=en&scan=V3_small_office.xml, #history?theme=light, #devices?open=192.168.1.40
   (function applyHash() {
     const [tab, query] = location.hash.slice(1).split("?");
     const p = new URLSearchParams(query || "");
+    const qs = new URLSearchParams(location.search);          // the app window opens /?lang=ro|en
+    if (!store.get("lang") && (qs.get("lang") === "en" || qs.get("lang") === "ro")) state.lang = qs.get("lang");
     if (p.get("lang") === "en" || p.get("lang") === "ro") state.lang = p.get("lang");
-    const i = D.scans.findIndex((s) => s.file === p.get("scan"));
+    const i = allScans().findIndex((s) => s.file === p.get("scan"));
     if (i >= 0) state.scan = i;
-    if (p.get("hall") === "1") state.hallucinate = true;
     if (p.get("inspect") === "1") state.inspected[scan().file] = true;
     if (p.get("theme") === "light" || p.get("theme") === "dark") document.documentElement.dataset.theme = p.get("theme");
     const q = { first: "q1", devices: "q2", printer: "q3" }[p.get("q")];
     if (q) state.chat = [{ kind: p.get("q"), text: t(q) }];
-    setTab(TABS.includes(tab) ? tab : "home");
+    if (tab === "findings") { state.devFilter = "problems"; setTab("devices"); }       // old "Fixes" links
+    else setTab(TABS.includes(tab) ? tab : "home");
+    if (tab === "ask") openChat();                                                        // the assistant
     if (p.get("state")) applyHouseState(p.get("state"));
     const open = p.get("open");
     if (open && !scan().error) { const d = deviceByIp(scan(), open); if (d) openDevice(d); }

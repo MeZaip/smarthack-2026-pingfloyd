@@ -1,6 +1,6 @@
 """Read-only JSON API over the local scan history, in the formats of service_data_contracts.md.
 
-  GET /api/scans                               list of saved scans, oldest first
+  GET /api/scans                               list of saved scans, in the order they were saved
   GET /api/scans/latest                        §2 Evaluated Scan Data, most recent scan
   GET /api/scans/{id}                          §2 Evaluated Scan Data
   GET /api/scans/{id}/delta[?previous=<id>]    §4 History & Deltas (default: the scan just before it)

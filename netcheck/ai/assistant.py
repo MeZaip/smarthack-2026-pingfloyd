@@ -16,6 +16,7 @@ from ..core.device import DEVICE_LABELS
 from ..core.diff import compare
 from ..explain.texts import SEVERITY_LABELS, score_band, text_for
 from .grounding import GroundingError, check
+from .language import detect as detect_language
 from .providers import LLMUnavailable, get_provider
 
 MAX_QUESTION_CHARS = 1000
@@ -90,43 +91,48 @@ class ScanTools:
 
 
 def fallback_answer(tools: ScanTools) -> str:
-    """Deterministic built-in answer: the most useful facts for any question."""
+    """Deterministic built-in answer, short and simple: the most useful facts for any question."""
     s = tools.get_summary()
     ro = tools.lang == "ro"
     lines = [
-        ("Asistentul AI nu este disponibil acum. Iată rezumatul scanării:" if ro
-         else "The AI assistant is not available right now. Here is the scan summary:"),
-        (f"Scor rețea: {s['standard_score']}/100 ({s['band']})." if ro
-         else f"Network score: {s['standard_score']}/100 ({s['band']})."),
+        "Asistentul online nu răspunde acum. Pe scurt:" if ro else "The online assistant is not answering right now. In short:",
+        (f"Scorul casei tale: {s['standard_score']} din 100 ({s['band'].lower()})." if ro
+         else f"Your home's score: {s['standard_score']} out of 100 ({s['band'].lower()})."),
     ]
     top = s["most_dangerous_device"]
     if top:
-        name = top["hostname"] or top["vendor"] or top["type"]
-        lines.append((f"Cel mai periculos dispozitiv: {top['ip']} ({name})." if ro
-                      else f"Most dangerous device: {top['ip']} ({name})."))
+        name = top["type"] + (f" {top['vendor']}" if top["vendor"] else "")
+        lines.append(f"Cea mai mare problemă e la {name} ({top['ip']})." if ro
+                     else f"The biggest problem is on {name} ({top['ip']}).")
     ff = s["first_fix"]
     if ff:
-        lines.append(("Primul pas: " if ro else "First step: ") + ff["title"] + ".")
+        lines.append(("Problema: " if ro else "The problem: ") + ff["title"].rstrip(".") + ".")
+        lines.append("Ce faci:" if ro else "What to do:")
         lines.extend(f"{i}. {step}" for i, step in enumerate(ff["fix_steps"][:3], 1))
     else:
-        lines.append("Nu am găsit probleme în această scanare." if ro else "No problems were found in this scan.")
+        lines.append("Nu am găsit nimic de reparat." if ro else "We found nothing to fix.")
     ch = tools.compare_with_previous()
     if ch.get("available"):
-        lines.append(
-            (f"Față de scanarea anterioară: scor {ch['score_before']} → {ch['score_after']}, "
-             f"{len(ch['resolved_findings'])} probleme rezolvate, {len(ch['new_findings'])} noi, "
-             f"{len(ch['new_devices'])} dispozitive noi." if ro else
-             f"Compared with the previous scan: score {ch['score_before']} → {ch['score_after']}, "
-             f"{len(ch['resolved_findings'])} problems resolved, {len(ch['new_findings'])} new, "
-             f"{len(ch['new_devices'])} new devices."))
+        fixed = len(ch["resolved_findings"])
+        if ro:
+            more = f" și ai reparat {fixed} {'lucru' if fixed == 1 else 'lucruri'}." if fixed else "."
+            lines.append(f"Față de verificarea de dinainte, scorul a trecut de la {ch['score_before']} la {ch['score_after']}" + more)
+        else:
+            more = f" and you fixed {fixed} {'thing' if fixed == 1 else 'things'}." if fixed else "."
+            lines.append(f"Since the previous check, the score went from {ch['score_before']} to {ch['score_after']}" + more)
     return "\n".join(lines)
 
 
 def ask(question: str, analysis: Analysis, lang: str = "ro", previous: Optional[Analysis] = None,
         provider=None, history: Optional[list[dict]] = None) -> Answer:
     lang = lang if lang in LANGS else "ro"
-    tools = ScanTools(analysis, lang, previous)
     question = (question or "").strip()[:MAX_QUESTION_CHARS]
+    # answer in the language of the question, not of the page; a short "ok?" keeps the conversation's language
+    earlier = [m["content"] for m in (history or []) if m.get("role") == "user"]
+    if earlier:
+        lang = detect_language(earlier[-1], default=lang)
+    lang = detect_language(question, default=lang)
+    tools = ScanTools(analysis, lang, previous)
     provider = provider or get_provider()
 
     if not question:

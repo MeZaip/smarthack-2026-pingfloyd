@@ -1,6 +1,6 @@
 """HTTP server for the AI gateway (standard library only - no extra dependencies).
 
-The netcheck app (run by end users) calls this service; the service calls the
+The SafeHouse app (run by end users) calls this service; the service calls the
 model with the team's API key. Users never see or need a key.
 
 Endpoints
@@ -90,6 +90,34 @@ def plain_text(text: str) -> str:
     return _HEADING.sub("", text).strip()
 
 
+MAX_WORDS = 110          # the prompt asks for ~60 words (+ up to 3 short steps); this is only the safety net
+_SENTENCE = re.compile(r"(?<=[.!?…])\s+")
+_STEP = re.compile(r"^\s*\d+[.)]\s")
+
+
+def shorten(text: str, max_words: int = MAX_WORDS) -> str:
+    """Safety net for the 'be short' prompt rule: keep whole sentences / numbered steps up to max_words."""
+    if len(text.split()) <= max_words:
+        return text
+    out, used = [], 0
+    for line in text.splitlines():
+        parts = [line] if _STEP.match(line) else _SENTENCE.split(line)
+        kept, full = [], False
+        for part in parts:
+            words = len(part.split())
+            if used + words > max_words:
+                full = True
+                break
+            kept.append(part)
+            used += words
+        if kept:
+            out.append(" ".join(kept))
+        if full:
+            break
+    short = "\n".join(x for x in out if x.strip()).strip()
+    return short or text
+
+
 class GatewayError(Exception):
     def __init__(self, status: int, code: str, message: str):
         super().__init__(message)
@@ -117,7 +145,7 @@ def answer_question(cfg: Config, backend: Backend, slots: threading.BoundedSemap
                 text = backend.complete(messages)
             except BackendError as e:
                 raise GatewayError(503, "model_unavailable", str(e)) from None
-            text = plain_text(text)
+            text = shorten(plain_text(text))
             try:
                 check_evidence(text, *evidence)
                 return text, int((time.monotonic() - started) * 1000)
@@ -139,7 +167,7 @@ def make_handler(cfg: Config, backend: Backend):
     slots = threading.BoundedSemaphore(cfg.concurrency)
 
     class Handler(BaseHTTPRequestHandler):
-        server_version = "netcheck-gateway"
+        server_version = "safehouse-gateway"
         sys_version = ""
         protocol_version = "HTTP/1.1"
 
@@ -251,7 +279,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     from netcheck.ai.providers import load_dotenv
 
     load_dotenv()
-    p = argparse.ArgumentParser(prog="python -m gateway", description="netcheck AI gateway")
+    p = argparse.ArgumentParser(prog="python -m gateway", description="SafeHouse AI gateway")
     p.add_argument("--host")
     p.add_argument("--port", type=int)
     p.add_argument("--backend", choices=["claude", "ollama"])
@@ -261,7 +289,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if overrides:
         cfg = Config(**{**cfg.__dict__, **overrides})
     srv = make_server(cfg)
-    print(f"netcheck gateway {cfg.describe()}")
+    print(f"SafeHouse gateway {cfg.describe()}")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

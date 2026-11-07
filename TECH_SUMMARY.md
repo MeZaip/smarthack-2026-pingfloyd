@@ -1,4 +1,4 @@
-# NetCheck — 1-page technical summary
+# SafeHouse — 1-page technical summary
 
 **Lab setup.** One phone runs hotspot `RSH-<team>` (WPA2/3). Scanner laptop joins only the hotspot. Target laptop runs
 `lab/fake_services.py` (banner-only telnet, FTP vsFTPd 2.3.4, SSH OpenSSH 7.2, VNC, plain-HTTP "Admin Login") and optionally
@@ -7,7 +7,7 @@ _TODO at the event: subnet, devices, screenshots, measured score before → afte
 
 **Architecture.** Python 3, one package, five layers:
 `scanner (nmap, sudo only)` → `parser (defusedxml)` → `rules + score (deterministic)` → `explain (RO/EN JSON) / assistant (Claude, optional)` →
-`history (SQLite) + web UI (FastAPI, Jinja2 autoescape) + CSV export`. CLI first, UI second; both call the same functions.
+`history (SQLite) + SafeHouse web UI (FastAPI local agent, scan text inserted only as text) + CSV export`. CLI first, UI second; both call the same functions.
 
 **Rules.** Literal implementation of the official catalog: only `state="open"`, decision by nmap service name, UPnP/SNMP only on UDP,
 HTTP admin = service `http` without `tunnel="ssl"` and title containing login/admin/config/setup/router/settings,
@@ -21,11 +21,12 @@ request contract, per-IP rate limit, daily cap, no logging of content. A **groun
 rejects any answer naming an IP, port, CVE, link or phone number not in the scan and shows the verified built-in text instead.
 Gateway down / no key / timeout → built-in answers, same UX. Conversations keep the last 6 turns in the app only.
 
-**Differentiators.** Home map with personal device names (HMAC device IDs, no MAC stored); „Dovedește!” one-click targeted re-check
-(unprivileged `nmap -sT`, same rules) + Ed25519-signed before/after certificate with scan SHA-256s (tamper → verification fails);
+**Differentiators.** SafeHouse UI: a 3D house that is "inspected" by a real live scan, a network map of every device (this computer
+marked), plain-language fixes; HMAC device IDs (no MAC stored); „Am reparat, verifică” one-click targeted re-check
+(unprivileged `nmap -sT`, same rules);
 „Paznic” unprivileged watch mode (ARP table + top-100 connect scan, desktop notifications, auto-pause on network change).
 
-**Security & privacy.** One-click app (`NetCheck.cmd`): the page is a thin client of a local agent on 127.0.0.1 (host check +
+**Security & privacy.** One-click app (`SafeHouse.cmd`): the page is a thin client of a local agent on 127.0.0.1 (host check +
 SameSite session cookie + origin check against CSRF/DNS rebinding); only nmap is elevated, via the OS permission dialog. Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
 masked MACs, local-only history with one-click delete, hostile-input tests (XXE, entity bomb, XSS in titles), secrets only via env vars
 (`gitleaks` clean).

@@ -1,17 +1,17 @@
 <#
-  Start NetCheck on Windows - the Windows version of ./run.sh.
+  Start SafeHouse on Windows - the Windows version of ./run.sh.
 
     .\run.ps1                  AI gateway (if a key / Ollama is configured) + UI on http://127.0.0.1:8000
     .\run.ps1 -Demo            same, with a separate demo history pre-loaded from tests\fixtures\synthetic
     .\run.ps1 -NoAI            UI only; the assistant answers from the built-in, verified texts
     .\run.ps1 -Port 9000       UI on another port
     .\run.ps1 -NoBrowser       do not open the browser
-    .\run.ps1 -App             the end-user app window instead (same as double-clicking NetCheck.cmd)
+    .\run.ps1 -App             the end-user app window instead (same as double-clicking SafeHouse.cmd)
 
   From cmd.exe use run.cmd with the same options. Ctrl+C stops everything started here.
 
   Why not WSL: WSL2 sits behind a NAT, so it cannot see the hotspot's devices directly (no ARP, no MACs,
-  no SYN scan) even on a private network. Run NetCheck natively on Windows. Live scans need Nmap for
+  no SYN scan) even on a private network. Run SafeHouse natively on Windows. Live scans need Nmap for
   Windows (https://nmap.org/download, includes Npcap); the "Check my network" button asks for permission
   through the normal Windows dialog, so this script itself does NOT need an administrator terminal.
 #>
