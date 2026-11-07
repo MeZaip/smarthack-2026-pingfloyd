@@ -7,6 +7,8 @@ questions and falls back to built-in text when the gateway is unavailable.
 """
 from __future__ import annotations
 
+import ipaddress
+import os
 import secrets
 from datetime import datetime
 from pathlib import Path
@@ -21,6 +23,9 @@ from ..ai.assistant import ask as ai_ask
 from ..core.analysis import Analysis
 from ..core.parser import MAX_FILE_BYTES, ScanFileError, parse_bytes
 from ..core.rules import evaluate, network_score
+from ..net.guardrail import ScopeError
+from ..net.netdetect import NetworkDetectError
+from . import guard, livescan
 from .api import router as api_router
 from .house import rooms
 from .i18n import UI
@@ -105,6 +110,7 @@ def dashboard(request: Request, id: Optional[int] = None, flash: Optional[str] =
         request, lang, r=r, scan_id=sid, dev=r.most_dangerous if r else None, first=r.first_fix if r else None,
         findings=r.findings if r else [], anchors=_anchors(r), diff=changes, alerts=alerts(changes, lang),
         scans=scans[-30:], rooms=rooms(r, lang), dev_by_ip={d.ip: d for d in (r.devices if r else [])},
+        guard_events=list(guard.state().events)[:5], stamp=_stamp,
         flash=_flash.pop(flash, None) if flash else None))
 
 
@@ -174,8 +180,146 @@ def history_page(request: Request):
 @app.post("/history/delete")
 def delete_history(request: Request):
     history.delete_history()
+    guard.forget()
     _cache.clear()
     return RedirectResponse(f"/history?lang={_lang(request)}", status_code=303)
+
+
+# ------------------------------------------------------------------ live scan (FR-02/04 from the browser)
+_CSRF = secrets.token_urlsafe(24)  # per server process; a foreign web page can't read it
+
+
+def _is_local(request: Request) -> bool:
+    """Only the computer running NetCheck may start a scan (matters when served with --host)."""
+    host = request.client.host if request.client else ""
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return host == "localhost"
+
+
+def _not_local(request: Request, lang: str) -> str:
+    ip = request.client.host if request.client else "?"
+    return UI[lang]["scan_not_local"].format(ip=ip, port=request.url.port or 80)
+
+
+def _scan_page(request: Request, lang: str, refusal: Optional[str] = None, target: str = "",
+               status_code: int = 200) -> HTMLResponse:
+    try:
+        net, net_error = livescan.detect(), None
+    except NetworkDetectError as e:
+        net, net_error = None, str(e)
+    job = livescan.current()
+    resp = _render(request, "scan.html", _ctx(
+        request, lang, net=net, net_error=net_error, job=job, refusal=refusal, csrf=_CSRF,
+        target=target or (net.subnet if net else ""), local=_is_local(request),
+        extra_allow=os.environ.get("NETCHECK_ALLOWLIST", "")))
+    resp.status_code = status_code
+    return resp
+
+
+@app.get("/scan", response_class=HTMLResponse)
+def scan_page(request: Request):
+    return _scan_page(request, _lang(request))
+
+
+@app.post("/scan", response_class=HTMLResponse)
+def scan_start(request: Request, target: str = Form(""), confirm: Optional[str] = Form(None),
+               csrf: str = Form("")):
+    lang = _lang(request)
+    t = UI[lang]
+    target = target.strip()[:64]
+    if not secrets.compare_digest(csrf, _CSRF):
+        return _scan_page(request, lang, refusal=t["scan_csrf"], target=target, status_code=403)
+    if not _is_local(request):
+        return _scan_page(request, lang, refusal=_not_local(request, lang), target=target, status_code=403)
+    try:
+        net, checked = livescan.check(target, confirmed=confirm == "yes")
+    except ScopeError as e:
+        return _scan_page(request, lang, refusal="⛔ " + e.message(lang), target=target, status_code=400)
+    except NetworkDetectError as e:
+        return _scan_page(request, lang, refusal=f"✖ {e}", target=target, status_code=400)
+
+    def save(a: Analysis) -> int:
+        with history.open_history() as conn:
+            sid, _ = history.save(conn, a)
+        _remember(sid, a)
+        return sid
+
+    try:
+        livescan.start(net, checked, save)
+    except livescan.Busy:
+        return _scan_page(request, lang, refusal=t["scan_busy"], target=target, status_code=409)
+    return RedirectResponse(f"/scan?lang={lang}", status_code=303)
+
+
+# ------------------------------------------------------------------ „Paznic" guard (FR-13 from the browser)
+def _scan_running() -> bool:
+    job = livescan.current()
+    return job is not None and job.state == "running"
+
+
+guard.set_busy_check(_scan_running)
+
+
+def _guard_page(request: Request, lang: str, refusal: Optional[str] = None, status_code: int = 200):
+    try:
+        net = livescan.detect()
+    except NetworkDetectError:
+        net = None
+    resp = _render(request, "guard.html", _ctx(
+        request, lang, g=guard.state(), net=net, refusal=refusal, csrf=_CSRF, local=_is_local(request),
+        stamp=_stamp, intervals=GUARD_INTERVALS))
+    resp.status_code = status_code
+    return resp
+
+
+GUARD_INTERVALS = (60, 300, 900)
+
+
+def _stamp(ts: Optional[float]) -> str:
+    return datetime.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "—"
+
+
+def _guard_allowed(request: Request, csrf: str, lang: str):
+    """CSRF + local-only check shared by start/stop; returns an error response or None."""
+    if not secrets.compare_digest(csrf, _CSRF):
+        return _guard_page(request, lang, refusal=UI[lang]["scan_csrf"], status_code=403)
+    if not _is_local(request):
+        return _guard_page(request, lang, refusal=_not_local(request, lang), status_code=403)
+    return None
+
+
+@app.get("/guard", response_class=HTMLResponse)
+def guard_page(request: Request):
+    return _guard_page(request, _lang(request))
+
+
+@app.post("/guard/start", response_class=HTMLResponse)
+def guard_start(request: Request, interval: int = Form(300), confirm: Optional[str] = Form(None),
+                csrf: str = Form("")):
+    lang = _lang(request)
+    if (err := _guard_allowed(request, csrf, lang)) is not None:
+        return err
+    try:
+        net = guard.check(confirmed=confirm == "yes")
+        guard.start(net, interval if interval in GUARD_INTERVALS else 300)
+    except ScopeError as e:
+        return _guard_page(request, lang, refusal="⛔ " + e.message(lang), status_code=400)
+    except NetworkDetectError as e:
+        return _guard_page(request, lang, refusal=f"✖ {e}", status_code=400)
+    except guard.AlreadyRunning:
+        pass
+    return RedirectResponse(f"/guard?lang={lang}", status_code=303)
+
+
+@app.post("/guard/stop", response_class=HTMLResponse)
+def guard_stop(request: Request, csrf: str = Form("")):
+    lang = _lang(request)
+    if (err := _guard_allowed(request, csrf, lang)) is not None:
+        return err
+    guard.stop()
+    return RedirectResponse(f"/guard?lang={lang}", status_code=303)
 
 
 @app.get("/report/{scan_id}", response_class=HTMLResponse)

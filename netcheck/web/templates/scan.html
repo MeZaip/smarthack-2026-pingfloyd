@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block head %}{% if job and job.state == 'running' %}<meta http-equiv="refresh" content="5">{% endif %}{% endblock %}
+{% block body %}
+<h1>🔍 {{ t.scan_title }}</h1>
+
+{% if refusal %}
+<section id="refusal" role="alert" class="card bad"><h2>{{ refusal }}</h2></section>
+{% endif %}
+
+{% if job %}
+  {% if job.state == 'running' %}
+  <section class="card warn" role="status" aria-live="polite">
+    <h2>⏳ {{ t.scan_running }}</h2>
+    <p><code>{{ job.target }}</code> · {{ t.scan_elapsed }}: {{ job.elapsed }} {{ t.scan_seconds }}</p>
+  </section>
+  {% elif job.state == 'done' %}
+  <section class="card good" role="status">
+    <h2>✔ {{ t.scan_done }}: <code>{{ job.target }}</code></h2>
+    <p>{{ t.score }}: <strong>{{ job.score }}</strong>/100 · {{ t.findings }}: {{ job.findings }} · {{ job.file }}</p>
+    <p><a class="btn" href="/?lang={{ lang }}&id={{ job.scan_id }}">{{ t.scan_see }}</a></p>
+  </section>
+  {% elif job.state == 'needs_root' %}
+  <section class="card warn" role="alert">
+    <h2>🔑 {{ t.scan_needs_root }}</h2>
+    <p>{{ t.scan_root_help }}</p>
+  </section>
+  {% else %}
+  <section class="card err" role="alert">
+    <h2>✖ {{ t.scan_failed }}: <code>{{ job.target }}</code></h2>
+    <p class="ev small">{{ job.message }}</p>
+  </section>
+  {% endif %}
+{% endif %}
+
+<section class="card">
+  <h2>📶 {{ t.scan_net }}</h2>
+  {% if net %}
+  <table>
+    <tr><th>{{ t.scan_iface }}</th><td>{{ net.interface }}</td></tr>
+    <tr><th>{{ t.scan_myip }}</th><td>{{ net.ip }}</td></tr>
+    <tr><th>{{ t.scan_subnet }}</th><td><code>{{ net.subnet }}</code></td></tr>
+    <tr><th>{{ t.scan_gw }}</th><td>{{ net.gateway or '—' }}</td></tr>
+    {% if extra_allow %}<tr><th>{{ t.scan_extra }}</th><td><code>{{ extra_allow }}</code></td></tr>{% endif %}
+  </table>
+  {% else %}
+  <p class="bad">✖ {{ t.scan_no_net }}</p>{% if net_error %}<p class="ev small muted">{{ net_error }}</p>{% endif %}
+  {% endif %}
+</section>
+
+{% if not (job and job.state == 'running') %}
+<section class="card noprint">
+  {% if not local %}<p class="warn">⚠ {{ t.scan_only_local }}</p>{% endif %}
+  <form action="/scan?lang={{ lang }}" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p><label for="target"><strong>{{ t.scan_target }}</strong></label><br>
+    <input id="target" type="text" name="target" value="{{ target }}" maxlength="64" autocomplete="off" spellcheck="false">
+    <span class="small muted">{{ t.scan_target_hint }}</span></p>
+    <p class="row"><input id="confirm" type="checkbox" name="confirm" value="yes" style="width:22px;height:22px">
+    <label for="confirm">{{ t.scan_confirm }}</label></p>
+    <p><button type="submit">{{ t.scan_btn }}</button></p>
+    <p class="small muted">🐢 {{ t.scan_rules }}</p>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

@@ -38,6 +38,9 @@
 
   {% include "_house.html" %}
 
+  {% if guard_events %}<section class="card warn" role="alert"><h2>🛡️ {{ t.guard_events }}</h2><ul>
+    {% for e in guard_events %}{% set tx = e.text(lang) %}<li>{{ stamp(e.at) }} · {% if e.risky %}⛔ {{ t.guard_risky }} · {% endif %}<strong>{{ tx[0] }}</strong>: {{ tx[1] }}</li>{% endfor %}
+  </ul><p class="small"><a href="/guard?lang={{ lang }}">➜ {{ t.nav_guard }}</a></p></section>{% endif %}
   {% if alerts %}<section class="card warn" role="alert"><h2>🔔 {{ t.alerts }}</h2><ul>{% for a in alerts %}<li>{{ a }}</li>{% endfor %}</ul></section>{% endif %}
   {% if diff %}
   <section class="card"><h2>📈 {{ t.changes }}</h2>

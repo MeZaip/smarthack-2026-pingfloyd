@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block head %}{% if g.running %}<meta http-equiv="refresh" content="15">{% endif %}{% endblock %}
+{% block body %}
+<h1>🛡️ {{ t.guard_title }}</h1>
+<p>{{ t.guard_hint }}</p>
+
+{% if refusal %}
+<section id="refusal" role="alert" class="card bad"><h2>{{ refusal }}</h2></section>
+{% endif %}
+
+<section class="card {{ 'good' if g.running else '' }}" role="status" aria-live="polite">
+  {% if g.running %}
+    <h2>✔ {{ t.guard_on }}: <code>{{ g.subnet }}</code></h2>
+    <p>{{ t["guard_status_" + g.status] if ("guard_status_" + g.status) in t else g.status }}
+       {% if g.stopping %}<strong>{{ t.guard_stopping }}</strong>{% endif %}</p>
+    <p class="small">{{ t.guard_every }} {{ (g.interval // 60) }} {{ t.guard_minute if g.interval < 120 else t.guard_min }}
+       · {{ t.guard_last }}: {{ stamp(g.last_check) }} · {{ g.cycles }} {{ t.guard_checks }}
+       · {{ g.known }} {{ t.guard_devices }}</p>
+    {% if g.message %}<p class="ev small">{{ g.message }}</p>{% endif %}
+    {% if local %}
+    <form action="/guard/stop?lang={{ lang }}" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button type="submit" class="danger">{{ t.guard_stop }}</button>
+    </form>
+    {% endif %}
+  {% else %}
+    <h2>⏸ {{ t.guard_off }}</h2>
+    {% if not local %}<p class="warn">⚠ {{ t.scan_only_local }}</p>{% endif %}
+    {% if net %}<p>{{ t.scan_subnet }}: <code>{{ net.subnet }}</code></p>{% else %}<p class="bad">✖ {{ t.scan_no_net }}</p>{% endif %}
+    <form action="/guard/start?lang={{ lang }}" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <p><label for="interval"><strong>{{ t.guard_every }}</strong></label>
+      <select id="interval" name="interval" style="font:inherit;padding:8px">
+        {% for s in intervals %}<option value="{{ s }}" {% if s == 300 %}selected{% endif %}>{{ s // 60 }} {{ t.guard_minute if s < 120 else t.guard_min }}</option>{% endfor %}
+      </select></p>
+      <p class="row"><input id="confirm" type="checkbox" name="confirm" value="yes" style="width:22px;height:22px">
+      <label for="confirm">{{ t.guard_confirm }}</label></p>
+      <p><button type="submit">{{ t.guard_start }}</button></p>
+      <p class="small muted">🐢 {{ t.scan_rules }}</p>
+    </form>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>🔔 {{ t.guard_events }}</h2>
+  {% if g.events %}
+  <ul class="doors">
+    {% for e in g.events %}{% set tx = e.text(lang) %}
+    <li class="door {{ 'door-high' if e.risky else 'door-info' }}">
+      <span>{{ stamp(e.at) }}</span> <strong>{% if e.risky %}⛔ {{ t.guard_risky }} · {% endif %}{{ tx[0] }}</strong> <span>{{ tx[1] }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="small">{{ t.guard_full_scan }} <a href="/scan?lang={{ lang }}">{{ t.nav_scan }}</a></p>
+  {% else %}
+  <p>{{ t.guard_no_events if g.cycles > 1 else t.guard_none if not g.running else t.guard_baseline }}</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -56,8 +56,15 @@ def build_command(target: str, out_xml: Path) -> list[str]:
     ]
 
 
-def run_scan(target: str, out_dir: str | os.PathLike = "scans") -> Path:
-    """target MUST already be validated by guardrail.check_target()."""
+class NeedsRootError(ScanError):
+    """sudo would have to ask for a password, but nobody can type it (scan started from the web UI)."""
+
+
+def run_scan(target: str, out_dir: str | os.PathLike = "scans", interactive: bool = True) -> Path:
+    """target MUST already be validated by guardrail.check_target().
+
+    interactive=False (web UI): `sudo -n` never prompts; it fails fast with NeedsRootError when
+    no cached sudo credentials / NOPASSWD rule for nmap exist."""
     if not shutil.which("nmap"):
         raise ScanError("nmap is not installed (macOS: brew install nmap)")
     out_dir = Path(out_dir)
@@ -65,8 +72,12 @@ def run_scan(target: str, out_dir: str | os.PathLike = "scans") -> Path:
     out_xml = out_dir / f"scan_{datetime.now():%Y%m%d_%H%M%S}.xml"
     cmd = build_command(target, out_xml)
     if os.name != "nt" and os.geteuid() != 0:
-        cmd = ["sudo"] + cmd  # privilege only for the packet-level scan
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+        cmd = (["sudo"] if interactive else ["sudo", "-n"]) + cmd  # privilege only for the packet-level scan
+    proc = subprocess.run(cmd, capture_output=True, text=True,
+                          stdin=None if interactive else subprocess.DEVNULL)
     if proc.returncode != 0 or not out_xml.exists():
-        raise ScanError(f"nmap failed: {proc.stderr.strip()[:300]}")
+        err = proc.stderr.strip()
+        if not interactive and "password" in err.lower() and "sudo" in err.lower():
+            raise NeedsRootError(err[:300])
+        raise ScanError(f"nmap failed: {err[:300]}")
     return out_xml

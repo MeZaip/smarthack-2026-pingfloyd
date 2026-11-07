@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NetCheck</title>
+{% block head %}{% endblock %}
 <style>
 :root{--bg:#f7f7fb;--card:#fff;--ink:#16161d;--muted:#4a4a57;--line:#d9d9e3;--accent:#5b2a9e;
 --good:#1d6b34;--good-bg:#e3f4e8;--warn:#8a5100;--warn-bg:#fff1d6;--bad:#a1121b;--bad-bg:#fde3e4;--info-bg:#e8eefc;--info:#1f3f8f}
@@ -57,6 +58,8 @@ details summary{cursor:pointer;font-weight:700}
   <strong>🛡️ {{ t.app }}</strong>
   <nav aria-label="main">
     <a href="/?lang={{ lang }}">{{ t.nav_home }}</a>
+    <a href="/scan?lang={{ lang }}">{{ t.nav_scan }}</a>
+    <a href="/guard?lang={{ lang }}">{{ t.nav_guard }}</a>
     <a href="/history?lang={{ lang }}">{{ t.nav_history }}</a>
     <a href="?lang={{ 'en' if lang=='ro' else 'ro' }}{% if scan_id %}&id={{ scan_id }}{% endif %}">🌐 {{ t.other_lang }}</a>
   </nav>
