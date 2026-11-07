@@ -5,14 +5,16 @@
 #   ./run.sh --demo          same, with a separate demo history pre-loaded from tests/fixtures/synthetic
 #   ./run.sh --no-ai         UI only; the assistant uses the built-in, verified texts
 #   ./run.sh --port 9000     UI on another port
+#   ./run.sh --host 0.0.0.0  UI on another address, e.g. "$(tailscale ip -4)" (no login: keep it private)
 #
-# Everything runs unprivileged and listens on 127.0.0.1 only. Live scans are separate:
+# Everything runs unprivileged; the AI gateway always listens on 127.0.0.1 only. Live scans are separate:
 #   .venv/bin/python -m netcheck scan --confirm      (asks for sudo only for nmap)
 # Ctrl+C stops all services started here.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 PORT=8000
+HOST=127.0.0.1
 DEMO=0
 AI=1
 while [[ $# -gt 0 ]]; do
@@ -20,7 +22,8 @@ while [[ $# -gt 0 ]]; do
     --demo) DEMO=1 ;;
     --no-ai) AI=0 ;;
     --port) PORT="${2:?--port needs a number}"; shift ;;
-    -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --host) HOST="${2:?--host needs an address}"; shift ;;
+    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $1 (see ./run.sh --help)" >&2; exit 2 ;;
   esac
   shift
@@ -91,7 +94,7 @@ else
   export NETCHECK_LLM_PROVIDER=none
 fi
 
-echo "• Web UI + JSON API on http://127.0.0.1:$PORT   (Ctrl+C to stop)"
-"$PY" -m netcheck serve --port "$PORT" &
+echo "• Web UI + JSON API on http://$HOST:$PORT   (Ctrl+C to stop)"
+"$PY" -m netcheck serve --host "$HOST" --port "$PORT" &
 PIDS+=($!)
 wait -n "${PIDS[@]}"

@@ -356,6 +356,8 @@ def cmd_serve(args) -> int:
     if args.db:
         import os
         os.environ["NETCHECK_DB"] = args.db
+    if args.host not in ("127.0.0.1", "localhost", "::1"):
+        _out(f"⚠ Listening on {args.host}: anyone who can reach this address sees your scan results (no login).")
     _out(f"NetCheck UI: http://{args.host}:{args.port}   (Ctrl+C to stop)")
     uvicorn.run("netcheck.web.app:app", host=args.host, port=args.port, log_level="warning")
     return 0
@@ -456,8 +458,9 @@ def main(argv=None) -> int:
     s.set_defaults(fn=cmd_watch)
 
     s = sub.add_parser("serve", help="web UI + JSON API on this computer only (no root)")
-    s.add_argument("--host", default="127.0.0.1", choices=["127.0.0.1", "localhost"],
-                   help="local only: the UI shows your network's weak spots")
+    s.add_argument("--host", default="127.0.0.1",
+                   help="address to listen on (default 127.0.0.1). The UI has no login and shows your "
+                        "network's weak spots: prefer a private interface (e.g. your Tailscale IP) over 0.0.0.0")
     s.add_argument("--port", type=int, default=8000)
     s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
     s.set_defaults(fn=cmd_serve)
