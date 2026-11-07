@@ -1,2 +1,3 @@
 defusedxml>=0.7
 pytest>=7
+# optional: psutil (network detection on Windows; macOS/Linux work without it)
