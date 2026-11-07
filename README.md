@@ -93,12 +93,34 @@ python tools/export_ui_data.py          # real tool output -> ui/data.js (scans,
 python -m http.server 8000 -d ui        # then open http://localhost:8000  (or just open ui/index.html)
 ```
 
-* **Look**: dark "security console" theme in black and red, no icons (devices are text tags like `[CAM]`,
-  `[RTR]`; risk is always written in words). A slim text menu on the left (`01 HOME` … `05 ASK`) with live
-  counters (score, devices, things to fix), a sliding red marker, keys `1`–`5` and ↑/↓; on phones it becomes
-  a horizontal tab strip. A network card with a HUD score ring and a labelled traffic light, a "suggestion
-  for today" card, device tiles that open a side/bottom sheet, fixes grouped by risk, an events timeline for
-  history, and a terminal-style assistant chat. Only system fonts, so it works offline.
+* **Safehouse3D** (Home, `ui/safehouse3d.js`): a real-time 3D scene with Three.js r159, bundled in `ui/vendor/`
+  (MIT licence included; no CDN, works offline and from `file://`). A modern two-volume house (plaster + wood,
+  big glass windows, flat roofs, hinged door) in a minimalist garden (lawn, stone path, hedge, stylised trees,
+  bushes, grass tufts); textures are drawn in code. *Inspect house* sweeps a glowing laser grid from the roof
+  to the ground in a loop (~4 s, three passes). **Safe**: the laser stops and the windows glow emerald (emissive
+  glass + point lights inside). **Vulnerable**: the door swings open on an orange glow. A floating glass panel
+  over the scene shows an icon and the result in both languages. Drag to turn the house. `buildHouse()` is the
+  place to load a `.gltf` model later. Without WebGL the CSS house below is used.
+* **Look** (Apple / Vercel style, dark by default; `#…?theme=light` for light): large whitespace, translucent
+  hairline cards (radius 16px) that lift on hover, semantic colours (safe `#10B981`, warning `#F59E0B`, danger
+  `#EF4444`) always paired with an SVG icon and words. Home = blended 3D house (edges fade into the page, glow
+  tinted by the state, glass badge) next to one centred score card (glowing ring, status pills, gradient CTA),
+  then **Uși lăsate deschise / Doors left open** (grid of fix cards, most dangerous marked *Start here*) and
+  **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
+* **Brand**: inline SVG logo, a house whose roof is the three Wi-Fi arcs, with the wordmark **Safe**house.
+* **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
+  defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.
+* **SafeHouse** (fallback without WebGL): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan
+  bar down the house while the windows light up one by one, then shows one of two states, always icon + words:
+  **safe** (green outline, door closes, ✅ *Casa este sigură / The house is safe*) or **vulnerable** (door opens
+  on an orange doorway, pulsing ⚠️ *Atenție: O ușă este deschisă / Warning: A door is open*). The state comes from
+  the real findings; other code can set it with `SafeHouse.setState("safe" | "vulnerable")` or run
+  `SafeHouse.inspect()`. Below the house, device cards show icon, name, IP and a 2-sentence explanation in
+  both languages. With *reduce motion* turned on, the result appears without animation.
+* Layout and behaviour follow **Google Home** and **Fing**: navigation rail on computers and a bottom bar on
+  phones, a greeting, a network card with a score ring and a labelled traffic light, a "suggestion for today"
+  card, device tiles that open a side/bottom sheet, fixes grouped by risk like a security check, and an
+  events timeline for history. The assistant is a chat with suggestion chips.
 * **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
   device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
 * **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
@@ -114,7 +136,7 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
 * Checked in every view and both themes: no text under 16 px, every text/background pair ≥ 4.5:1 (WCAG AA),
   every button and card reachable by keyboard with a visible focus ring (NFR-08). RO/EN toggle (NFR-09).
   Scan text is inserted only as text, never as HTML (NFR-03).
-* Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`.
+* Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`, `#home?inspect=1`, `#home?state=vulnerable`.
 
 ## How it works
 
