@@ -126,9 +126,24 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   events timeline for history. The assistant is a chat with suggestion chips.
 * **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
   device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
-* **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
-  (score chart + before/after, *Delete my history*), **Ask** (grounded answers: every sentence cites
-  its evidence; the demo switch slips in an invented claim and the checker blocks it).
+* Menu: **Home**, **Fixes**, **History**; the assistant is the **?** button next to the language.
+  * **Home**: 3D house + score card, then the threat path and the network map of every device (FR-03: IP, masked
+    MAC, maker), with *Show as a list* as the accessible version of the map (opens by itself past 14 devices).
+    Old links `#devices?open=<IP>` open Home with that device's sheet.
+  * **Fixes** (main work page): *One at a time* by default (the most dangerous thing first, with its device, steps
+    and *Done, I fixed it*; a progress bar; the rest folded under *N more things*; *Fixed* list with undo; marks are
+    kept only in this browser and the score changes only after a new check) and *See all* for experts (every
+    problem by risk, evidence, CIS/OWASP refs). `#findings?view=all` opens the full list.
+  * **Report for the IT company (FR-14)** on the Fixes page: *Save as PDF or print* and *Download the report
+    (HTML)*: one self-contained A4 page (score, the first fix, every problem with place, evidence, refs, steps and
+    status, the device table), built from DOM text nodes so scan text is escaped; it scales down to fit one page
+    (never below 80 %). `SafeHouse.reportHtml()` returns the same page as a string.
+  * **History**: score chart + before/after, *Delete my history*.
+  * **? Ask** (chat panel, Esc closes, Enter sends, Shift+Enter new line, big suggested questions, "no passwords
+    here" note): the answer comes from `window.SafeHouseAssistant.handler(question, {lang, scanFile, history})`
+    if a page sets it, else `POST /api/v1/ask` (`service_data_contracts.md`) when served over http; with neither,
+    or on error / 25 s timeout, the built-in grounded answers are used (every sentence cites its evidence; the
+    demo switch slips in an invented claim and the checker blocks it). `#ask?q=first&hall=1` opens it.
 * Written for **children and older people first**: plain words in RO/EN (`netcheck/explain/simple_texts.py`:
   title without jargon, ≤ 2 short sentences using the "your home has doors" picture, ≤ 3 steps, and who can do
   it: *you* / *ask someone who knows computers* / *ask the IT company*), a glossary, and text size buttons

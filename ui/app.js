@@ -20,6 +20,32 @@
       navHome: "Acasă", navDevices: "Aparate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
+      homeTitle: "Casa ta digitală", ebHome: "Starea rețelei", ebActive: "Activ", ebDevices: "Aparate", ebOnline: "{n} online",
+      ebFindings: "Reparații", ebHistory: "Istoric", ebSaved: "{n} salvate", ebAsk: "Asistent", ebGrounded: "Doar din dovezi",
+      hudGateway: "Router", hudOnline: "{n} online", hudPorts: "{n} porturi deschise", hudPort1: "1 port deschis", hudFix: "{n} de reparat", hudFix0: "Nimic de reparat",
+      act_red: "Trebuie să acționezi", act_amber: "Merită verificat", act_green: "Totul e în regulă", sevBar: "Nivel de risc",
+      fixOne: "Unul pe rând", fixAll: "Vezi toate", fixViewLabel: "Cum vrei să vezi reparațiile",
+      fixProgress: "{d} din {n} reparate", fixProgressLabel: "Reparații făcute", fixNow: "Începe cu asta", fixNext: "Următorul lucru",
+      btnFixed: "Gata, l-am reparat", moreLeft: "Mai ai {n} lucruri", moreLeft1: "Mai ai un lucru", doneList: "Reparate ({n})", undo: "Anulează",
+      markedFixed: "Reparat", markFixed: "Am reparat asta", allFixedT: "Ai reparat tot!", allFixedS: "Inspectează casa din nou ca să vezi cât de sigură e acum.",
+      infoNote: "Mai sunt {n} lucruri doar de știut, care nu trebuie reparate. Le vezi la „Vezi toate”.", infoNote1: "Mai e un lucru doar de știut, care nu trebuie reparat. Îl vezi la „Vezi toate”.",
+      fixOneSub: "Începem cu lucrul cel mai periculos. Urmează pașii, apasă „Gata, l-am reparat” și trecem la următorul.",
+      helpBtn: "Întreabă", helpAria: "Întreabă asistentul: deschide chatul",
+      chatSub: "Îți răspund doar cu ce am văzut în verificarea ta.", chatPrivacy: "Nu scrie aici parole sau date personale.",
+      chatTyping: "Asistentul se gândește…", chatSuggest: "Poți începe cu una dintre aceste întrebări:", chatMore: "Alte întrebări",
+      chatYou: "Tu", chatAi: "Răspuns de la asistentul AI, verificat cu datele din verificare.",
+      chatOffline: "Răspuns din textele pregătite de noi (asistentul AI nu e conectat acum).",
+      chatRejected: "Asistentul AI a spus ceva ce nu apare în verificare, așa că îți dau răspunsul sigur.",
+      chatNew: "Începe din nou", chatTooLong: "Scrie mai scurt, te rog (cel mult 500 de semne).",
+      repTitle: "Raport pentru firma IT", repSub: "O pagină cu tot ce am găsit, ca s-o trimiți cuiva care se pricepe la calculatoare.",
+      repPdf: "Salvează ca PDF sau tipărește", repHtml: "Descarcă raportul (HTML)", repHint: "La „Salvează ca PDF” alege „Salvează ca PDF” în fereastra de tipărire.",
+      repDocTitle: "Raport de securitate a rețelei", repGenerated: "Generat", repScan: "Verificarea", repScore: "Scor",
+      repTop: "Pe scurt", repDevices: "Aparate găsite", repFindings: "Probleme găsite", repSev: "Risc", repWhere: "Unde", repProblem: "Problema",
+      repFix: "Ce trebuie făcut", repStatus: "Stare", repToDo: "De reparat", repFixedByUser: "Marcat reparat de utilizator", repInfoOnly: "Doar informativ",
+      repDevice: "Aparat", repVendor: "Producător", repPorts: "Porturi deschise", repEvidence: "Dovadă", repNone: "Nicio problemă găsită.",
+      repNote: "Adresele MAC sunt mascate (se văd doar ultimii 2 octeți). Raportul a fost făcut pe acest calculator; nimic nu a fost trimis pe internet.",
+      repFirst: "Primul lucru de reparat",
+      showList: "Vezi ca listă", hideList: "Ascunde lista", listTitle: "Lista aparatelor",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
       topoCore: "Casa ta", topoGateway: "Poarta spre internet", topoHint: "Apasă pe un aparat ca să vezi detaliile.",
       topoNet: "Rețea", topoWhy: "Ce înseamnă", topoAll: "Toate", topoShow: "Arată:", closeEsc: "Închide (Esc)", portOpen: "Deschis", portVuln: "Vulnerabil", portSecure: "criptat",
@@ -128,6 +154,32 @@
       navHome: "Home", navDevices: "Devices", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
+      homeTitle: "Your Digital Home", ebHome: "Network status", ebActive: "Active", ebDevices: "Devices", ebOnline: "{n} online",
+      ebFindings: "Fixes", ebHistory: "History", ebSaved: "{n} saved", ebAsk: "Assistant", ebGrounded: "Evidence only",
+      hudGateway: "Router", hudOnline: "{n} online", hudPorts: "{n} open ports", hudPort1: "1 open port", hudFix: "{n} to fix", hudFix0: "Nothing to fix",
+      act_red: "Action required", act_amber: "Worth a look", act_green: "All good", sevBar: "Risk level",
+      fixOne: "One at a time", fixAll: "See all", fixViewLabel: "How to show the fixes",
+      fixProgress: "{d} of {n} fixed", fixProgressLabel: "Fixes done", fixNow: "Start with this", fixNext: "Next thing",
+      btnFixed: "Done, I fixed it", moreLeft: "{n} more things to do", moreLeft1: "One more thing to do", doneList: "Fixed ({n})", undo: "Undo",
+      markedFixed: "Fixed", markFixed: "I fixed this", allFixedT: "You fixed everything!", allFixedS: "Inspect the house again to see how safe it is now.",
+      infoNote: "There are {n} more things just to know, nothing to fix. See them under “See all”.", infoNote1: "There is one more thing just to know, nothing to fix. See it under “See all”.",
+      fixOneSub: "We start with the most dangerous thing. Follow the steps, press “Done, I fixed it” and we move on to the next one.",
+      helpBtn: "Ask", helpAria: "Ask the assistant: opens the chat",
+      chatSub: "I answer only with what I saw in your check.", chatPrivacy: "Do not write passwords or personal details here.",
+      chatTyping: "The assistant is thinking…", chatSuggest: "You can start with one of these questions:", chatMore: "Other questions",
+      chatYou: "You", chatAi: "Answer from the AI assistant, checked against the data from your check.",
+      chatOffline: "Answer from our ready-made texts (the AI assistant is not connected right now).",
+      chatRejected: "The AI assistant said something that is not in the check, so here is the safe answer.",
+      chatNew: "Start over", chatTooLong: "Please write a shorter question (at most 500 characters).",
+      repTitle: "Report for your IT company", repSub: "One page with everything we found, to send to someone who knows computers.",
+      repPdf: "Save as PDF or print", repHtml: "Download the report (HTML)", repHint: "For a PDF, choose “Save as PDF” in the print window.",
+      repDocTitle: "Network security report", repGenerated: "Generated", repScan: "Check", repScore: "Score",
+      repTop: "In short", repDevices: "Devices found", repFindings: "Problems found", repSev: "Risk", repWhere: "Where", repProblem: "Problem",
+      repFix: "What to do", repStatus: "Status", repToDo: "To fix", repFixedByUser: "Marked fixed by the user", repInfoOnly: "Information only",
+      repDevice: "Device", repVendor: "Maker", repPorts: "Open ports", repEvidence: "Evidence", repNone: "No problems found.",
+      repNote: "MAC addresses are masked (only the last 2 bytes are shown). This report was made on this computer; nothing was sent to the internet.",
+      repFirst: "First thing to fix",
+      showList: "Show as a list", hideList: "Hide the list", listTitle: "List of devices",
       inspect: "Inspect house", inspectAgain: "Inspect again",
       topoCore: "Your home", topoGateway: "Gateway to the internet", topoHint: "Tap a device to see its details.",
       topoNet: "Network", topoWhy: "What it means", topoAll: "All", topoShow: "Show:", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
@@ -243,7 +295,7 @@
   const BAND_ICON = { red: "octagon", amber: "alert", green: "check" };
   const DEVICE_ICON = { router: "router", camera: "video", printer: "printer", nas: "drive", iot: "bulb", tv: "tv", phone: "phone", computer: "laptop", server: "server", unknown: "help" };
   const SIZES = ["100%", "115%", "130%"];
-  const TABS = ["home", "devices", "findings", "history", "ask"];
+  const TABS = ["home", "findings", "history"];
 
   // ---------------------------------------------------------------- state
   const store = {
@@ -256,11 +308,15 @@
     scan: Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")),
     tab: "home",
     devFilter: "all",
+    fixView: store.get("fixView") === "all" ? "all" : "one",   // Fixes: one thing at a time (default) or the full list
+    fixed: {}, pick: {},  // scan file -> Set of fixed keys (saved on this computer) / the thing chosen to show now
+    homeList: null,      // Home: device list open? (null = open by itself past 14 devices, when the map gets dense)
     cursor: {}, lastDone: {},
     historyDeleted: store.get("historyDeleted") === "1",
     confirmDelete: false,
     hallucinate: false,
-    chat: [],            // [{kind, text}]
+    chat: [],            // [{role: "user", text, kind} | {role: "bot", parts: [{text, cites, ok, reason}] | null, text?, mode}]
+    chatBusy: false,
     inspected: {},       // scan file -> true once the house was inspected
     scanning: false,
   };
@@ -356,8 +412,31 @@
       refs(f.code).length ? h("div", { class: "tags" }, h("span", { class: "muted", text: t("refs") + ":" }), refs(f.code).map((r) => h("span", { class: "tag", text: r }))) : null,
     ]);
   }
-  function pageHead(title, sub) {
-    return h("div", { class: "page-head" }, h("h2", { text: title }), sub ? h("p", { text: sub }) : null);
+  function pageHead(title, sub, eyebrow, tone) {
+    return h("div", { class: "page-head hud-head" },
+      eyebrow ? h("p", { class: "eyebrow-badge" + (tone ? " t-" + tone : "") }, h("span", { class: "pulse-dot", "aria-hidden": "true" }), h("span", { text: eyebrow })) : null,
+      h("h2", { text: title }), sub ? h("p", { class: "page-sub", text: sub }) : null);
+  }
+  // One clear status badge under the score ring + a thin 3-segment severity bar (icon + words, never colour alone).
+  function statusBadge(score) {
+    const b = bandOf(score);
+    return h("p", { class: "status-badge sb-" + b }, icon(BAND_ICON[b]), h("span", { text: `${t("band_" + b)} · ${t("act_" + b)}` }));
+  }
+  function sevBar(score) {
+    const b = bandOf(score), lit = { green: 1, amber: 2, red: 3 }[b];
+    return h("div", { class: "sev-bar sv-" + b, "aria-hidden": "true" }, [1, 2, 3].map((i) => h("span", { class: i <= lit ? "on" : "" })));
+  }
+  // Quick network facts under the 3D house (gateway, devices online, open ports, things to fix).
+  function hudChips(s, done) {
+    const gw = s.devices.find((d) => d.type === "router");
+    const ports = s.devices.reduce((n, d) => n + d.open_ports.length, 0);
+    const toFix = s.findings.filter((f) => f.severity !== "info").length;
+    const chip = (name, text, cls) => h("li", { class: "hud-chip" + (cls ? " " + cls : "") }, icon(name), h("span", { text }));
+    return h("ul", { class: "hud-chips", "aria-label": t("ebHome") },
+      chip("wifi", `${t("hudGateway")} ${gw ? gw.ip : "–"}`, "mono-chip"),
+      chip("phone", t("hudOnline", { n: s.devices.length })),
+      chip("door", ports === 1 ? t("hudPort1") : t("hudPorts", { n: ports })),
+      done ? chip(toFix ? "alert" : "check", toFix ? t("hudFix", { n: toFix }) : t("hudFix0"), toFix ? "warn" : "ok") : null);
   }
   function focusSel(sel) { const el = document.querySelector(sel); if (el) el.focus(); }
 
@@ -623,7 +702,6 @@
     const done = !!state.inspected[s.file];
     const st = state.scanning ? "scanning" : done ? resultOf(s) : "idle";
     const toFix = s.error ? 0 : s.findings.filter((f) => f.severity !== "info").length;
-    root.append(pageHead(t("hello"), t("helloSub")));
 
     // right column: score, status pills and the call to action, centred in one card
     const pendingRing = h("div", { class: "ring b-none lg", "aria-hidden": "true" },
@@ -632,20 +710,28 @@
     const scoreCard = h("div", { class: "score-card" },
       h("p", { class: "eyebrow muted", text: t("scoreTitle") }),
       done && !s.error ? ring(s.score, "lg") : pendingRing,
-      done && !s.error ? traffic(s.score) : null,
+      done && !s.error ? statusBadge(s.score) : null,
+      done && !s.error ? sevBar(s.score) : null,
       h("p", { class: "lead", text: !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
         : toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }),
       done && !s.error ? h("div", { class: "changes" }, trendRow(s), newDeviceBadge(s)) : null,
       h("div", { class: "actions" },
-        h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
-        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes")) : null),
+        // with things to fix, "See what needs fixing" is the main action and "Inspect again" the quiet one
+        done && toFix ? h("button", { type: "button", class: "btn btn-cta fix-btn", onclick: () => setTab("findings") },
+          icon("shield"), h("span", { text: t("seeFixes") }), h("span", { class: "count-badge", "aria-hidden": "true", text: String(toFix) })) : null,
+        h("button", { type: "button", class: "btn inspect-btn " + (done && toFix ? "btn-ghost" : "btn-cta"), onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect"))),
       privacyRow(),
       // screen-reader status (the glass badge over the house is the visible one)
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
         h("div", { class: "hs-icon" }), h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))));
 
-    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "SafeHouse" },
-      h("div", { class: "stage-wrap" }, houseScene(), h("div", { class: "scanline", "aria-hidden": "true" })), scoreCard));
+    const band = done && !s.error ? bandOf(s.score) : "none";
+    root.append(h("section", { class: "hero premium bento", "data-state": st, "data-band": band, "aria-label": "SafeHouse" },
+      h("div", { class: "stage-col" },
+        pageHead(t("homeTitle"), t("helloSub"), `${t("ebHome")} · ${t("ebActive")}`, band),
+        h("div", { class: "stage-wrap" }, houseScene(), h("div", { class: "scanline", "aria-hidden": "true" })),
+        s.error ? null : hudChips(s, done)),
+      scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
     if (mountEl) window.Safehouse3D.mount(mountEl);
     applyHouseState(st);
@@ -661,11 +747,11 @@
     if (tour) startTour(tour);
 
     // Aparate găsite: network topology (gateway in the middle, devices around it, click = details panel)
-    const topo = topology(s);
-    root.append(h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("devicesFound", { n: s.devices.length }) }))),
+    const topo = topology(s), list = deviceList(s);
+    root.append(h("section", { class: "section", id: "devices" },
+      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("devicesFound", { n: s.devices.length }) })), list.btn),
       h("p", { class: "section-sub", text: t("topoHint") }),
-      topo));
+      topo, list.box));
     startTopology(topo, s);
   }
 
@@ -872,37 +958,78 @@
     }));
   }
 
-  function suggestion(s) {
-    const q = queue(s);
-    const card = h("div", { class: "suggest", "aria-live": "polite" });
-    if (!q.length) { card.append(h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("noProblems") }))); return card; }
-    const i = state.cursor[s.file] || 0;
-    if (state.lastDone[s.file]) card.append(h("div", { class: "note ok with-ico" }, icon("check"), h("span", { text: t("doneNote", { title: state.lastDone[s.file] }) })));
-    if (i >= q.length) {
-      card.append(h("p", { class: "lead", text: t("allDone") }),
-        h("button", { type: "button", class: "btn btn-tonal", onclick: () => { state.cursor[s.file] = 0; state.lastDone[s.file] = null; render(); } }, t("restart")));
-      return card;
+  // ---------------------------------------------------------------- FIXES: one thing at a time
+  // "Done, I fixed it" is the user's own note (saved only in this browser); the score changes only after a new check.
+  const fixKey = (f) => f.code + "@" + where(f);
+  function fixedOf(file) {
+    if (!state.fixed[file]) {
+      let a = [];
+      try { a = JSON.parse(store.get("fixed." + file) || "[]"); } catch (e) { a = []; }
+      state.fixed[file] = new Set(Array.isArray(a) ? a : []);
     }
-    const f = q[i], tx = simple(f.code), dev = deviceByIp(s, f.ip), top = mostDangerous(s);
-    card.append(
-      h("p", { class: "muted", text: t("suggestSub") }),
-      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true),
-        h("div", { class: "grow" },
-          h("div", { class: "muted", text: top && top.ip === f.ip ? t("mostDangerous") : t("thisDevice") }),
-          h("strong", { style: "font-size:1.3rem", text: deviceName(dev) })),
-        riskPill(f.severity)),
-      h("h3", { text: tx.title }),
-      h("p", { class: "lead", text: tx.explain }),
-      h("h4", { text: t("doThis") + ":" }),
-      steps(tx.steps),
-      whoLine(f.code),
-      h("div", { class: "actions" },
-        h("button", { type: "button", class: "btn btn-filled", onclick: () => { state.lastDone[s.file] = tx.title; state.cursor[s.file] = i + 1; render(); focusSel(".suggest button"); } }, icon("tick"), t("btnDone")),
-        q.length > 1 ? h("button", { type: "button", class: "btn", onclick: () => { state.lastDone[s.file] = null; state.cursor[s.file] = (i + 1) % q.length; render(); focusSel(".suggest button"); } }, t("btnSkip")) : null,
-        h("span", { class: "progress", text: t("progress", { i: i + 1, n: q.length }) })),
-      h("p", { class: "note with-ico" }, icon("users"), h("span", { text: t("helpNote") })),
-      techFor(f));
-    return card;
+    return state.fixed[file];
+  }
+  function setFixed(file, key, on) {
+    const set = fixedOf(file);
+    if (on) set.add(key); else set.delete(key);
+    store.set("fixed." + file, JSON.stringify([...set]));
+  }
+  function fixProgress(q, set) {
+    const n = q.length, d = q.filter((f) => set.has(fixKey(f))).length;
+    return h("div", { class: "fix-progress" },
+      h("div", { class: "fp-top" }, h("strong", { text: t("fixProgress", { d, n }) }), h("span", { class: "muted", "aria-hidden": "true", text: `${Math.round((d / n) * 100)}%` })),
+      h("div", { class: "fp-bar", role: "progressbar", "aria-label": t("fixProgressLabel"), "aria-valuemin": "0", "aria-valuemax": String(n),
+        "aria-valuenow": String(d), "aria-valuetext": t("fixProgress", { d, n }) }, q.map((f) => h("span", { class: set.has(fixKey(f)) ? "on" : "" }))));
+  }
+  function fixRow(s, f, onPick, extra) {
+    const dev = deviceByIp(s, f.ip) || { type: "unknown" };
+    return h("li", { class: "fix-row" },
+      devIco(dev.type, toneOf(f.severity)),
+      h("div", { class: "grow" }, h("strong", { text: simple(f.code).title }), h("span", { class: "muted", text: `${deviceName(dev)} · ` }, h("span", { class: "mono", text: f.ip }))),
+      riskPill(f.severity), onPick ? h("button", { type: "button", class: "btn btn-ghost", onclick: onPick }, t("fixNow"), icon("chevron")) : null, extra || null);
+  }
+  function fixFocus(root, s) {
+    const q = queue(s), set = fixedOf(s.file), top = mostDangerous(s);
+    const left = q.filter((f) => !set.has(fixKey(f))), done = q.filter((f) => set.has(fixKey(f)));
+    root.append(fixProgress(q, set));
+    if (state.lastDone[s.file]) root.append(h("p", { class: "note ok with-ico", role: "status" }, icon("check"), h("span", { text: t("doneNote", { title: state.lastDone[s.file] }) })));
+    if (!left.length) {
+      root.append(h("article", { class: "fix-now fix-all-done", id: "fix-now", tabindex: "-1" },
+        h("h3", { class: "with-ico" }, icon("sparkles", "lg"), h("span", { text: t("allFixedT") })),
+        h("p", { class: "lead", text: t("allFixedS") }),
+        h("div", { class: "actions" }, h("button", { type: "button", class: "btn btn-cta", onclick: () => { setTab("home"); inspect(); } }, icon("refresh"), t("inspectAgain")))));
+    } else {
+      const f = left.find((x) => fixKey(x) === state.pick[s.file]) || left[0], idx = left.indexOf(f);
+      const tx = simple(f.code), dev = deviceByIp(s, f.ip) || { type: "unknown", ip: f.ip };
+      root.append(h("article", { class: "fix-now", id: "fix-now", tabindex: "-1", "aria-labelledby": "fix-now-title" },
+        h("p", { class: "fix-step", text: done.length || idx ? t("fixNext") : t("fixNow") }),
+        h("div", { class: "fix-device" }, devIco(dev.type, toneOf(f.severity), true),
+          h("div", { class: "grow" },
+            h("p", { class: "muted", text: top && top.ip === f.ip ? t("mostDangerous") : t("thisDevice") }),
+            h("p", { class: "fix-dev-name", text: deviceName(dev) }),
+            h("p", { class: "fix-ids" }, h("span", { class: "mono", text: `${t("ipLabel")} ${dev.ip}` }), dev.mac ? h("span", { class: "mono", text: `${t("macLabel")} ${dev.mac}` }) : null)),
+          riskPill(f.severity)),
+        h("h3", { id: "fix-now-title", class: "fix-title", text: tx.title }),
+        h("p", { class: "lead", text: tx.explain }),
+        h("h4", { text: t("doThis") + ":" }),
+        steps(tx.steps),
+        whoLine(f.code),
+        h("div", { class: "actions fix-actions" },
+          h("button", { type: "button", class: "btn btn-cta", onclick: () => { setFixed(s.file, fixKey(f), true); state.lastDone[s.file] = tx.title; state.pick[s.file] = null; render(); focusSel("#fix-now"); } }, icon("tick"), t("btnFixed")),
+          left.length > 1 ? h("button", { type: "button", class: "btn btn-ghost", onclick: () => { state.lastDone[s.file] = null; state.pick[s.file] = fixKey(left[(idx + 1) % left.length]); render(); focusSel("#fix-now"); } }, t("btnSkip")) : null),
+        h("p", { class: "note with-ico" }, icon("users"), h("span", { text: t("helpNote") })),
+        techFor(f)));
+      const rest = left.filter((x) => x !== f);
+      if (rest.length) root.append(h("details", { class: "fix-more" },
+        h("summary", null, icon("alert"), h("span", { text: rest.length === 1 ? t("moreLeft1") : t("moreLeft", { n: rest.length }) }), icon("chevron-down", "chev")),
+        h("ul", { class: "fix-list" }, rest.map((x) => fixRow(s, x, () => { state.lastDone[s.file] = null; state.pick[s.file] = fixKey(x); render(); focusSel("#fix-now"); })))));
+    }
+    if (done.length) root.append(h("details", { class: "fix-more fix-done" },
+      h("summary", null, icon("check"), h("span", { text: t("doneList", { n: done.length }) }), icon("chevron-down", "chev")),
+      h("ul", { class: "fix-list" }, done.map((x) => fixRow(s, x, null,
+        h("button", { type: "button", class: "btn btn-ghost", onclick: () => { setFixed(s.file, fixKey(x), false); state.lastDone[s.file] = null; render(); focusSel(".fix-done summary"); } }, icon("refresh"), t("undo")))))));
+    const info = s.findings.filter((f) => f.severity === "info").length;
+    if (info) root.append(h("p", { class: "note with-ico" }, icon("info"), h("span", { text: info === 1 ? t("infoNote1") : t("infoNote", { n: info }) })));
   }
 
   // ---------------------------------------------------------------- DEVICES (tiles + sheet)
@@ -921,19 +1048,32 @@
     }));
   }
 
-  function renderDevices(root) {
-    const s = scan();
-    root.append(pageHead(t("devicesTitle"), t("devicesSub")));
-    if (s.error) { root.append(errorBox(s)); return; }
+  // The accessible list version of the map (FR-03: every device with IP, masked MAC and maker), under the map on Home.
+  function fillDeviceList(box, s) {
     const withP = s.devices.filter((d) => problemsOf(s, d).length);
     const safe = s.devices.filter((d) => !problemsOf(s, d).length);
     const chip = (key, label) => h("button", { type: "button", class: "chip-btn", "aria-pressed": String(state.devFilter === key),
-      onclick: () => { state.devFilter = key; render(); focusSel(`.chip-btn[aria-pressed="true"]`); } }, label);
-    root.append(h("div", { class: "chips", style: "margin-bottom:20px", role: "group" },
-      chip("all", t("fAll", { n: s.devices.length })), chip("problems", [icon("alert"), t("fProblems", { n: withP.length })]), chip("safe", [icon("check"), t("fSafe", { n: safe.length })])));
+      onclick: () => { state.devFilter = key; fillDeviceList(box, s); box.querySelector(`.chip-btn[aria-pressed="true"]`).focus(); } }, label);
     const list = (state.devFilter === "problems" ? withP : state.devFilter === "safe" ? safe : s.devices)
       .slice().sort((a, b) => b.risk_points - a.risk_points);
-    root.append(tiles(s, list));
+    box.replaceChildren(
+      h("div", { class: "chips", style: "margin-bottom:20px", role: "group", "aria-label": t("listTitle") },
+        chip("all", t("fAll", { n: s.devices.length })), chip("problems", [icon("alert"), t("fProblems", { n: withP.length })]), chip("safe", [icon("check"), t("fSafe", { n: safe.length })])),
+      tiles(s, list));
+    if (window.Device3D) window.Device3D.scan(box);
+  }
+  function deviceList(s) {
+    const open = state.homeList == null ? s.devices.length > 14 : state.homeList;
+    const box = h("div", { class: "dev-list", id: "dev-list", hidden: !open });
+    const btn = h("button", { type: "button", class: "btn btn-ghost list-toggle", "aria-expanded": String(open), "aria-controls": "dev-list" });
+    const label = (o) => btn.replaceChildren(icon(o ? "x" : "phone"), h("span", { text: o ? t("hideList") : t("showList") }));
+    label(open);
+    btn.addEventListener("click", () => {
+      const o = box.hidden; state.homeList = o; box.hidden = !o; btn.setAttribute("aria-expanded", String(o)); label(o);
+      if (o) fillDeviceList(box, s);
+    });
+    if (open) fillDeviceList(box, s);
+    return { btn, box };
   }
 
   // The device card (name/type, 2-sentence explanation, numbered steps) shown in a sheet.
@@ -981,9 +1121,13 @@
   // ---------------------------------------------------------------- FIXES (Fing-style security check)
   function renderFindings(root) {
     const s = scan();
-    root.append(pageHead(t("findingsTitle"), t("findingsSub")));
+    root.append(pageHead(t("findingsTitle"), state.fixView === "one" ? t("fixOneSub") : t("findingsSub"), `${t("ebFindings")} · ${s.error ? 0 : s.findings.filter((f) => f.severity !== "info").length}`, s.error ? "" : bandOf(s.score)));
     if (s.error) { root.append(errorBox(s)); return; }
-    if (!s.findings.length) { root.append(h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("noProblems") })))); return; }
+    if (!s.findings.length) { root.append(h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("noProblems") }))), reportCard(s)); return; }
+    const view = (v, name, label) => h("button", { type: "button", "aria-pressed": String(state.fixView === v),
+      onclick: () => { state.fixView = v; store.set("fixView", v); render(); focusSel(`.view-toggle [aria-pressed="true"]`); } }, icon(name), h("span", { text: label }));
+    root.append(h("div", { class: "seg view-toggle", role: "group", "aria-label": t("fixViewLabel") }, view("one", "hand", t("fixOne")), view("all", "book", t("fixAll"))));
+    if (state.fixView === "one" && queue(s).length) { fixFocus(root, s); root.append(reportCard(s)); return; }
     const sums = { high: "sumHigh", medium: "sumMedium", low: "sumLow", info: "sumInfo" };
     root.append(h("div", { class: "chips" }, Object.keys(RISK).filter((k) => s.findings.some((f) => f.severity === k))
       .map((k) => h("span", { class: "pill p-" + k }, icon(RISK[k].icon), `${t(sums[k])}: ${s.findings.filter((f) => f.severity === k).length}`))));
@@ -994,6 +1138,7 @@
         h("div", { class: "group-head" }, h("h3", { class: "with-ico" }, icon(RISK[sev].icon, "lg tone-" + RISK[sev].tone), h("span", { text: `${RISK[sev][state.lang]} (${group.length})` }))),
         h("div", { class: "checks" }, group.map(({ f, i }) => checkCard(s, f, i)))));
     });
+    root.append(reportCard(s));
   }
   function checkCard(s, f, i) {
     const tx = simple(f.code), dev = deviceByIp(s, f.ip) || { type: "unknown" }, vendor = shortVendor(dev.vendor);
@@ -1007,6 +1152,7 @@
       h("h4", { text: t("doThis") + ":" }),
       steps(tx.steps),
       h("div", { class: "foot-row" }, whoLine(f.code), h("span", { class: "code-tag", text: `${t("codeLabel")}: ${f.code}` })),
+      f.severity === "info" ? null : fixToggle(s, f),
       techFor(f));
     card.addEventListener("keydown", (e) => {
       if (e.target !== card || (e.key !== "Enter" && e.key !== " ")) return;
@@ -1016,7 +1162,18 @@
     });
     return card;
   }
+  function fixToggle(s, f) {
+    const on = fixedOf(s.file).has(fixKey(f));
+    return h("div", { class: "fix-mark" }, on ? h("span", { class: "pill p-green" }, icon("check"), t("markedFixed")) : null,
+      h("button", { type: "button", class: "btn btn-ghost", "aria-pressed": String(on),
+        onclick: () => { setFixed(s.file, fixKey(f), !on); render(); openFinding(s.findings.indexOf(f)); } }, icon(on ? "refresh" : "tick"), on ? t("undo") : t("markFixed")));
+  }
   function openFinding(i) {
+    const s = scan(), f = s.findings[i];
+    if (state.tab === "findings" && state.fixView === "one" && f) {
+      if (f.severity !== "info" && !fixedOf(s.file).has(fixKey(f))) { state.pick[s.file] = fixKey(f); state.lastDone[s.file] = null; render(); focusSel("#fix-now"); return; }
+      state.fixView = "all"; render();          // a fixed or info item: show it in the full list (not saved as a preference)
+    }
     const el = document.getElementById("finding-" + i);
     if (!el) return;
     el.focus({ preventScroll: true });
@@ -1025,7 +1182,7 @@
 
   // ---------------------------------------------------------------- HISTORY (compare + events timeline)
   function renderHistory(root) {
-    root.append(pageHead(t("historyTitle"), t("historySub")));
+    root.append(pageHead(t("historyTitle"), t("historySub"), `${t("ebHistory")} · ${t("ebSaved", { n: state.historyDeleted || !D.history ? 0 : D.history.trend.length })}`));
     if (state.historyDeleted) {
       root.append(h("div", { class: "suggest" }, h("p", { class: "lead with-ico", role: "status" }, icon("trash"), h("span", { text: t("deleted") })),
         h("p", { class: "muted", text: t("deletedTech") }),
@@ -1170,39 +1327,205 @@
     if (/(aparat|dispozitiv|device|ce am|what do i have|conectat|connected)/.test(s)) return "devices";
     return "unknown";
   }
-  function renderAsk(root) {
+  // ---------------------------------------------------------------- CHAT (the "?" button next to the language)
+  // The LLM answer comes from the team's assistant: window.SafeHouseAssistant.handler(question, ctx) if a page sets one,
+  // else POST /api/v1/ask (service_data_contracts.md) when the page is served by `netcheck serve`. With neither (or on
+  // any error / timeout) the built-in grounded answers are used, so the chat always works, also offline from file://.
+  const ASK_URL = "/api/v1/ask";
+  let chatOpener = null;
+  function chatTurns() {
+    return state.chat.slice(-12).map((m) => ({ role: m.role === "user" ? "user" : "assistant",
+      content: m.role === "user" ? m.text : (m.text || (m.parts || []).map((x) => x.text).join(" ")) })).filter((x) => x.content);
+  }
+  async function askAssistant(q, turns) {
+    const ctx = { lang: state.lang, scanFile: scan().file, history: turns };
+    const custom = window.SafeHouseAssistant && window.SafeHouseAssistant.handler;
+    const ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    const timer = setTimeout(() => ctrl && ctrl.abort(), 25000);
+    try {
+      if (typeof custom === "function") {
+        const r = await Promise.race([custom(q, ctx), new Promise((_, no) => setTimeout(() => no(new Error("timeout")), 25000))]);
+        return r && typeof r.answer === "string" ? r : null;
+      }
+      if (!/^https?:$/.test(location.protocol)) return null;
+      const res = await fetch(`${ASK_URL}?lang=${state.lang}`, { method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q, history: turns }), signal: ctrl ? ctrl.signal : undefined });
+      if (!res.ok) return null;
+      const j = await res.json();
+      return j && typeof j.answer === "string" && j.answer.trim() ? j : null;
+    } catch (e) { return null; } finally { clearTimeout(timer); }
+  }
+  function builtIn(kind, s) { return answer(kind, s).map((x) => Object.assign({}, x, check(x, s))); }
+  async function chatAsk(text, kind) {
     const s = scan();
-    root.append(pageHead(t("askTitle"), t("askSub")));
-    if (s.error) { root.append(errorBox(s)); return; }
-    const card = h("div", { class: "suggest chat" });
-    card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
-    state.chat.forEach((m) => {
-      card.append(h("div", { class: "bubble me", text: m.text }));
-      const res = answer(m.kind, s).map((x) => ({ x, r: check(x, s) }));
-      card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
-      res.forEach(({ x, r }) => card.append(h("div", { class: "bubble bot" + (r.ok ? "" : " blocked") },
+    if (state.chatBusy || !text) return;
+    if (text.length > 500) { state.chatNote = t("chatTooLong"); renderChat(); return; }
+    state.chatNote = null;
+    const turns = chatTurns();
+    state.chat.push({ role: "user", text, kind: kind || classify(text) });
+    state.chatBusy = true; renderChat();
+    const r = s.error ? null : await askAssistant(text, turns);
+    const k = kind || classify(text);
+    if (r) state.chat.push({ role: "bot", text: r.answer.trim(), mode: r.mode === "ai" ? "ai" : r.mode === "rejected" ? "rejected" : "offline" });
+    else state.chat.push({ role: "bot", parts: s.error ? [{ text: t("stErrS"), cites: [], ok: true }] : builtIn(k, s), mode: "builtin" });
+    if (state.chat.length > 24) state.chat.splice(0, state.chat.length - 24);
+    state.chatBusy = false; renderChat();
+    focusSel("#chat-input");
+  }
+  function bubbleBot(m) {
+    const wrap = h("div", { class: "msg bot" }, h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
+    if (m.parts) {
+      m.parts.forEach((x) => wrap.append(h("div", { class: "bubble bot" + (x.ok ? "" : " blocked") },
         h("span", { class: "txt", text: x.text }),
-        x.cites.filter((c) => c !== "scan").map((c) => h("span", { class: "proof", title: t("proof") }, icon("search"), h("span", { class: "sr", text: t("proof") + ": " }), c)),
-        r.ok ? null : h("span", { class: "why" }, icon("scissors"), h("span", { text: t("blocked", { r: r.reason }) })))));
-      const bad = res.filter((z) => !z.r.ok).length;
-      card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("verified", { ok: res.length - bad, bad }) }));
-    });
-    const ask = (kind, text) => { state.chat.push({ kind, text }); if (state.chat.length > 4) state.chat.shift(); render(); focusSel("#ask-input"); };
-    card.append(h("div", { class: "chips", style: "margin-top:.5rem" },
-      [["first", "q1"], ["devices", "q2"], ["printer", "q3"]].map(([k, key]) => h("button", { type: "button", class: "chip-btn", onclick: () => ask(k, t(key)) }, icon("message"), t(key)))));
-    const input = h("input", { type: "text", id: "ask-input", placeholder: t("askPlaceholder"), maxlength: "200", "aria-label": t("askLabel") });
-    card.append(h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) ask(classify(q), q); } },
-      input, h("button", { type: "submit", class: "btn btn-filled" }, t("askBtn"), icon("send"))));
-    card.append(h("details", { class: "tech", open: state.hallucinate }, h("summary", null, icon("present"), h("span", { text: t("hallToggle") })),
-      h("div", null,
-        h("label", { class: "switch" }, h("input", { type: "checkbox", checked: state.hallucinate,
-          onchange: (e) => { state.hallucinate = e.target.checked; render(); focusSel(".switch input"); } }), t("hallSwitch")),
-        h("p", { class: "muted", text: t("demoNote") }))));
-    root.append(card);
+        (x.cites || []).filter((c) => c !== "scan").map((c) => h("span", { class: "proof", title: t("proof") }, icon("search"), h("span", { class: "sr", text: t("proof") + ": " }), c)),
+        x.ok ? null : h("span", { class: "why" }, icon("scissors"), h("span", { text: t("blocked", { r: x.reason }) })))));
+      const bad = m.parts.filter((z) => !z.ok).length;
+      if (m.parts.length > 1 || bad) wrap.append(h("p", { class: "msg-meta", text: t("verified", { ok: m.parts.length - bad, bad }) }));
+    } else {
+      wrap.append(h("div", { class: "bubble bot" }, h("span", { class: "txt", text: m.text })));
+      wrap.append(h("p", { class: "msg-meta with-ico" }, icon(m.mode === "ai" ? "sparkles" : "info"), h("span", { text: t(m.mode === "ai" ? "chatAi" : m.mode === "rejected" ? "chatRejected" : "chatOffline") })));
+    }
+    return wrap;
+  }
+  function renderChat() {
+    const body = document.getElementById("chat-body");
+    if (!body) return;
+    const qs = [["first", "q1"], ["devices", "q2"], ["printer", "q3"]];
+    const log = h("div", { class: "chat-log", role: "log", "aria-live": "polite", "aria-label": t("botName") },
+      h("div", { class: "msg bot" }, h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") })),
+      state.chat.map((m) => m.role === "user"
+        ? h("div", { class: "msg me" }, h("span", { class: "sr", text: t("chatYou") + ": " }), h("div", { class: "bubble me", text: m.text }))
+        : bubbleBot(m)),
+      state.chatBusy ? h("div", { class: "msg bot typing", role: "status" }, h("span", { class: "dots", "aria-hidden": "true" }, h("span"), h("span"), h("span")), h("span", { text: t("chatTyping") })) : null);
+    const sugg = h("div", { class: "chat-suggest" },
+      h("p", { class: "muted", text: state.chat.length ? t("chatMore") : t("chatSuggest") }),
+      h("div", { class: "chat-qs" }, qs.map(([k, key]) => h("button", { type: "button", class: "chip-btn", disabled: state.chatBusy, onclick: () => chatAsk(t(key), k) }, icon("message"), h("span", { text: t(key) })))));
+    const input = h("textarea", { id: "chat-input", rows: "2", maxlength: "500", placeholder: t("askPlaceholder"), "aria-describedby": "chat-privacy" });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event("submit")); } });
+    const form = h("form", { class: "chat-form", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) chatAsk(q); } },
+      h("label", { for: "chat-input", class: "chat-label", text: t("askLabel") }),
+      h("div", { class: "composer" }, input, h("button", { type: "submit", class: "btn btn-filled", disabled: state.chatBusy, "aria-label": t("askBtn") }, h("span", { text: t("askBtn") }), icon("send"))),
+      state.chatNote ? h("p", { class: "note with-ico", role: "alert" }, icon("alert"), h("span", { text: state.chatNote })) : null,
+      h("p", { class: "muted with-ico chat-privacy", id: "chat-privacy" }, icon("lock"), h("span", { text: t("chatPrivacy") })));
+    const extra = h("div", { class: "chat-extra" },
+      state.chat.length ? h("button", { type: "button", class: "btn btn-ghost", onclick: () => { state.chat = []; state.chatNote = null; renderChat(); focusSel("#chat-input"); } }, icon("refresh"), t("chatNew")) : null,
+      h("details", { class: "tech", open: state.hallucinate }, h("summary", null, icon("present"), h("span", { text: t("hallToggle") })),
+        h("div", null,
+          h("label", { class: "switch" }, h("input", { type: "checkbox", checked: state.hallucinate,
+            onchange: (e) => { state.hallucinate = e.target.checked; renderChat(); focusSel(".chat-extra .switch input"); } }), t("hallSwitch")),
+          h("p", { class: "muted", text: t("demoNote") }))));
+    body.replaceChildren(log, sugg, form, extra);
+    log.lastElementChild && log.lastElementChild.scrollIntoView({ block: "nearest" });
+  }
+  function openChat(opener) {
+    chatOpener = opener || document.getElementById("help-btn");
+    const dlg = document.getElementById("chat");
+    renderChat();
+    if (!dlg.open) { if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", ""); }
+    focusSel("#chat-input");
+  }
+  function closeChat() {
+    const dlg = document.getElementById("chat");
+    if (dlg.open) { if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open"); }
+  }
+
+  // ---------------------------------------------------------------- REPORT for the IT company (FR-14)
+  // One self-contained HTML page (print = PDF). Built with DOM nodes, so all scan text is escaped (NFR-03).
+  const REPORT_CSS = `
+    @page { size: A4; margin: 10mm; }
+    * { box-sizing: border-box; }
+    body { font: 9.5pt/1.38 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; margin: 0 auto; padding: 20px; max-width: 900px; background: #fff; }
+    h1 { font-size: 16pt; margin: 0 0 2px; } h2 { font-size: 11.5pt; margin: 12px 0 4px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px; }
+    p { margin: 4px 0; } .meta { color: #334155; margin: 0 0 8px; } .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 8.8pt; }
+    .score { display: flex; gap: 14px; align-items: center; padding: 6px 12px; border: 1.5px solid #0f172a; border-radius: 8px; }
+    .score b { font-size: 18pt; } .band { font-weight: 700; } .band.red { color: #b91c1c; } .band.amber { color: #b45309; } .band.green { color: #047857; }
+    table { width: 100%; border-collapse: collapse; } th, td { text-align: left; vertical-align: top; padding: 3px 5px; }
+    th { background: #f1f5f9; font-size: 8.8pt; border-bottom: 1px solid #94a3b8; }
+    table.findings th:nth-child(1) { width: 11%; } table.findings th:nth-child(2) { width: 21%; } table.findings th:nth-child(4) { width: 13%; }
+    table.findings tbody { break-inside: avoid; border-bottom: 1px solid #cbd5e1; } table.devices td { border-bottom: 1px solid #e2e8f0; }
+    .f-steps td { padding-top: 0; padding-bottom: 6px; } .f-steps ol { margin: 1px 0 0; padding-left: 16px; columns: 2; column-gap: 22px; }
+    .f-steps li { break-inside: avoid; } .code { color: #475569; } .ev { color: #475569; font-size: 8pt; word-break: break-word; }
+    .sev { font-weight: 700; white-space: nowrap; } .sev.high { color: #b91c1c; } .sev.medium { color: #b45309; } .sev.low { color: #1d4ed8; } .sev.info { color: #475569; }
+    .note { margin-top: 10px; color: #475569; font-size: 8pt; }
+    @media print { body { padding: 0; max-width: none; } }`;
+  // Fit on one A4 page when printing (277 x 190 mm printable), but never below 80% so it stays readable.
+  const REPORT_FIT = `(function(){function fit(){var b=document.body;b.style.zoom="";b.style.width="718px";b.style.maxWidth="none";b.style.padding="0";
+    var z=Math.max(.8,Math.min(1,1040/b.scrollHeight));b.style.width=(718/z)+"px";b.style.zoom=z;}
+    function undo(){var b=document.body;b.style.zoom="";b.style.width="";b.style.maxWidth="";b.style.padding="";}
+    window.addEventListener("beforeprint",fit);window.addEventListener("afterprint",undo);
+    if(window.matchMedia){window.matchMedia("print").addListener(function(m){m.matches?fit():undo();});}})();`;
+  function reportDoc(s) {
+    const set = fixedOf(s.file), b = bandOf(s.score), now = new Date();
+    const stamp = now.toLocaleString(state.lang === "ro" ? "ro-RO" : "en-GB");
+    const sevOrder = (f) => ({ high: 0, medium: 1, low: 2, info: 3 })[f.severity] ?? 4;
+    const findings = s.findings.slice().sort((a, c) => sevOrder(a) - sevOrder(c));
+    const groups = [];                                  // the same problem on several devices = one row with every place
+    findings.forEach((f) => { const g = groups.find((x) => x.code === f.code && x.items[0].severity === f.severity); if (g) g.items.push(f); else groups.push({ code: f.code, items: [f] }); });
+    const first = queue(s)[0];
+    const doc = h("div", null,
+      h("h1", { text: `SafeHouse · ${t("repDocTitle")}` }),
+      h("p", { class: "meta" }, `${t("repGenerated")}: ${stamp} · ${t("repScan")}: `, h("span", { class: "mono", text: s.file })),
+      h("div", { class: "score" }, h("b", { text: `${s.score}/100` }), h("div", null,
+        h("div", { class: "band " + b, text: t("band_" + b) }),
+        h("div", { text: s.findings.filter((f) => f.severity !== "info").length === 1 ? t("summaryOne", { d: s.devices.length })
+          : t("summary", { d: s.devices.length, f: s.findings.filter((f) => f.severity !== "info").length }) }))),
+      first ? [h("h2", { text: t("repTop") }), h("p", null, h("b", { text: t("repFirst") + ": " }), `${detailed(first.code).title} (`, h("span", { class: "mono", text: where(first) }), `, ${deviceName(deviceByIp(s, first.ip))}).`)] : null,
+      h("h2", { text: t("repFindings") }),
+      findings.length ? h("table", { class: "findings" },
+        h("thead", null, h("tr", null, [t("repSev"), t("repWhere"), t("repProblem"), t("repStatus")].map((x) => h("th", { text: x })))),
+        groups.map((g) => {
+          const d = detailed(g.code), f0 = g.items[0], real = f0.severity !== "info";
+          const nFixed = g.items.filter((f) => set.has(fixKey(f))).length;
+          const status = !real ? t("repInfoOnly") : nFixed === g.items.length ? t("repFixedByUser") : nFixed ? `${t("repToDo")} (${g.items.length - nFixed}/${g.items.length})` : t("repToDo");
+          return h("tbody", null,
+            h("tr", { class: "f-head" },
+              h("td", { class: "sev " + f0.severity, text: RISK[f0.severity][state.lang] }),
+              h("td", null, g.items.map((f) => h("div", null, h("span", { class: "mono", text: where(f) }), ` · ${deviceName(deviceByIp(s, f.ip))}`))),
+              h("td", null, h("b", { text: d.title }), " ", h("span", { class: "mono code", text: g.code }),
+                g.items.map((f, i) => f.evidence ? h("div", { class: "ev" }, `${t("repEvidence")} (${where(f)}): `, f.evidence,
+                  i === 0 && refs(g.code).length ? ` · ${refs(g.code).join(" · ")}` : null) : null)),
+              h("td", { text: status })),
+            d.steps.length ? h("tr", { class: "f-steps" }, h("td"), h("td", { colspan: "3" }, h("b", { text: t("repFix") + ":" }), h("ol", null, d.steps.map((x) => h("li", { text: x }))))) : null);
+        })) : h("p", { text: t("repNone") }),
+      h("h2", { text: t("repDevices") }),
+      h("table", { class: "devices" },
+        h("thead", null, h("tr", null, [t("repDevice"), t("repVendor"), t("ipLabel"), t("macLabel"), t("repPorts")].map((x) => h("th", { text: x })))),
+        h("tbody", null, s.devices.map((d) => h("tr", null,
+          h("td", { text: deviceLabel(d.type) + (d.hostname ? ` (${d.hostname})` : "") }), h("td", { text: d.vendor || "–" }),
+          h("td", { class: "mono", text: d.ip }), h("td", { class: "mono", text: d.mac || "–" }),
+          h("td", { class: "mono", text: d.open_ports.map((p) => `${p.port}/${p.protocol}${p.service ? " " + p.service : ""}`).join(", ") || "–" }))))),
+      h("p", { class: "note", text: t("repNote") }));
+    const title = `SafeHouse – ${t("repDocTitle")} – ${s.file}`;
+    const esc = h("title", { text: title }).outerHTML;
+    return `<!doctype html><html lang="${state.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${esc}<style>${REPORT_CSS}</style></head><body>${doc.innerHTML}<script>${REPORT_FIT}<\/script></body></html>`;
+  }
+  function downloadReport(s) {
+    const blob = new Blob([reportDoc(s)], { type: "text/html;charset=utf-8" });
+    const a = h("a", { href: URL.createObjectURL(blob), download: `SafeHouse-${state.lang === "ro" ? "raport" : "report"}-${s.file.replace(/\.[^.]+$/, "")}-${new Date().toISOString().slice(0, 10)}.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  function printReport(s) {
+    const old = document.getElementById("report-frame");
+    if (old) old.remove();
+    const f = h("iframe", { id: "report-frame", title: t("repTitle"), "aria-hidden": "true", tabindex: "-1",
+      style: "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden" });
+    f.addEventListener("load", () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { downloadReport(s); } }, { once: true });
+    f.srcdoc = reportDoc(s);
+    document.body.append(f);
+  }
+  function reportCard(s) {
+    return h("section", { class: "report-card", "aria-labelledby": "rep-title" },
+      h("div", { class: "rep-text" }, h("h3", { id: "rep-title", class: "with-ico" }, icon("briefcase", "lg"), h("span", { text: t("repTitle") })),
+        h("p", { class: "muted", text: t("repSub") })),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-tonal", onclick: () => printReport(s) }, icon("present"), t("repPdf")),
+        h("button", { type: "button", class: "btn btn-ghost", onclick: () => downloadReport(s) }, icon("arrow"), t("repHtml"))),
+      h("p", { class: "muted rep-hint", text: t("repHint") }));
   }
 
   // ---------------------------------------------------------------- shell
-  const RENDER = { home: renderHome, devices: renderDevices, findings: renderFindings, history: renderHistory, ask: renderAsk };
+  const RENDER = { home: renderHome, findings: renderFindings, history: renderHistory };
   function setTab(name) {
     state.tab = name;
     TABS.forEach((n) => { document.getElementById("panel-" + n).hidden = n !== name; });
@@ -1221,10 +1544,18 @@
     const sel = document.getElementById("scan-select");
     sel.setAttribute("aria-label", t("scanFile"));
     sel.replaceChildren(...D.scans.map((s, i) => h("option", { value: String(i), selected: i === state.scan }, s.error ? `${s.file} — ${t("errorWord")}` : `${s.file} — ${s.score}/100`)));
+    const cur = scan(), chipEl = sel.closest(".net-chip"), sb = document.getElementById("scan-score");
+    chipEl.dataset.band = cur.error ? "error" : bandOf(cur.score);
+    document.getElementById("scan-file").textContent = cur.file;
+    sb.textContent = cur.error ? t("errorWord") : `${cur.score}/100`;
     const panel = document.getElementById("panel-" + state.tab);
     panel.replaceChildren();
     RENDER[state.tab](panel);
     if (window.Device3D) window.Device3D.scan(panel);       // 3D models into every .dev3d slot
+    const hb = document.getElementById("help-btn");
+    hb.setAttribute("aria-label", t("helpAria"));
+    hb.querySelector(".help-txt").textContent = t("helpBtn");
+    if (document.getElementById("chat").open) renderChat();
   }
 
   document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; render(); });
@@ -1232,13 +1563,22 @@
   [0, 1, 2].forEach((i) => document.getElementById("size-" + i).addEventListener("click", () => { state.size = i; store.set("size", String(i)); render(); }));
   document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); }));
   const dlg = document.getElementById("sheet");
+  document.getElementById("help-btn").addEventListener("click", (e) => openChat(e.currentTarget));
+  document.getElementById("chat-close").addEventListener("click", closeChat);
+  const chatDlg = document.getElementById("chat");
+  chatDlg.addEventListener("close", () => { if (chatOpener && document.body.contains(chatOpener)) chatOpener.focus(); });
+  chatDlg.addEventListener("click", (e) => { if (e.target === chatDlg) closeChat(); });
   document.getElementById("sheet-close").addEventListener("click", closeSheet);
   dlg.addEventListener("close", () => { if (lastOpener && document.body.contains(lastOpener)) lastOpener.focus(); });
   dlg.addEventListener("click", (e) => { if (e.target === dlg) closeSheet(); });   // tap outside the sheet
 
-  // Deep links for the pitch: #ask?q=first&hall=1, #home?lang=en&scan=V3_small_office.xml, #history?theme=light&size=2, #devices?open=192.168.1.40
+  // Deep links for the pitch: #ask?q=first&hall=1 (opens the chat), #home?lang=en&scan=V3_small_office.xml, #history?theme=light&size=2,
+  // #devices?open=192.168.1.40 (old link: Home with the device sheet), #findings?view=all
   (function applyHash() {
-    const [tab, query] = location.hash.slice(1).split("?");
+    let [tab, query] = location.hash.slice(1).split("?");
+    if (tab === "devices") { tab = "home"; query = (query ? query + "&" : "") + "inspect=1"; }   // old link from the pitch
+    const wantChat = tab === "ask";                                   // #ask?q=first&hall=1 opens the chat over Home
+    if (wantChat) tab = "home";
     const p = new URLSearchParams(query || "");
     if (p.get("lang") === "en" || p.get("lang") === "ro") state.lang = p.get("lang");
     if (["0", "1", "2"].includes(p.get("size"))) state.size = Number(p.get("size"));
@@ -1246,19 +1586,22 @@
     if (i >= 0) state.scan = i;
     if (p.get("hall") === "1") state.hallucinate = true;
     if (p.get("inspect") === "1") state.inspected[scan().file] = true;
+    if (p.get("view") === "all" || p.get("view") === "one") state.fixView = p.get("view");
     if (p.get("theme") === "light" || p.get("theme") === "dark") document.documentElement.dataset.theme = p.get("theme");
     const q = { first: "q1", devices: "q2", printer: "q3" }[p.get("q")];
-    if (q) state.chat = [{ kind: p.get("q"), text: t(q) }];
     setTab(TABS.includes(tab) ? tab : "home");
     if (p.get("state")) applyHouseState(p.get("state"));
     const open = p.get("open");
     if (open && !scan().error) { const d = deviceByIp(scan(), open); if (d) openDevice(d); }
+    if (wantChat) { openChat(); if (q) chatAsk(t(q), p.get("q")); }
   })();
 
   // SafeHouse.setState("safe" | "vulnerable" | "idle" | "scanning" | "error") and SafeHouse.inspect()
   window.SafeHouse = {
     setState(st) { if (state.tab !== "home") setTab("home"); return applyHouseState(st); },
     inspect() { if (state.tab !== "home") setTab("home"); inspect(); },
+    reportHtml() { return reportDoc(scan()); },        // FR-14: the one-page report as a full HTML document
+    openChat() { openChat(); },
   };
 
   let resizeTimer = null;
