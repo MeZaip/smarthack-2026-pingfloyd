@@ -816,6 +816,222 @@ dialog.sheet { background: var(--solid, #111114); border-left: 1px solid var(--l
 .glass { width: max-content; max-width: calc(100% - 32px); }
 
 /* =====================================================================================
+   Polish: header no longer covers the greeting, custom scan select, yoyo scanline,
+   score trend (FR-10), new-device badge (FR-13), one-click delete history (NFR-02).
+   ===================================================================================== */
+/* header: opaque, above the content, so the page title is never blurred or cut */
+.appbar {
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(9, 9, 11, .88); border-bottom: 1px solid var(--line);
+  padding-top: 18px; padding-bottom: 18px;
+}
+:root[data-theme="light"] .appbar { background: rgba(248, 250, 253, .92); }
+main { position: relative; z-index: 0; }
+.page-head { margin-top: 40px; }
+.page-head h2 { line-height: 1.2; padding-top: 2px; }
+
+/* custom select: no native border or arrow, sleek dark chip with an SVG chevron */
+.net-chip {
+  position: relative; gap: 10px; padding: 0 44px 0 16px; border-radius: 14px; min-height: 52px;
+  background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1);
+  transition: border-color .3s ease, background .3s ease;
+}
+.net-chip:hover { border-color: rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .06); }
+.net-chip:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+.net-chip select {
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  background: transparent; border: 0; outline: none; color: var(--text); font: inherit; font-size: 1rem; font-weight: 600;
+  min-height: 50px; padding: 0; max-width: 18rem; cursor: pointer;
+}
+.net-chip select::-ms-expand { display: none; }
+.net-chip select option { background: #111114; color: #fafafa; }
+:root[data-theme="light"] .net-chip { background: #fff; border-color: #d4d4d8; }
+:root[data-theme="light"] .net-chip select option { background: #fff; color: #1f1f1f; }
+.select-chev { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.net-chip > .ico:first-of-type { color: var(--primary); }
+
+/* yoyo scanline over the 3D house: top -> bottom, then smoothly back (alternate) */
+.stage-wrap { --scan-top: 84px; --scan-travel: 340px; }
+.scanline {
+  position: absolute; left: 10%; right: 10%; top: var(--scan-top); height: 3px; border-radius: 3px; z-index: 2;
+  pointer-events: none; opacity: 0; transition: opacity .3s ease;
+  background: linear-gradient(90deg, transparent, #22d3ee 14%, #cffafe 50%, #22d3ee 86%, transparent);
+  box-shadow: 0 0 12px 2px rgba(34, 211, 238, .75), 0 0 44px 10px rgba(56, 189, 248, .3);
+}
+.scanline::before, .scanline::after { content: ""; position: absolute; left: 4%; right: 4%; height: 64px; pointer-events: none; }
+.scanline::before { bottom: 3px; background: linear-gradient(to top, rgba(34, 211, 238, .2), transparent); }
+.scanline::after { top: 3px; background: linear-gradient(to bottom, rgba(34, 211, 238, .12), transparent); }
+.stage-wrap.is-scanning .scanline { opacity: 1; animation: scan-yoyo 2s ease-in-out infinite alternate; }
+@keyframes scan-yoyo {
+  from { transform: translateY(0); }
+  to { transform: translateY(var(--scan-travel)); }
+}
+/* result glow behind the house: stronger once the scan is done */
+.hero[data-state="safe"] .stage-wrap::before, .hero[data-state="vulnerable"] .stage-wrap::before { opacity: .8; }
+
+/* score trend (FR-10) and new-device badge (FR-13), always icon + words */
+.changes { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.trend { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 600; }
+.trend.up { color: var(--green-ink); } .trend.down { color: var(--red-ink); } .trend.neutral { color: var(--muted); font-weight: 400; }
+.newdev {
+  display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: .35rem .9rem; font-weight: 600;
+  color: var(--info-ink); background: var(--info-bg); border: 1px solid rgba(59, 130, 246, .35);
+}
+.newdev.none { color: var(--muted); background: transparent; border-color: var(--outline); font-weight: 400; }
+.pulse-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; flex: none; }
+.pulse-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #3b82f6; animation: dot-pulse 1.6s ease-out infinite; }
+@keyframes dot-pulse { from { transform: scale(1); opacity: .7; } to { transform: scale(3); opacity: 0; } }
+
+/* one-click delete history (NFR-02): quiet until needed, inline confirmation */
+.privacy { width: 100%; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 4px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.btn-delete, .btn-link {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: .45rem .9rem; border-radius: 10px;
+  background: transparent; border: 1px solid transparent; font: inherit; font-weight: 600; cursor: pointer; transition: all .3s ease;
+}
+.btn-delete { color: var(--muted); }
+.btn-delete:hover { color: var(--red-ink); background: var(--red-bg); border-color: rgba(239, 68, 68, .3); }
+.btn-link { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.confirm-inline { background: var(--red-bg); border: 1px solid rgba(239, 68, 68, .3); border-radius: 14px; padding: 16px; border-top-width: 1px; }
+.score-card .privacy .actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.score-card .privacy .actions .btn { width: auto; }
+
+@media (max-width: 1000px) { .stage-wrap { --scan-top: 70px; --scan-travel: 290px; } }
+@media (max-width: 760px) {
+  .stage-wrap { --scan-top: 64px; --scan-travel: 250px; }
+  .appbar { position: static; }
+  .net-chip select { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-wrap.is-scanning .scanline { animation: none; transform: translateY(calc(var(--scan-travel) / 2)); }
+  .pulse-dot::after { animation: none; }
+}
+
+/* =====================================================================================
+   Logo "The Biometric Home" + CamelCase wordmark SafeHouse.
+   Emerald #10B981 on dark (8.4:1); light theme uses #047857 and navy so the wordmark stays AA.
+   ===================================================================================== */
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+:root { --logo-green: #10b981; --logo-white: #ffffff; --logo-cut: #09090b; }
+:root[data-theme="light"] { --logo-green: #047857; --logo-white: #0b2545; --logo-cut: #f8fafd; }
+.logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; line-height: 1; }
+.logo-mark { width: 44px; height: 44px; flex: none; color: var(--logo-green); overflow: visible; }
+.wordmark {
+  display: inline-flex; align-items: center;
+  font-family: Inter, Poppins, "SF Pro Display", -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 1.6rem; line-height: 1; letter-spacing: -0.02em;
+}
+.wordmark b { font-weight: 800; color: var(--logo-green); }
+.wordmark span { font-weight: 300; color: var(--logo-white); }
+.nav-brand { background: transparent; border: 0; }
+.nav-brand .logo-mark { width: 46px; height: 46px; }
+@media (max-width: 560px) { .logo-mark { width: 38px; height: 38px; } .wordmark { font-size: 1.4rem; } }
+
+/* =====================================================================================
+   Logo "The Wi-Fi Home" (replaces the fingerprint logo): cyan -> royal blue, like the CTA.
+   Dark: #06b6d4 8.6:1 and #3b82f6 5.4:1 on the page. Light: #0e7490 / #1d4ed8 (both > 5:1).
+   ===================================================================================== */
+:root { --logo-c1: #06b6d4; --logo-c2: #3b82f6; --logo-white: #ffffff; }
+:root[data-theme="light"] { --logo-c1: #0e7490; --logo-c2: #1d4ed8; --logo-white: #0b2545; }
+.logo-mark { color: var(--logo-c2); }
+.wordmark { letter-spacing: -0.02em; }
+.wordmark b {
+  font-weight: 800; color: var(--logo-c2);
+  background: linear-gradient(90deg, var(--logo-c1), var(--logo-c2));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.wordmark span { font-weight: 500; color: var(--logo-white); }
+
+/* =====================================================================================
+   Brand: house + nested security shield + radar/Wi-Fi arcs, one gradient (#0055FF -> #00F0FF),
+   a pulsing cyber-green sensor and a soft cyan glow. Wordmark .brand-title "Safehouse".
+   Dark: Safe #FFFFFF 19.9:1, house #94A3B8 7.9:1. Light: #0b1220 / #475569.
+   ===================================================================================== */
+:root { --brand-g1: #0055ff; --brand-g2: #00f0ff; --brand-safe: #ffffff; --brand-house: #94a3b8; --brand-sensor: #00ff66; }
+:root[data-theme="light"] { --brand-g1: #0047d6; --brand-g2: #0891b2; --brand-safe: #0b1220; --brand-house: #475569; --brand-sensor: #059669; }
+.logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; line-height: 1; }
+.logo-mark { width: 42px; height: 42px; flex: none; overflow: visible; filter: drop-shadow(0 0 8px rgba(0, 240, 255, .4)); }
+:root[data-theme="light"] .logo-mark { filter: drop-shadow(0 0 6px rgba(0, 85, 255, .25)); }
+.logo-sensor { fill: var(--brand-sensor); }
+.logo-sensor-halo { fill: var(--brand-sensor); opacity: .35; transform-box: fill-box; transform-origin: center; animation: sensor-pulse 2.4s ease-in-out infinite; }
+@keyframes sensor-pulse { 0%, 100% { transform: scale(.7); opacity: .45; } 50% { transform: scale(1.5); opacity: 0; } }
+.brand-title {
+  display: inline-flex; align-items: center;
+  font-family: "Inter", system-ui, sans-serif; font-size: 1.55rem; line-height: 1; letter-spacing: -0.03em;
+}
+.brand-title b { font-weight: 800; color: var(--brand-safe); }
+.brand-title span { font-weight: 300; color: var(--brand-house); }
+.nav-brand { background: transparent; border: 0; }
+.nav-brand .logo-mark { width: 44px; height: 44px; }
+@media (max-width: 560px) { .logo-mark { width: 36px; height: 36px; } .brand-title { font-size: 1.35rem; } }
+@media (prefers-reduced-motion: reduce) { .logo-sensor-halo { animation: none; opacity: .3; } }
+
+/* =====================================================================================
+   Logo snippet "Wi-Fi Home" + SafeHouse (same markup in the header and the sidebar).
+   Inline styles come from the brand snippet; this only handles layout and the light theme.
+   ===================================================================================== */
+.logo { display: inline-flex; align-items: center; text-decoration: none; line-height: 1; filter: none; }
+.brand-logo-container { line-height: 1; }
+.brand-logo-container svg { flex: none; filter: drop-shadow(0 0 6px rgba(59, 130, 246, .35)); }
+.brand-text { display: inline-flex; align-items: center; white-space: nowrap; }
+/* sidebar: wide enough for icon + name */
+:root { --rail: 184px; }
+.nav { align-items: stretch; padding: 20px 16px; }
+.nav-brand { width: auto; height: auto; margin: 4px 4px 22px; background: transparent; border: 0; display: block; }
+.nav-item { width: 100%; }
+/* the snippet sets "House" white inline; keep it readable on the light theme */
+:root[data-theme="light"] .brand-text span:last-child { color: #0b2545 !important; }
+@media (max-width: 760px) { .nav-brand { display: none; } }
+
+/* Logo snippet "SafeHouse Mag7 style": the green indicator glows and pulses gently (markup unchanged). */
+.brand-logo-container svg { filter: none; overflow: visible; }
+.brand-logo-container svg > circle {
+  transform-box: fill-box; transform-origin: center;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 102, .8));
+  animation: indicator-pulse 2.4s ease-in-out infinite;
+}
+@keyframes indicator-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.82); } }
+@media (prefers-reduced-motion: reduce) { .brand-logo-container svg > circle { animation: none; } }
+/* the snippet colours the name for dark backgrounds; keep it readable on the light theme */
+:root[data-theme="light"] .brand-text span:first-child { color: #0b1220 !important; }
+:root[data-theme="light"] .brand-text span:last-child { color: #475569 !important; }
+
+/* =====================================================================================
+   Safehouse brand (from the reference): mark #safehouse-mark + wordmark "Safehouse".
+   Safe 800 #ffffff (19.9:1), house 400 #9ca3af (8.0:1) on the dark page.
+   On computers the logo lives in the sidebar; the header copy is shown only on phones.
+   ===================================================================================== */
+.brand-logo { display: flex; align-items: center; gap: 12px; line-height: 1; }
+.brand-mark { width: 42px; height: 42px; flex: none; overflow: visible; }
+.brand-text {
+  display: inline-flex; align-items: center; white-space: nowrap;
+  font-family: "Inter", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 1.5rem; letter-spacing: -0.03em;
+}
+.b-safe { font-weight: 800; color: #ffffff; }
+.b-house { font-weight: 400; color: #9ca3af; }
+:root[data-theme="light"] .b-safe { color: #0b1220; }
+:root[data-theme="light"] .b-house { color: #4b5563; }
+a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
+.appbar .logo { display: none; }
+@media (max-width: 760px) {
+  .appbar .logo { display: inline-flex; }
+  .brand-mark { width: 38px; height: 38px; }
+  .brand-text { font-size: 1.35rem; }
+}
+/* sidebar brand: icon and name on one row, sized for the rail */
+:root { --rail: 208px; }
+.nav a.nav-brand { width: auto; height: auto; margin: 6px 6px 26px; padding: 4px; display: block; }
+.nav .brand-logo { flex-direction: row; flex-wrap: nowrap; gap: 10px; }
+.nav .brand-mark { width: 38px; height: 38px; }
+.nav .brand-text { font-size: 1.35rem; }
+@media (max-width: 760px) { .nav a.nav-brand { display: none; } }
+
+/* Official logo icon (cut from the brand image, black background removed), next to the HTML wordmark */
+.brand-logo img.brand-mark { height: 36px; width: auto; object-fit: contain; flex: none; display: block; }
+.nav .brand-logo img.brand-mark { height: 36px; width: auto; }
+.brand-logo .b-safe { font-weight: 800; color: #ffffff; }
+.brand-logo .b-house { font-weight: 400; color: #9ca3af; }
+
+/* =====================================================================================
    THREAT PATH (scroll-telling): vulnerable devices on isometric platforms, joined by a data line
    that is drawn while scrolling. Orange / red accents = vulnerabilities, always with words too.
    ===================================================================================== */
@@ -1117,3 +1333,21 @@ div.topo-node { cursor: default; }
   .topo-link, .topo-orb::after, .topo-node.sev-high .topo-orb::after, .topo-radar { animation: none; }
   .topo-panel.is-revealing .topo-scan, .topo-panel.is-revealing > :not(.topo-scan) { animation: none; }
 }
+
+/* =====================================================================================
+   3D device models (ui/device3d.js): every device picture is a square slot with a 2D canvas the shared
+   WebGL renderer draws into. The SVG inside the slot is shown only when WebGL is not available.
+   ===================================================================================== */
+.dev3d { position: relative; }
+.dev3d > .dev3d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.dev3d > .dev3d-canvas:active { cursor: grabbing; }
+.dev3d.ready > svg { display: none; }
+/* cards and tiles: a slightly bigger, frameless 3D header for the device */
+.dev-ico.dev3d.ready { width: 80px; height: 80px; background: radial-gradient(closest-side, rgba(255, 255, 255, .06), transparent); border: 0; border-radius: 20px; }
+.dev-ico.dev3d.lg.ready { width: 104px; height: 104px; }
+.tile .dev-ico.dev3d.ready { width: 88px; height: 88px; background: radial-gradient(closest-side, rgba(255, 255, 255, .07), transparent); }
+.check-head .dev-ico.dev3d.ready { width: 72px; height: 72px; }
+/* threat-path pedestals: the model floats on the platform, no rounded square behind it */
+.iso-device.dev3d.ready { width: 132px; height: 132px; margin-top: -96px; background: none !important; border: 0 !important; box-shadow: none !important; }
+.tour-node.is-active .iso-device.dev3d.ready { box-shadow: none !important; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--a) 55%, transparent)); }
+@media (max-width: 760px) { .iso-device.dev3d.ready { width: 108px; height: 108px; margin-top: -78px; } }

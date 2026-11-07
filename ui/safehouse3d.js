@@ -582,7 +582,7 @@
   function goals() {
     return {
       idle: { door: -0.3, glow: 0, warm: 0, doorGlow: 0, laser: 0 },
-      scanning: { door: -0.3, glow: 0, warm: 0.25, doorGlow: 0, laser: reduce() ? 0 : 1 },
+      scanning: { door: -0.3, glow: 0, warm: 0.25, doorGlow: 0, laser: 0 },   // the page's CSS .scanline is the scanner now
       safe: { door: 0, glow: 1, warm: 0, doorGlow: 0, laser: 0 },
       vulnerable: { door: -1.35, glow: 0, warm: 0.35, doorGlow: 1, laser: 0 },
       error: { door: 0, glow: 0, warm: 0, doorGlow: 0, laser: 0 },
