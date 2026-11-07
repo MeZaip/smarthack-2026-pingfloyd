@@ -385,10 +385,26 @@
   }
   // Risk colour of the 3D model's LED and rim light: red high, amber medium, blue low, green safe.
   const MODEL_TONE = { red: "red", high: "red", amber: "amber", medium: "amber", low: "blue", info: "green", green: "green" };
-  function devIco(type, tone, big) {
+  // Which 3D model a device gets: the model of its type, or a variant when its name or maker says more (a MacBook,
+  // an iMac, an iPhone, a Raspberry Pi; ui/assets/models/procedural/). Every phone that is not an iPhone gets the
+  // standard Android model. A variant without a model falls back to its type in device3d.js.
+  function modelOf(d) {
+    if (!d) return "unknown";
+    const type = DEVICE_ICON[d.type] ? d.type : "unknown";
+    const name = String(d.hostname || "").toLowerCase(), vendor = String(d.vendor || "").toLowerCase();
+    const apple = vendor.includes("apple");
+    if (type === "computer") {
+      if (name.includes("imac")) return "computer-imac";
+      if (apple || /macbook|\bmbp\b|\bmac\b/.test(name)) return "computer-macbook";
+    }
+    if (type === "phone") return apple || /iphone|ipad/.test(name) ? "phone-iphone" : "phone-android";
+    if (type === "iot" && vendor.includes("raspberry")) return "iot-raspberrypi";
+    return type;
+  }
+  function devIco(type, tone, big, d) {
     const t = DEVICE_ICON[type] ? type : "unknown";
     return h("div", { class: "dev-ico dev3d" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true",
-      "data-type": t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
+      "data-type": t, "data-model": d ? modelOf(d) : t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
   }
   function whoLine(code) {
     const w = D.who[whoOf(code)];
@@ -841,7 +857,7 @@
           "aria-label": `${vendor || deviceLabel(d.type)}, ${deviceLabel(d.type)}, ${d.ip}. ${sevLabel(sev)}`, "aria-pressed": "false" },
         h("span", { class: "topo-orb" }, dot ? icon(ico)
           : h("span", { class: "dev3d topo-model", "aria-hidden": "true", "data-type": DEVICE_ICON[d.type] ? d.type : "unknown",
-              "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
+              "data-model": modelOf(d), "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
         h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
           h("span", { text: (core ? t("topoGateway") : sevLabel(sev)) + meSuffix(d) })));
       b.addEventListener("click", () => select(it));
@@ -1102,7 +1118,7 @@
       const box = (title, i, ...kids) => h("section", { class: "topo-box grunge", style: `--i:${i}` }, h("p", { class: "topo-k", text: title }), kids);
       panel.className = `topo-panel grunge sev-${sev}`;
       panel.replaceChildren(...[                // filter: replaceChildren() would print a skipped part as "null"
-        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
+        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
           h("div", { class: "grow" }, h("h4", { text: (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
           h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
             h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
@@ -1165,7 +1181,7 @@
       const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
       const name = vendor || deviceLabel(d.type);
       const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${deviceLabel(d.type)} ${vendor}, ${t("ipLabel")} ${d.ip}, ${t("macLabel")} ${d.mac || t("unknown")}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
-        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
+        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
           h("div", null, h("h3", { text: name }), h("div", { class: "sub", text: deviceLabel(d.type) }))),
         h("dl", { class: "dcard-meta" },
           h("dt", { text: t("ipLabel") }), h("dd", { class: "mono", text: d.ip }),
@@ -1194,7 +1210,7 @@
     const f = q[i], tx = simple(f.code), dev = deviceByIp(s, f.ip), top = mostDangerous(s);
     card.append(
       h("p", { class: "muted", text: t("suggestSub") }),
-      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true),
+      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true, dev),
         h("div", { class: "grow" },
           h("div", { class: "muted", text: top && top.ip === f.ip ? t("mostDangerous") : t("thisDevice") }),
           h("strong", { style: "font-size:1.3rem", text: deviceName(dev) })),
@@ -1222,7 +1238,7 @@
       const vendor = shortVendor(d.vendor);
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
-        devIco(d.type, tone === "green" ? "green" : worst.severity),
+        devIco(d.type, tone === "green" ? "green" : worst.severity, false, d),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "tile-sub", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null),
         h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
@@ -1269,7 +1285,7 @@
     const risky = new Set(probs.filter((f) => f.port != null).map((f) => f.port));
     const body = document.getElementById("sheet-body");
     body.replaceChildren(h("div", null,
-      h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true),
+      h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true, d),
         h("div", null, h("h2", { id: "sheet-title", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "muted", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null)),
       worst ? h("p", { class: "muted", style: "margin:.6rem 0 0", text: plural(probs.length, "devProblem", "devProblems") }) : null,
       all.length ? all.map((f, i) => fixBlock(s, f, i, all.length)) : null,

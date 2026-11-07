@@ -33,9 +33,16 @@ _VENDOR_HINTS = [
     (("intel", "dell", "lenovo", "micro-star", "gigabyte", "asustek", "microsoft"), "computer"),
 ]
 
+# Device names that say what the device is, stronger than the maker: an Apple maker alone would make a MacBook a
+# phone, and a Samsung maker alone would make a Galaxy phone a TV. Checked after the ports, before the makers.
+_NAME_HINTS = [
+    (re.compile(r"macbook|imac|mac-?mini|mac-?pro|mac-?studio|\bmbp\b"), "computer"),
+    (re.compile(r"iphone|ipad|android|galaxy|pixel"), "phone"),
+]
+
 
 def guess_type(host: Host, is_gateway: bool = False) -> str:
-    """Best-effort, explainable guess. Order: ports (strongest evidence), then vendor."""
+    """Best-effort, explainable guess. Order: ports (strongest evidence), then the device name, then vendor."""
     if is_gateway:
         return "router"
     services = {p.service for p in host.open_ports}
@@ -54,6 +61,10 @@ def guess_type(host: Host, is_gateway: bool = False) -> str:
         return "tv"
     if "upnp" in services and ({80, 443} & ports):
         return "router"
+    names = " ".join(host.hostnames).lower()
+    for pattern, kind in _NAME_HINTS:
+        if pattern.search(names):
+            return kind
     vendor = (host.vendor or "").lower()
     for keys, kind in _VENDOR_HINTS:
         if any(k in vendor for k in keys):
