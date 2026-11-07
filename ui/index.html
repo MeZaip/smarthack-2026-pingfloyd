@@ -2,64 +2,70 @@
 <html lang="ro">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafd">
   <title>netcheck</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <a class="skip" href="#main" data-i18n="skip">Sari la conținut</a>
 
-  <header class="top">
-    <div class="wrap">
-      <div class="top-row">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true">🏠</div>
-          <div>
-            <h1>netcheck</h1>
-            <small data-i18n="tagline">Verificăm dacă rețeaua din casa ta e sigură și îți spunem simplu ce să faci</small>
-          </div>
+  <div class="app">
+    <!-- One navigation: a side rail on computers, a bottom bar on phones (Google Home / Fing pattern). -->
+    <nav class="nav" aria-label="Meniu / Menu">
+      <div class="nav-brand" aria-hidden="true">🏠</div>
+      <button type="button" class="nav-item" data-tab="home"><span class="nav-ico" aria-hidden="true">🏠</span><span class="nav-label" data-i18n="navHome">Acasă</span></button>
+      <button type="button" class="nav-item" data-tab="devices"><span class="nav-ico" aria-hidden="true">📱</span><span class="nav-label" data-i18n="navDevices">Aparate</span></button>
+      <button type="button" class="nav-item" data-tab="findings"><span class="nav-ico" aria-hidden="true">🛡️</span><span class="nav-label" data-i18n="navFindings">Reparații</span></button>
+      <button type="button" class="nav-item" data-tab="history"><span class="nav-ico" aria-hidden="true">📈</span><span class="nav-label" data-i18n="navHistory">Istoric</span></button>
+      <button type="button" class="nav-item" data-tab="ask"><span class="nav-ico" aria-hidden="true">💬</span><span class="nav-label" data-i18n="navAsk">Întreabă</span></button>
+    </nav>
+
+    <div class="content">
+      <header class="appbar">
+        <div class="appbar-title">
+          <span class="appbar-name">netcheck</span>
+          <label class="net-chip">
+            <span class="sr" data-i18n="scanFile">Verificarea afișată</span>
+            <span aria-hidden="true">📶</span>
+            <select id="scan-select"></select>
+          </label>
         </div>
-        <div class="controls">
+        <div class="appbar-actions">
           <div class="seg" role="group" id="size-group" aria-label="Mărimea textului">
-            <button type="button" id="size-0" aria-pressed="true" class="size-btn s0">A</button>
-            <button type="button" id="size-1" aria-pressed="false" class="size-btn s1">A+</button>
-            <button type="button" id="size-2" aria-pressed="false" class="size-btn s2">A++</button>
+            <button type="button" id="size-0" class="size-btn s0" aria-pressed="true">A</button>
+            <button type="button" id="size-1" class="size-btn s1" aria-pressed="false">A+</button>
+            <button type="button" id="size-2" class="size-btn s2" aria-pressed="false">A++</button>
           </div>
           <div class="seg" role="group" aria-label="Limba / Language">
             <button type="button" id="lang-ro" aria-pressed="true">RO</button>
             <button type="button" id="lang-en" aria-pressed="false">EN</button>
           </div>
         </div>
-      </div>
-      <nav class="tabs" role="tablist" aria-label="Secțiuni / Sections">
-        <button role="tab" id="tab-home" aria-controls="panel-home" aria-selected="true"><span aria-hidden="true">🏠</span> <span data-i18n="tabHome">Acasă</span></button>
-        <button role="tab" id="tab-devices" aria-controls="panel-devices" aria-selected="false" tabindex="-1"><span aria-hidden="true">📱</span> <span data-i18n="tabDevices">Aparatele mele</span></button>
-        <button role="tab" id="tab-findings" aria-controls="panel-findings" aria-selected="false" tabindex="-1"><span aria-hidden="true">🔧</span> <span data-i18n="tabFindings">Ce trebuie reparat</span></button>
-        <button role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1"><span aria-hidden="true">📈</span> <span data-i18n="tabHistory">Mai sigur acum?</span></button>
-        <button role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" tabindex="-1"><span aria-hidden="true">💬</span> <span data-i18n="tabAsk">Întreabă</span></button>
-      </nav>
-    </div>
-  </header>
+      </header>
 
-  <main id="main" class="wrap">
-    <div class="demo-bar">
-      <label class="field">
-        <span data-i18n="scanFile">Verificarea afișată</span>
-        <select id="scan-select"></select>
-      </label>
-    </div>
-    <section class="panel" id="panel-home" role="tabpanel" aria-labelledby="tab-home"></section>
-    <section class="panel" id="panel-devices" role="tabpanel" aria-labelledby="tab-devices" hidden></section>
-    <section class="panel" id="panel-findings" role="tabpanel" aria-labelledby="tab-findings" hidden></section>
-    <section class="panel" id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden></section>
-    <section class="panel" id="panel-ask" role="tabpanel" aria-labelledby="tab-ask" hidden></section>
-  </main>
+      <main id="main" tabindex="-1">
+        <section class="panel" id="panel-home"></section>
+        <section class="panel" id="panel-devices" hidden></section>
+        <section class="panel" id="panel-findings" hidden></section>
+        <section class="panel" id="panel-history" hidden></section>
+        <section class="panel" id="panel-ask" hidden></section>
+      </main>
 
-  <footer>
-    <div class="wrap">
-      <p><span aria-hidden="true">🔒 </span><span data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</span></p>
+      <footer class="foot">
+        <p><span aria-hidden="true">🔒 </span><span data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</span></p>
+      </footer>
     </div>
-  </footer>
+  </div>
+
+  <!-- Device details: a side sheet on computers, a bottom sheet on phones. -->
+  <dialog id="sheet" class="sheet" aria-labelledby="sheet-title">
+    <div class="sheet-bar">
+      <span class="sheet-handle" aria-hidden="true"></span>
+      <button type="button" class="icon-btn" id="sheet-close"><span aria-hidden="true">✕</span><span class="sr" data-i18n="close">Închide</span></button>
+    </div>
+    <div id="sheet-body"></div>
+  </dialog>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
