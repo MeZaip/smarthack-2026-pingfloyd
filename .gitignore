@@ -17,3 +17,11 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+
+# Local data (privacy: scan history and results stay on this machine)
+results/
+data/
+*.sqlite
+*.sqlite-*
+*.db
+scans/private/

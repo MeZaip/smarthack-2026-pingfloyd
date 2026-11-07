@@ -23,6 +23,21 @@ python -m netcheck diff    before.xml after.xml                # what changed / 
 
 Unreadable files get `ERROR` in `scores.csv`; the run continues with the other files.
 
+## Scan history (score trend, before/after)
+
+```bash
+python -m netcheck history add scan_monday.xml scan_friday.xml   # save scans (alerts on new devices / new open ports)
+python -m netcheck history list                                  # score trend
+python -m netcheck history changes                               # before/after between the last two saved scans
+python -m netcheck history delete                                # "Delete my history": removes the database file
+```
+
+Stored in SQLite at `~/.netcheck/history.sqlite` (override with `--db` or `NETCHECK_DB`), outside the repo,
+owner-only permissions. Tables: `scans`, `devices`, `ports`, `findings` (children use `ON DELETE CASCADE`).
+**The full MAC is never written to disk**: only the masked MAC (`AA:BB:CC:XX:XX:XX`, vendor prefix for display)
+and a keyed hash of the full MAC, used to recognise the same device across scans even when its IP changes
+or two devices share a vendor. The hash key is random per history file and is deleted with it.
+
 ## How it works
 
 | Layer | What | LLM? |
