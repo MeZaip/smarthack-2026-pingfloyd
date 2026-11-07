@@ -21,6 +21,8 @@
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
+      topoCore: "Casa ta", topoGateway: "Poarta spre internet", topoHint: "Apasă pe un aparat ca să vezi detaliile.",
+      topoNet: "Rețea", topoWhy: "Ce înseamnă", topoAll: "Toate", topoShow: "Arată:", closeEsc: "Închide (Esc)", portOpen: "Deschis", portVuln: "Vulnerabil", portSecure: "criptat",
       tourTitle: "Traseul amenințărilor", tourSub: "Dă scroll: urmărim datele de la un aparat la altul, începând cu cel mai periculos.",
       tourStep: "Aparatul {i} din {n}", tourPort: "port {p}", tourFirst: "Primul pas",
       tourEndT: "Ai parcurs tot traseul", tourEndS1: "Un aparat are uși deschise. Reparațiile, pas cu pas:", tourEndS: "{n} aparate au uși deschise. Reparațiile, pas cu pas:",
@@ -127,6 +129,8 @@
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
       inspect: "Inspect house", inspectAgain: "Inspect again",
+      topoCore: "Your home", topoGateway: "Gateway to the internet", topoHint: "Tap a device to see its details.",
+      topoNet: "Network", topoWhy: "What it means", topoAll: "All", topoShow: "Show:", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
       tourTitle: "Threat path", tourSub: "Scroll: we follow the data from one device to the next, starting with the most dangerous.",
       tourStep: "Device {i} of {n}", tourPort: "port {p}", tourFirst: "First step",
       tourEndT: "That's the whole path", tourEndS1: "One device has open doors. The fixes, step by step:", tourEndS: "{n} devices have open doors. The fixes, step by step:",
@@ -656,11 +660,188 @@
       h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("doorsNone") })))));
     if (tour) startTour(tour);
 
-    // Aparate găsite: grid of device cards
+    // Aparate găsite: network topology (gateway in the middle, devices around it, click = details panel)
+    const topo = topology(s);
     root.append(h("section", { class: "section" },
       h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("devicesFound", { n: s.devices.length }) }))),
-      h("p", { class: "section-sub", text: t("devicesSub2") }),
-      deviceCards(s)));
+      h("p", { class: "section-sub", text: t("topoHint") }),
+      topo));
+    startTopology(topo, s);
+  }
+
+  // ---------------------------------------------------------------- HOME: network topology graph
+  // The router is the glowing core (gateway) with a radar sweep around it; every other device is a node on rings
+  // around it, joined by a thin data line (cyan = safe, orange = medium, red = high risk) with a packet travelling
+  // along it (faster on riskier links). A legend above the graph filters the devices by risk. Rings fill up from
+  // the inside, riskiest first, and get more room the further out they are, so the same layout holds up to ~200
+  // devices (past 14 devices the nodes shrink to glowing dots with the name on hover/focus). Clicking a node
+  // slides in a translucent glass panel with a subtle grunge texture: name, IP + MAC (masked), risk badge, open
+  // ports, a plain explanation and "What I can do"; its boxes appear one by one behind a scan line.
+  const TOPO_SEVS = ["high", "medium", "low", "safe"];
+  const PKT_DUR = { high: 1.4, medium: 2.2, low: 2.8, safe: 3.6 };
+  let topoUid = 0;
+  function topology(s) {
+    const svgEl = svg("svg", { class: "topo-svg", "aria-hidden": "true" });
+    return h("div", { class: "topo" },
+      h("div", { class: "topo-main" },
+        h("div", { class: "topo-bar", role: "group", "aria-label": t("topoShow") }),
+        h("div", { class: "topo-graph" }, h("div", { class: "topo-radar", "aria-hidden": "true" }), svgEl)),
+      h("aside", { class: "topo-panel grunge", "aria-live": "polite", "aria-label": t("topoNet") }));
+  }
+  function startTopology(root, s) {
+    const graph = root.querySelector(".topo-graph"), svgEl = graph.querySelector(".topo-svg"), panel = root.querySelector(".topo-panel");
+    const bar = root.querySelector(".topo-bar"), radar = graph.querySelector(".topo-radar");
+    const uid = "topo" + ++topoUid, still = reducedMotion();
+    const gw = s.devices.find((d) => d.type === "router") || null;
+    const others = s.devices.filter((d) => d !== gw).map((d) => ({ d, probs: problemsOf(s, d) }))
+      .sort((a, b) => (a.probs.length ? SEV_RANK[a.probs[0].severity] : 9) - (b.probs.length ? SEV_RANK[b.probs[0].severity] : 9) || b.d.risk_points - a.d.risk_points);
+    const sevOf = (probs) => (probs.length ? probs[0].severity : "safe");
+    const sevLabel = (k) => (k === "safe" ? t("devOk") : RISK[k][state.lang]);
+    const sevIcon = (k) => (k === "safe" ? "check" : RISK[k].icon);
+    const small = others.length > 14;
+    let selected = null, filter = null;
+
+    function nodeBtn(d, probs, core) {
+      const sev = sevOf(probs), vendor = shortVendor(d.vendor);
+      const b = h("button", { type: "button", class: `topo-node sev-${sev}${core ? " core" : ""}${small && !core ? " dot" : ""}`,
+          "aria-label": `${vendor || deviceLabel(d.type)}, ${deviceLabel(d.type)}, ${d.ip}. ${sevLabel(sev)}`, "aria-pressed": "false" },
+        h("span", { class: "topo-orb" }, icon(DEVICE_ICON[d.type] || DEVICE_ICON.unknown)),
+        h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
+          h("span", { text: core ? t("topoGateway") : sevLabel(sev) })));
+      b.addEventListener("click", () => select(d, b));
+      return b;
+    }
+    const coreEl = gw ? nodeBtn(gw, problemsOf(s, gw), true)
+      : h("div", { class: "topo-node core sev-safe" }, h("span", { class: "topo-orb" }, icon("home")), h("span", { class: "topo-label" }, h("strong", { text: t("topoCore") })));
+    const items = others.map(({ d, probs }) => ({ d, probs, sev: sevOf(probs), el: nodeBtn(d, probs, false) }));
+    graph.append(coreEl, ...items.map((x) => x.el));
+    const gRings = svg("g", { class: "topo-rings" });
+    svgEl.append(gRings);
+    const paths = items.map((x, i) => { const p = svg("path", { class: "topo-link sev-" + x.sev, id: `${uid}-l${i}` }); svgEl.append(p); return p; });
+
+    // data packets: one per link, from the device towards the gateway (only the risky links when there are many
+    // devices); none at all with reduced motion
+    const pkts = [];
+    if (!still) items.forEach((x, i) => {
+      if (small && x.sev === "safe") return;
+      const dur = PKT_DUR[x.sev];
+      const c = svg("circle", { class: "topo-pkt sev-" + x.sev, r: small ? 2.5 : 3.5 });
+      const m = svg("animateMotion", { dur: dur + "s", repeatCount: "indefinite", begin: `-${((i * 0.37) % dur).toFixed(2)}s`,
+        keyPoints: "1;0", keyTimes: "0;1", calcMode: "linear" });
+      const mp = svg("mpath", { href: `#${uid}-l${i}` });
+      mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `#${uid}-l${i}`);
+      m.append(mp); c.append(m); svgEl.append(c); pkts.push({ c, i });
+    });
+
+    // legend = filter: "All" + one chip per risk level that is present, each with icon, words and a count
+    const counts = { high: 0, medium: 0, low: 0, safe: 0 };
+    items.forEach((x) => { counts[x.sev]++; });
+    const chips = [h("button", { type: "button", class: "btn-hud chip all", "data-f": "", "aria-pressed": "true" },
+      h("span", { text: t("topoAll") }), h("span", { class: "chip-n", text: String(items.length) }))];
+    TOPO_SEVS.filter((k) => counts[k]).forEach((k) => chips.push(h("button", { type: "button", class: `btn-hud chip sev-${k}`, "data-f": k, "aria-pressed": "false" },
+      icon(sevIcon(k)), h("span", { text: sevLabel(k) }), h("span", { class: "chip-n", text: String(counts[k]) }))));
+    if (items.length) bar.append(h("span", { class: "topo-bar-k", text: t("topoShow") }), ...chips);
+    chips.forEach((c) => c.addEventListener("click", () => setFilter(c.dataset.f && c.dataset.f !== filter ? c.dataset.f : null)));
+    function setFilter(f) {
+      filter = f;
+      chips.forEach((c) => c.setAttribute("aria-pressed", String((c.dataset.f || null) === filter)));
+      items.forEach((x, i) => {
+        const off = !!filter && x.sev !== filter;
+        x.el.classList.toggle("is-filtered", off);
+        paths[i].classList.toggle("is-filtered", off);
+        x.el.classList.toggle("is-match", !!filter && !off);          // stays lit even while a panel dims the rest
+        paths[i].classList.toggle("is-match", !!filter && !off);
+      });
+      pkts.forEach((p) => p.c.classList.toggle("is-filtered", !!filter && items[p.i].sev !== filter));
+    }
+
+    function layout() {
+      const W = graph.clientWidth, H = graph.clientHeight;
+      if (!W) return;
+      const cx = W * 0.5, cy = H * 0.5;
+      const sx = W > H ? 1.35 : 1, sy = H > W ? 1.42 : 1;       // stretch the rings along the long side of the graph
+      coreEl.style.left = cx + "px"; coreEl.style.top = cy + "px";
+      svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      gRings.replaceChildren();
+      // rings: radius grows outwards; each ring holds as many nodes as fit at the minimum spacing
+      const narrow = W < 600;
+      const spacing = small ? 34 : narrow ? 120 : 150, r0 = Math.min(W, H) * (small ? 0.2 : narrow ? 0.42 : 0.34), gap = small ? 34 : 120;
+      let k = 0, ring = 0, maxR = r0;
+      while (k < items.length) {
+        const r = r0 + ring * gap, cap = Math.max(1, Math.floor((2 * Math.PI * r) / spacing)), n = Math.min(cap, items.length - k);
+        const off = -Math.PI / 2 + (ring % 2 ? Math.PI / n : 0);
+        gRings.append(svg("ellipse", { class: "topo-ring", cx, cy, rx: r * sx, ry: r * sy }));
+        maxR = r;
+        for (let i = 0; i < n; i++, k++) {
+          const a = n === 1 ? -Math.PI / 2 : off + (i / n) * 2 * Math.PI;
+          const x = cx + Math.cos(a) * r * sx, y = cy + Math.sin(a) * r * sy;
+          const it = items[k];
+          it.el.style.left = x + "px"; it.el.style.top = y + "px";
+          const mx = (cx + x) / 2, my = (cy + y) / 2, bend = 0.18;                          // soft curve, not a straight wire
+          paths[k].setAttribute("d", `M${cx},${cy} Q${mx - (y - cy) * bend},${my + (x - cx) * bend} ${x},${y}`);
+        }
+        ring++;
+      }
+      // the radar covers the outer ring (an ellipse like the rings; only its gradient angle turns)
+      radar.style.left = cx + "px"; radar.style.top = cy + "px";
+      radar.style.width = 2 * (maxR * sx + 40) + "px"; radar.style.height = 2 * (maxR * sy + 40) + "px";
+    }
+
+    function portsOf(d, probs) {
+      const vuln = new Map(probs.filter((f) => f.port != null).map((f) => [f.port + "/" + f.protocol, f]));
+      return d.open_ports.map((p) => {
+        const f = vuln.get(p.port + "/" + p.protocol);
+        return h("li", { class: f ? "sev-" + f.severity : "" },
+          h("span", { class: "topo-port", text: `${p.port}/${p.protocol}` }),
+          h("span", { class: "topo-svc", text: (p.service || "?").toUpperCase() + (p.tls ? " · " + t("portSecure") : "") }),
+          h("span", { class: "topo-state" }, icon(f ? RISK[f.severity].icon : p.tls ? "lock" : "door"), f ? t("portVuln") : t("portOpen")));
+      });
+    }
+    function select(d, btn) {
+      if (selected && selected.btn === btn) { close(); return; }
+      if (selected) selected.btn.setAttribute("aria-pressed", "false");
+      selected = { d, btn };
+      btn.setAttribute("aria-pressed", "true");
+      const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor), sev = worst ? worst.severity : "safe";
+      const ports = portsOf(d, probs);
+      const box = (title, i, ...kids) => h("section", { class: "topo-box grunge", style: `--i:${i}` }, h("p", { class: "topo-k", text: title }), kids);
+      panel.className = `topo-panel grunge sev-${sev}`;
+      panel.replaceChildren(
+        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
+          h("div", { class: "grow" }, h("h4", { text: vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
+          h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
+            h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: close }, icon("x")))),
+        h("div", { class: "topo-risk", style: "--i:1" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk"))),
+        box(t("topoNet"), 2, h("dl", { class: "topo-dl" }, h("dt", { text: t("ipLabel") }), h("dd", { text: d.ip }), h("dt", { text: t("macLabel") }), h("dd", { text: d.mac || t("unknown") }))),
+        box(t("ports"), 3, ports.length ? h("ul", { class: "topo-ports" }, ports) : h("p", { class: "muted", style: "margin:0", text: t("none") })),
+        box(t("topoWhy"), 4, h("p", { class: "topo-why", text: worst ? simple(worst.code).explain : t("devOkExplain") })),
+        h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:5", onclick: (e) => openDevice(d, e.currentTarget) },
+          icon("shield"), h("span", { class: "grow", text: t("whatToDo") }), icon("chevron", "go")),
+        h("div", { class: "topo-scan", "aria-hidden": "true" }));
+      // replay the reveal (scan line + boxes one by one) for every device that is opened
+      if (!still) { void panel.offsetWidth; panel.classList.add("is-revealing"); }
+      panel.scrollTop = 0;
+      root.classList.add("open");
+      graph.querySelectorAll(".topo-node").forEach((n) => n.classList.toggle("is-dim", n !== btn && !n.classList.contains("core")));
+      paths.forEach((p, i) => p.classList.toggle("is-on", items[i].el === btn));
+      requestAnimationFrame(layout);
+    }
+    function close() {
+      if (!selected) return;
+      const btn = selected.btn;
+      btn.setAttribute("aria-pressed", "false");
+      selected = null;
+      root.classList.remove("open");
+      graph.querySelectorAll(".topo-node").forEach((n) => n.classList.remove("is-dim"));
+      paths.forEach((p) => p.classList.remove("is-on"));
+      requestAnimationFrame(layout);
+      btn.focus({ preventScroll: true });
+    }
+    root.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    // re-layout when the graph area changes size (window resize, panel opening)
+    const ro = new ResizeObserver(() => layout());
+    ro.observe(graph);
+    requestAnimationFrame(layout);
   }
 
   // Device cards: icon, name, IP and a very simple explanation (max 2 sentences) in both languages.

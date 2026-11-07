@@ -878,7 +878,7 @@ window.NETCHECK_DATA = {
     "scan_id": 1,
     "file": "V6a_before.xml",
     "scanned_at": 1793607841,
-    "saved_at": 1794072420,
+    "saved_at": 1794075825,
     "network_score": 60,
     "findings": 3,
     "devices": 3
@@ -887,7 +887,7 @@ window.NETCHECK_DATA = {
     "scan_id": 2,
     "file": "V6b_after.xml",
     "scanned_at": 1793609733,
-    "saved_at": 1794072420,
+    "saved_at": 1794075825,
     "network_score": 100,
     "findings": 0,
     "devices": 3
