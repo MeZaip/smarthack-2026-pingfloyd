@@ -322,8 +322,12 @@
     const b = bandOf(score);
     return h("span", { class: "pill p-" + b }, icon(BAND_ICON[b]), t("band_" + b));
   }
+  // Risk colour of the 3D model's LED and rim light: red high, amber medium, blue low, green safe.
+  const MODEL_TONE = { red: "red", high: "red", amber: "amber", medium: "amber", low: "blue", info: "green", green: "green" };
   function devIco(type, tone, big) {
-    return h("div", { class: "dev-ico" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true" }, icon(DEVICE_ICON[type] || DEVICE_ICON.unknown));
+    const t = DEVICE_ICON[type] ? type : "unknown";
+    return h("div", { class: "dev-ico dev3d" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true",
+      "data-type": t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
   }
   function whoLine(code) {
     const w = D.who[whoOf(code)];
@@ -518,12 +522,13 @@
     const list = s.devices.map((d) => ({ d, probs: problemsOf(s, d) })).filter((x) => x.probs.length)
       .sort((a, b) => SEV_RANK[a.probs[0].severity] - SEV_RANK[b.probs[0].severity] || b.d.risk_points - a.d.risk_points);
     if (!list.length) return null;
-    const stage = (iconName, label) => h("div", { class: "tour-stage", "aria-hidden": "true" },
+    const stage = (type, tone, label) => h("div", { class: "tour-stage", "aria-hidden": "true" },
       h("div", { class: "iso" }, h("div", { class: "iso-plate p3" }), h("div", { class: "iso-plate p2" }), h("div", { class: "iso-plate p1" }), h("div", { class: "iso-ring" })),
-      h("div", { class: "iso-device" }, icon(iconName)),
+      type ? h("div", { class: "iso-device dev3d", "data-type": type, "data-tone": MODEL_TONE[tone] || "green", "data-float": "" }, icon(DEVICE_ICON[type] || DEVICE_ICON.unknown))
+           : h("div", { class: "iso-device" }, icon("shield")),
       label ? h("span", { class: "tour-num", text: label }) : null);
     const nodes = list.map(({ d, probs }, i) => h("li", { class: `tour-node sev-${probs[0].severity} ${i % 2 ? "right" : "left"}` },
-      stage(DEVICE_ICON[d.type] || DEVICE_ICON.unknown, String(i + 1).padStart(2, "0")),
+      stage(DEVICE_ICON[d.type] ? d.type : "unknown", probs[0].severity, String(i + 1).padStart(2, "0")),
       h("article", { class: "tour-card" },
         h("p", { class: "tour-eyebrow", text: t("tourStep", { i: i + 1, n: list.length }) }),
         h("h4", { text: deviceName(d) }),
@@ -536,7 +541,7 @@
             f.port != null ? h("span", { class: "tour-port", text: t("tourPort", { p: `${f.port}/${f.protocol}` }) }) : null,
             tx.steps[0] ? h("p", { class: "tour-fix" }, h("b", { text: t("tourFirst") + ": " }), tx.steps[0]) : null);
         })))));
-    const end = h("li", { class: `tour-node end ${list.length % 2 ? "right" : "left"}` }, stage("shield"),
+    const end = h("li", { class: `tour-node end ${list.length % 2 ? "right" : "left"}` }, stage(null),
       h("article", { class: "tour-card" },
         h("h4", { text: t("tourEndT") }),
         h("p", { text: list.length === 1 ? t("tourEndS1") : t("tourEndS", { n: list.length }) }),
@@ -725,7 +730,7 @@
       const vendor = shortVendor(d.vendor);
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
-        devIco(d.type),
+        devIco(d.type, tone === "green" ? "green" : worst.severity),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor ? h("div", { class: "tile-sub", text: vendor }) : null),
         h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
@@ -781,6 +786,7 @@
     lastOpener = opener || null;
     const dlg = document.getElementById("sheet");
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    if (window.Device3D) window.Device3D.scan(body);
     document.getElementById("sheet-close").focus();
   }
   function closeSheet() {
@@ -1034,6 +1040,7 @@
     const panel = document.getElementById("panel-" + state.tab);
     panel.replaceChildren();
     RENDER[state.tab](panel);
+    if (window.Device3D) window.Device3D.scan(panel);       // 3D models into every .dev3d slot
   }
 
   document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; render(); });

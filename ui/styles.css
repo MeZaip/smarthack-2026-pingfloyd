@@ -1109,3 +1109,21 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
   .tour-base { animation: none; } .tour-stage { transform: none; }
   .tour-node .tour-card, .iso-device, .iso-ring { transition: none; }
 }
+
+/* =====================================================================================
+   3D device models (ui/device3d.js): every device picture is a square slot with a 2D canvas the shared
+   WebGL renderer draws into. The SVG inside the slot is shown only when WebGL is not available.
+   ===================================================================================== */
+.dev3d { position: relative; }
+.dev3d > .dev3d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.dev3d > .dev3d-canvas:active { cursor: grabbing; }
+.dev3d.ready > svg { display: none; }
+/* cards and tiles: a slightly bigger, frameless 3D header for the device */
+.dev-ico.dev3d.ready { width: 80px; height: 80px; background: radial-gradient(closest-side, rgba(255, 255, 255, .06), transparent); border: 0; border-radius: 20px; }
+.dev-ico.dev3d.lg.ready { width: 104px; height: 104px; }
+.tile .dev-ico.dev3d.ready { width: 88px; height: 88px; background: radial-gradient(closest-side, rgba(255, 255, 255, .07), transparent); }
+.check-head .dev-ico.dev3d.ready { width: 72px; height: 72px; }
+/* threat-path pedestals: the model floats on the platform, no rounded square behind it */
+.iso-device.dev3d.ready { width: 132px; height: 132px; margin-top: -96px; background: none !important; border: 0 !important; box-shadow: none !important; }
+.tour-node.is-active .iso-device.dev3d.ready { box-shadow: none !important; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--a) 55%, transparent)); }
+@media (max-width: 760px) { .iso-device.dev3d.ready { width: 108px; height: 108px; margin-top: -78px; } }

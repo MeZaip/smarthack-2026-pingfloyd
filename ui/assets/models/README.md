@@ -45,8 +45,15 @@ All ten are generated in code by `tools/make_models.py` (needs numpy, scipy, tri
 Palette: body `#1e293b`/`#334155` (metallic 0.3, roughness 0.4) with chrome `#94a3b8` accents (metallic 0.8),
 screens `#090d16` glossy with a faint cyan tint, `status` emissive `#00ff66`.
 
-In Three.js (`GLTFLoader`) a mesh with two materials becomes a group with two children, e.g. `body` ->
-`body_1`, `body_2`; find parts with `scene.getObjectByName("status")` and recolour every mesh under it.
+`tools/make_models.py` also writes `models-bundle.js` (`window.SAFEHOUSE_MODELS_BASE64`, every `.glb` as a base64
+data URI). The page uses that, not the `.glb` files, because browsers block `fetch()` of local files when the page is
+opened from `file://`. `ui/device3d.js` reads the bundle with a small built-in `.glb` reader (no `GLTFLoader`, no ES
+module) and one shared WebGL renderer draws every device slot (`.dev3d`) into a plain 2D canvas: cards, tiles, the
+device sheet and the threat-path pedestals. The `status` part and a rim light take the risk colour (red high, amber
+medium, blue low, green safe). The SVG icon inside a slot is only shown when WebGL is not available.
+
+A mesh with two materials is a group with two children, e.g. `body` -> `body_1`, `body_2`; find parts with
+`getObjectByName("status")` and recolour every mesh under it.
 
 To replace a generated model with a hand-made one, keep the file name and the part names, then run the check.
 

@@ -17,3 +17,14 @@ def test_every_device_type_has_a_model():
 def test_models_follow_the_rules():
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "check_models.py"), str(MODELS)], capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_bundle_matches_the_glb_files():
+    """ui/assets/models/models-bundle.js (used from file://) must hold exactly the .glb files, byte for byte."""
+    import base64
+    import re
+    js = (MODELS / "models-bundle.js").read_text(encoding="utf-8")
+    found = dict(re.findall(r'^\s*(\w+): "data:model/gltf-binary;base64,([A-Za-z0-9+/=]+)"', js, re.M))
+    assert set(found) == set(DEVICE_LABELS), sorted(set(DEVICE_LABELS) ^ set(found))
+    for t, b64 in found.items():
+        assert base64.b64decode(b64) == (MODELS / f"{t}.glb").read_bytes(), f"{t}: bundle is stale, run tools/make_models.py"
