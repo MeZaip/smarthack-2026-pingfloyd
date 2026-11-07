@@ -20,3 +20,13 @@ venv/
 
 # local assistant eval output
 eval_results.md
+# Local data (privacy: scan history and results stay on this machine)
+results/
+data/
+*.sqlite
+*.sqlite-*
+*.db
+scans/private/
+
+# live scans contain real network data (commit lab fixtures into tests/fixtures/lab/ on purpose)
+scans/

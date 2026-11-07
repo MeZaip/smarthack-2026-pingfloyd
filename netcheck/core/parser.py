@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import os
+import re
 import xml.etree.ElementTree as _stdlib_et
 from pathlib import Path
 
@@ -26,6 +27,8 @@ except ImportError:  # pragma: no cover - fallback path is guarded below
 
 MAX_FILE_BYTES = int(os.environ.get("NETCHECK_MAX_FILE_MB", "50")) * 1024 * 1024
 MAX_TEXT = 500  # truncate any single banner/script output we keep
+_DOCTYPE_ANY = re.compile(rb"<!doctype[^>]*>?")
+_DOCTYPE_NMAP = re.compile(rb"<!doctype\s+nmaprun\s*>")
 
 
 class ScanFileError(Exception):
@@ -56,15 +59,19 @@ def parse_file(path: str | os.PathLike) -> ScanResult:
 def parse_bytes(data: bytes, source: str = "<memory>") -> ScanResult:
     if len(data) > MAX_FILE_BYTES:
         raise ScanFileError("file too large")
-    # nmap writes a DOCTYPE-free file (only an xml-stylesheet PI). Anything that
-    # declares a DTD or entities is rejected outright - this also covers the
-    # case where defusedxml is not installed.
-    head = data[:4096].lower()
-    if b"<!doctype" in head or b"<!entity" in data.lower():
-        raise ScanFileError("file contains a DTD/entity declaration (refused for safety)")
+    # Real nmap output always starts with the bare line `<!DOCTYPE nmaprun>` (no internal
+    # subset, no entities) - that exact form is allowed. Any other DOCTYPE, an internal
+    # subset `[...]`, or any entity declaration is rejected outright (XXE / billion laughs);
+    # this also covers the case where defusedxml is not installed.
+    low = data.lower()
+    if b"<!entity" in low:
+        raise ScanFileError("file contains an entity declaration (refused for safety)")
+    doctypes = _DOCTYPE_ANY.findall(low)
+    if len(doctypes) > 1 or (doctypes and not _DOCTYPE_NMAP.fullmatch(doctypes[0])):
+        raise ScanFileError("file contains a DTD declaration other than <!DOCTYPE nmaprun> (refused for safety)")
     try:
         if _safe_et is not None:
-            root = _safe_et.fromstring(data, forbid_dtd=True)
+            root = _safe_et.fromstring(data, forbid_dtd=False, forbid_entities=True, forbid_external=True)
         else:
             root = _stdlib_et.fromstring(data)
     except (_stdlib_et.ParseError, DefusedXmlException, ValueError) as e:
