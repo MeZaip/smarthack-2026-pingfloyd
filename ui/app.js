@@ -15,93 +15,6 @@
 
   // ---------------------------------------------------------------- words (RO / EN, ~12-year-old level)
   const T = {
-    ro: {
-      skip: "Sari la conținut", close: "Închide", scanFile: "Verificarea afișată",
-      navHome: "Acasă", navDevices: "Aparate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
-      navLive: "monitorizare locală", navHint: "Taste 1–5 sau ↑ ↓ pentru meniu", appbarName: "Panou de securitate",
-      navScan: "Scanare", navScore: "Scor", navErr: "fișier stricat",
-      footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
-      hello: "Bună!", helloSub: "Iată cum stă azi rețeaua din casa ta.",
-      netTitle: "Rețeaua de acasă",
-      scoreOf: "din 100",
-      band_red: "Risc înalt", band_amber: "Risc mediu", band_green: "Sigur",
-      lampGreen: "Sigur", lampAmber: "Risc mediu", lampRed: "Risc înalt",
-      summary: "{d} aparate verificate · {f} lucruri de reparat",
-      summaryOne: "{d} aparate verificate · un lucru de reparat",
-      summaryNone: "{d} aparate verificate · nimic de reparat",
-      scoreMeaning: "Verde înseamnă sigur, galben înseamnă că trebuie reparat ceva, roșu înseamnă că trebuie reparat repede.",
-      seeFixes: "Vezi ce trebuie reparat", seeDevices: "Vezi aparatele",
-      suggestTitle: "Sugestie pentru azi", suggestSub: "Nu trebuie să repari tot deodată. Începe cu asta:",
-      mostDangerous: "Aparatul cu cea mai mare problemă", thisDevice: "Aparatul",
-      doThis: "Ce faci",
-      btnDone: "Am făcut asta", btnSkip: "Arată-mi altceva",
-      progress: "Lucrul {i} din {n}",
-      doneNote: "Bravo! Ai rezolvat: {title}. Verifică din nou rețeaua mai târziu ca să vezi scorul nou.",
-      allDone: "Ai trecut prin toate. Verifică din nou rețeaua ca să vezi cât de sigură e acum.",
-      restart: "Ia-o de la capăt",
-      noProblems: "Nu am găsit nimic de reparat. Felicitări! Verifică din nou din când în când.",
-      helpNote: "Ești copil? Arată această pagină unui părinte înainte să schimbi ceva. Nu te descurci? Arată-o cuiva de încredere: un nepot, un prieten sau firma care ți-a pus internetul.",
-      yourDevices: "Aparatele tale", seeAll: "Vezi toate",
-      glossaryTitle: "Cuvinte utile",
-      devicesTitle: "Aparatele mele", devicesSub: "Toate aparatele conectate la internetul tău. Apasă pe un aparat ca să vezi ce are și ce poți face.",
-      fAll: "Toate ({n})", fProblems: "Cu probleme ({n})", fSafe: "Sigure ({n})",
-      devOk: "Sigur", devProblems: "{n} lucruri de reparat", devProblem: "Un lucru de reparat",
-      devOkExplain: "Nu am găsit nicio problemă la acest aparat. Ușile lui sunt bine încuiate.",
-      devOkSteps: ["Instalează actualizările când aparatul ți le cere.", "Folosește o parolă lungă, pe care n-o mai ai în altă parte."],
-      keepSafe: "Ca să rămână sigur",
-      otherProblems: "Alte lucruri de reparat la acest aparat",
-      findingsTitle: "Ce trebuie reparat", findingsSub: "Verificarea de securitate, de la cel mai periculos la cel mai puțin periculos. Fiecare card îți spune ce faci, pas cu pas.",
-      sumHigh: "Risc înalt", sumMedium: "Risc mediu", sumLow: "Risc mic", sumInfo: "Doar de știut",
-      cardHint: "Apasă Enter ca să vezi detaliile tehnice.",
-      codeLabel: "Cod",
-      techMore: "Detalii pentru cine se pricepe (sau pentru firma IT)",
-      techTitle: "Numele tehnic", techSteps: "Pași detaliați", techWhere: "Unde (adresă și ușă)",
-      evidence: "Ce a văzut verificarea", refs: "Standarde de securitate",
-      ip: "Adresă (IP)", mac: "Adresă fizică (MAC, ascunsă pe jumătate)", vendor: "Producător", hostname: "Nume în rețea",
-      ports: "Uși deschise (porturi)", none: "niciuna", unknown: "nu știm",
-      errorTitle: "Nu am putut citi această verificare",
-      errorBody: "Fișierul verificării este stricat sau incomplet, așa că nu arătăm nimic pentru el. Alege altă verificare din lista de sus sau fă una nouă.",
-      errorDetail: "Detaliu tehnic",
-      historyTitle: "A devenit rețeaua mai sigură?", historySub: "Verificările salvate pe acest calculator, înainte și după ce ai reparat lucrurile.",
-      before: "Înainte", now: "Acum",
-      bravo: "Bravo! Ai reparat {n} lucruri.", bravoOne: "Bravo! Ai reparat un lucru.",
-      worse: "Atenție: scorul a scăzut. Uită-te la lucrurile noi de reparat.", same: "Scorul a rămas la fel.",
-      events: "Ce s-a întâmplat",
-      evFixed: "Ai reparat: {title}", evNew: "Lucru nou de reparat: {title}",
-      evSecured: "Setările se deschid acum pe drumul sigur", evSecuredSub: "Din ușa {from} în ușa sigură {to}",
-      evNewDev: "Aparat nou în rețea", evGoneDev: "Un aparat nu mai e în rețea",
-      evQuiet: "Niciun aparat nou și nicio ușă nouă periculoasă",
-      evFirst: "Verificarea de dinainte: scor {s}, {f} lucruri de reparat",
-      chartTitle: "Scorul la fiecare verificare", chartLabel: "Grafic cu scorul la fiecare verificare salvată",
-      colScan: "Verificare", colScore: "Scor", colFindings: "De reparat",
-      deleteTitle: "Istoricul tău", deleteSub: "Poți șterge oricând tot ce am salvat pe acest calculator.",
-      deleteBtn: "Șterge tot ce am salvat",
-      deleteConfirm: "Sigur ștergi toate verificările salvate pe acest calculator? Nu le mai poți aduce înapoi.",
-      deleteYes: "Da, șterge tot", deleteNo: "Nu, lasă-le",
-      deleted: "Gata, am șters tot ce era salvat pe acest calculator.",
-      deletedTech: "În aplicație, asta șterge fișierul ~/.netcheck/history.sqlite.",
-      restore: "Adu înapoi datele demo",
-      askTitle: "Întreabă", askSub: "Îți răspund doar cu ce am văzut în verificare. Lângă fiecare propoziție scrie de unde știu. Dacă o propoziție nu are dovadă, o tai.",
-      botName: "Asistentul netcheck",
-      botHello: "Salut! Sunt aici să te ajut. Alege o întrebare de mai jos sau scrie-mi una.",
-      q1: "Ce repar prima dată?", q2: "Ce aparate am acasă?", q3: "E periculoasă imprimanta mea?",
-      askPlaceholder: "De exemplu: Ce repar prima dată?", askBtn: "Trimite", askLabel: "Întrebarea ta",
-      proof: "de unde știu",
-      noAnswer: "Verificarea nu-mi arată asta, așa că nu pot să-ți răspund sigur. Încearcă una dintre întrebările de mai sus.",
-      hallToggle: "Pentru prezentare: arată cum oprim o informație inventată",
-      hallSwitch: "Strecoară în răspuns o afirmație inventată",
-      blocked: "Am tăiat-o: {r}.",
-      rPort: "ușa {port} nu e deschisă pe {ip} în această verificare", rIp: "adresa {ip} nu apare în dovezi",
-      rCve: "{cve} nu apare în verificare", rNoCite: "nu are nicio dovadă din verificare",
-      verified: "{ok} propoziții verificate, {bad} tăiate",
-      demoNote: "Aici răspunsurile vin din textele noastre. În aplicație le scrie inteligența artificială, iar același verificator taie orice propoziție fără dovadă.",
-      aFirst1: "Cea mai mare problemă este la: {name}.", aFirst2: "Începe cu asta: {title}.", aFirst3: "Primul pas: {step}",
-      aDevCount: "Am găsit {n} aparate conectate la rețeaua ta.", aDev: "{name}.",
-      aPrinterYes: "Da, puțin: oricine din rețea poate trimite documente la imprimanta ta, prin ușa 9100.",
-      aPrinterFix: "Ce poți face: {step}", aPrinterNo: "Verificarea nu-mi arată o imprimantă cu problema asta.",
-      aClean: "Verificarea nu arată nimic de reparat. Totul e bine!",
-      hall: "Routerul are și ușa Telnet deschisă (portul {port}), deci schimbă-i parola imediat.",
-    },
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
       navHome: "Home", navDevices: "Devices", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
@@ -116,7 +29,7 @@
       summary: "{d} devices checked · {f} things to fix",
       summaryOne: "{d} devices checked · one thing to fix",
       summaryNone: "{d} devices checked · nothing to fix",
-      scoreMeaning: "Green means safe, yellow means something needs fixing, red means fix it soon.",
+      scoreMeaning: "Green means safe, orange means something needs fixing, red means fix it soon.",
       seeFixes: "See what needs fixing", seeDevices: "See the devices",
       suggestTitle: "Suggestion for today", suggestSub: "You do not have to fix everything at once. Start with this:",
       mostDangerous: "The device with the biggest problem", thisDevice: "Device",
@@ -200,7 +113,6 @@
   };
   // Short text tags instead of icons: [RTR] [CAM] ...
   const DEVICE_TAG = { router: "RTR", camera: "CAM", printer: "PRN", nas: "NAS", iot: "IOT", tv: "TV", phone: "MOB", computer: "PC", server: "SRV", unknown: "???" };
-  const SIZES = ["100%", "115%", "130%"];
   const TABS = ["home", "devices", "findings", "history", "ask"];
 
   // ---------------------------------------------------------------- state
@@ -209,8 +121,7 @@
     set(k, v) { try { window.localStorage.setItem("netcheck." + k, v); } catch (e) { /* private mode */ } },
   };
   const state = {
-    lang: store.get("lang") === "en" ? "en" : "ro",
-    size: Math.min(2, Math.max(0, Number(store.get("size")) || 0)),
+    lang: "en",            // English only
     scan: Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")),
     tab: "home",
     devFilter: "all",
@@ -223,7 +134,7 @@
 
   // ---------------------------------------------------------------- helpers
   function t(key, vars) {
-    let s = (T[state.lang] && T[state.lang][key]) || T.ro[key] || key;
+    let s = (T[state.lang] && T[state.lang][key]) || key;
     if (vars && typeof s === "string") for (const k of Object.keys(vars)) s = s.split("{" + k + "}").join(String(vars[k]));
     return s;
   }
@@ -710,13 +621,8 @@
     window.scrollTo({ top: 0 });
   }
   function render() {
-    document.documentElement.lang = state.lang;
-    document.documentElement.style.fontSize = SIZES[state.size];
+    document.documentElement.lang = "en";
     document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
-    document.getElementById("lang-ro").setAttribute("aria-pressed", String(state.lang === "ro"));
-    document.getElementById("lang-en").setAttribute("aria-pressed", String(state.lang === "en"));
-    [0, 1, 2].forEach((i) => document.getElementById("size-" + i).setAttribute("aria-pressed", String(state.size === i)));
-    document.getElementById("size-group").setAttribute("aria-label", state.lang === "en" ? "Text size" : "Mărimea textului");
     const sel = document.getElementById("scan-select");
     sel.setAttribute("aria-label", t("scanFile"));
     sel.replaceChildren(...D.scans.map((s, i) => h("option", { value: String(i), selected: i === state.scan }, s.error ? `${s.file} — ERR` : `${s.file} — ${s.score}/100`)));
@@ -765,8 +671,6 @@
   }
 
   document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; render(); });
-  ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { state.lang = l; store.set("lang", l); render(); }));
-  [0, 1, 2].forEach((i) => document.getElementById("size-" + i).addEventListener("click", () => { state.size = i; store.set("size", String(i)); render(); }));
   const navItems = Array.from(document.querySelectorAll(".nav-item"));
   navItems.forEach((b, i) => {
     b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); });
@@ -788,12 +692,10 @@
   dlg.addEventListener("close", () => { if (lastOpener && document.body.contains(lastOpener)) lastOpener.focus(); });
   dlg.addEventListener("click", (e) => { if (e.target === dlg) closeSheet(); });   // tap outside the sheet
 
-  // Deep links for the pitch: #ask?q=first&hall=1, #home?lang=en&scan=V3_small_office.xml, #history?theme=light&size=2, #devices?open=192.168.1.40
+  // Deep links for the pitch: #ask?q=first&hall=1, #home?scan=V3_small_office.xml, #history, #devices?open=192.168.1.40
   (function applyHash() {
     const [tab, query] = location.hash.slice(1).split("?");
     const p = new URLSearchParams(query || "");
-    if (p.get("lang") === "en" || p.get("lang") === "ro") state.lang = p.get("lang");
-    if (["0", "1", "2"].includes(p.get("size"))) state.size = Number(p.get("size"));
     const i = D.scans.findIndex((s) => s.file === p.get("scan"));
     if (i >= 0) state.scan = i;
     if (p.get("hall") === "1") state.hallucinate = true;
