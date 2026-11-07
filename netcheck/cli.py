@@ -3,6 +3,7 @@
   python -m netcheck analyze <folder|file> [--out results]   -> findings.csv + scores.csv
   python -m netcheck report  <file> [--lang ro|en]           -> plain-language report in the terminal
   python -m netcheck ask     <file> "question" [--lang ro|en] [--previous <file>]
+  python -m netcheck chat    <file> [--lang ro|en] [--previous <file>]   -> conversation with the assistant
   python -m netcheck diff    <before.xml> <after.xml> [--lang ro|en]
   python -m netcheck history add <file|folder>... | list | changes [--before ID --after ID] | delete [--yes]
 
@@ -89,6 +90,37 @@ def cmd_ask(args) -> int:
     badge = "AI" if ans.source == "ai" else f"text încorporat / built-in ({ans.reason})"
     _out(f"\n[{badge}]")
     return 0
+
+
+def cmd_chat(args) -> int:
+    from .ai.assistant import Conversation
+    a = analyze_file(args.file)
+    if not a.ok:
+        _out("ERROR: " + a.error)
+        return 1
+    prev = analyze_file(args.previous) if args.previous else None
+    conv = Conversation(a, args.lang, prev)
+    ro = args.lang == "ro"
+    _out(("Întreabă orice despre această scanare. „nou” = conversație nouă, „gata” = ieșire." if ro else
+          "Ask anything about this scan. 'new' = new conversation, 'quit' = exit."))
+    while True:
+        try:
+            q = input("\n" + ("Tu: " if ro else "You: ")).strip()
+        except (EOFError, KeyboardInterrupt):
+            _out()
+            return 0
+        if q.lower() in ("gata", "exit", "quit", "q"):
+            return 0
+        if q.lower() in ("nou", "new"):
+            conv.reset()
+            _out("(conversație nouă)" if ro else "(new conversation)")
+            continue
+        if not q:
+            continue
+        ans = conv.ask(q)
+        _out(("Asistent: " if ro else "Assistant: ") + ans.text)
+        if ans.source != "ai":
+            _out(f"[text încorporat / built-in ({ans.reason})]")
 
 
 def cmd_diff(args) -> int:
@@ -332,6 +364,12 @@ def main(argv=None) -> int:
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.add_argument("--previous", help="previous scan of the same network, for 'what changed?' questions")
     s.set_defaults(fn=cmd_ask)
+
+    s = sub.add_parser("chat", help="have a conversation with the assistant about one scan")
+    s.add_argument("file")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--previous", help="previous scan of the same network")
+    s.set_defaults(fn=cmd_chat)
 
     s = sub.add_parser("diff", help="compare two scans of the same network")
     s.add_argument("before")
