@@ -2,7 +2,7 @@
 
 Privacy by design:
 * The full MAC address is never written to disk. We store the masked MAC
-  (vendor prefix only, for display) and a keyed hash of the full MAC used only
+  (only the last two bytes, XX:XX:XX:XX:1A:2B, for display) and a keyed hash of the full MAC used only
   to recognise the same device across scans. The hash key is random per
   history file, so it is useless outside this machine and is destroyed
   together with the history.
@@ -25,7 +25,7 @@ from typing import Optional
 from .core.analysis import Analysis
 from .core.device import guess_type, mask_mac
 from .core.diff import Snapshot, compare_snapshots
-from .core.models import Host
+from .core.models import Finding, Host, Port, ScanResult
 
 DEFAULT_DB = Path.home() / ".netcheck" / "history.sqlite"
 
@@ -190,6 +190,46 @@ def changes(conn: sqlite3.Connection, before_id: Optional[int] = None,
         before_id, after_id = ids[-2], ids[-1]
     result = compare_snapshots(load_snapshot(conn, before_id), load_snapshot(conn, after_id))
     return {"before_scan_id": before_id, "after_scan_id": after_id, **result}
+
+
+def scan_ids(conn: sqlite3.Connection) -> list[int]:
+    """All saved scan ids, oldest first (same order as trend())."""
+    return [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans ORDER BY {_ORDER}")]
+
+
+def previous_id(conn: sqlite3.Connection, scan_id: int) -> Optional[int]:
+    """The saved scan just before `scan_id` in time, or None."""
+    ids = scan_ids(conn)
+    i = ids.index(scan_id) if scan_id in ids else -1
+    return ids[i - 1] if i > 0 else None
+
+
+def load_analysis(conn: sqlite3.Connection, scan_id: int) -> Analysis:
+    """Rebuild an Analysis from the stored rows (for the UI / JSON API after a restart).
+
+    Only what the history keeps comes back: open ports with service + TLS flag (no product,
+    version or banners) and the stored findings. `Host.mac` holds the *masked* MAC
+    (mask_mac is idempotent); never save() such an analysis again.
+    """
+    s = conn.execute("SELECT file, scanned_at, network_score FROM scans WHERE scan_id = ?",
+                     (scan_id,)).fetchone()
+    if not s:
+        raise KeyError(f"no saved scan with id {scan_id}")
+    ports: dict[str, list[Port]] = {}
+    for r in conn.execute("SELECT ip, protocol, port, service, tls FROM ports WHERE scan_id = ?"
+                          " ORDER BY rowid", (scan_id,)):
+        ports.setdefault(r["ip"], []).append(
+            Port(r["protocol"], r["port"], "open", r["service"], tunnel="ssl" if r["tls"] else ""))
+    hosts = [Host(ip=r["ip"], mac=r["masked_mac"], vendor=r["vendor"],
+                  hostnames=[r["hostname"]] if r["hostname"] else [], ports=ports.get(r["ip"], []))
+             for r in conn.execute("SELECT ip, masked_mac, vendor, hostname FROM devices WHERE scan_id = ?"
+                                   " ORDER BY device_id", (scan_id,))]
+    findings = [Finding(r["ip"], r["port"], r["protocol"], r["finding_code"], r["severity"], r["points"],
+                        r["evidence"])
+                for r in conn.execute("SELECT ip, port, protocol, finding_code, severity, points, evidence"
+                                      " FROM findings WHERE scan_id = ? ORDER BY finding_id", (scan_id,))]
+    scan = ScanResult(source=s["file"], hosts=hosts, start_time=s["scanned_at"])
+    return Analysis(file=s["file"], scan=scan, findings=findings, score=s["network_score"])
 
 
 def delete_history(path: Optional[str | os.PathLike] = None) -> bool:

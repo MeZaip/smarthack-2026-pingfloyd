@@ -1,0 +1,16 @@
+# Who reviews what. Replace the TODO lines with the GitHub username of the module owner
+# once the team has chosen (team: @MeZaip @Stevenenson @tudorgulu @regular-anon).
+
+# Core Engine & CLI — Ștefan
+/netcheck/cli.py        @Stevenenson
+/netcheck/net/          @Stevenenson
+/lab/                   @Stevenenson
+
+# Rule & Scoring + Data Layer — TODO
+# /netcheck/core/ /netcheck/history.py /tests/
+
+# LLM Service — TODO
+# /netcheck/ai/ /netcheck/explain/ /gateway/
+
+# Web API & Frontend — TODO
+# /netcheck/web/ /run.sh

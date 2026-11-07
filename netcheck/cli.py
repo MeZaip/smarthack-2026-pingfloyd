@@ -13,6 +13,9 @@ Core Engine & CLI (netcheck/net/):
   python -m netcheck parse <file|folder> [--out DIR]              §1 Raw Parsed Data JSON (data contract)
   python -m netcheck verify <scan.xml> <ip> <port> --confirm      „Dovedește!": re-check one fixed problem
   python -m netcheck watch --confirm [--interval 60]              „Paznic": alert on new device / new port
+
+Web UI + JSON API (netcheck/web/):
+  python -m netcheck serve [--port 8000]                          dashboard on http://127.0.0.1:8000 (no root)
 """
 from __future__ import annotations
 
@@ -344,6 +347,29 @@ def cmd_watch(args) -> int:
         return 3
 
 
+def cmd_serve(args) -> int:
+    try:
+        import uvicorn
+    except ImportError:
+        _out("✖ The web UI needs extra packages: pip install -r requirements.txt")
+        return 2
+    if args.db:
+        import os
+        os.environ["NETCHECK_DB"] = args.db
+    if args.host not in ("127.0.0.1", "localhost", "::1"):
+        import os
+        os.environ["NETCHECK_ALLOW_ANY_HOST"] = "1"   # explicit opt-out of the local-host check (web/security.py)
+        _out(f"⚠ Listening on {args.host}: anyone who can reach this address sees your scan results (no login).")
+    _out(f"NetCheck UI: http://{args.host}:{args.port}   (Ctrl+C to stop)")
+    uvicorn.run("netcheck.web.app:app", host=args.host, port=args.port, log_level="warning")
+    return 0
+
+
+def cmd_app(args) -> int:
+    from . import launcher
+    return launcher.main(port=args.port, lang=args.lang, window=args.window, gateway=not args.no_gateway)
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="netcheck", description="Secure Networks, Simply Explained")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -437,6 +463,22 @@ def main(argv=None) -> int:
     s.add_argument("--allow", action="append", default=[])
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.set_defaults(fn=cmd_watch)
+
+    s = sub.add_parser("serve", help="web UI + JSON API on this computer only (no root)")
+    s.add_argument("--host", default="127.0.0.1",
+                   help="address to listen on (default 127.0.0.1). The UI has no login and shows your "
+                        "network's weak spots: prefer a private interface (e.g. your Tailscale IP) over 0.0.0.0")
+    s.add_argument("--port", type=int, default=8000)
+    s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
+    s.set_defaults(fn=cmd_serve)
+
+    s = sub.add_parser("app", help="start NetCheck for a normal user: app window, no terminal needed")
+    s.add_argument("--port", type=int, default=0, help="default: a free port")
+    s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--window", choices=["auto", "window", "app", "browser"], default="auto",
+                   help="auto: own window (pywebview) or Edge/Chrome app window, else the browser")
+    s.add_argument("--no-gateway", action="store_true", help="do not start a local AI gateway")
+    s.set_defaults(fn=cmd_app)
 
     args = p.parse_args(argv)
     return args.fn(args)

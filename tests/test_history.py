@@ -48,7 +48,7 @@ def test_full_mac_never_written_to_disk(db):
     for mac in macs:
         assert mac.upper().encode() not in raw.upper()
         assert mac.replace(":", "").upper().encode() not in raw.upper()
-    assert all(m.endswith(":XX:XX:XX") for m in stored if m)
+    assert all(m.startswith("XX:XX:XX:XX:") for m in stored if m)
 
 
 def test_same_vendor_devices_stay_distinct(db):

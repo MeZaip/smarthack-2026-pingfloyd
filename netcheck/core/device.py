@@ -1,19 +1,25 @@
 """Device presentation helpers: MAC masking (NFR-02) and a device-type guess (FR-03)."""
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 from .models import Host
 
 
+_MAC_BYTE = re.compile(r"[0-9A-F]{1,2}|XX")
+
+
 def mask_mac(mac: Optional[str]) -> Optional[str]:
-    """Keep the vendor prefix (OUI), hide the device-specific half: AA:BB:CC:XX:XX:XX."""
+    """The one MAC-masking rule (service_data_contracts.md, NFR-02): only the last two bytes stay
+    visible -> 'XX:XX:XX:XX:1A:2B'. The maker is shown separately (`vendor`).
+    Idempotent: masking an already-masked MAC returns it unchanged."""
     if not mac:
         return None
     parts = mac.replace("-", ":").upper().split(":")
-    if len(parts) != 6:
+    if len(parts) != 6 or not all(_MAC_BYTE.fullmatch(p) for p in parts):
         return "XX:XX:XX:XX:XX:XX"
-    return ":".join(parts[:3] + ["XX"] * 3)
+    return ":".join(["XX"] * 4 + [p.zfill(2) for p in parts[4:]])
 
 
 _VENDOR_HINTS = [

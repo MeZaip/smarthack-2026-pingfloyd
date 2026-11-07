@@ -152,7 +152,40 @@ Implementarea e în `netcheck/net/contract.py`. Testele din `tests/test_net.py` 
 | `network.subnet` (fișier offline) | ținta din comanda nmap; altfel /24-ul comun tuturor dispozitivelor |
 | `network.gateway` | doar la scanarea live (`netcheck scan`); pentru fișiere offline e `null` |
 
-**De discutat:** `mac_masked` respectă formatul de aici (`XX:XX:XX:XX:1A:2B`), dar ultimii octeți sunt partea care identifică dispozitivul.
-`core/device.mask_mac` (folosit în rest) păstrează primii 3 (producătorul, care e oricum în `vendor`), varianta mai bună pentru NFR-02.
+**Decis:** `mac_masked` = `XX:XX:XX:XX:1A:2B` (doar ultimii 2 octeți vizibili) **peste tot**: JSON, SQLite, UI, watch.
+O singură funcție: `core/device.mask_mac()` (`net/contract.mask_mac` e aceeași funcție). MAC necunoscut → `null`;
+MAC invalid → `XX:XX:XX:XX:XX:XX`; un MAC deja mascat rămâne neschimbat. Istoricul salvat înainte păstrează formatul vechi.
+
+§2 și §4 se construiesc în `netcheck/core/contract.py` (`evaluated_scan(analysis)`, `delta(changes, before, after)`).
+Fișier ilizibil în §2: `"network_score": null` + `"error": "..."` (în `scores.csv` rămâne `ERROR`).
+
+API JSON (`netcheck serve` / `./run.sh`, doar 127.0.0.1, read-only), din istoricul SQLite:
+
+| Endpoint | Răspuns |
+|---|---|
+| `GET /api/scans` | listă `{id, scan_id, scanned_at, saved_at, network_score}`, cele mai vechi primele |
+| `GET /api/scans/latest` | §2 pentru ultima scanare |
+| `GET /api/scans/{id}` | §2 (Evaluated Scan Data) |
+| `GET /api/scans/{id}/delta[?previous={id}]` | §4 față de scanarea anterioară (sau `previous`); 404 dacă nu există |
+
+Erori: `404 {"detail": "..."}`. Fișierele ilizibile nu se salvează în istoric, deci nu apar în API.
 
 Comenzi: `netcheck parse <xml|folder> [--out DIR]`, `netcheck detect --json` (obiectul `network`), `netcheck scan --confirm` (scrie `<scan>.raw.json` lângă XML).
+
+---
+
+## 5. Agent actions (UI ➔ local agent), `/api/v1`
+The page is a thin client; every action is a JSON call to the local agent (`netcheck/web/api_v1.py`).
+State-changing calls need the session cookie set by any page the agent served (`netcheck/web/security.py`).
+Errors always look like `{"error": {"code": "...", "message": "<plain words, RO or EN by ?lang=>"}}`.
+
+| Call | Body | Answer |
+|---|---|---|
+| `GET /api/v1/status` | – | `{"network": {"ok": true, "subnet", "ip", "gateway", "wifi"} \| {"ok": false, "code", "message"}, "nmap": bool, "ai": {"online": bool}, "app_mode": bool, "has_history": bool, "scan": job \| null}` |
+| `POST /api/v1/scan` | `{"confirm": true}` | 202 job. Target = the connected network only (never from the page). Errors: `need_consent` 400, `refused` 400, `busy` 409, `no_nmap`/`no_network` 503 |
+| `GET /api/v1/scan/{id}` | – | job `{"id", "status": "running\|done\|error", "subnet", "elapsed", "scan_id", "score", "error"}`; job errors: `denied` (user said No), `unavailable`, `scan_failed` |
+| `POST /api/v1/verify` | `{"scan_id", "ip", "port", "code"}` | `{"status": "resolved\|still_open\|needs_root\|unsupported\|refused\|error", "message", "evidence"}` |
+| `POST /api/v1/ask` | `{"question", "scan_id"?, "history"?: [{"role": "user\|assistant", "content"}] (≤ 12)}` | `{"answer", "source": "ai\|fallback", "mode": "ai\|offline\|rejected", "scan_id"}` |
+| `DELETE /api/v1/history` | – | `{"deleted": true}` |
+| `POST /api/v1/heartbeat`, `POST /api/v1/shutdown` | – | app mode (`netcheck app`): keep alive / "Close" |
+
