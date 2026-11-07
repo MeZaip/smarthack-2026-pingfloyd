@@ -48,7 +48,7 @@ fi
 env_value() {   # value from the environment, else from .env, else empty
   local v="${!1:-}"
   if [[ -z "$v" && -f .env ]]; then
-    v=$(grep -E "^$1=" .env | tail -1 | cut -d= -f2- | tr -d "\"'" || true)
+    v=$(grep -E "^$1=" .env | tail -1 | cut -d= -f2- | tr -d "\"'\r" || true)
   fi
   printf '%s' "$v"
 }
@@ -61,6 +61,14 @@ if [[ $DEMO -eq 1 ]]; then
   "$PY" -m netcheck history delete --yes >/dev/null 2>&1 || true
   "$PY" -m netcheck history add tests/fixtures/synthetic/ >/dev/null || true
 fi
+
+gw_healthy() {   # the gateway answers /health (curl if present, else Python - no extra tools needed)
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsS --max-time 2 "http://127.0.0.1:$GW_PORT/health" >/dev/null 2>&1
+  else
+    "$PY" -c "import sys,urllib.request as u; u.urlopen('http://127.0.0.1:$GW_PORT/health', timeout=2)" >/dev/null 2>&1
+  fi
+}
 
 # ---------------------------------------------------------------- services
 PIDS=()
@@ -79,15 +87,26 @@ if [[ $AI -eq 1 ]]; then
     echo "  or set NETCHECK_GATEWAY_BACKEND=ollama with a local Ollama model."
     export NETCHECK_LLM_PROVIDER=none
   else
-    echo "• AI gateway ($BACKEND) on http://127.0.0.1:$GW_PORT ..."
-    "$PY" -m gateway --host 127.0.0.1 --port "$GW_PORT" &
-    PIDS+=($!)
     export NETCHECK_AI_URL="http://127.0.0.1:$GW_PORT"
-    for _ in $(seq 1 20); do
-      curl -fsS "http://127.0.0.1:$GW_PORT/health" >/dev/null 2>&1 && break
-      kill -0 "${PIDS[-1]}" 2>/dev/null || { echo "  ✖ gateway exited; continuing with built-in answers"; export NETCHECK_LLM_PROVIDER=none; break; }
-      sleep 0.3
-    done
+    if gw_healthy; then
+      # e.g. started by run.cmd on Windows, or by another ./run.sh: use it instead of failing on a busy port
+      echo "• AI gateway: already running on http://127.0.0.1:$GW_PORT - using it."
+    else
+      echo "• AI gateway ($BACKEND) on http://127.0.0.1:$GW_PORT ..."
+      "$PY" -m gateway --host 127.0.0.1 --port "$GW_PORT" &
+      PIDS+=($!)
+      ok=0
+      for _ in $(seq 1 30); do
+        if gw_healthy; then ok=1; break; fi
+        kill -0 "${PIDS[-1]}" 2>/dev/null || break
+        sleep 0.3
+      done
+      if [[ $ok -eq 0 ]]; then
+        echo "  ✖ The AI gateway did not start (see the message above; port $GW_PORT busy? set NETCHECK_GATEWAY_PORT)."
+        echo "    Continuing with the built-in answers."
+        export NETCHECK_LLM_PROVIDER=none
+      fi
+    fi
   fi
 else
   echo "• AI: off (--no-ai); the assistant answers from the built-in texts."

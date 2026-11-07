@@ -310,7 +310,11 @@ def make_server(cfg: Config, backend: Optional[Backend] = None, tts=None) -> Thr
     tts = tts if tts is not None else make_tts(cfg)
     if cfg.tts != "none" and tts is None:
         sys.stderr.write(f"voice: NETCHECK_GATEWAY_TTS={cfg.tts} but its API key is missing; the app will use the browser voice\n")
-    srv = ThreadingHTTPServer((cfg.host, cfg.port), make_handler(cfg, backend, tts))
+    try:
+        srv = ThreadingHTTPServer((cfg.host, cfg.port), make_handler(cfg, backend, tts))
+    except OSError as e:
+        raise SystemExit(f"Cannot start the gateway on {cfg.host}:{cfg.port}: {e.strerror or e} "
+                         "(another program, or another gateway, already uses this port?)") from None
     srv.daemon_threads = True
     return srv
 
