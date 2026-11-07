@@ -1024,3 +1024,9 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
 .nav .brand-mark { width: 38px; height: 38px; }
 .nav .brand-text { font-size: 1.35rem; }
 @media (max-width: 760px) { .nav a.nav-brand { display: none; } }
+
+/* Official logo icon (cut from the brand image, black background removed), next to the HTML wordmark */
+.brand-logo img.brand-mark { height: 36px; width: auto; object-fit: contain; flex: none; display: block; }
+.nav .brand-logo img.brand-mark { height: 36px; width: auto; }
+.brand-logo .b-safe { font-weight: 800; color: #ffffff; }
+.brand-logo .b-house { font-weight: 400; color: #9ca3af; }

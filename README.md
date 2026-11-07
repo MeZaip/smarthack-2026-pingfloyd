@@ -60,12 +60,10 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   tinted by the state, glass badge) next to one centred score card (glowing ring, status pills, gradient CTA),
   then **Uși lăsate deschise / Doors left open** (grid of fix cards, most dangerous marked *Start here*) and
   **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
-* **Brand** (from the brand reference image): one SVG symbol `#safehouse-mark` - a ribbon-style house outline whose
-  base ends cross and climb towards the shield (cyan `#00f2fe` -> blue `#0052d4`, thin light edge for depth), a
-  two-tone metallic shield (`#1e293b`/`#334155` left, `#0f172a` right, diagonal gloss), a glowing green LED
-  (`#00ff66`) left of the roof, three cyan Wi-Fi waves (`#00e5ff`) right of the roof and an overall cyan glow.
-  Wordmark **Safe**house: Safe 800 white, house 400 `#9ca3af`. The logo sits in the sidebar on computers and in
-  the header on phones (no duplicate on screen).
+* **Brand**: the official logo icon (`ui/assets/logo-icon.png`, cut from `ui/assets/logo-source.png` with
+  `tools/extract_logo.py`; only the black background around it is made transparent, the dark inside of the
+  shield and the glow are kept) is embedded as a data URI next to the HTML wordmark **Safe**house (Safe 800
+  white, house 400 `#9ca3af`). It sits in the sidebar on computers and in the header on phones.
 * **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
   defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.
 * **SafeHouse** (fallback without WebGL): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan
