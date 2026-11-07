@@ -76,8 +76,9 @@ CREATE INDEX IF NOT EXISTS idx_ports_scan    ON ports(scan_id);
 CREATE INDEX IF NOT EXISTS idx_findings_scan ON findings(scan_id);
 """
 
-# Chronological order: when the scan was taken, then insertion order as tie-break.
-_ORDER = "COALESCE(scanned_at, saved_at), scan_id"
+# Order of the saved scans everywhere (list, trend, before/after): the order they were saved in (scan_id),
+# not the time inside the file - an uploaded older file must not jump before the user's newer checks.
+_ORDER = "scan_id"
 
 
 def db_path(path: Optional[str | os.PathLike] = None) -> Path:
@@ -155,7 +156,7 @@ def save(conn: sqlite3.Connection, a: Analysis) -> tuple[int, bool]:
 
 
 def trend(conn: sqlite3.Connection) -> list[dict]:
-    """All saved scans, oldest first, with score and number of findings."""
+    """All saved scans in the order they were saved, with score and number of findings."""
     rows = conn.execute(
         "SELECT s.scan_id, s.file, s.scanned_at, s.saved_at, s.network_score,"
         " (SELECT COUNT(*) FROM findings f WHERE f.scan_id = s.scan_id) AS findings,"
@@ -193,12 +194,12 @@ def changes(conn: sqlite3.Connection, before_id: Optional[int] = None,
 
 
 def scan_ids(conn: sqlite3.Connection) -> list[int]:
-    """All saved scan ids, oldest first (same order as trend())."""
+    """All saved scan ids in the order they were saved (same order as trend())."""
     return [r["scan_id"] for r in conn.execute(f"SELECT scan_id FROM scans ORDER BY {_ORDER}")]
 
 
 def previous_id(conn: sqlite3.Connection, scan_id: int) -> Optional[int]:
-    """The saved scan just before `scan_id` in time, or None."""
+    """The scan saved just before `scan_id`, or None."""
     ids = scan_ids(conn)
     i = ids.index(scan_id) if scan_id in ids else -1
     return ids[i - 1] if i > 0 else None

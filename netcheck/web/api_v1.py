@@ -5,9 +5,13 @@
   GET    /api/v1/scan/{job_id}       progress / result of a check
   POST   /api/v1/verify              {"scan_id", "ip", "port", "code"} -> re-check one fixed problem
   POST   /api/v1/ask                 {"question", "scan_id"?, "history"?} -> assistant answer (AI or built-in)
+  GET    /api/v1/ui-data             everything the SafeHouse page shows (scans saved on this computer)
+  POST   /api/v1/upload              one or more nmap XML files -> analysed and saved (broken ones: error)
+  POST   /api/v1/export              nmap XML files (e.g. a whole folder) -> ZIP with findings.csv + scores.csv (FR-15)
+  POST   /api/v1/export/history      the same two CSVs for the scans saved on this computer
   DELETE /api/v1/history             delete my history (one click, NFR-02)
   POST   /api/v1/heartbeat           the open page is alive (app mode)
-  POST   /api/v1/shutdown            "Close NetCheck" (app mode)
+  POST   /api/v1/shutdown            "Close SafeHouse" (app mode)
 
 Errors: {"error": {"code": "...", "message": "<plain words in the user's language>"}}.
 All state-changing calls are protected by web/security.py (local host + session cookie + origin).
@@ -18,7 +22,9 @@ import os
 import subprocess
 from typing import Optional
 
-from fastapi import APIRouter, Request
+from pathlib import Path
+
+from fastapi import APIRouter, File, Request, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -178,6 +184,106 @@ def ask(body: AskRequest, request: Request):
     ans = ai_ask(body.question, a, lang, previous, history=turns or None)
     mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
     return {"answer": ans.text, "source": ans.source, "mode": mode, "scan_id": sid}
+
+
+# ------------------------------------------------------------------ SafeHouse page data + file upload
+@router.get("/ui-data")
+def ui_data():
+    from .app import ui_data as build
+    return build()
+
+
+@router.post("/upload")
+async def upload(request: Request, files: list[UploadFile] = File(...)):
+    """Analyse uploaded scan files with the same core as the CLI. Readable ones are saved to the
+    local history; unreadable ones are reported (never saved, never a crash)."""
+    from ..core.parser import MAX_FILE_BYTES
+    from .app import _remember, analyze_bytes
+    lang = _lang(request)
+    saved, errors = [], []
+    with history.open_history() as conn:
+        for f in files[:20]:
+            data = await f.read(MAX_FILE_BYTES + 1)
+            name = Path(f.filename or "upload.xml").name[:120]
+            a = analyze_bytes(data, name)
+            if not a.ok:
+                errors.append({"file": name, "error": a.error})
+                continue
+            scan_id, _created = history.save(conn, a)
+            _remember(scan_id, a)
+            saved.append(scan_id)
+    msg = None
+    if errors:
+        msg = ("Fișierul nu poate fi citit: e stricat sau nu e o verificare Nmap." if lang == "ro"
+               else "The file cannot be read: it is broken or not an Nmap check.")
+    return {"saved": saved, "errors": errors, "message": msg}
+
+
+# ------------------------------------------------------------------ standard results export (FR-15)
+MAX_EXPORT_FILES = 500
+
+
+def exports_dir() -> Path:
+    """Where exports are also saved, so they can be found again: ~/SafeHouse/exports (or NETCHECK_EXPORTS)."""
+    return Path(os.environ.get("NETCHECK_EXPORTS") or Path.home() / "SafeHouse" / "exports")
+
+
+def _export_response(results: list, lang: str):
+    """findings.csv + scores.csv written by core.analysis.write_results - the very same code as
+    `python -m netcheck analyze <folder>` - saved on disk and sent back as one ZIP."""
+    import io
+    import zipfile
+    from datetime import datetime
+    from urllib.parse import quote
+
+    from fastapi.responses import Response
+
+    from ..core.analysis import write_results
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out = exports_dir() / f"export_{stamp}"
+    f_csv, s_csv = write_results(results, out)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        z.write(f_csv, "findings.csv")
+        z.write(s_csv, "scores.csv")
+    bad = sum(1 for r in results if not r.ok)
+    return Response(buf.getvalue(), media_type="application/zip", headers={
+        "Content-Disposition": f'attachment; filename="safehouse_results_{stamp}.zip"',
+        "X-SafeHouse-Files": str(len(results)),
+        "X-SafeHouse-Errors": str(bad),
+        "X-SafeHouse-Findings": str(sum(len(r.findings) for r in results)),
+        "X-SafeHouse-Saved-To": quote(str(out)),
+        "Cache-Control": "no-store",
+    })
+
+
+@router.post("/export")
+async def export(request: Request, files: list[UploadFile] = File(...)):
+    """One row per finding and one score per file; a file that cannot be read gets ERROR (never a crash).
+    Files are sorted by name, like the CLI. Nothing is saved to the history."""
+    from ..core.parser import MAX_FILE_BYTES
+    from .app import analyze_bytes
+    lang = _lang(request)
+    if len(files) > MAX_EXPORT_FILES:
+        return _error(413, "too_many", lang, f"Maximum {MAX_EXPORT_FILES} files.")
+    results = []
+    for f in files:
+        data = await f.read(MAX_FILE_BYTES + 1)
+        results.append(analyze_bytes(data, Path(f.filename or "scan.xml").name[:200]))
+    results.sort(key=lambda a: a.file)
+    return _export_response(results, lang)
+
+
+@router.post("/export/history")
+def export_history(request: Request):
+    from .app import get_analysis
+    lang = _lang(request)
+    with history.open_history() as conn:
+        results = [get_analysis(conn, sid) for sid in history.scan_ids(conn)]
+    results.sort(key=lambda a: a.file)          # by file name, exactly like the CLI and the expected CSVs
+    if not results:
+        return _error(404, "no_scan", lang, "Nu există verificări salvate." if lang == "ro" else "There are no saved checks.")
+    return _export_response(results, lang)
 
 
 # ------------------------------------------------------------------ privacy + app lifecycle

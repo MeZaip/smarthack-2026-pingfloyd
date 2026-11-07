@@ -1,4 +1,4 @@
-# smarthack-2026-pingfloyd — netcheck
+# smarthack-2026-pingfloyd — SafeHouse
 
 **Secure Networks, Simply Explained** — R Systems Hackathon 2026.
 Scans a small network *you own*, explains the risks in plain Romanian/English and tells you exactly how to fix them.
@@ -15,11 +15,11 @@ cp .env.example .env                 # optional: only if you change defaults (us
 ## For users: one double-click (Windows)
 
 1. Install [Nmap](https://nmap.org/download) (includes Npcap) and Python 3.10+ once.
-2. Double-click **`NetCheck.cmd`**. The first start prepares everything (about a minute); then NetCheck opens
+2. Double-click **`SafeHouse.cmd`**. The first start prepares everything (about a minute); then SafeHouse opens
    in its own window, no terminal.
 3. Press **„Verifică rețeaua mea”**, confirm the network is yours, press **Da** in the Windows permission
    dialog. The results appear in 1–3 minutes. **„Am reparat — verifică”** re-checks one fixed problem in seconds.
-4. **„Închide”** stops NetCheck (it also stops by itself when the window is closed).
+4. **„Închide”** stops SafeHouse (it also stops by itself when the window is closed).
 
 On Linux/macOS: `python -m netcheck app` (same app; the system password dialog replaces the Windows one).
 
@@ -56,6 +56,13 @@ Or by hand: `python -m netcheck serve` (UI + JSON API) and, on the team machine,
 Upload nmap `.xml` files in the UI, or fill the history from the CLI (`netcheck history add`, `netcheck scan`).
 The UI runs unprivileged and listens on 127.0.0.1 only.
 
+The page at `/` is the **SafeHouse** UI (`ui/`) with live data: the scans saved on this computer, "Inspect house"
+runs a real check of the network you are on (consent, then the system permission dialog, only nmap is elevated),
+"Upload a check" analyses any nmap XML (a broken file shows a clear error and is not saved), "I fixed it, check"
+re-tests one problem, "Ask" talks to the assistant (AI through the gateway, built-in texts as fallback) and
+"Delete history" removes `~/.netcheck/history.sqlite`. The same page also works offline as a demo (below), with
+fixed example data.
+
 JSON API (read-only, formats from `service_data_contracts.md`): `GET /api/scans`, `/api/scans/latest` (§2),
 `/api/scans/{id}` (§2), `/api/scans/{id}/delta[?previous=<id>]` (§4).
 
@@ -70,6 +77,11 @@ python -m netcheck diff    before.xml after.xml                # what changed / 
 ```
 
 Unreadable files get `ERROR` in `scores.csv`; the run continues with the other files.
+
+The same export is in the app: **Export CSV** (top bar) → choose a folder (or files) of nmap XML scans, or export
+the checks saved on this computer. It runs the same code as `netcheck analyze` (identical `findings.csv` and
+`scores.csv`, tested), downloads them as one ZIP and also saves them in `~/SafeHouse/exports/export_<date>/`.
+Exporting never adds the files to the history. For the Test Set submission the CLI command above is the reference.
 
 ## Scan history (score trend, before/after)
 
@@ -86,7 +98,7 @@ owner-only permissions. Tables: `scans`, `devices`, `ports`, `findings` (childre
 and a keyed hash of the full MAC, used to recognise the same device across scans even when its IP changes
 or two devices share a vendor. The hash key is random per history file and is deleted with it.
 
-## Demo UI (HTML/CSS, no build step)
+## Demo UI (HTML/CSS, no build step) - the same page as the app, with fixed example data
 
 ```bash
 python tools/export_ui_data.py          # real tool output -> ui/data.js (scans, findings, texts, history)
@@ -126,9 +138,11 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   events timeline for history. The assistant is a chat with suggestion chips.
 * **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
   device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
-* **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
-  (score chart + before/after, *Delete my history*), **Ask** (grounded answers: every sentence cites
-  its evidence; the demo switch slips in an invented claim and the checker blocks it).
+* **Devices and fixes** (one place per device: every problem with its explanation, 1–5 steps, "I fixed it, check", evidence, CIS/OWASP refs), **History**
+  (score chart + before/after, *Delete my history*), and the assistant as a **floating chat button**
+  (bottom right; in the app: a conversation with the AI assistant, short and simple answers checked against the scan,
+  in the language of the question; in the offline demo: answers from our own texts).
+  On phones the menu becomes a bottom bar and the top bar keeps only icons.
 * Written for **children and older people first**: plain words in RO/EN (`netcheck/explain/simple_texts.py`:
   title without jargon, ≤ 2 short sentences using the "your home has doors" picture, ≤ 3 steps, and who can do
   it: *you* / *ask someone who knows computers* / *ask the IT company*), a glossary, and text size buttons

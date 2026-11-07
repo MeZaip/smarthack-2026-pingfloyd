@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start NetCheck locally: the AI gateway (optional) + the web UI / JSON API.
+# Start SafeHouse locally: the AI gateway (optional) + the web UI / JSON API.
 #
 #   ./run.sh                 gateway (if an API key / Ollama is configured) + UI on http://127.0.0.1:8000
 #   ./run.sh --demo          same, with a separate demo history pre-loaded from tests/fixtures/synthetic

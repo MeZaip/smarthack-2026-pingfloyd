@@ -1,4 +1,4 @@
-# NetCheck — instructions for Claude Code (and humans)
+# SafeHouse — instructions for Claude Code (and humans)
 
 R Systems Hackathon 2026, "Secure Networks, Simply Explained". Read `PLAN_ECHIPA.md` for who owns what.
 
@@ -16,7 +16,7 @@ R Systems Hackathon 2026, "Secure Networks, Simply Explained". Read `PLAN_ECHIPA
 - No secrets in the repo. Config only via env vars (`.env.example`); the API key lives only on the gateway machine.
 - MACs are always masked with `core/device.mask_mac()` (`XX:XX:XX:XX:1A:2B`); the raw MAC is never stored or shown.
 - All user-facing text exists in Romanian AND English (`explain/texts.py`, `web/i18n.py`), ~12-year-old reading level.
-- Scan file content is hostile: parse only via `core/parser.py`, never render it unescaped (Jinja autoescape stays on).
+- Scan file content is hostile: parse only via `core/parser.py`, never render it unescaped (the UI inserts scan text only as text, never as HTML).
 
 ## Layout
 | Module | Owner | Files (under `netcheck/` unless noted) |

@@ -370,7 +370,7 @@ def cmd_serve(args) -> int:
         import os
         os.environ["NETCHECK_ALLOW_ANY_HOST"] = "1"   # explicit opt-out of the local-host check (web/security.py)
         _out(f"⚠ Listening on {args.host}: anyone who can reach this address sees your scan results (no login).")
-    _out(f"NetCheck UI: http://{args.host}:{args.port}   (Ctrl+C to stop)")
+    _out(f"SafeHouse UI: http://{args.host}:{args.port}   (Ctrl+C to stop)")
     uvicorn.run("netcheck.web.app:app", host=args.host, port=args.port, log_level="warning")
     return 0
 
@@ -484,7 +484,7 @@ def main(argv=None) -> int:
     s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
     s.set_defaults(fn=cmd_serve)
 
-    s = sub.add_parser("app", help="start NetCheck for a normal user: app window, no terminal needed")
+    s = sub.add_parser("app", help="start SafeHouse for a normal user: app window, no terminal needed")
     s.add_argument("--port", type=int, default=0, help="default: a free port")
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.add_argument("--window", choices=["auto", "window", "app", "browser"], default="auto",

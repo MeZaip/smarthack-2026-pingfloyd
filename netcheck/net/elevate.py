@@ -100,5 +100,5 @@ def run_elevated(cmd: list[str], timeout: float = 900, run: Run = subprocess.run
     if via == "osascript" and proc.returncode != 0 and "-128" in (proc.stderr or ""):
         raise ElevationDenied("permission refused in the password dialog")
     if via == "sudo" and proc.returncode != 0 and "password" in (proc.stderr or "").lower():
-        raise ElevationUnavailable("admin rights are needed: start NetCheck from an administrator terminal")
+        raise ElevationUnavailable("admin rights are needed: start SafeHouse from an administrator terminal")
     return proc

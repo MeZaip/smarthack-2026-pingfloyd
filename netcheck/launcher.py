@@ -1,4 +1,4 @@
-"""`python -m netcheck app` - what the user's double-click starts (NetCheck.cmd on Windows).
+"""`python -m netcheck app` - what the user's double-click starts (SafeHouse.cmd on Windows).
 
 * Starts the local agent (web UI + /api/v1) on a free port of 127.0.0.1, unprivileged.
 * On the team's demo machine only: also starts the AI gateway if a key/model is configured locally.
@@ -105,7 +105,9 @@ def open_window(url: str, mode: str) -> bool:
     if mode in ("auto", "window"):
         try:
             import webview  # type: ignore  # optional: pip install pywebview
-            webview.create_window("NetCheck", url, width=1150, height=850, min_size=(420, 600))
+            if hasattr(webview, "settings"):           # pywebview 5+: let "Export CSV" save its ZIP
+                webview.settings["ALLOW_DOWNLOADS"] = True
+            webview.create_window("SafeHouse", url, width=1150, height=850, min_size=(420, 600))
             webview.start()
             return True
         except Exception:  # noqa: BLE001 - not installed or no GUI backend: fall back
@@ -147,7 +149,7 @@ def main(port: int = 0, lang: str = "ro", window: str = "auto", gateway: bool = 
             break
         time.sleep(0.05)
     url = f"http://127.0.0.1:{port}/?lang={lang}"
-    print(f"NetCheck: {url}")
+    print(f"SafeHouse: {url}")
 
     def watchdog():   # window closed without pressing "Close": stop after the page stops beating
         while not server.should_exit:

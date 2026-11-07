@@ -1,4 +1,4 @@
-"""Web UI + JSON API on top of core/ and history: contract shapes (§2, §4), MAC masking, hostile input."""
+"""JSON API on top of core/ and history: contract shapes (§2, §4), MAC masking, hostile input."""
 import json
 import re
 from pathlib import Path
@@ -134,45 +134,14 @@ def test_api_never_returns_full_macs(client):
     assert not any(m in body for m in full)
 
 
-# ------------------------------------------------------------------ HTML UI
-EVIL = (b'<?xml version="1.0"?><nmaprun><host><status state="up"/><address addr="192.168.1.5" addrtype="ipv4"/>'
-        b'<hostnames><hostname name="&lt;script&gt;alert(1)&lt;/script&gt;"/></hostnames><ports>'
-        b'<port protocol="tcp" portid="80"><state state="open"/><service name="http"/>'
-        b'<script id="http-title" output="&lt;img src=x onerror=alert(1)&gt; Login"/></port></ports></host></nmaprun>')
-
-
-def test_ui_upload_escapes_hostile_text_and_shows_score(client):
-    r = client.post("/upload?lang=en", files={"files": ("evil.xml", EVIL, "text/xml")}, follow_redirects=True)
-    assert r.status_code == 200
-    assert "<script>alert(1)" not in r.text and "&lt;script&gt;" in r.text
-    assert "<img src=x" not in r.text
-    assert "evil.xml" in r.text and "Fix this first" in r.text
-
-
-def test_ui_pages_with_history(client):
-    _save(SYN / "V6a_before.xml", SYN / "V6b_after.xml")
-    home = client.get("/?lang=en")
-    assert home.status_code == 200 and "V6b_after.xml" in home.text and ">100<" in home.text
-    assert "What changed since the previous scan" in home.text
-    hist = client.get("/history?lang=en")
-    assert hist.status_code == 200 and hist.text.count("✔ Resolved") == 3
-    assert client.get("/report/1?lang=ro").status_code == 200
-
-
-def test_ui_broken_upload_shows_error_without_saving(client):
-    bad = (SYN / "V7_broken.xml").read_bytes()
-    r = client.post("/upload?lang=en", files={"files": ("V7_broken.xml", bad, "text/xml")}, follow_redirects=True)
-    assert r.status_code == 200 and "This file cannot be read" in r.text and "V7_broken.xml" in r.text
-    assert client.get("/api/scans").json() == []
-
-
-def test_ui_ask_falls_back_to_built_in_text(client):
+# ------------------------------------------------------------------ the page's actions (/api/v1)
+def test_ask_falls_back_to_built_in_text(client):
     _save(SYN / "V3_small_office.xml")
-    r = client.post("/ask?lang=en", data={"question": "What do I fix first?"})
-    assert r.status_code == 200 and "Network score" in r.text and "built-in texts" in r.text
+    r = client.post("/api/v1/ask?lang=en", json={"question": "What do I fix first?"})
+    assert r.status_code == 200 and r.json()["mode"] == "offline" and r.json()["answer"]
 
 
 def test_ui_delete_history(client):
     _save(SYN / "V1_home_basic.xml")
-    client.post("/history/delete")
+    client.delete("/api/v1/history")
     assert client.get("/api/scans").json() == []

@@ -79,7 +79,6 @@ def test_state_changes_need_the_session_cookie():
     r = fresh.post("/api/v1/scan", json={"confirm": True})
     assert r.status_code == 403 and r.json()["error"]["code"] == "session"
     assert fresh.delete("/api/v1/history").status_code == 403
-    assert fresh.post("/history/delete").status_code == 403       # old HTML forms are protected too
 
 
 def test_cross_site_request_is_refused(client):
@@ -130,8 +129,7 @@ def test_scan_job_end_to_end(client):
     assert "--exclude" not in cmd                            # every device is scanned, this computer too
     assert cmd[cmd.index("--max-rate") + 1] == "100"         # rules of engagement
     assert [s["network_score"] for s in client.get("/api/scans").json()] == [40]
-    page = client.get(f"/?id={job['scan_id']}").text
-    assert "data-verify" in page and 'id="chat-form"' in page
+    assert client.get("/api/v1/ui-data").json()["scans"][0]["scan_id"] == job["scan_id"]   # the page shows it
 
 
 def test_scan_target_is_never_taken_from_the_page(client):
@@ -255,7 +253,7 @@ def test_ask_falls_back_and_accepts_history(client):
     _saved()
     r = client.post("/api/v1/ask?lang=en", json={"question": "What first?", "history": [
         {"role": "user", "content": "Score?"}, {"role": "assistant", "content": "It is 40."}]})
-    assert r.status_code == 200 and r.json()["mode"] == "offline" and "40/100" in r.json()["answer"]
+    assert r.status_code == 200 and r.json()["mode"] == "offline" and "40 out of 100" in r.json()["answer"]
 
 
 def test_ask_sends_history_to_the_assistant(client, monkeypatch):
@@ -300,28 +298,14 @@ def test_shutdown_and_idle(client):
     assert life.idle(now=time.time() + 10) is False and life.idle(now=time.time() + 120) is True
 
 
-# ------------------------------------------------------------------ the simple UI
-def test_welcome_screen_has_one_big_button(client):
-    page = client.get("/?lang=ro").text
-    assert "Este rețeaua ta în siguranță?" in page and 'class="big" data-start-scan' in page
-    assert '<dialog id="scanflow"' in page
-    assert "netcheck scan --confirm" not in page                     # no terminal instructions for users
-
-
-def test_upload_is_hidden_under_advanced(client):
-    _saved()
-    page = client.get("/?lang=en").text
-    adv = page.index("Advanced (for specialists)")
-    assert page.index('type="file"') > adv
-
-
-def test_close_button_only_in_app_mode(client, monkeypatch):
+# ------------------------------------------------------------------ the SafeHouse page
+def test_page_knows_app_mode(client, monkeypatch):
     from netcheck.web import agent, api_v1
-    assert 'id="close-app"' not in client.get("/").text
+    assert client.get("/api/v1/ui-data").json()["app_mode"] is False
     life = agent.AppLife()
     life.app_mode = True
     monkeypatch.setattr(api_v1, "life", life)
-    assert 'id="close-app"' in client.get("/").text
+    assert client.get("/api/v1/ui-data").json()["app_mode"] is True      # the page shows "Close the app"
 
 
 # ------------------------------------------------------------------ OS permission dialog (elevation)
@@ -455,28 +439,15 @@ def test_this_computer_is_scanned_and_named(client, monkeypatch):
     assert ("192.168.1.20", "UNKNOWN_DEVICE") not in {(f["ip"], f["finding_code"]) for f in scan["findings"]}
 
 
-# ------------------------------------------------------------------ UI: chat never opens the scan dialog; "this computer"
-def test_only_scan_buttons_open_the_scan_dialog(client):
-    import re
-    sid = _saved()
-    page = client.get(f"/?id={sid}").text
-    form = re.search(r'<form id="chat-form"[^>]*>', page).group(0)
-    assert "data-scan-id" in form and "data-start-scan" not in form
-    assert re.search(r"\sdata-scan[\s=>]", page) is None                     # the old, ambiguous attribute is gone
-    verify = re.findall(r"<button[^>]*data-verify[^>]*>", page)
-    assert verify and all("data-start-scan" not in b for b in verify)
-    assert 'document.querySelectorAll("[data-start-scan]")' in page
-
-
+# ------------------------------------------------------------------ UI: "this computer"
 def test_this_computer_is_highlighted(client, monkeypatch):
     from netcheck.web import app as web
     monkeypatch.setattr(netdetect, "detect", lambda: NetworkInfo("wlan0", "192.168.1.40", "255.255.255.0",
                                                                    "192.168.1.0/24", "192.168.1.1"))
     monkeypatch.setitem(web._me, "at", 0.0)
-    sid = _saved()
-    page = client.get(f"/?id={sid}&lang=ro").text
-    assert "💻 Acesta e calculatorul tău" in page and 'class="room' in page and " me\"" in page
-    assert 'class="me-row"' in page
+    _saved()
+    devices = client.get("/api/v1/ui-data").json()["scans"][0]["devices"]
+    assert [d["ip"] for d in devices if d["me"]] == ["192.168.1.40"]
 
 
 def test_no_network_means_no_highlight_and_no_crash(client, monkeypatch):
@@ -486,6 +457,7 @@ def test_no_network_means_no_highlight_and_no_crash(client, monkeypatch):
         raise netdetect.NetworkDetectError("x")
     monkeypatch.setattr(netdetect, "detect", boom)
     monkeypatch.setitem(web._me, "at", 0.0)
-    sid = _saved()
-    r = client.get(f"/?id={sid}")
-    assert r.status_code == 200 and 'class="me-row"' not in r.text and "badge-me\">" not in r.text
+    _saved()
+    r = client.get("/api/v1/ui-data")
+    assert r.status_code == 200 and r.json()["me"] is None
+    assert not any(d["me"] for d in r.json()["scans"][0]["devices"])

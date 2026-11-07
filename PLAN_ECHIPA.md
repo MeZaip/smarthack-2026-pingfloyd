@@ -33,7 +33,7 @@ Explicațiile de bază sunt **text fix, verificat**; LLM-ul doar personalizează
 `brew install nmap ollama gitleaks` · `ollama pull qwen2.5:7b` (sau `qwen2.5:3b`) · `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` · `.venv/bin/python -m pytest -q`
 
 ## Ce ne face diferiți (de prezentat la pitch)
-> „Casa ta are uși. NetCheck ți le arată pe o hartă, te ajută să le închizi, **dovedește** că s-au închis și păzește casa după aceea.”
+> „Casa ta are uși. SafeHouse ți le arată pe o hartă, te ajută să le închizi, **dovedește** că s-au închis și păzește casa după aceea.”
 
 | Funcție | Modul | Demo în 30 de secunde |
 |---|---|---|

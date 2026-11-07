@@ -1,5 +1,0 @@
-{# "I fixed it - check": re-checks ONE TCP port in seconds, no admin rights (net/verify.py). #}
-{% if f.port is not none and f.protocol == "tcp" and scan_id %}
-<p class="noprint"><button type="button" class="secondary" data-verify data-scan-id="{{ scan_id }}" data-ip="{{ f.ip }}"
-   data-port="{{ f.port }}" data-code="{{ f.code }}">{{ t.verify_fixed }}</button><span data-verify-out role="status" aria-live="polite"></span></p>
-{% endif %}

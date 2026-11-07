@@ -1,7 +1,7 @@
 """Gateway configuration - environment variables only (NFR-01).
 
 The Anthropic API key lives ONLY here, on the machine that runs the gateway.
-It is never sent to, or needed by, the netcheck app that users run.
+It is never sent to, or needed by, the SafeHouse app that users run.
 """
 from __future__ import annotations
 

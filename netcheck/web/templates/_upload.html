@@ -1,8 +1,0 @@
-<section class="card noprint">
-  <h2>📤 {{ t.upload }}</h2>
-  <form action="/upload?lang={{ lang }}" method="post" enctype="multipart/form-data" class="row">
-    <label for="files" class="small">{{ t.upload_hint }}</label>
-    <input id="files" type="file" name="files" accept=".xml,text/xml" multiple required>
-    <button type="submit">{{ t.upload_btn }}</button>
-  </form>
-</section>
