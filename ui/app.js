@@ -19,7 +19,15 @@
       skip: "Sari la conținut", close: "Închide", scanFile: "Verificarea afișată",
       navHome: "Acasă", navDevices: "Aparate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
-      hello: "Bună! 👋", helloSub: "Iată cum stă azi rețeaua din casa ta.",
+      hello: "Bună! 👋", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
+      inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
+      stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
+      stScanT: "Inspectez casa…", stScanS: "Verific fiecare aparat și fiecare ușă. Durează câteva secunde.",
+      stSafeT: "Casa este sigură", stSafeS: "Toate ușile sunt închise. Nu ai nimic de reparat.",
+      stVulnT: "Atenție: O ușă este deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
+      stErrT: "Nu am putut citi verificarea", stErrS: "Fișierul verificării e stricat. Alege altă verificare din lista de sus.",
+      houseLabel: "Desen cu o casă. Ferestrele se aprind când o verificăm.",
+      devicesFound: "Aparatele găsite ({n})", ipLabel: "IP", otherLang: "EN", whatToDo: "Ce pot face",
       netTitle: "Rețeaua de acasă",
       scoreOf: "din 100",
       band_red: "Risc înalt", band_amber: "Risc mediu", band_green: "Sigur",
@@ -80,7 +88,7 @@
       deletedTech: "În aplicație, asta șterge fișierul ~/.netcheck/history.sqlite.",
       restore: "Adu înapoi datele demo",
       askTitle: "Întreabă", askSub: "Îți răspund doar cu ce am văzut în verificare. Lângă fiecare propoziție scrie de unde știu. Dacă o propoziție nu are dovadă, o tai.",
-      botName: "Asistentul netcheck",
+      botName: "Asistentul SafeHouse",
       botHello: "Salut! Sunt aici să te ajut. Alege o întrebare de mai jos sau scrie-mi una.",
       q1: "Ce repar prima dată?", q2: "Ce aparate am acasă?", q3: "E periculoasă imprimanta mea?",
       askPlaceholder: "De exemplu: Ce repar prima dată?", askBtn: "Trimite", askLabel: "Întrebarea ta",
@@ -104,7 +112,15 @@
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
       navHome: "Home", navDevices: "Devices", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
-      hello: "Hi! 👋", helloSub: "Here is how the network in your home is doing today.",
+      hello: "Hi! 👋", helloSub: "Press the button and we will check together if the network in your home is safe.",
+      inspect: "Inspect house", inspectAgain: "Inspect again",
+      stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
+      stScanT: "Inspecting the house…", stScanS: "Checking every device and every door. It takes a few seconds.",
+      stSafeT: "The house is safe", stSafeS: "All doors are closed. You have nothing to fix.",
+      stVulnT: "Warning: A door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
+      stErrT: "We could not read the check", stErrS: "The check file is broken. Pick another check from the list at the top.",
+      houseLabel: "Drawing of a house. The windows light up when we check it.",
+      devicesFound: "Devices found ({n})", ipLabel: "IP", otherLang: "RO", whatToDo: "What I can do",
       netTitle: "Home network",
       scoreOf: "out of 100",
       band_red: "High risk", band_amber: "Medium risk", band_green: "Safe",
@@ -165,7 +181,7 @@
       deletedTech: "In the app, this removes the file ~/.netcheck/history.sqlite.",
       restore: "Bring back the demo data",
       askTitle: "Ask", askSub: "I answer only with what I saw in the check. Next to each sentence it says how I know. If a sentence has no proof, I cross it out.",
-      botName: "netcheck assistant",
+      botName: "SafeHouse assistant",
       botHello: "Hi! I am here to help. Pick a question below or write me one.",
       q1: "What do I fix first?", q2: "Which devices do I have at home?", q3: "Is my printer dangerous?",
       askPlaceholder: "For example: What do I fix first?", askBtn: "Send", askLabel: "Your question",
@@ -215,6 +231,8 @@
     confirmDelete: false,
     hallucinate: false,
     chat: [],            // [{kind, text}]
+    inspected: {},       // scan file -> true once the house was inspected
+    scanning: false,
   };
 
   // ---------------------------------------------------------------- helpers
@@ -339,34 +357,109 @@
       techBox(h("p", null, t("errorDetail") + ": ", h("span", { class: "mono", text: s.file + " — " + s.error }))));
   }
 
-  // ---------------------------------------------------------------- HOME
+  // ---------------------------------------------------------------- HOME: SafeHouse
+  const SCAN_MS = 2600;
+  const reducedMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const resultOf = (s) => (s.error ? "error" : s.findings.some((f) => f.severity !== "info") ? "vulnerable" : "safe");
+  const STATUS = {
+    idle: { icon: "🏠", title: "stIdleT", sub: "stIdleS" },
+    scanning: { icon: "🔎", title: "stScanT", sub: "stScanS" },
+    safe: { icon: "✅", title: "stSafeT", sub: "stSafeS" },
+    vulnerable: { icon: "⚠️", title: "stVulnT", sub: "stVulnS" },
+    error: { icon: "❌", title: "stErrT", sub: "stErrS" },
+  };
+
+  function houseScene() {
+    const f = (cls, kids) => h("div", { class: "face " + cls }, kids);
+    return h("div", { class: "house-stage", role: "img", "aria-label": t("houseLabel") },
+      h("div", { class: "scanbar", "aria-hidden": "true" }),
+      h("div", { class: "house-wrap", "aria-hidden": "true" },
+        h("div", { class: "house" },
+          f("f-back"), f("f-left"),
+          f("f-right", [h("div", { class: "win w3" }), h("div", { class: "win w4" })]),
+          f("f-gable back"), f("chimney"), f("f-roof b"), f("f-roof a"), f("f-gable"),
+          f("f-front", [h("div", { class: "win w1" }), h("div", { class: "win w2" }), h("div", { class: "doorway" }), h("div", { class: "door" })]))));
+  }
+
+  // Puts the hero in one state; colour is never alone, every state has an icon + words.
+  function applyHouseState(st) {
+    const hero = document.querySelector(".hero");
+    if (!hero || !STATUS[st]) return false;
+    const s = scan(), cfg = STATUS[st], toFix = s.error ? 0 : s.findings.filter((x) => x.severity !== "info").length;
+    hero.dataset.state = st;
+    hero.querySelector(".hs-icon").textContent = cfg.icon;
+    hero.querySelector(".hs-title").textContent = t(cfg.title);
+    hero.querySelector(".hs-sub").textContent = st === "vulnerable" && toFix ? (toFix === 1 ? t("stVulnS1") : t("stVulnS", { n: toFix })) : t(cfg.sub);
+    const btn = hero.querySelector(".inspect-btn");
+    btn.setAttribute("aria-busy", String(st === "scanning"));
+    btn.disabled = st === "scanning";
+    return true;
+  }
+
+  function inspect() {
+    const s = scan();
+    if (state.scanning) return;
+    state.scanning = true;
+    applyHouseState("scanning");
+    setTimeout(() => {
+      state.scanning = false;
+      state.inspected[s.file] = true;
+      render();
+      focusSel(".inspect-btn");
+    }, reducedMotion() ? 0 : SCAN_MS);
+  }
+
   function renderHome(root) {
     const s = scan();
+    const done = !!state.inspected[s.file];
+    const st = state.scanning ? "scanning" : done ? resultOf(s) : "idle";
     root.append(pageHead(t("hello"), t("helloSub")));
-    if (s.error) { root.append(errorBox(s)); return; }
-    const toFix = s.findings.filter((f) => f.severity !== "info").length;
-    const n = s.devices.length;
-    root.append(h("section", { class: "network", "aria-label": t("netTitle") },
-      ring(s.score),
-      h("div", null,
-        h("div", { class: "muted", text: t("netTitle") }),
-        h("h2", null, bandPill(s.score)),
-        traffic(s.score),
-        h("p", { class: "lead", text: toFix === 0 ? t("summaryNone", { d: n }) : toFix === 1 ? t("summaryOne", { d: n }) : t("summary", { d: n, f: toFix }) }),
-        h("p", { class: "muted", style: "margin:0", text: t("scoreMeaning") }),
-        h("div", { class: "network-actions" },
-          toFix ? h("button", { type: "button", class: "btn btn-filled", onclick: () => setTab("findings") }, "🛡️ " + t("seeFixes")) : null,
-          h("button", { type: "button", class: "btn", onclick: () => setTab("devices") }, "📱 " + t("seeDevices"))))));
 
-    root.append(h("div", { class: "section" }, h("div", { class: "section-head" }, h("h3", { text: "⭐ " + t("suggestTitle") })), suggestion(s)));
+    const toFix = s.error ? 0 : s.findings.filter((f) => f.severity !== "info").length;
+    const side = h("div", { class: "hero-side" },
+      h("div", { class: "house-status", role: "status", "aria-live": "polite" },
+        h("div", { class: "hs-icon", "aria-hidden": "true" }),
+        h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))),
+      done && !s.error ? h("div", { class: "hero-score" }, ring(s.score, true),
+        h("div", null, traffic(s.score),
+          h("p", { class: "lead", style: "margin:.6rem 0 0", text: toFix === 0 ? t("summaryNone", { d: s.devices.length }) : toFix === 1 ? t("summaryOne", { d: s.devices.length }) : t("summary", { d: s.devices.length, f: toFix }) }))) : null,
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-filled inspect-btn", onclick: inspect }, h("span", { "aria-hidden": "true", text: "🔎 " }), done ? t("inspectAgain") : t("inspect")),
+        done && toFix ? h("button", { type: "button", class: "btn", onclick: () => setTab("findings") }, "🛡️ " + t("seeFixes")) : null));
+    root.append(h("section", { class: "hero", "data-state": st, "aria-label": "SafeHouse" }, houseScene(), side));
+    applyHouseState(st);
+
+    if (!done) return;                       // results appear after the house is inspected
+    if (s.error) { root.append(h("div", { class: "section" }, errorBox(s))); return; }
 
     root.append(h("div", { class: "section" },
-      h("div", { class: "section-head" }, h("h3", { text: t("yourDevices") }),
-        h("button", { type: "button", class: "btn btn-text", onclick: () => setTab("devices") }, t("seeAll") + " ›")),
-      tiles(s, s.devices.slice().sort((a, b) => b.risk_points - a.risk_points).slice(0, 4))));
-
+      h("div", { class: "section-head" }, h("h3", { text: t("devicesFound", { n: s.devices.length }) })),
+      deviceCards(s)));
+    root.append(h("div", { class: "section" }, h("div", { class: "section-head" }, h("h3", { text: "⭐ " + t("suggestTitle") })), suggestion(s)));
     root.append(h("div", { class: "section glossary" }, h("div", { class: "section-head" }, h("h3", { text: "📖 " + t("glossaryTitle") })),
       h("dl", null, D.glossary[state.lang].map((g) => h("div", { class: "g" }, h("dt", { text: g.term }), h("dd", { text: g.meaning }))))));
+  }
+
+  // Device cards: icon, name, IP and a very simple explanation (max 2 sentences) in both languages.
+  function explainIn(lang, d, worst) {
+    return worst ? D.simple[worst.code][lang].explain : T[lang].devOkExplain;
+  }
+  function deviceCards(s) {
+    const other = state.lang === "ro" ? "en" : "ro";
+    return h("div", { class: "dcards" }, s.devices.slice().sort((a, b) => b.risk_points - a.risk_points).map((d) => {
+      const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
+      const name = deviceLabel(d.type) + (vendor ? " " + vendor : "");
+      const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${name}, ${t("ipLabel")} ${d.ip}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
+        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
+          h("div", null, h("h3", { text: name }), h("div", { class: "dcard-ip" }, t("ipLabel") + ": ", h("span", { class: "mono", text: d.ip })))),
+        worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, h("span", { "aria-hidden": "true", text: "✅" }), t("devOk")),
+        h("p", { lang: state.lang, style: "margin-top:.8rem", text: explainIn(state.lang, d, worst) }),
+        h("p", { class: "other", lang: other }, h("span", { class: "lang-tag", text: t("otherLang") + ":" }), explainIn(other, d, worst)),
+        h("button", { type: "button", class: "btn btn-text", onclick: (e) => { e.stopPropagation(); openDevice(d, card); } }, t("whatToDo") + " ›"));
+      card.addEventListener("click", () => openDevice(d, card));
+      card.addEventListener("keydown", (e) => { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDevice(d, card); } });
+      return card;
+    }));
   }
 
   function suggestion(s) {
@@ -738,13 +831,21 @@
     const i = D.scans.findIndex((s) => s.file === p.get("scan"));
     if (i >= 0) state.scan = i;
     if (p.get("hall") === "1") state.hallucinate = true;
+    if (p.get("inspect") === "1") state.inspected[scan().file] = true;
     if (p.get("theme") === "light" || p.get("theme") === "dark") document.documentElement.dataset.theme = p.get("theme");
     const q = { first: "q1", devices: "q2", printer: "q3" }[p.get("q")];
     if (q) state.chat = [{ kind: p.get("q"), text: t(q) }];
     setTab(TABS.includes(tab) ? tab : "home");
+    if (p.get("state")) applyHouseState(p.get("state"));
     const open = p.get("open");
     if (open && !scan().error) { const d = deviceByIp(scan(), open); if (d) openDevice(d); }
   })();
+
+  // SafeHouse.setState("safe" | "vulnerable" | "idle" | "scanning" | "error") and SafeHouse.inspect()
+  window.SafeHouse = {
+    setState(st) { if (state.tab !== "home") setTab("home"); return applyHouseState(st); },
+    inspect() { if (state.tab !== "home") setTab("home"); inspect(); },
+  };
 
   let resizeTimer = null;
   window.addEventListener("resize", () => { if (state.tab !== "history") return; clearTimeout(resizeTimer); resizeTimer = setTimeout(render, 150); });

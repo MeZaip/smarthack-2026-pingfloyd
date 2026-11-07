@@ -374,3 +374,148 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
   .lamp .dot { border: 2px solid CanvasText; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* =====================================================================================
+   SafeHouse: minimalist CSS 3D house, scan animation and result states.
+   States live on .hero[data-state]: idle | scanning | safe | vulnerable | error.
+   Colour is never the only signal: every state also shows an icon + words in .house-status.
+   ===================================================================================== */
+:root {
+  --h-front: #e3ebfb; --h-side: #bfcff0; --h-roof: #3d6fd6; --h-roof-2: #2a55b0;
+  --h-door: #8a5a3b; --h-doorway: #2d3138; --h-open: #f29900;
+  --h-win: #9fb2d6; --h-frame: #ffffff; --h-lit: #ffd54f;
+  --h-safe: #1e8e3e; --scan: 11, 87, 208;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --h-front: #33405e; --h-side: #26304a; --h-roof: #5b8def; --h-roof-2: #4170cf;
+    --h-door: #a0704f; --h-doorway: #0d0f12; --h-win: #4a5878; --h-frame: #8ea1c7; --h-safe: #81c995; --scan: 168, 199, 250;
+  }
+}
+:root[data-theme="dark"] {
+  --h-front: #33405e; --h-side: #26304a; --h-roof: #5b8def; --h-roof-2: #4170cf;
+  --h-door: #a0704f; --h-doorway: #0d0f12; --h-win: #4a5878; --h-frame: #8ea1c7; --h-safe: #81c995; --scan: 168, 199, 250;
+}
+
+.hero {
+  background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 32px;
+  display: grid; grid-template-columns: minmax(300px, 1fr) minmax(0, 1.1fr); gap: 32px; align-items: center;
+}
+.hero-side { min-width: 0; }
+
+/* stage: 2D box that holds the 3D scene and the scan bar */
+.house-stage {
+  position: relative; height: 360px; border-radius: var(--r-lg); overflow: hidden;
+  background: radial-gradient(120% 80% at 50% 100%, var(--surface-2) 0 40%, var(--surface-1) 70%);
+  display: grid; place-items: center;
+}
+.house-stage::after {          /* soft ground shadow */
+  content: ""; position: absolute; left: 50%; bottom: 46px; width: 260px; height: 34px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .16), transparent); pointer-events: none;
+}
+.house-wrap { perspective: 900px; width: 300px; height: 300px; position: relative; z-index: 1; transition: filter .4s; }
+.house {
+  position: absolute; left: 50px; top: 120px; width: 200px; height: 140px;
+  transform-style: preserve-3d; transform: rotateX(-14deg) rotateY(-32deg);
+}
+.face { position: absolute; top: 0; left: 0; }
+.f-front { width: 200px; height: 140px; background: var(--h-front); transform: translateZ(70px); transform-style: preserve-3d; }
+.f-back  { width: 200px; height: 140px; background: var(--h-side); transform: rotateY(180deg) translateZ(70px); }
+.f-right { width: 140px; height: 140px; left: 30px; background: var(--h-side); transform: rotateY(90deg) translateZ(100px); }
+.f-left  { width: 140px; height: 140px; left: 30px; background: var(--h-side); transform: rotateY(-90deg) translateZ(100px); }
+/* gables sit on the side walls; the ridge runs left-right and the roof slopes to the front and back */
+.f-gable { width: 140px; height: 80px; top: -80px; left: 30px; background: var(--h-side); clip-path: polygon(50% 0, 100% 100%, 0 100%); transform: rotateY(90deg) translateZ(100px); }
+.f-gable.back { transform: rotateY(-90deg) translateZ(100px); }
+.f-roof  { width: 220px; height: 112px; left: -10px; top: -80px; transform-origin: 50% 0; background: var(--h-roof); }
+.f-roof.a { transform: rotateX(-41.2deg); }
+.f-roof.b { transform: rotateX(41.2deg); background: var(--h-roof-2); }
+.chimney { width: 22px; height: 40px; left: 140px; top: -92px; background: var(--h-roof-2); transform: translateZ(20px); }
+
+/* windows: off by default, light up one after another while scanning */
+.win {
+  position: absolute; width: 36px; height: 32px; background: var(--h-win);
+  border: 4px solid var(--h-frame); border-radius: 4px; transition: background .3s, box-shadow .3s;
+}
+.f-front .w1 { left: 18px; top: 34px; } .f-front .w2 { left: 146px; top: 34px; }
+.f-right .w3 { left: 18px; top: 40px; } .f-right .w4 { left: 86px; top: 40px; }
+.hero[data-state="safe"] .win, .hero[data-state="vulnerable"] .win { background: var(--h-lit); box-shadow: 0 0 18px var(--h-lit); }
+.hero[data-state="scanning"] .win { animation: winOn .35s ease-out forwards; }
+.hero[data-state="scanning"] .w1 { animation-delay: .45s; } .hero[data-state="scanning"] .w2 { animation-delay: .95s; }
+.hero[data-state="scanning"] .w3 { animation-delay: 1.45s; } .hero[data-state="scanning"] .w4 { animation-delay: 1.95s; }
+@keyframes winOn { to { background: var(--h-lit); box-shadow: 0 0 18px var(--h-lit); } }
+
+/* door: slightly ajar when idle, closes when safe, swings open when vulnerable */
+.doorway, .door { position: absolute; left: 78px; bottom: 0; width: 44px; height: 74px; border-radius: 6px 6px 0 0; }
+.doorway { background: var(--h-doorway); transition: background .5s, box-shadow .5s; }
+.door {
+  background: var(--h-door); transform-origin: 0 50%; transform: rotateY(-24deg);
+  transition: transform .9s cubic-bezier(.2, .8, .2, 1);
+}
+.door::after { content: ""; position: absolute; right: 7px; top: 38px; width: 6px; height: 6px; border-radius: 50%; background: #f1d18a; }
+.hero[data-state="safe"] .door { transform: rotateY(0deg); }
+.hero[data-state="vulnerable"] .door { transform: rotateY(-82deg); }
+.hero[data-state="vulnerable"] .doorway { background: var(--h-open); box-shadow: 0 0 22px var(--h-open); }
+
+/* safe: green outline around the house */
+.hero[data-state="safe"] .house-wrap {
+  filter: drop-shadow(3px 0 0 var(--h-safe)) drop-shadow(-3px 0 0 var(--h-safe)) drop-shadow(0 3px 0 var(--h-safe)) drop-shadow(0 -3px 0 var(--h-safe));
+}
+
+/* scan bar: translucent band that sweeps down over the house */
+.scanbar {
+  position: absolute; left: 0; right: 0; height: 76px; z-index: 2; pointer-events: none; opacity: 0;
+  background: linear-gradient(to bottom, rgba(var(--scan), 0), rgba(var(--scan), .28));
+  border-bottom: 3px solid rgba(var(--scan), .85); box-shadow: 0 6px 18px rgba(var(--scan), .35);
+  top: -90px;
+}
+.hero[data-state="scanning"] .scanbar { animation: scanDown 2.4s ease-in-out forwards; }
+@keyframes scanDown {
+  0% { top: -90px; opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 370px; opacity: 0; }
+}
+
+/* status above the result: big icon + words */
+.house-status { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; min-height: 72px; }
+.hs-icon {
+  width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; font-size: 2.4rem; flex: none;
+  background: var(--surface-2);
+}
+.hs-title { font-size: 1.6rem; font-weight: 700; line-height: 1.2; margin: 0; }
+.hs-sub { margin: .3rem 0 0; color: var(--muted); }
+.hero[data-state="safe"] .hs-icon { background: var(--green-bg); }
+.hero[data-state="safe"] .hs-title { color: var(--green-ink); }
+.hero[data-state="vulnerable"] .hs-icon { background: var(--amber-bg); animation: pulse 1.4s ease-in-out infinite; }
+.hero[data-state="vulnerable"] .hs-title { color: var(--amber-ink); }
+.hero[data-state="error"] .hs-icon { background: var(--red-bg); }
+.hero[data-state="error"] .hs-title { color: var(--red-ink); }
+@keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249, 171, 0, .45); } 50% { transform: scale(1.12); box-shadow: 0 0 0 12px rgba(249, 171, 0, 0); } }
+
+.inspect-btn { font-size: 1.2rem; min-height: 60px; padding: .8rem 1.8rem; }
+.inspect-btn[aria-busy="true"] { opacity: .85; cursor: progress; }
+.hero-score { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin: 18px 0 6px; }
+.hero-score .traffic { margin: 0; background: var(--surface-1); }
+.hero .ring .track { stroke: var(--surface-2); }
+
+/* device cards under the house */
+.dcards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); align-items: start; }
+.dcard { background: var(--surface); border-radius: var(--r-xl); padding: 24px; box-shadow: var(--shadow); cursor: pointer; }
+.dcard:hover { box-shadow: 0 2px 6px rgba(0, 0, 0, .08), 0 6px 20px rgba(0, 0, 0, .06); }
+.dcard:focus-visible { outline-offset: 4px; border-radius: var(--r-xl); }
+.dcard-head { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.dcard-head h3 { margin: 0; font-size: 1.2rem; }
+.dcard-ip { color: var(--muted); }
+.dcard .other { color: var(--muted); border-left: 3px solid var(--outline); padding-left: 12px; margin-top: .6rem; }
+.dcard .lang-tag { font-weight: 700; margin-right: 6px; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 22px; gap: 20px; }
+}
+@media (max-width: 380px) {
+  .house-wrap { transform: scale(.88); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero[data-state="scanning"] .scanbar, .hero[data-state="vulnerable"] .hs-icon, .hero[data-state="scanning"] .win { animation: none; }
+  .hero[data-state="scanning"] .win { background: var(--h-lit); }
+  .door, .doorway, .win, .house-wrap { transition: none; }
+}

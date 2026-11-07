@@ -46,6 +46,13 @@ python tools/export_ui_data.py          # real tool output -> ui/data.js (scans,
 python -m http.server 8000 -d ui        # then open http://localhost:8000  (or just open ui/index.html)
 ```
 
+* **SafeHouse** (Home): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan
+  bar down the house while the windows light up one by one, then shows one of two states, always icon + words:
+  **safe** (green outline, door closes, ✅ *Casa este sigură / The house is safe*) or **vulnerable** (door opens
+  on an orange doorway, pulsing ⚠️ *Atenție: O ușă este deschisă / Warning: A door is open*). The state comes from
+  the real findings; other code can set it with `SafeHouse.setState("safe" | "vulnerable")` or run
+  `SafeHouse.inspect()`. Below the house, device cards show icon, name, IP and a 2-sentence explanation in
+  both languages. With *reduce motion* turned on, the result appears without animation.
 * Layout and behaviour follow **Google Home** and **Fing**: navigation rail on computers and a bottom bar on
   phones, a greeting, a network card with a score ring and a labelled traffic light, a "suggestion for today"
   card, device tiles that open a side/bottom sheet, fixes grouped by risk like a security check, and an
@@ -65,7 +72,7 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
 * Checked in every view and both themes: no text under 16 px, every text/background pair ≥ 4.5:1 (WCAG AA),
   every button and card reachable by keyboard with a visible focus ring (NFR-08). RO/EN toggle (NFR-09).
   Scan text is inserted only as text, never as HTML (NFR-03).
-* Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`.
+* Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`, `#home?inspect=1`, `#home?state=vulnerable`.
 
 ## How it works
 
