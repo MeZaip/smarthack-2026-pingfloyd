@@ -705,7 +705,9 @@
       const sev = sevOf(probs), vendor = shortVendor(d.vendor);
       const b = h("button", { type: "button", class: `topo-node sev-${sev}${core ? " core" : ""}${small && !core ? " dot" : ""}`,
           "aria-label": `${vendor || deviceLabel(d.type)}, ${deviceLabel(d.type)}, ${d.ip}. ${sevLabel(sev)}`, "aria-pressed": "false" },
-        h("span", { class: "topo-orb" }, icon(DEVICE_ICON[d.type] || DEVICE_ICON.unknown)),
+        h("span", { class: "topo-orb" }, small && !core ? icon(DEVICE_ICON[d.type] || DEVICE_ICON.unknown)
+          : h("span", { class: "dev3d topo-model", "aria-hidden": "true", "data-type": DEVICE_ICON[d.type] ? d.type : "unknown",
+              "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(DEVICE_ICON[d.type] || DEVICE_ICON.unknown))),
         h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
           h("span", { text: core ? t("topoGateway") : sevLabel(sev) })));
       b.addEventListener("click", () => select(d, b));
@@ -818,6 +820,7 @@
         h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:5", onclick: (e) => openDevice(d, e.currentTarget) },
           icon("shield"), h("span", { class: "grow", text: t("whatToDo") }), icon("chevron", "go")),
         h("div", { class: "topo-scan", "aria-hidden": "true" }));
+      if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
       // replay the reveal (scan line + boxes one by one) for every device that is opened
       if (!still) { void panel.offsetWidth; panel.classList.add("is-revealing"); }
       panel.scrollTop = 0;

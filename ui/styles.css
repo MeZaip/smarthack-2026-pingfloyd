@@ -1351,3 +1351,9 @@ div.topo-node { cursor: default; }
   .topo-link, .topo-orb::after, .topo-node.sev-high .topo-orb::after, .topo-radar { animation: none; }
   .topo-panel.is-revealing .topo-scan, .topo-panel.is-revealing > :not(.topo-scan) { animation: none; }
 }
+
+/* 3D device models in the network topology: the model fills the orb, the HUD ring keeps turning around it */
+.topo-orb > .dev3d.topo-model { position: absolute; inset: -14%; border-radius: 50%; }
+.topo-node.core .topo-orb > .dev3d.topo-model { inset: -10%; }
+.topo-orb > .dev3d.topo-model.ready > .dev3d-canvas { cursor: pointer; }
+.topo-ph .dev-ico.dev3d.ready { width: 88px; height: 88px; }
