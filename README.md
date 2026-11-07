@@ -39,6 +39,36 @@ owner-only permissions. Tables: `scans`, `devices`, `ports`, `findings` (childre
 and a keyed hash of the full MAC, used to recognise the same device across scans even when its IP changes
 or two devices share a vendor. The hash key is random per history file and is deleted with it.
 
+## Demo UI (HTML/CSS, no build step)
+
+```bash
+python tools/export_ui_data.py          # real tool output -> ui/data.js (scans, findings, texts, history)
+python -m http.server 8000 -d ui        # then open http://localhost:8000  (or just open ui/index.html)
+```
+
+* **Look**: dark "security console" theme in black and red, no icons (devices are text tags like `[CAM]`,
+  `[RTR]`; risk is always written in words). A slim text menu on the left (`01 HOME` … `05 ASK`) with live
+  counters (score, devices, things to fix), a sliding red marker, keys `1`–`5` and ↑/↓; on phones it becomes
+  a horizontal tab strip. A network card with a HUD score ring and a labelled traffic light, a "suggestion
+  for today" card, device tiles that open a side/bottom sheet, fixes grouped by risk, an events timeline for
+  history, and a terminal-style assistant chat. Only system fonts, so it works offline.
+* **Home**: traffic-light score with the standard formula, and *“Do one thing today”*: the most dangerous
+  device and its first fix, step by step (the jury's hands-on question), then every problem by risk.
+* **Devices**, **Problems and fixes** (explanation, 1–5 steps, evidence, CIS/OWASP refs), **History**
+  (score chart + before/after, *Delete my history*), **Ask** (grounded answers: every sentence cites
+  its evidence; the demo switch slips in an invented claim and the checker blocks it).
+* Written for **children and older people first**: plain words in RO/EN (`netcheck/explain/simple_texts.py`:
+  title without jargon, ≤ 2 short sentences using the "your home has doors" picture, ≤ 3 steps, and who can do
+  it: *you* / *ask someone who knows computers* / *ask the IT company*), a glossary, and text size buttons
+  (A / A+ / A++). Devices and problems are simple cards: name/type, a 2-sentence explanation, numbered steps.
+* Every score and risk shows icon + words, never colour alone: ❌ *Risc înalt / High risk*, ⚠️ *Risc mediu /
+  Medium risk*, ✅ *Sigur / Safe*, on a traffic light. IP, ports, MAC, evidence and CIS/OWASP are one
+  click away under *Details for people who know computers*.
+* Checked in every view and both themes: no text under 16 px, every text/background pair ≥ 4.5:1 (WCAG AA),
+  every button and card reachable by keyboard with a visible focus ring (NFR-08). RO/EN toggle (NFR-09).
+  Scan text is inserted only as text, never as HTML (NFR-03).
+* Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`.
+
 ## How it works
 
 | Layer | What | LLM? |
