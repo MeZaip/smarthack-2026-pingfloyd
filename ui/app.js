@@ -21,6 +21,9 @@
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
+      tourTitle: "Traseul amenințărilor", tourSub: "Dă scroll: urmărim datele de la un aparat la altul, începând cu cel mai periculos.",
+      tourStep: "Aparatul {i} din {n}", tourPort: "port {p}", tourFirst: "Primul pas",
+      tourEndT: "Ai parcurs tot traseul", tourEndS1: "Un aparat are uși deschise. Reparațiile, pas cu pas:", tourEndS: "{n} aparate au uși deschise. Reparațiile, pas cu pas:",
       stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
       stScanT: "Inspectez casa…", stScanS: "Verific fiecare aparat și fiecare ușă. Durează câteva secunde.",
       stSafeT: "Casa este sigură", stSafeS: "Toate ușile sunt închise. Nu ai nimic de reparat.",
@@ -118,6 +121,9 @@
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
       inspect: "Inspect house", inspectAgain: "Inspect again",
+      tourTitle: "Threat path", tourSub: "Scroll: we follow the data from one device to the next, starting with the most dangerous.",
+      tourStep: "Device {i} of {n}", tourPort: "port {p}", tourFirst: "First step",
+      tourEndT: "That's the whole path", tourEndS1: "One device has open doors. The fixes, step by step:", tourEndS: "{n} devices have open doors. The fixes, step by step:",
       stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
       stScanT: "Inspecting the house…", stScanS: "Checking every device and every door. It takes a few seconds.",
       stSafeT: "The house is safe", stSafeS: "All doors are closed. You have nothing to fix.",
@@ -439,6 +445,108 @@
     }, reducedMotion() ? 0 : SCAN_MS);
   }
 
+  // ---------------------------------------------------------------- HOME: threat path (scroll-telling)
+  // The vulnerable devices, most dangerous first, zig-zag down the page on isometric platforms. A data line
+  // leaves each device, goes down, turns 90 degrees and reaches the next one. The line is drawn while you
+  // scroll (stroke-dashoffset = the "drawSVG" effect), a packet rides on its tip, and the device nearest the
+  // middle of the screen is in focus: its platform lights up and its vulnerability card is revealed.
+  // Plain JS (scroll + requestAnimationFrame), no GSAP: the app has to work offline on the hotspot.
+  const SEV_RANK = { high: 0, medium: 1, low: 2 };
+  function threatTour(s) {
+    const list = s.devices.map((d) => ({ d, probs: problemsOf(s, d) })).filter((x) => x.probs.length)
+      .sort((a, b) => SEV_RANK[a.probs[0].severity] - SEV_RANK[b.probs[0].severity] || b.d.risk_points - a.d.risk_points);
+    if (!list.length) return null;
+    const stage = (iconName, label) => h("div", { class: "tour-stage", "aria-hidden": "true" },
+      h("div", { class: "iso" }, h("div", { class: "iso-plate p3" }), h("div", { class: "iso-plate p2" }), h("div", { class: "iso-plate p1" }), h("div", { class: "iso-ring" })),
+      h("div", { class: "iso-device" }, icon(iconName)),
+      label ? h("span", { class: "tour-num", text: label }) : null);
+    const nodes = list.map(({ d, probs }, i) => h("li", { class: `tour-node sev-${probs[0].severity} ${i % 2 ? "right" : "left"}` },
+      stage(DEVICE_ICON[d.type] || DEVICE_ICON.unknown, String(i + 1).padStart(2, "0")),
+      h("article", { class: "tour-card" },
+        h("p", { class: "tour-eyebrow", text: t("tourStep", { i: i + 1, n: list.length }) }),
+        h("h4", { text: deviceName(d) }),
+        h("p", { class: "tour-ip", text: d.ip }),
+        riskPill(probs[0].severity),
+        h("ul", { class: "tour-probs" }, probs.map((f) => {
+          const tx = simple(f.code);
+          return h("li", { class: "sev-" + f.severity },
+            h("strong", { text: tx.title }),
+            f.port != null ? h("span", { class: "tour-port", text: t("tourPort", { p: `${f.port}/${f.protocol}` }) }) : null,
+            tx.steps[0] ? h("p", { class: "tour-fix" }, h("b", { text: t("tourFirst") + ": " }), tx.steps[0]) : null);
+        })))));
+    const end = h("li", { class: `tour-node end ${list.length % 2 ? "right" : "left"}` }, stage("shield"),
+      h("article", { class: "tour-card" },
+        h("h4", { text: t("tourEndT") }),
+        h("p", { text: list.length === 1 ? t("tourEndS1") : t("tourEndS", { n: list.length }) }),
+        h("button", { type: "button", class: "btn btn-filled", onclick: () => setTab("findings") }, icon("shield"), t("seeFixes"))));
+    const svgEl = svg("svg", { class: "tour-svg", "aria-hidden": "true" });
+    ["tour-base", "tour-glow", "tour-line"].forEach((c) => svgEl.append(svg("path", { class: c })));
+    svgEl.append(svg("circle", { class: "tour-packet", r: 6 }));
+    return h("section", { class: "section tour", "aria-labelledby": "tour-title" },
+      h("div", { class: "section-head" }, h("h3", { id: "tour-title", class: "with-ico" }, icon("wifi", "lg"), h("span", { text: t("tourTitle") }))),
+      h("p", { class: "section-sub", text: t("tourSub") }),
+      h("div", { class: "tour-map" }, svgEl, h("ol", { class: "tour-nodes" }, nodes, end)));
+  }
+
+  let tourState = null;
+  function startTour(section) {
+    const map = section.querySelector(".tour-map"), svgEl = map.querySelector(".tour-svg");
+    const [base, glow, line] = svgEl.querySelectorAll("path"), packet = svgEl.querySelector(".tour-packet");
+    const nodes = [...map.querySelectorAll(".tour-node")];
+    const st = { map, nodes, len: 0, y0: 0, y1: 1, ticking: false };
+    tourState = st;
+    function layout() {                       // the path from node to node: down, 90-degree turn, down
+      const mr = map.getBoundingClientRect();
+      const pts = nodes.map((n) => {
+        const r = n.querySelector(".iso-device").getBoundingClientRect(), p = n.querySelector(".iso").getBoundingClientRect();
+        return { x: r.left + r.width / 2 - mr.left, top: r.top - mr.top - 6, bottom: p.bottom - mr.top - 10 };
+      });
+      let d = `M${pts[0].x.toFixed(1)},${pts[0].bottom.toFixed(1)}`;
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i], mid = (a.bottom + b.top) / 2;
+        d += ` V${mid.toFixed(1)} H${b.x.toFixed(1)} V${b.top.toFixed(1)}`;
+        if (i < pts.length - 1) d += ` M${b.x.toFixed(1)},${b.bottom.toFixed(1)}`;   // the line passes behind the device
+      }
+      svgEl.setAttribute("width", mr.width); svgEl.setAttribute("height", mr.height);
+      svgEl.setAttribute("viewBox", `0 0 ${mr.width} ${mr.height}`);
+      [base, glow, line].forEach((pth) => pth.setAttribute("d", d));
+      st.len = line.getTotalLength();
+      [glow, line].forEach((pth) => { pth.style.strokeDasharray = `${st.len} ${st.len}`; });
+      st.y0 = pts[0].bottom; st.y1 = pts[pts.length - 1].top;
+      update();
+    }
+    function update() {
+      st.ticking = false;
+      if (!map.isConnected) return;
+      const mr = map.getBoundingClientRect(), vh = window.innerHeight, still = reducedMotion();
+      // how far the middle of the screen has travelled between the first and the last device -> line drawn
+      const tip = vh * 0.55 - mr.top;
+      const p = still ? 1 : Math.max(0, Math.min(1, (tip - st.y0) / Math.max(1, st.y1 - st.y0)));
+      const drawn = st.len * p;
+      [glow, line].forEach((pth) => { pth.style.strokeDashoffset = String(st.len - drawn); });
+      const pt = line.getPointAtLength(drawn);
+      packet.setAttribute("cx", pt.x); packet.setAttribute("cy", pt.y);
+      packet.style.opacity = p > 0.002 && p < 0.998 ? "1" : "0";
+      // focus: the device nearest the middle of the screen
+      let best = -1, bestD = Infinity;
+      nodes.forEach((n, i) => {
+        const r = n.querySelector(".tour-stage").getBoundingClientRect(), c = r.top + r.height / 2, dist = c - vh * 0.5;
+        if (Math.abs(dist) < bestD) { bestD = Math.abs(dist); best = i; }
+        n.style.setProperty("--dist", still ? "0" : (dist / vh).toFixed(3));          // parallax of the platforms
+      });
+      nodes.forEach((n, i) => {
+        n.classList.toggle("is-active", still || i === best);
+        n.classList.toggle("is-done", !still && i < best);
+      });
+      map.style.setProperty("--py", still ? "0px" : `${(-mr.top * 0.15).toFixed(1)}px`);   // background drifts slower
+    }
+    st.layout = layout;
+    st.onScroll = () => { if (!st.ticking) { st.ticking = true; requestAnimationFrame(update); } };
+    requestAnimationFrame(layout);
+  }
+  window.addEventListener("scroll", () => { if (tourState) tourState.onScroll(); }, { passive: true });
+  window.addEventListener("resize", () => { if (tourState && tourState.map.isConnected) tourState.layout(); });
+
   function renderHome(root) {
     const s = scan();
     const done = !!state.inspected[s.file];
@@ -472,17 +580,12 @@
     if (!done) return;                       // results appear after the house is inspected
     if (s.error) { root.append(h("div", { class: "section" }, errorBox(s))); return; }
 
-    // Uși lăsate deschise: grid of warning cards, most dangerous first
-    const q = queue(s);
-    root.append(h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("door", "lg"), h("span", { text: t("doorsOpen", { n: q.length }) }))),
-      q.length ? [h("p", { class: "section-sub", text: t("doorsSub") }),
-        h("div", { class: "grid-findings" }, q.map((f, k) => {
-          const card = checkCard(s, f, s.findings.indexOf(f));
-          if (k === 0) card.prepend(h("div", { class: "start-here" }, icon("sparkles"), t("startHere")));
-          return card;
-        }))]
-        : h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("doorsNone") })))));
+    // Traseul amenințărilor: the vulnerable devices one after another, revealed while scrolling
+    const tour = threatTour(s);
+    root.append(tour || h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h3", { class: "with-ico" }, icon("door", "lg"), h("span", { text: t("doorsOpen", { n: 0 }) }))),
+      h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("check", "ok"), h("span", { text: t("doorsNone") })))));
+    if (tour) startTour(tour);
 
     // Aparate găsite: grid of device cards
     root.append(h("section", { class: "section" },
