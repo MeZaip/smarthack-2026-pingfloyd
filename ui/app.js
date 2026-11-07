@@ -25,8 +25,8 @@
       footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
       scoreTitle: "Cât de sigură e rețeaua ta",
       scoreOf: "din 100",
-      band_red: "Are nevoie de ajutor", band_amber: "Merge, dar poate fi mai bine", band_green: "Este în siguranță",
-      scoreMeaning: "100 înseamnă foarte sigur. Fiecare problemă găsită scade câteva puncte.",
+      band_red: "Risc înalt", band_amber: "Risc mediu", band_green: "Sigur",
+      scoreMeaning: "Semaforul arată cât de sigură e rețeaua: verde înseamnă sigur, galben înseamnă că trebuie reparat ceva, roșu înseamnă că trebuie reparat repede. 100 e scorul cel mai bun.",
       summary: "Am verificat {d} aparate din casa ta și am găsit {f} lucruri de reparat.",
       summaryOne: "Am verificat {d} aparate din casa ta și am găsit un lucru de reparat.",
       summaryNone: "Am verificat {d} aparate din casa ta și totul arată bine.",
@@ -56,7 +56,13 @@
       glossaryTitle: "Cuvinte care te pot încurca",
       devicesTitle: "Aparatele găsite în casa ta ({n})",
       devicesIntro: "Fiecare aparat conectat la internetul tău. Cele cu probleme sunt primele.",
-      devOk: "Totul e în regulă",
+      devOk: "Sigur",
+      devOkExplain: "Nu am găsit nicio problemă la acest aparat. Ușile lui sunt bine încuiate.",
+      devOkSteps: ["Instalează actualizările când aparatul ți le cere.", "Folosește o parolă lungă, pe care n-o mai ai în altă parte."],
+      keepSafe: "Ca să rămână sigur",
+      moreOnDevice: "Vezi toate cele {n} lucruri de reparat",
+      cardHint: "Apasă Enter ca să vezi detaliile tehnice.",
+      codeLabel: "Cod",
       devProblems: "{n} lucruri de reparat",
       devProblem: "Un lucru de reparat",
       openDoors: "Uși deschise: {n}",
@@ -64,7 +70,7 @@
       ip: "Adresă (IP)", mac: "Adresă fizică (MAC, ascunsă pe jumătate)", vendor: "Producător", hostname: "Nume în rețea",
       ports: "Uși deschise (porturi)", none: "niciuna", unknown: "nu știm",
       findingsTitle: "Ce trebuie reparat ({n})",
-      findingsIntro: "Apasă pe fiecare rând ca să vezi ce înseamnă și ce poți face.",
+      findingsIntro: "Fiecare card spune ce s-a întâmplat și ce poți face, pas cu pas. Cele mai periculoase sunt primele.",
       errorTitle: "Nu am putut citi această verificare",
       errorBody: "Fișierul verificării este stricat sau incomplet, așa că nu arătăm nimic pentru el. Alege altă verificare din listă sau fă una nouă.",
       errorDetail: "Detaliu tehnic",
@@ -94,7 +100,7 @@
       askTitle: "Întreabă despre rețeaua ta",
       askIntro: "Îți răspundem doar cu ce am văzut în verificare. Lângă fiecare propoziție scrie de unde știm. Dacă o propoziție nu are dovadă, o tăiem.",
       q1: "Ce repar prima dată?", q2: "Ce aparate am acasă?", q3: "E periculoasă imprimanta mea?",
-      askPlaceholder: "Scrie aici întrebarea ta…", askBtn: "Întreabă", askLabel: "Întrebarea ta",
+      askPlaceholder: "De exemplu: Ce repar prima dată?", askBtn: "Întreabă", askLabel: "Întrebarea ta",
       proof: "de unde știm",
       noAnswer: "Verificarea nu-mi arată asta, așa că nu pot să-ți răspund sigur. Încearcă una dintre întrebările de mai sus.",
       hallToggle: "Pentru prezentare: arată cum oprim o informație inventată",
@@ -127,8 +133,8 @@
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
       scoreTitle: "How safe your network is",
       scoreOf: "out of 100",
-      band_red: "Needs help", band_amber: "OK, but could be better", band_green: "Safe",
-      scoreMeaning: "100 means very safe. Every problem we find takes away some points.",
+      band_red: "High risk", band_amber: "Medium risk", band_green: "Safe",
+      scoreMeaning: "The traffic light shows how safe your network is: green means safe, yellow means something needs fixing, red means fix it soon. 100 is the best score.",
       summary: "We checked {d} devices in your home and found {f} things to fix.",
       summaryOne: "We checked {d} devices in your home and found one thing to fix.",
       summaryNone: "We checked {d} devices in your home and everything looks good.",
@@ -158,7 +164,13 @@
       glossaryTitle: "Words that may be confusing",
       devicesTitle: "Devices found in your home ({n})",
       devicesIntro: "Every device connected to your internet. The ones with problems come first.",
-      devOk: "Everything is fine",
+      devOk: "Safe",
+      devOkExplain: "We found no problem on this device. Its doors are locked well.",
+      devOkSteps: ["Install updates when the device asks you to.", "Use a long password that you do not use anywhere else."],
+      keepSafe: "To keep it safe",
+      moreOnDevice: "See all {n} things to fix",
+      cardHint: "Press Enter to see the technical details.",
+      codeLabel: "Code",
       devProblems: "{n} things to fix",
       devProblem: "One thing to fix",
       openDoors: "Open doors: {n}",
@@ -166,7 +178,7 @@
       ip: "Address (IP)", mac: "Physical address (MAC, half hidden)", vendor: "Maker", hostname: "Network name",
       ports: "Open doors (ports)", none: "none", unknown: "we don't know",
       findingsTitle: "What needs fixing ({n})",
-      findingsIntro: "Tap each line to see what it means and what you can do.",
+      findingsIntro: "Each card says what is wrong and what you can do, step by step. The most dangerous ones come first.",
       errorTitle: "We could not read this check",
       errorBody: "The check file is broken or incomplete, so we show nothing for it. Pick another check from the list or make a new one.",
       errorDetail: "Technical detail",
@@ -196,7 +208,7 @@
       askTitle: "Ask about your network",
       askIntro: "We answer only with what we saw in the check. Next to each sentence it says how we know. If a sentence has no proof, we cross it out.",
       q1: "What do I fix first?", q2: "Which devices do I have at home?", q3: "Is my printer dangerous?",
-      askPlaceholder: "Type your question here…", askBtn: "Ask", askLabel: "Your question",
+      askPlaceholder: "For example: What do I fix first?", askBtn: "Ask", askLabel: "Your question",
       proof: "how we know",
       noAnswer: "The check does not show me that, so I cannot answer for sure. Try one of the questions above.",
       hallToggle: "For the presentation: show how we stop an invented claim",
@@ -223,16 +235,16 @@
 
   // Simple urgency words instead of "high/medium/low risk"; always icon + word (NFR-08).
   const URGENCY = {
-    high: { ro: "Urgent", en: "Urgent", icon: "⛔" },
-    medium: { ro: "Important", en: "Important", icon: "⚠️" },
-    low: { ro: "Când ai timp", en: "When you have time", icon: "🕒" },
+    high: { ro: "Risc înalt", en: "High risk", icon: "❌" },
+    medium: { ro: "Risc mediu", en: "Medium risk", icon: "⚠️" },
+    low: { ro: "Risc mic", en: "Low risk", icon: "ℹ️" },
     info: { ro: "Doar de știut", en: "Just so you know", icon: "ℹ️" },
   };
   const DEVICE_ICON = {
     router: "📶", camera: "📷", printer: "🖨️", nas: "🗄️", iot: "💡", tv: "📺",
     phone: "📱", computer: "💻", server: "🖥️", unknown: "❓",
   };
-  const BAND_ICON = { red: "⛔", amber: "⚠️", green: "✅" };
+  const BAND_ICON = { red: "❌", amber: "⚠️", green: "✅" };
   const SIZES = ["100%", "115%", "130%"];
 
   // ---------------------------------------------------------------- state
@@ -461,6 +473,16 @@
     return card;
   }
 
+  // Enter or Space on a focused card opens / closes its technical details.
+  function cardKeys(card) {
+    card.addEventListener("keydown", (e) => {
+      if (e.target !== card || (e.key !== "Enter" && e.key !== " ")) return;
+      e.preventDefault();
+      const d = card.querySelector("details.tech");
+      if (d) d.open = !d.open;
+    });
+  }
+
   function renderDevices(root) {
     const s = scan();
     if (s.error) { root.append(errorCard(s)); return; }
@@ -470,28 +492,41 @@
       const mine = s.findings.filter((f) => f.ip === d.ip && f.severity !== "info");
       const risky = new Set(mine.filter((f) => f.port != null).map((f) => f.port));
       const worst = mine[0];
-      grid.append(h("article", { class: "card device" },
-        h("div", { class: "device-head" }, devIcon(d.type, true),
-          h("div", { class: "grow" }, h("h3", { style: "margin:0", text: deviceName(d) }))),
-        h("p", { style: "margin:.75rem 0" }, mine.length
-          ? h("span", { class: "badge b-" + worst.severity }, h("span", { "aria-hidden": "true", text: URGENCY[worst.severity].icon }),
-              plural(mine.length, "devProblem", "devProblems"))
-          : h("span", { class: "badge b-green" }, h("span", { "aria-hidden": "true", text: "✅" }), t("devOk"))),
-        mine.length ? h("ul", { class: "plain-list" }, mine.map((f) => h("li", { text: simple(f.code).title }))) : null,
-        h("p", { class: "muted", text: t("openDoors", { n: d.open_ports.length }) + (risky.size ? " · " + t("riskyDoors", { n: risky.size }) : "") }),
+      const vendor = shortVendor(d.vendor);
+      const status = worst
+        ? h("span", { class: "badge b-" + worst.severity }, h("span", { "aria-hidden": "true", text: URGENCY[worst.severity].icon }),
+            URGENCY[worst.severity][state.lang] + " · " + plural(mine.length, "devProblem", "devProblems"))
+        : h("span", { class: "badge b-green" }, h("span", { "aria-hidden": "true", text: "✅" }), t("devOk"));
+      const tx = worst ? simple(worst.code) : null;
+      const card = h("article", {
+        class: "card device", tabindex: "0",
+        "aria-label": `${deviceLabel(d.type)}${vendor ? " " + vendor : ""}. ${worst ? URGENCY[worst.severity][state.lang] + ". " + tx.title : t("devOk")}. ${t("cardHint")}`,
+      },
+        h("div", { class: "card-head" }, devIcon(d.type, true),
+          h("div", { class: "grow" }, h("h3", { text: deviceLabel(d.type) }), vendor ? h("div", { class: "sub", text: vendor }) : null)),
+        status,
+        worst ? h("h4", { class: "card-title", text: tx.title }) : null,
+        h("p", { text: worst ? tx.explain : t("devOkExplain") }),
+        h("h4", { text: (worst ? t("doThis") : t("keepSafe")) + ":" }),
+        stepsList(worst ? tx.steps : t("devOkSteps")),
+        worst ? whoBadge(worst.code) : null,
+        mine.length > 1 ? h("p", null, h("button", { onclick: () => { setTab("findings"); openFinding(s.findings.indexOf(mine[1])); } },
+          t("moreOnDevice", { n: mine.length }) + " ›")) : null,
         techBox([
           h("dl", { class: "meta" },
             h("dt", { text: t("ip") }), h("dd", { class: "mono", text: d.ip }),
             h("dt", { text: t("mac") }), h("dd", { class: "mono", text: d.mac || t("unknown") }),
             h("dt", { text: t("vendor") }), h("dd", { text: d.vendor || t("unknown") }),
             h("dt", { text: t("hostname") }), h("dd", { text: d.hostname || t("unknown") })),
-          h("div", { class: "muted", style: "margin-bottom:.35rem", text: t("ports") }),
+          h("div", { class: "muted", style: "margin-bottom:.4rem", text: t("ports") + " · " + t("openDoors", { n: d.open_ports.length }) }),
           d.open_ports.length
             ? h("div", { class: "chips" }, d.open_ports.map((p) =>
                 h("span", { class: "chip" + (risky.has(p.port) ? " risk" : "") },
-                  (risky.has(p.port) ? "⚠ " : "") + `${p.port}/${p.protocol} ${p.service}${p.tls ? " (TLS)" : ""}`)))
+                  (risky.has(p.port) ? "⚠️ " : "") + `${p.port}/${p.protocol} ${p.service}${p.tls ? " (TLS)" : ""}`)))
             : h("span", { text: t("none") }),
-        ])));
+        ]));
+      cardKeys(card);
+      grid.append(card);
     });
     root.append(grid);
   }
@@ -502,27 +537,34 @@
     root.append(h("h2", { text: t("findingsTitle", { n: s.findings.length }) }));
     if (!s.findings.length) { root.append(h("div", { class: "card" }, h("p", { class: "lead", text: t("noProblems") }))); return; }
     root.append(h("p", { class: "muted", text: t("findingsIntro") }));
-    const list = h("ul", { class: "finding-list" });
+    const grid = h("div", { class: "grid grid-cards" });
     s.findings.forEach((f, i) => {
       const tx = simple(f.code);
-      const dev = deviceByIp(s, f.ip);
-      list.append(h("li", null, h("details", { class: "finding", id: "finding-" + i },
-        h("summary", null, urgencyBadge(f.severity),
-          h("span", { class: "row-text" }, h("span", { class: "f-title", text: tx.title }), h("span", { class: "f-where", text: deviceName(dev) }))),
-        h("div", { class: "f-body" },
-          h("p", { class: "lead", text: tx.explain }),
-          h("h4", { text: t("doThis") + ":" }),
-          stepsList(tx.steps),
-          whoBadge(f.code),
-          techFor(f)))));
+      const dev = deviceByIp(s, f.ip) || { type: "unknown" };
+      const vendor = shortVendor(dev.vendor);
+      const card = h("article", {
+        class: "card finding-card", id: "finding-" + i, tabindex: "0",
+        "aria-label": `${URGENCY[f.severity][state.lang]}. ${tx.title}. ${deviceLabel(dev.type)}. ${t("cardHint")}`,
+      },
+        h("div", { class: "card-head" }, devIcon(dev.type),
+          h("div", { class: "grow" }, h("h3", { text: deviceLabel(dev.type) }), vendor ? h("div", { class: "sub", text: vendor }) : null)),
+        urgencyBadge(f.severity),
+        h("h4", { class: "card-title", text: tx.title }),
+        h("p", { text: tx.explain }),
+        h("h4", { text: t("doThis") + ":" }),
+        stepsList(tx.steps),
+        whoBadge(f.code),
+        h("div", { class: "card-foot" }, h("span", { class: "code-tag", text: `${t("codeLabel")}: ${f.code}` })),
+        techFor(f));
+      cardKeys(card);
+      grid.append(card);
     });
-    root.append(list);
+    root.append(grid);
   }
   function openFinding(i) {
     const el = document.getElementById("finding-" + i);
     if (!el) return;
-    el.open = true;
-    el.querySelector("summary").focus();
+    el.focus({ preventScroll: true });
     el.scrollIntoView({ block: "start", behavior: "smooth" });
   }
 

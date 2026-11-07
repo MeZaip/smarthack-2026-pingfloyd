@@ -52,10 +52,13 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   its evidence; the demo switch slips in an invented claim and the checker blocks it).
 * Written for **children and older people first**: plain words in RO/EN (`netcheck/explain/simple_texts.py`:
   title without jargon, ≤ 2 short sentences using the "your home has doors" picture, ≤ 3 steps, and who can do
-  it: *you* / *ask someone who knows computers* / *ask the IT company*), urgency words instead of severity
-  levels, a glossary, and text size buttons (A / A+ / A++). IP, ports, MAC, evidence and CIS/OWASP are one
+  it: *you* / *ask someone who knows computers* / *ask the IT company*), a glossary, and text size buttons
+  (A / A+ / A++). Devices and problems are simple cards: name/type, a 2-sentence explanation, numbered steps.
+* Every score and risk shows icon + words, never colour alone: ❌ *Risc înalt / High risk*, ⚠️ *Risc mediu /
+  Medium risk*, ✅ *Sigur / Safe*, on a traffic light. IP, ports, MAC, evidence and CIS/OWASP are one
   click away under *Details for people who know computers*.
-* RO/EN, light/dark, keyboard navigable, base text 18 px, buttons ≥ 52 px, colour always with icon + label (NFR-08/09).
+* Checked in every view and both themes: no text under 16 px, every text/background pair ≥ 4.5:1 (WCAG AA),
+  every button and card reachable by keyboard with a visible focus ring (NFR-08). RO/EN toggle (NFR-09).
   Scan text is inserted only as text, never as HTML (NFR-03).
 * Deep links for the pitch: `#ask?q=first&hall=1`, `#home?lang=en&scan=V3_small_office.xml`, `#history?theme=light`.
 
