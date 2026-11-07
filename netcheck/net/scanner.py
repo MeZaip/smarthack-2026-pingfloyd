@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -44,7 +45,19 @@ def top_tcp_ports(n: int = 1000, paths: list[str] | None = None) -> str:
     return "1-10000"  # superset fallback
 
 
-def build_command(target: str, out_xml: Path) -> list[str]:
+def build_command(target: str, out_xml: Path, mode: str = "full") -> list[str]:
+    """mode="full": SYN + UDP (needs admin rights). mode="quick": TCP connect only, no admin rights needed
+    (finds every TCP rule; UDP-only findings such as UPnP/SNMP need the full check)."""
+    if mode == "quick":
+        return [
+            "nmap", "-sT", "-sV", "--version-light",
+            "--script", "http-title",
+            "-p", top_tcp_ports(),
+            "--max-rate", str(MAX_RATE),
+            "--host-timeout", "120s",
+            "-oX", str(out_xml),
+            target,
+        ]
     return [
         "nmap", "-sS", "-sU", "-sV", "--version-light",
         "--script", "http-title",            # rule HTTP_ADMIN_CLEARTEXT needs the page title
@@ -54,6 +67,58 @@ def build_command(target: str, out_xml: Path) -> list[str]:
         "-oX", str(out_xml),
         target,
     ]
+
+
+def find_nmap() -> str | None:
+    """nmap on PATH, or in the usual install folders (apps started by double-click get a short PATH)."""
+    found = shutil.which("nmap")
+    if found:
+        return found
+    for p in ("/opt/homebrew/bin/nmap", "/usr/local/bin/nmap", "/usr/bin/nmap",
+              r"C:\Program Files (x86)\Nmap\nmap.exe", r"C:\Program Files\Nmap\nmap.exe"):
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def _shell_quote(arg: str) -> str:
+    return "'" + arg.replace("'", "'\\''") + "'"
+
+
+def elevated(cmd: list[str]) -> list[str]:
+    """Run cmd with admin rights through the system's own password window (no terminal needed)."""
+    if os.name == "nt" or os.geteuid() == 0:
+        return cmd                     # Windows: Npcap from the nmap installer works without elevation
+    if sys.platform == "darwin":
+        script = " ".join(_shell_quote(c) for c in cmd)
+        osa = script.replace("\\", "\\\\").replace('"', '\\"')
+        return ["osascript", "-e", f'do shell script "{osa}" with administrator privileges']
+    if shutil.which("pkexec"):
+        return ["pkexec"] + cmd
+    return ["sudo"] + cmd
+
+
+def run_scan_app(target: str, out_dir: str | os.PathLike, mode: str = "quick") -> Path:
+    """Live scan for the desktop app. target MUST already be validated by guardrail.check_target().
+    quick = no admin rights; full = asks for the admin password in a system window."""
+    nmap = find_nmap()
+    if not nmap:
+        raise ScanError("nmap is not installed")
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_xml = out_dir / f"scan_{datetime.now():%Y%m%d_%H%M%S}.xml"
+    cmd = build_command(target, out_xml, mode)
+    cmd[0] = nmap
+    if mode == "full":
+        cmd = elevated(cmd)
+    proc = subprocess.run(cmd, capture_output=True, text=True,
+                          creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))   # no console window on Windows
+    if proc.returncode != 0 or not out_xml.exists():
+        msg = (proc.stderr or proc.stdout or "").strip()[:300]
+        if "User canceled" in msg or "(-128)" in msg:
+            raise ScanError("The admin password window was closed, so the full check did not run.")
+        raise ScanError(f"nmap failed: {msg}")
+    return out_xml
 
 
 def run_scan(target: str, out_dir: str | os.PathLike = "scans") -> Path:

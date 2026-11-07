@@ -344,6 +344,11 @@ def cmd_watch(args) -> int:
         return 3
 
 
+def cmd_app(args) -> int:
+    from .web.server import serve
+    return serve(port=args.port, open_browser=not args.no_browser, db=args.db, scans_dir=args.scans)
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="netcheck", description="Secure Networks, Simply Explained")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -437,6 +442,13 @@ def main(argv=None) -> int:
     s.add_argument("--allow", action="append", default=[])
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.set_defaults(fn=cmd_watch)
+
+    s = sub.add_parser("app", help="desktop app: opens netcheck in your browser, scan with one click")
+    s.add_argument("--port", type=int, default=8765)
+    s.add_argument("--no-browser", action="store_true")
+    s.add_argument("--db", help="history database (default: $NETCHECK_DB or ~/.netcheck/history.sqlite)")
+    s.add_argument("--scans", help="folder for scan files (default: ~/.netcheck/scans)")
+    s.set_defaults(fn=cmd_app)
 
     args = p.parse_args(argv)
     return args.fn(args)

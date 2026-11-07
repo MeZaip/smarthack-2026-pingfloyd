@@ -34,7 +34,8 @@ class NetworkDetectError(Exception):
 
 def _run(cmd: list[str]) -> str:
     try:
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=5).stdout
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=5,
+                              creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout   # no console flash on Windows
     except (OSError, subprocess.TimeoutExpired):
         return ""
 

@@ -154,6 +154,30 @@ anything outside the allowlist (default = the connected subnet; extra *private* 
 `scan` saves the XML + `<scan>.raw.json` in `scans/` (git-ignored: real network data) and adds the result to the history.
 Lab targets (banner-only fake services, no real login behind them): `python lab/fake_services.py` (`--fixed` = the "after" state).
 
+## Use it without any commands
+
+| Who | How | What they see |
+|---|---|---|
+| Jury / anyone curious | Scan the QR code in `docs/qr-demo.png` (or open the demo link) | The online demo with example networks, nothing to install |
+| A family at home | Double-click **netcheck** (`netcheck.app` on Mac, `netcheck.exe` on Windows) | The browser opens; tick *"this is my network"*, press **Quick check** |
+| Everyone else in the house | On the computer press **Show QR code**, scan it with the phone camera | The same results on the phone (read-only, same Wi-Fi, stops after 30 min) |
+
+* **Quick check** needs no password (`nmap -sT`). **Full check** also looks at UDP services (UPnP, SNMP) and asks
+  for the admin password in the system's own window (no terminal). nmap must be installed once
+  (<https://nmap.org/download>); the app explains this if it is missing.
+* The app stores scans in `~/.netcheck/scans` and the history in `~/.netcheck/history.sqlite` (owner-only);
+  *Delete everything* removes both. **Quit netcheck** in the menu closes it.
+* Phone sharing listens on the laptop's Wi-Fi address only while switched on, needs the secret key inside the
+  QR code, and can only *read*: scanning and deleting work only on the computer itself.
+* Developers: `python -m netcheck app` runs the same app from source.
+
+**Build the app:** `pip install pyinstaller==6.22.0 && pyinstaller packaging/netcheck.spec` → `dist/netcheck.app`
+(macOS). Windows `.exe` and macOS `.zip`: run the **build-app** workflow in GitHub Actions (or push a tag `app-v*`).
+The apps are not signed yet: first launch on Mac = right-click → **Open**; on Windows = **More info → Run anyway**.
+
+**Online demo:** `tools/publish_demo.sh` publishes `ui/` with the example data only to the public repo
+`Stevenenson/netcheck-demo` (GitHub Pages); `python tools/make_qr.py` makes the QR code (`pip install segno`).
+
 ## Secrets check
 
 ```bash

@@ -30,3 +30,7 @@ scans/private/
 
 # live scans contain real network data (commit lab fixtures into tests/fixtures/lab/ on purpose)
 scans/
+
+# app builds (PyInstaller)
+build/
+dist/

@@ -455,6 +455,34 @@ dialog.sheet::backdrop { background: rgba(10, 6, 8, .72); backdrop-filter: blur(
 .sheet-head { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; }
 .sheet-head h2 { margin: 0; font-size: 1.55rem; }
 
+/* ---------- desktop app: check my network, phone QR, demo banner ---------- */
+a { color: var(--rose); text-underline-offset: 3px; }
+a:hover { color: var(--rose-soft); }
+.btn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
+.btn:disabled::after { display: none; }
+.banner {
+  margin: 0 0 18px; padding: 14px 18px; border-radius: var(--radius); color: var(--text-2);
+  background: linear-gradient(90deg, rgba(244, 63, 94, .16), rgba(251, 146, 60, .06)); border: 1px solid var(--wine-2);
+}
+.check-now, .phone-card { margin-bottom: 18px; }
+.check-now h3, .phone-card h3 { font-size: 1.45rem; margin-bottom: .3rem; }
+.net-line { display: inline-flex; align-items: center; gap: 10px; padding: .45rem 1rem; border-radius: 999px; background: var(--safe-bg); color: var(--safe); font-weight: 600; }
+.net-line::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.net-line.bad { background: var(--high-bg); color: var(--high); }
+.note.bad { background: var(--high-bg); color: var(--high); border-left-color: var(--red); font-weight: 600; }
+.scan-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 1rem; }
+.btn.big { flex-direction: column; align-items: flex-start; gap: 4px; padding: 1rem 1.3rem; min-height: 88px; text-align: left; }
+.btn.big .opt-t { font-size: 1.2rem; font-weight: 750; }
+.btn.big .opt-s { font-size: 1rem; font-weight: 500; opacity: .9; }
+.progress-bar { position: relative; height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; margin: 1rem 0; }
+.progress-bar span { position: absolute; top: 0; bottom: 0; width: 35%; border-radius: 999px; background: var(--grad-ember); animation: slide 1.4s ease-in-out infinite; }
+.qr-row { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+.qr { width: 220px; height: 220px; border-radius: 10px; background: #fff; padding: 6px; box-shadow: 0 0 0 1px var(--wine-2), 0 12px 30px -12px var(--glow); }
+.qr-row > div { flex: 1; min-width: 240px; }
+.qr-url { display: block; word-break: break-all; background: var(--surface-3); border-radius: 4px; padding: .4rem .6rem; color: var(--text-2); }
+.quit-btn { margin: 0 6px; min-height: 42px; font-size: 1rem; }
+.bye { max-width: 40rem; margin: 20vh auto; text-align: center; }
+@keyframes slide { 0% { left: -35%; } 100% { left: 100%; } }
 @keyframes pulse { 50% { opacity: .35; } }
 @keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes slide-in { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }

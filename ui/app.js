@@ -8,6 +8,8 @@
 
 (function () {
   const D = window.NETCHECK_DATA;
+  const APP = window.NETCHECK_APP || null;          // set by the desktop app's server; absent in the online demo
+  const MODE = APP ? (APP.phone ? "phone" : "app") : "demo";
   if (!D) {
     document.getElementById("main").textContent = "Lipsește ui/data.js. Rulează: python tools/export_ui_data.py";
     return;
@@ -18,6 +20,30 @@
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
       navHome: "Home", navDevices: "Devices", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
+      demoBanner: "This is a demo with example networks. To check your own network, use the netcheck app on a computer connected to it.",
+      demoLink: "How to get the app",
+      phoneBanner: "You are looking at the results from the computer. To run a new check, use the computer.",
+      checkTitle: "Check my network",
+      checkSub: "netcheck looks at the devices on the network this computer is connected to. It only checks; it changes nothing.",
+      netFound: "Network found: {subnet} (this computer is {ip})", netMissing: "No network found. Connect this computer to your home Wi-Fi first.",
+      confirmOwn: "I confirm that this is my network and every device on it is mine.",
+      quickBtn: "Quick check", quickSub: "About 1–3 minutes. No password needed.",
+      fullBtn: "Full check", fullSub: "Also checks a few hidden services. Your computer will ask for your password.",
+      checking: "Checking your network… keep this page open. It usually takes 1–3 minutes.",
+      checkDone: "Done! Your score is {score}/100. The results are below.",
+      checkFail: "The check did not finish: {msg}",
+      nmapTitle: "One-time setup: install nmap",
+      nmapSub: "netcheck uses a free, well-known tool called nmap to look at the network. Install it once, then come back and press Check again.",
+      nmapMac: "Mac: download the installer from nmap.org/download (the .dmg file) and open it.",
+      nmapWin: "Windows: download the installer from nmap.org/download (the .exe file) and keep all the default options.",
+      phoneTitle: "See the results on your phone",
+      phoneSub: "Show a QR code. Anyone in your home who scans it with their phone camera sees these results (read-only).",
+      phoneBtn: "Show QR code", phoneOffBtn: "Stop sharing",
+      phoneOn: "Scan this code with your phone camera. The phone must be on the same Wi-Fi. Sharing stops by itself in {m} minutes.",
+      phoneNoQr: "Open this link on your phone:",
+      phoneFail: "Could not start sharing: {msg}",
+      quitBtn: "Quit netcheck", quitAsk: "Close netcheck? Your results stay saved on this computer.",
+      bye: "netcheck is closed.", byeSub: "You can close this tab. Double-click netcheck to open it again.",
       navLive: "local monitoring", navHint: "Keys 1–5 or ↑ ↓ for the menu", appbarName: "Security console",
       navScan: "Scan", navScore: "Score", navErr: "broken file",
       footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
@@ -122,7 +148,7 @@
   };
   const state = {
     lang: "en",            // English only
-    scan: Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")),
+    scan: MODE === "demo" ? Math.max(0, D.scans.findIndex((s) => s.file === "V2_smart_home.xml")) : 0,
     tab: "home",
     devFilter: "all",
     cursor: {}, lastDone: {},
@@ -255,10 +281,118 @@
       techBox(h("p", null, t("errorDetail") + ": ", h("span", { class: "mono", text: s.file + " — " + s.error }))));
   }
 
+  // ---------------------------------------------------------------- desktop app: check my network, phone QR
+  async function api(path, body) {
+    const opt = body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json", "X-Netcheck-Token": APP.token }, body: JSON.stringify(body) };
+    const r = await fetch(path, opt);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || r.statusText);
+    return j;
+  }
+  const live = { state: null, job: null, msg: null, confirmed: false, phone: null, phoneErr: null };
+
+  function modeBanner() {
+    if (MODE === "demo") return h("div", { class: "banner" }, h("span", { text: t("demoBanner") + " " }),
+      h("a", { href: "https://github.com/Stevenenson/netcheck-demo#get-the-app", text: t("demoLink") }));
+    if (MODE === "phone") return h("div", { class: "banner", text: t("phoneBanner") });
+    return null;
+  }
+
+  function checkNowCard() {
+    const card = h("section", { class: "suggest check-now", "aria-live": "polite" }, h("h3", { text: t("checkTitle") }), h("p", { class: "muted", text: t("checkSub") }));
+    const st = live.state;
+    if (!st) { card.append(h("p", { class: "muted", text: "…" })); refreshState(); return card; }
+    if (!st.nmap) {
+      card.append(h("div", { class: "note" }, h("strong", { text: t("nmapTitle") }), h("p", { text: t("nmapSub") }),
+        h("ol", { class: "plain" }, h("li", { text: t("nmapMac") }), h("li", { text: t("nmapWin") }))),
+        h("div", { class: "actions" }, h("a", { class: "btn btn-filled", href: "https://nmap.org/download", target: "_blank", rel: "noopener", text: "nmap.org/download" }),
+          h("button", { type: "button", class: "btn", onclick: () => { live.state = null; render(); } }, "Check again")));
+      return card;
+    }
+    card.append(h("p", { class: st.network.ok ? "net-line" : "net-line bad", text: st.network.ok ? t("netFound", { subnet: st.network.subnet, ip: st.network.ip }) : t("netMissing") }));
+    const busy = !!(live.job || (st.scan && st.scan.state === "running"));
+    if (busy) {
+      card.append(h("div", { class: "progress-bar", role: "progressbar", "aria-label": t("checking") }, h("span")), h("p", { class: "lead", text: t("checking") }));
+      return card;
+    }
+    if (live.msg) card.append(h("div", { class: "note" + (live.msg.ok ? " ok" : " bad"), text: live.msg.text }));
+    const cb = h("input", { type: "checkbox", id: "own-cb", checked: live.confirmed, onchange: (e) => { live.confirmed = e.target.checked; render(); focusSel("#own-cb"); } });
+    const can = st.network.ok && live.confirmed;
+    card.append(h("label", { class: "switch" }, cb, t("confirmOwn")),
+      h("div", { class: "scan-options" },
+        h("button", { type: "button", class: "btn btn-filled big", disabled: !can, onclick: () => runCheck("quick") },
+          h("span", { class: "opt-t", text: t("quickBtn") }), h("span", { class: "opt-s", text: t("quickSub") })),
+        h("button", { type: "button", class: "btn big", disabled: !can, onclick: () => runCheck("full") },
+          h("span", { class: "opt-t", text: t("fullBtn") }), h("span", { class: "opt-s", text: t("fullSub") }))));
+    return card;
+  }
+  async function refreshState() {
+    try { live.state = await api("/api/state"); } catch (e) { live.state = { nmap: true, network: { ok: false }, scan: null }; }
+    if (live.state.phone) live.phone = live.state.phone;
+    if (live.state.scan && !live.job) { live.job = live.state.scan.job; poll(); }
+    if (state.tab === "home") render();
+  }
+  async function runCheck(mode) {
+    live.msg = null;
+    try {
+      const r = await api("/api/scan", { confirm: true, mode });
+      if (!r.started) { live.msg = { ok: false, text: r.message }; if (r.reason === "nmap") live.state.nmap = false; render(); return; }
+      live.job = r.job; render(); poll();
+    } catch (e) { live.msg = { ok: false, text: t("checkFail", { msg: e.message }) }; render(); }
+  }
+  async function poll() {
+    let j;
+    try { j = await api("/api/scan/status?job=" + encodeURIComponent(live.job)); } catch (e) { j = { state: "error", message: e.message }; }
+    if (j.state === "running") { setTimeout(poll, 2500); return; }
+    live.job = null;
+    if (j.state === "done" && j.score != null) {
+      try { sessionStorage.setItem("netcheck.justChecked", String(j.score)); } catch (e) { /* ignore */ }
+      location.reload();            // fresh data.js with the new scan first
+      return;
+    }
+    live.msg = { ok: false, text: t("checkFail", { msg: j.message || j.error || "?" }) };
+    if (state.tab === "home") render();
+  }
+  async function deleteAll() {
+    state.confirmDelete = false;
+    if (MODE === "app") {
+      try { await api("/api/history/delete", { confirm: true }); location.reload(); return; } catch (e) { /* fall back to hiding */ }
+    }
+    state.historyDeleted = true; store.set("historyDeleted", "1"); render();
+  }
+
+  function phoneCard() {
+    const card = h("section", { class: "suggest phone-card" }, h("h3", { text: t("phoneTitle") }), h("p", { class: "muted", text: t("phoneSub") }));
+    if (live.phoneErr) card.append(h("div", { class: "note bad", text: t("phoneFail", { msg: live.phoneErr }) }));
+    if (!live.phone) {
+      card.append(h("button", { type: "button", class: "btn btn-tonal", onclick: async () => {
+        live.phoneErr = null;
+        try { live.phone = (await api("/api/phone", { on: true })).phone; } catch (e) { live.phoneErr = e.message; }
+        render();
+      } }, t("phoneBtn")));
+      return card;
+    }
+    const img = h("img", { class: "qr", alt: t("phoneNoQr") + " " + live.phone.url, src: "/api/phone/qr.svg?t=" + Date.now(), width: "220", height: "220" });
+    img.addEventListener("error", () => img.remove());
+    card.append(h("div", { class: "qr-row" }, img, h("div", null,
+      h("p", { class: "lead", text: t("phoneOn", { m: live.phone.minutes_left || 30 }) }),
+      h("p", { class: "muted", text: t("phoneNoQr") }), h("code", { class: "qr-url", text: live.phone.url }),
+      h("div", { class: "actions" }, h("button", { type: "button", class: "btn btn-danger", onclick: async () => {
+        try { await api("/api/phone", { on: false }); } catch (e) { /* already off */ }
+        live.phone = null; render();
+      } }, t("phoneOffBtn"))))));
+    return card;
+  }
+
   // ---------------------------------------------------------------- HOME
   function renderHome(root) {
     const s = scan();
     root.append(pageHead(t("hello"), t("helloSub")));
+    append(root, modeBanner());
+    let just = null;
+    try { just = sessionStorage.getItem("netcheck.justChecked"); sessionStorage.removeItem("netcheck.justChecked"); } catch (e) { /* ignore */ }
+    if (just) live.msg = { ok: true, text: t("checkDone", { score: just }) };
+    if (MODE === "app") root.append(checkNowCard(), phoneCard());
     if (s.error) { root.append(errorBox(s)); return; }
     const toFix = s.findings.filter((f) => f.severity !== "info").length;
     const n = s.devices.length;
@@ -474,7 +608,7 @@
       del.append(h("div", { class: "confirm", role: "alertdialog", "aria-label": t("deleteBtn") },
         h("p", { class: "lead", text: t("deleteConfirm") }),
         h("div", { class: "actions" },
-          h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); } }, t("deleteYes")),
+          h("button", { type: "button", class: "btn btn-danger", onclick: () => deleteAll() }, t("deleteYes")),
           h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); } }, t("deleteNo")))));
     }
     root.append(del);
@@ -652,6 +786,19 @@
     const st = document.getElementById("nav-status");
     st.replaceChildren(h("div", null, t("navScan") + ": ", h("b", { text: s.file.replace(/\.xml$/i, "") })),
       h("div", null, s.error ? t("navErr") : [t("navScore") + ": ", h("b", { text: `${s.score}/100` }), " · " + t("band_" + bandOf(s.score))]));
+    if (MODE === "app" && !document.getElementById("quit-btn")) {
+      const hint = document.querySelector(".nav-hint");
+      const q = h("button", { type: "button", id: "quit-btn", class: "btn quit-btn", onclick: async () => {
+        if (!confirm(t("quitAsk"))) return;
+        try { await api("/api/quit", {}); } catch (e) { /* already closed */ }
+        document.body.replaceChildren(h("main", { class: "bye" }, h("h2", { text: t("bye") }), h("p", { class: "muted", text: t("byeSub") })));
+      } }, t("quitBtn"));
+      hint.after(q);
+    }
+    const meta = document.querySelector(".appbar-meta");
+    if (meta && MODE !== "app") meta.lastChild.textContent = MODE === "demo" ? "DEMO · EXAMPLE DATA" : "READ-ONLY · SHARED FROM COMPUTER";
+    const liveLabel = document.querySelector('[data-i18n="navLive"]');
+    if (liveLabel) liveLabel.textContent = MODE === "demo" ? "demo · example networks" : MODE === "phone" ? "viewing on phone" : t("navLive");
     moveIndicator();
   }
   function moveIndicator() {
