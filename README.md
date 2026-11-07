@@ -77,7 +77,7 @@ The UI's History page shows the resolved findings and the score going up.
   (default = connected subnet; extra private ranges via `--allow` or `NETCHECK_ALLOWLIST`), anything bigger than /22,
   and any live scan without `--confirm`. Rate is capped at 100 packets/s.
 * Only `nmap` runs with sudo; analyser, UI and assistant run unprivileged.
-* MAC addresses are masked everywhere (`AA:BB:CC:XX:XX:XX`); history lives only in `~/.netcheck/history.db`;
+* MAC addresses are masked everywhere (`XX:XX:XX:XX:1A:2B`, only the last two bytes visible); history lives only in `~/.netcheck/history.db`;
   "Delete my history" button in the UI / `netcheck history --delete`.
 * Scan files are treated as hostile: defusedxml (no XXE / entity bombs), 50 MB limit, all text escaped in the UI.
 * No secrets in the repo: run `gitleaks detect --source .` (install: `brew install gitleaks`).

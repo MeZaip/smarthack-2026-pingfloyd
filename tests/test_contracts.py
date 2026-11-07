@@ -168,3 +168,54 @@ def test_cli_detect_json(monkeypatch, capsys):
     out = json.loads(capsys.readouterr().out)
     assert out["network"] == {"subnet": "172.20.10.0/28", "gateway": "172.20.10.1"}
     _same_keys(out["network"], RAW["network"])
+
+
+# ------------------------------------------------------------------ JSON API (web/api.py)
+def _api():
+    from fastapi.testclient import TestClient
+    from netcheck.web.app import app
+    return TestClient(app)
+
+
+def test_api_serves_contract_payloads_from_history():
+    from netcheck import history
+    a, b = V / "V6a_before.xml", V / "V6b_after.xml"
+    i, j = history.save(analyze_file(a), "lab"), history.save(analyze_file(b), "lab")
+    c = _api()
+
+    listing = c.get("/api/scans").json()
+    assert [(s["id"], s["scan_id"], s["network_score"]) for s in listing] == [(i, "V6a_before", 60), (j, "V6b_after", 100)]
+
+    ev = c.get(f"/api/scans/{i}").json()
+    _same_keys(ev, EVALUATED)
+    assert ev == json.loads(json.dumps(contracts.evaluated_scan(analyze_file(a), parse_file(a))))   # same as CLI
+    assert c.get("/api/scans/latest").json()["scan_id"] == "V6b_after"
+
+    d = c.get(f"/api/scans/{j}/delta").json()
+    _same_keys(d, DELTA)
+    assert d == json.loads(json.dumps(contracts.delta(analyze_file(a), analyze_file(b), parse_file(a), parse_file(b))))
+    assert c.get(f"/api/scans/{j}/delta?previous={i}").json() == d
+
+
+def test_api_masks_macs_in_contract_format():
+    from netcheck import history
+    sid = history.save(analyze_file(V / "V2_smart_home.xml"), "lab")
+    body = _api().get(f"/api/scans/{sid}").text
+    assert "C0:06:C3" not in body.upper()
+    macs = [d["mac_masked"] for d in json.loads(body)["devices"]]
+    assert macs and all(m is None or re.fullmatch(r"XX:XX:XX:XX:[0-9A-F]{2}:[0-9A-F]{2}", m) for m in macs)
+
+
+def test_api_errors():
+    from netcheck import history
+    c = _api()
+    assert c.get("/api/scans/latest").status_code == 404
+    assert c.get("/api/scans/999").status_code == 404
+    bad = history.save(analyze_file(V / "V7_broken.xml"), "lab")
+    ev = c.get(f"/api/scans/{bad}").json()
+    assert ev["network_score"] is None and ev["error"]
+    assert c.get("/api/scans").json()[0]["network_score"] is None
+    assert c.get(f"/api/scans/{bad}/delta").status_code == 404          # nothing earlier
+    good = history.save(analyze_file(V / "V1_home_basic.xml"), "lab")
+    assert c.get(f"/api/scans/{good}/delta?previous={bad}").status_code == 422
+    assert c.get("/api/scans/abc").status_code == 422

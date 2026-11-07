@@ -1,6 +1,7 @@
 """Shared data contract. Every module (parser, rules, UI, chat) speaks these types."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 
@@ -108,10 +109,11 @@ class ScanResult:
 
 
 def mask_mac(mac: str) -> str:
-    """Keep only the manufacturer prefix (OUI); hide the device-specific half."""
+    """The single MAC-masking rule (service_data_contracts.md): only the last two bytes stay
+    visible -> 'XX:XX:XX:XX:1A:2B'. The manufacturer is already shown via `vendor`."""
     if not mac:
         return ""
     parts = mac.replace("-", ":").upper().split(":")
-    if len(parts) != 6:
+    if len(parts) != 6 or not all(re.fullmatch(r"[0-9A-F]{1,2}", p) for p in parts):
         return "XX:XX:XX:XX:XX:XX"
-    return ":".join(parts[:3] + ["XX", "XX", "XX"])
+    return ":".join(["XX"] * 4 + [p.zfill(2) for p in parts[4:]])

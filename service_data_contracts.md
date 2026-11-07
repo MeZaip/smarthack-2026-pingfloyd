@@ -153,8 +153,20 @@ Câteva convenții acolo unde contractul nu spune nimic. Le putem schimba dacă 
 | `network.gateway` | doar la scanarea live (`netcheck scan`); pentru fișiere offline e `null` |
 | Fișier ilizibil în §2 | `"network_score": null` + `"error": "..."` (în `scores.csv` rămâne `ERROR`) |
 
-**De discutat:** `mac_masked` respectă formatul de aici (`XX:XX:XX:XX:1A:2B`), dar ultimii octeți sunt partea care identifică
-dispozitivul. Păstrarea primilor 3 (producătorul, care e oricum în `vendor`) ar fi mai bună pentru NFR-02.
+**Decis:** `mac_masked` = `XX:XX:XX:XX:1A:2B` (doar ultimii 2 octeți vizibili) **peste tot**: JSON, SQLite, UI, watch.
+O singură funcție: `models.mask_mac()`; `contracts.mask_mac()` o refolosește (dar dă `null` în loc de `""`).
+MAC necunoscut → `null`; MAC invalid → `XX:XX:XX:XX:XX:XX`. Scanările vechi din istoric păstrează formatul cu care au fost salvate.
 
 Comenzi CLI: `netcheck parse <xml|folder> [--out DIR]` (§1), `netcheck analyze <folder> --contracts` (§1 + §2),
 `netcheck diff <before.xml> <after.xml> --json` (§4), `netcheck detect --json` (obiectul `network`), `netcheck scan` (scrie `.raw.json` lângă XML).
+
+API JSON (`netcheck serve`, doar 127.0.0.1, read-only), construit din istoricul SQLite:
+
+| Endpoint | Răspuns |
+|---|---|
+| `GET /api/scans[?source=lab]` | listă `{id, scan_id, created_at, source, network_score}` (`null` = fișier ilizibil) |
+| `GET /api/scans/latest` | §2 pentru ultima scanare reușită |
+| `GET /api/scans/{id}` | §2 (Evaluated Scan Data) |
+| `GET /api/scans/{id}/delta[?previous={id}]` | §4 față de scanarea anterioară din aceeași sursă (sau `previous`); 404 dacă nu există |
+
+Erori: `404 {"detail": "..."}`. §1 nu e expus: datele brute nu se păstrează în istoric (se obțin cu `netcheck parse`).

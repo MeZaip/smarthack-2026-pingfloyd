@@ -15,10 +15,12 @@ from ..analyzer import analyze_bytes, most_dangerous, ranked_findings
 from ..assistant import Assistant, Session
 from ..models import Host
 from ..parser import MAX_FILE_BYTES
+from .api import router as api_router
 from .house import display_name, rooms
 from .i18n import UI
 
 app = FastAPI(title="NetCheck", docs_url=None, redoc_url=None)
+app.include_router(api_router)
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 templates.env.autoescape = True
 

@@ -62,11 +62,13 @@ def test_hostile_input_rejected(payload):
 
 
 def test_masked_mac():
-    assert mask_mac("aa:bb:cc:dd:ee:ff") == "AA:BB:CC:XX:XX:XX"
+    assert mask_mac("aa:bb:cc:dd:ee:ff") == "XX:XX:XX:XX:EE:FF"
+    assert mask_mac("aa-bb-cc-dd-e-f") == "XX:XX:XX:XX:0E:0F"
+    assert mask_mac("") == "" and mask_mac("zz:bb:cc:dd:ee:ff") == "XX:XX:XX:XX:XX:XX"
     r = analyze_folder(VALIDATION)
     for res in r:
         for d in res.devices:
-            assert d.mac_masked == "" or d.mac_masked.endswith("XX:XX:XX")
+            assert d.mac_masked == "" or d.mac_masked.startswith("XX:XX:XX:XX:")
 
 
 @pytest.mark.parametrize("target", ["8.8.8.8", "1.1.1.0/24", "100.64.1.1", "10.0.0.0/8", "192.168.50.0/24",

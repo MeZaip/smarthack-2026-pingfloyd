@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .models import Host, Port, ScanResult
+from .models import mask_mac as _mask_mac
 from .parser import ScanMeta, parse_scan, read_file
 
 MAX_STR = 500
@@ -32,13 +33,8 @@ class ContractError(ValueError):
 
 # ------------------------------------------------------------------ helpers
 def mask_mac(mac: str) -> str | None:
-    """Contract format: only the last two bytes stay visible -> 'XX:XX:XX:XX:1A:2B'."""
-    if not mac:
-        return None
-    parts = mac.replace("-", ":").upper().split(":")
-    if len(parts) != 6 or not all(re.fullmatch(r"[0-9A-F]{1,2}", p) for p in parts):
-        return "XX:XX:XX:XX:XX:XX"
-    return ":".join(["XX"] * 4 + [p.zfill(2) for p in parts[4:]])
+    """Contract format 'XX:XX:XX:XX:1A:2B' (same rule as models.mask_mac); unknown MAC -> null."""
+    return _mask_mac(mac) or None
 
 
 def _null(s: str | None) -> str | None:
@@ -183,12 +179,16 @@ def evaluated_scan(result: ScanResult, hosts: list[Host] | None = None) -> dict:
         return {"scan_id": scan_id(result.file), "network_score": None, "error": result.error,
                 "devices": [], "findings": []}
     macs = {h.ip: h.mac for h in hosts or []}
+
+    def masked(d) -> str | None:
+        return mask_mac(macs[d.ip]) if d.ip in macs else (d.mac_masked or None)
+
     return {
         "scan_id": scan_id(result.file),
         "network_score": result.score,
         "devices": [{
             "ip": d.ip,
-            "mac_masked": mask_mac(macs.get(d.ip, "")),
+            "mac_masked": masked(d),
             "vendor": _null(d.vendor),
             "hostname": _null(d.hostname),
             "device_type_guess": d.type_guess,
@@ -212,7 +212,8 @@ def delta(previous: ScanResult, current: ScanResult, previous_hosts: list[Host] 
     macs = {h.ip: h.mac for h in (previous_hosts or []) + (current_hosts or [])}
 
     def dev(x):
-        return {"ip": x["ip"], "mac_masked": mask_mac(macs.get(x["ip"], ""))}
+        m = mask_mac(macs[x["ip"]]) if x["ip"] in macs else (x.get("mac_masked") or None)
+        return {"ip": x["ip"], "mac_masked": m}
 
     def fnd(x):
         return {"ip": x["ip"], "port": x["port"], "finding_code": x["code"]}
