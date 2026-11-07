@@ -1479,3 +1479,137 @@ table.results td.c-colProblem { min-width: 12rem; }
 }
 table.results .mob-file { display: none; }
 @media (max-width: 760px) { table.results .mob-file { display: block; font-size: .85rem; color: var(--muted); word-break: break-all; } }
+
+/* =====================================================================================
+   VOICE MODE in the assistant chat (ui/voice.js): a round "Talk to SafeHouse" button in the composer (+ a big
+   invitation when the chat is empty); the voice view: a glowing orb with fluid waves (blue = listening, violet =
+   thinking, emerald = SafeHouse speaking), live captions, an always-visible "Stop the voice" and "Leave".
+   Targets >= 44px, text >= 16px, every state in words as well as colour.
+   ===================================================================================== */
+.speak-btn {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; margin: -4px 0 4px 2px;
+  border-radius: 10px; border: 1px solid var(--outline); background: transparent; color: var(--text); font-size: 1rem; font-weight: 600;
+}
+.speak-btn:hover { background: var(--surface-2); }
+.speak-btn .ico { width: 20px; height: 20px; color: #60a5fa; }
+.speak-btn.on { background: rgba(59, 130, 246, .14); border-color: rgba(59, 130, 246, .5); }
+.voice-mode-btn {
+  flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 0; color: #fff; cursor: pointer;
+  background: radial-gradient(circle at 30% 25%, #67e8f9, #3b82f6 55%, #6d28d9); box-shadow: 0 0 0 1px rgba(255, 255, 255, .15), 0 6px 18px rgba(59, 130, 246, .45);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.voice-mode-btn:hover { transform: scale(1.06); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25), 0 8px 26px rgba(99, 102, 241, .6); }
+.voice-mode-btn .ico { width: 22px; height: 22px; }
+.voice-mode-btn[disabled] { opacity: .5; cursor: progress; transform: none; }
+.voice-mode-btn:focus-visible, .speak-btn:focus-visible, .vm-orb:focus-visible, .vm-invite:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.vm-invite {
+  display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 12px; padding: 14px 16px; text-align: left; cursor: pointer;
+  border-radius: 16px; border: 1px solid rgba(99, 102, 241, .45); color: var(--text); font: inherit;
+  background: linear-gradient(135deg, rgba(14, 165, 233, .14), rgba(109, 40, 217, .14));
+}
+.vm-invite:hover { border-color: rgba(129, 140, 248, .8); }
+.vm-invite > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.vm-invite-ico { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff;
+  background: radial-gradient(circle at 30% 25%, #67e8f9, #3b82f6 55%, #6d28d9); }
+.vm-invite-ico .ico { width: 24px; height: 24px; }
+
+.chat-panel.voice-on .chat-body { display: flex; }
+.vm { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; min-height: 100%; padding: 8px 4px 4px; text-align: center; }
+.vm-title { margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--text); }
+.vm-orb { position: relative; width: min(260px, 70vw); aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.vm-orb[disabled] { cursor: progress; }
+.vm-canvas { display: block; width: 100%; height: 100%; }
+.vm-status { margin: 0; min-height: 1.6em; font-size: 1.25rem; font-weight: 700; color: var(--text); }
+.vm[data-phase="listening"] .vm-status { color: #7dd3fc; }
+.vm[data-phase="thinking"] .vm-status { color: #c4b5fd; }
+.vm[data-phase="speaking"] .vm-status { color: #6ee7b7; }
+:root[data-theme="light"] .vm[data-phase="listening"] .vm-status { color: #0369a1; }
+:root[data-theme="light"] .vm[data-phase="thinking"] .vm-status { color: #6d28d9; }
+:root[data-theme="light"] .vm[data-phase="speaking"] .vm-status { color: #047857; }
+.vm-captions { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.vm-captions p { margin: 0; padding: 10px 14px; border-radius: 14px; font-size: 1.0625rem; line-height: 1.45; }
+.vm-you { background: rgba(59, 130, 246, .12); border: 1px solid rgba(59, 130, 246, .3); }
+.vm-bot { background: rgba(16, 185, 129, .1); border: 1px solid rgba(16, 185, 129, .3); }
+.vm-captions strong { font-weight: 700; }
+.vm-consent { width: 100%; padding: 16px; border-radius: 16px; text-align: left; border: 1px solid rgba(245, 158, 11, .45); background: var(--amber-bg, rgba(245, 158, 11, .1)); }
+.vm-consent p { margin: 0 0 8px; }
+.vm-consent .actions { margin-top: 12px; }
+.vm-note { width: 100%; margin: 0; text-align: left; }
+.vm-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: auto; padding-top: 8px; width: 100%; }
+.vm-controls .btn { min-height: 52px; flex: 1 1 10rem; border-radius: 14px; font-size: 1.0625rem; }
+.vm-stop { border-color: rgba(239, 68, 68, .55); color: var(--text); }
+.vm-stop:hover { background: rgba(239, 68, 68, .12); }
+.vm [hidden] { display: none !important; }
+@media (forced-colors: active) { .voice-mode-btn, .vm-invite-ico { border: 2px solid ButtonText; } .speak-btn.on { border: 2px solid Highlight; } }
+/* voice view: the orb scales with the panel height; "Stop the voice" / "Leave" stay pinned at the bottom */
+.chat-panel.voice-on .chat-body { padding-bottom: 0; }
+.vm { min-height: auto; flex: 1; }
+.vm-orb { width: min(240px, 62vw, 30vh); flex: none; }
+.vm-controls {
+  position: sticky; bottom: 0; margin-top: auto; padding: 12px 0 14px;
+  background: linear-gradient(to bottom, transparent, var(--solid, #111114) 22%);
+}
+:root[data-theme="light"] .vm-controls { background: linear-gradient(to bottom, transparent, #fff 22%); }
+.vm-controls .btn { flex: 1 1 0; min-width: 0; padding: 0 12px; font-size: 1rem; line-height: 1.25; }
+@media (max-width: 420px) { .vm-controls { flex-direction: column; } .vm-controls .btn { flex: none; width: 100%; } }
+
+/* =====================================================================================
+   HEADER: "Ask" (text chat) and "Talk" (voice mode) are two separate buttons next to the language;
+   the language buttons wear their flags (Romania, United Kingdom), letters on a dark tag (>= 7:1).
+   The assistant panel now opens under the header, at the right (full screen on phones).
+   ===================================================================================== */
+.hdr-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border-radius: 999px;
+  border: 1px solid var(--outline); background: var(--surface-2); color: var(--text); font: inherit; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: background .15s ease, border-color .15s ease, transform .15s ease;
+}
+.hdr-btn:hover { background: rgba(255, 255, 255, .1); }
+.hdr-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hdr-btn .ico { width: 20px; height: 20px; }
+.hdr-chat { border-color: rgba(59, 130, 246, .5); }
+.hdr-chat .ico { color: #60a5fa; }
+.hdr-chat.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+.hdr-chat.on .ico { color: #fff; }
+.hdr-voice { padding-left: 5px; border-color: rgba(129, 140, 248, .55); }
+.hdr-voice-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #fff;
+  background: radial-gradient(circle at 30% 25%, #67e8f9, #3b82f6 55%, #6d28d9); box-shadow: 0 0 12px rgba(99, 102, 241, .5); }
+.hdr-voice-ico .ico { width: 18px; height: 18px; }
+.hdr-voice.on { background: rgba(99, 102, 241, .25); border-color: #818cf8; }
+.hdr-btn[hidden] { display: none; }
+:root[data-theme="light"] .hdr-btn { background: #fff; }
+
+/* flags: Romania (blue-yellow-red, vertical) and the United Kingdom (Union Jack) */
+.lang-seg { gap: 6px; padding: 4px; }
+.lang-seg .flag {
+  position: relative; display: grid; place-items: center; min-width: 52px; min-height: 40px; padding: 0; border-radius: 10px;
+  border: 2px solid transparent; overflow: hidden; background-size: cover; background-position: center;
+  opacity: .55; filter: saturate(.55); transition: opacity .15s ease, filter .15s ease, transform .15s ease;
+}
+.seg.lang-seg button.flag.flag-ro, .seg.lang-seg button.flag.flag-ro[aria-pressed] { background-color: #fcd116; background-image: linear-gradient(90deg, #002b7f 0 33.34%, #fcd116 33.34% 66.67%, #ce1126 66.67% 100%); }
+.seg.lang-seg button.flag.flag-en, .seg.lang-seg button.flag.flag-en[aria-pressed] { background-color: #012169; background-size: cover; background-position: center; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30' preserveAspectRatio='xMidYMid slice'%3E%3CclipPath id='s'%3E%3Cpath d='M0,0 v30 h60 v-30 z'/%3E%3C/clipPath%3E%3CclipPath id='t'%3E%3Cpath d='M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23s)'%3E%3Cpath d='M0,0 v30 h60 v-30 z' fill='%23012169'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' clip-path='url(%23t)' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23C8102E' stroke-width='6'/%3E%3C/g%3E%3C/svg%3E"); }
+.lang-seg .flag span {
+  padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .62); color: #fff; font-size: 1rem; font-weight: 800; letter-spacing: .02em; line-height: 1.3;
+}
+.lang-seg .flag:hover { opacity: .85; filter: none; }
+.lang-seg .flag[aria-pressed="true"], :root[data-theme="light"] .lang-seg .flag[aria-pressed="true"] {
+  opacity: 1; filter: none; border-color: #fff; box-shadow: 0 0 0 2px rgba(59, 130, 246, .7);
+}
+.lang-seg .flag:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+:root[data-theme="light"] .lang-seg .flag[aria-pressed="true"] { border-color: #0f172a; }
+
+/* the panel opens under the header, next to the buttons that open it */
+.chat-panel { top: 84px; bottom: auto; right: 24px; height: min(680px, calc(100vh - 108px)); }
+.foot { padding-bottom: 32px; }
+@media (max-width: 760px) {
+  .chat-panel { inset: 0; top: 0; height: 100%; }
+  .foot { padding-bottom: 32px; }
+  .hdr-btn { padding: 0 12px 0 10px; }
+  .hdr-voice { padding-left: 5px; }
+}
+@media (max-width: 560px) {                           /* phones: icons only (their names stay for screen readers) */
+  .hdr-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hdr-btn { width: 44px; padding: 0; justify-content: center; }
+  .hdr-voice { width: 44px; padding: 0; }
+  .lang-seg .flag { min-width: 44px; }
+}
+@media (forced-colors: active) { .lang-seg .flag[aria-pressed="true"] { border-color: Highlight; } .lang-seg .flag span { background: Canvas; color: CanvasText; } }

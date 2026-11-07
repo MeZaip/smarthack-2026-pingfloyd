@@ -44,6 +44,10 @@
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+    <symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"/></symbol>
     <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
     <symbol id="i-present" viewBox="0 0 24 24"><path d="M3 4h18M5 4v11h14V4M12 15v5M8 21l4-1 4 1"/></symbol>
     <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01M2 13v3M22 13v3"/></symbol>
@@ -93,9 +97,17 @@
           </label>
         </div>
         <div class="appbar-actions">
-          <div class="seg" role="group" aria-label="Limba / Language">
-            <button type="button" id="lang-ro" aria-pressed="true">RO</button>
-            <button type="button" id="lang-en" aria-pressed="false">EN</button>
+          <!-- The assistant: chat (text) and voice are two separate buttons, next to the language. -->
+          <button type="button" class="hdr-btn hdr-chat" id="chat-btn" aria-haspopup="dialog" aria-controls="chat-panel" aria-expanded="false">
+            <svg class="ico" aria-hidden="true"><use href="#i-message"/></svg><span class="hdr-label">Întreabă</span>
+          </button>
+          <button type="button" class="hdr-btn hdr-voice" id="voice-btn" aria-haspopup="dialog" aria-controls="chat-panel" aria-expanded="false">
+            <span class="hdr-voice-ico" aria-hidden="true"><svg class="ico"><use href="#i-waves"/></svg></span><span class="hdr-label">Vorbește</span>
+          </button>
+          <!-- Language: each button wears its flag (Romania / United Kingdom); the letters sit on a dark tag so they stay readable. -->
+          <div class="seg lang-seg" role="group" aria-label="Limba / Language">
+            <button type="button" id="lang-ro" class="flag flag-ro" aria-pressed="true" lang="ro" title="Română"><span>RO</span></button>
+            <button type="button" id="lang-en" class="flag flag-en" aria-pressed="false" lang="en" title="English"><span>EN</span></button>
           </div>
         </div>
       </header>
@@ -128,6 +140,7 @@
   <script src="device3d.js"></script>
   <script src="data.js"></script>
   <script src="safehouse3d.js"></script>
+  <script src="voice.js"></script>     <!-- chat voice: text to speech + speech to text (Web Speech API, no library) -->
   <script src="app.js"></script>
 </body>
 </html>

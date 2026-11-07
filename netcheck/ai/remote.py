@@ -77,12 +77,32 @@ class RemoteProvider:
             raise LLMUnavailable("gateway returned invalid JSON") from None
 
     def answer(self, question: str, analysis: Analysis, lang: str = "ro",
-               previous: Optional[Analysis] = None, history: Optional[list[dict]] = None) -> str:
-        resp = self._request("POST", "/v1/ask", build_request(question, analysis, lang, previous, history))
+               previous: Optional[Analysis] = None, history: Optional[list[dict]] = None, style: str = "text") -> str:
+        resp = self._request("POST", "/v1/ask", build_request(question, analysis, lang, previous, history, style))
         text = resp.get("answer")
         if not isinstance(text, str) or not text.strip():
             raise LLMUnavailable("gateway returned no answer")
         return text.strip()[:4000]
+
+    def tts(self, text: str, lang: str = "ro") -> bytes:
+        """Voice mode: the gateway's natural voice for a short answer (MP3). LLMUnavailable if it has none."""
+        data = json.dumps({"v": 1, "lang": lang if lang in ("ro", "en") else "ro", "text": text[:2400]},
+                          ensure_ascii=False).encode("utf-8")
+        headers = {"accept": "audio/mpeg", "content-type": "application/json"}
+        if self._token:
+            headers["authorization"] = f"Bearer {self._token}"
+        req = urllib.request.Request(self.url + "/v1/tts", data=data, method="POST", headers=headers)
+        try:
+            with self._opener.open(req, timeout=self.timeout) as resp:
+                ctype = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                audio = resp.read(4 * 1024 * 1024 + 1)
+        except urllib.error.HTTPError as e:
+            raise LLMUnavailable(f"gateway voice HTTP {e.code}") from None
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            raise LLMUnavailable(f"gateway unreachable at {self.url}: {_reason(e)}") from None
+        if not ctype.startswith("audio/") or not audio or len(audio) > 4 * 1024 * 1024:
+            raise LLMUnavailable("gateway returned no audio")
+        return audio
 
     def status(self) -> dict:
         """For the UI badge: is the assistant online right now?"""

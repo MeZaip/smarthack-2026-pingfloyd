@@ -81,10 +81,13 @@ def build_context(analysis: Analysis, lang: str = "ro", previous: Optional[Analy
 
 
 def build_request(question: str, analysis: Analysis, lang: str = "ro",
-                  previous: Optional[Analysis] = None, history: Optional[list[dict]] = None) -> dict:
+                  previous: Optional[Analysis] = None, history: Optional[list[dict]] = None,
+                  style: str = "text") -> dict:
     req = {"v": VERSION, "lang": lang if lang in LANGS else "ro",
            "question": (question or "").strip()[:MAX_QUESTION],
            "context": build_context(analysis, lang, previous)}
+    if style == "voice":                 # optional field: the answer will be read aloud (voice mode)
+        req["style"] = "voice"
     if history:
         h = [{"role": m["role"], "content": m["content"][:MAX_HISTORY_CHARS]} for m in history]
         h = h[-MAX_HISTORY_MESSAGES:]
@@ -164,6 +167,11 @@ def _history(v: Any) -> list[dict]:
     if len(out) % 2:
         raise ContractError("history must end with an assistant answer")
     return out
+
+
+def request_style(obj: Any) -> str:
+    """Optional "style" of a request: "voice" (answer read aloud: short, no addresses) or "text" (default)."""
+    return "voice" if isinstance(obj, dict) and obj.get("style") == "voice" else "text"
 
 
 def validate_request(obj: Any) -> tuple[str, str, dict, list[dict]]:

@@ -4,8 +4,9 @@ The SafeHouse app (run by end users) calls this service; the service calls the
 model with the team's API key. Users never see or need a key.
 
 Endpoints
-  GET  /health    -> {"ok": bool, "backend": str, "model": str}
-  POST /v1/ask    -> {"answer": str, "model": str, "ms": int}
+  GET  /health    -> {"ok": bool, "backend": str, "model": str, "tts": bool}
+  POST /v1/ask    -> {"answer": str, "model": str, "ms": int}   ("style": "voice" -> short spoken answer)
+  POST /v1/tts    -> audio/mpeg, body {"v": 1, "lang": "ro"|"en", "text": str}   (only if a voice is configured)
 
 Protections: optional bearer token, per-IP rate limit, daily cap (protects API
 credits), body size limit, strict request whitelist (netcheck.ai.contract),
@@ -25,12 +26,14 @@ from collections import defaultdict, deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Optional
 
-from netcheck.ai.contract import ContractError, evidence_from_context, validate_request
+from netcheck.ai.contract import LANGS, VERSION, ContractError, evidence_from_context, request_style, validate_request
 from netcheck.ai.grounding import GroundingError, check_evidence
+from netcheck.ai.voice import MAX_TTS_CHARS, to_speech_text
 
 from .backends import Backend, BackendError, make_backend
 from .config import Config
 from .prompts import RETRY_NOTE, build_messages
+from .tts import TTSError, make_tts
 
 
 class RateLimiter:
@@ -91,6 +94,7 @@ def plain_text(text: str) -> str:
 
 
 MAX_WORDS = 110          # the prompt asks for ~60 words (+ up to 3 short steps); this is only the safety net
+MAX_VOICE_WORDS = 60     # voice mode asks for < 45 words
 _SENTENCE = re.compile(r"(?<=[.!?…])\s+")
 _STEP = re.compile(r"^\s*\d+[.)]\s")
 
@@ -132,7 +136,8 @@ def answer_question(cfg: Config, backend: Backend, slots: threading.BoundedSemap
     except ContractError as e:
         raise GatewayError(400, "bad_request", str(e)) from None
     evidence = evidence_from_context(ctx)
-    messages = build_messages(lang, question, ctx, history)
+    style = request_style(body)
+    messages = build_messages(lang, question, ctx, history, style=style)
 
     if not budget.take():
         raise GatewayError(503, "daily_limit", "the assistant reached today's limit, built-in answers still work")
@@ -145,7 +150,7 @@ def answer_question(cfg: Config, backend: Backend, slots: threading.BoundedSemap
                 text = backend.complete(messages)
             except BackendError as e:
                 raise GatewayError(503, "model_unavailable", str(e)) from None
-            text = shorten(plain_text(text))
+            text = shorten(plain_text(text), MAX_VOICE_WORDS if style == "voice" else MAX_WORDS)
             try:
                 check_evidence(text, *evidence)
                 return text, int((time.monotonic() - started) * 1000)
@@ -161,9 +166,30 @@ def answer_question(cfg: Config, backend: Backend, slots: threading.BoundedSemap
     raise GatewayError(502, "ungrounded", "the model answer could not be verified")  # pragma: no cover
 
 
-def make_handler(cfg: Config, backend: Backend):
+def speak_text(cfg: Config, tts, budget: DailyBudget, body: dict) -> bytes:
+    """Voice mode: the short answer -> MP3. Addresses/numbers are removed before anything is sent."""
+    if tts is None:
+        raise GatewayError(503, "tts_unavailable", "no natural voice is configured, the app uses the browser voice")
+    if not isinstance(body, dict) or body.get("v") != VERSION or body.get("lang") not in LANGS:
+        raise GatewayError(400, "bad_request", "expected {v, lang, text}")
+    raw = body.get("text")
+    if not isinstance(raw, str) or len(raw) > 4 * MAX_TTS_CHARS:
+        raise GatewayError(400, "bad_request", "text must be a string of at most %d characters" % (4 * MAX_TTS_CHARS))
+    text = to_speech_text(raw, body["lang"], max_sentences=4)
+    if not text:
+        raise GatewayError(400, "bad_request", "nothing to say")
+    if not budget.take():
+        raise GatewayError(503, "daily_limit", "today's voice limit was reached, the app uses the browser voice")
+    try:
+        return tts.speak(text, body["lang"])
+    except TTSError as e:
+        raise GatewayError(503, "tts_unavailable", str(e)) from None
+
+
+def make_handler(cfg: Config, backend: Backend, tts=None):
     limiter = RateLimiter(cfg.rate_per_min)
     budget = DailyBudget(cfg.daily_limit)
+    tts_budget = DailyBudget(cfg.tts_daily_limit)
     slots = threading.BoundedSemaphore(cfg.concurrency)
 
     class Handler(BaseHTTPRequestHandler):
@@ -176,6 +202,15 @@ def make_handler(cfg: Config, backend: Backend):
             data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            self.wfile.write(data)
+
+        def _send_audio(self, data: bytes) -> None:
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/mpeg")
             self.send_header("Content-Length", str(len(data)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
@@ -209,14 +244,14 @@ def make_handler(cfg: Config, backend: Backend):
                 self._send(404, {"error": "not_found", "message": "not found"})
                 return self._log(404, started)
             h = backend.health()
-            self._send(200, {"ok": bool(h.get("configured")), "model": cfg.model, **h})
+            self._send(200, {"ok": bool(h.get("configured")), "model": cfg.model, **h, "tts": tts is not None})
             self._log(200, started)
 
         def do_POST(self):
             started = time.monotonic()
             status = 500
             try:
-                if self.path != "/v1/ask":
+                if self.path not in ("/v1/ask", "/v1/tts"):
                     raise GatewayError(404, "not_found", "not found")
                 if not self._authorized():
                     raise GatewayError(401, "unauthorized", "missing or wrong token")
@@ -235,6 +270,10 @@ def make_handler(cfg: Config, backend: Backend):
                     body = json.loads(self.rfile.read(length).decode("utf-8"))
                 except (UnicodeDecodeError, json.JSONDecodeError):
                     raise GatewayError(400, "bad_json", "body is not valid JSON") from None
+                if self.path == "/v1/tts":
+                    audio = speak_text(cfg, tts, tts_budget, body)
+                    status = 200
+                    return self._send_audio(audio)
                 text, ms = answer_question(cfg, backend, slots, budget, body)
                 status = 200
                 self._send(200, {"answer": text, "model": cfg.model, "ms": ms})
@@ -260,7 +299,7 @@ def make_handler(cfg: Config, backend: Backend):
     return Handler
 
 
-def make_server(cfg: Config, backend: Optional[Backend] = None) -> ThreadingHTTPServer:
+def make_server(cfg: Config, backend: Optional[Backend] = None, tts=None) -> ThreadingHTTPServer:
     if cfg.host not in ("127.0.0.1", "localhost", "::1") and not cfg.token:
         raise SystemExit("Refusing to listen on a non-local address without NETCHECK_GATEWAY_TOKEN. "
                          "Expose the gateway through a tunnel, or set a token.")
@@ -268,7 +307,10 @@ def make_server(cfg: Config, backend: Optional[Backend] = None) -> ThreadingHTTP
         backend = backend or make_backend(cfg)
     except BackendError as e:
         raise SystemExit(f"Cannot start the gateway: {e}") from None
-    srv = ThreadingHTTPServer((cfg.host, cfg.port), make_handler(cfg, backend))
+    tts = tts if tts is not None else make_tts(cfg)
+    if cfg.tts != "none" and tts is None:
+        sys.stderr.write(f"voice: NETCHECK_GATEWAY_TTS={cfg.tts} but its API key is missing; the app will use the browser voice\n")
+    srv = ThreadingHTTPServer((cfg.host, cfg.port), make_handler(cfg, backend, tts))
     srv.daemon_threads = True
     return srv
 

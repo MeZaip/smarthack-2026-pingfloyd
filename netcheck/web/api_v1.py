@@ -25,12 +25,12 @@ from typing import Optional
 from pathlib import Path
 
 from fastapi import APIRouter, File, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from .. import history
 from ..ai.assistant import ask as ai_ask
-from ..ai.providers import get_provider
+from ..ai.providers import LLMUnavailable, get_provider
 from ..net import elevate, guardrail, netdetect, scanner
 from ..net import verify as verify_mod
 from . import agent
@@ -165,6 +165,7 @@ class AskRequest(BaseModel):
     question: str = Field(max_length=1000)
     scan_id: Optional[int] = None
     history: list[Turn] = Field(default_factory=list, max_length=12)
+    style: str = Field(default="text", pattern="^(text|voice)$")   # voice: the answer is read aloud
 
 
 @router.post("/ask")
@@ -181,9 +182,29 @@ def ask(body: AskRequest, request: Request):
         prev = history.previous_id(conn, sid)
         previous = get_analysis(conn, prev) if prev is not None else None
     turns = [t.model_dump() for t in body.history]
-    ans = ai_ask(body.question, a, lang, previous, history=turns or None)
+    ans = ai_ask(body.question, a, lang, previous, history=turns or None, style=body.style)
     mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
     return {"answer": ans.text, "source": ans.source, "mode": mode, "scan_id": sid}
+
+
+class TTSRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=2400)
+
+
+@router.post("/tts")
+def tts(body: TTSRequest, request: Request):
+    """Voice mode: a natural voice for one answer, made by the team gateway (it holds the key).
+    503 tts_unavailable when the gateway has no voice: the page then uses the browser's own voice."""
+    lang = _lang(request)
+    provider = get_provider()
+    speak = getattr(provider, "tts", None)
+    if speak is None:
+        return _error(503, "tts_unavailable", lang, "voice off")
+    try:
+        audio = speak(body.text, lang)
+    except LLMUnavailable:
+        return _error(503, "tts_unavailable", lang, "voice off")
+    return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "no-store"})
 
 
 # ------------------------------------------------------------------ SafeHouse page data + file upload
