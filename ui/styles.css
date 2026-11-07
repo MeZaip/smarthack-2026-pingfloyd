@@ -994,3 +994,33 @@ main { position: relative; z-index: 0; }
 /* the snippet colours the name for dark backgrounds; keep it readable on the light theme */
 :root[data-theme="light"] .brand-text span:first-child { color: #0b1220 !important; }
 :root[data-theme="light"] .brand-text span:last-child { color: #475569 !important; }
+
+/* =====================================================================================
+   Safehouse brand (from the reference): mark #safehouse-mark + wordmark "Safehouse".
+   Safe 800 #ffffff (19.9:1), house 400 #9ca3af (8.0:1) on the dark page.
+   On computers the logo lives in the sidebar; the header copy is shown only on phones.
+   ===================================================================================== */
+.brand-logo { display: flex; align-items: center; gap: 12px; line-height: 1; }
+.brand-mark { width: 42px; height: 42px; flex: none; overflow: visible; }
+.brand-text {
+  display: inline-flex; align-items: center; white-space: nowrap;
+  font-family: "Inter", "Plus Jakarta Sans", system-ui, sans-serif; font-size: 1.5rem; letter-spacing: -0.03em;
+}
+.b-safe { font-weight: 800; color: #ffffff; }
+.b-house { font-weight: 400; color: #9ca3af; }
+:root[data-theme="light"] .b-safe { color: #0b1220; }
+:root[data-theme="light"] .b-house { color: #4b5563; }
+a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
+.appbar .logo { display: none; }
+@media (max-width: 760px) {
+  .appbar .logo { display: inline-flex; }
+  .brand-mark { width: 38px; height: 38px; }
+  .brand-text { font-size: 1.35rem; }
+}
+/* sidebar brand: icon and name on one row, sized for the rail */
+:root { --rail: 208px; }
+.nav a.nav-brand { width: auto; height: auto; margin: 6px 6px 26px; padding: 4px; display: block; }
+.nav .brand-logo { flex-direction: row; flex-wrap: nowrap; gap: 10px; }
+.nav .brand-mark { width: 38px; height: 38px; }
+.nav .brand-text { font-size: 1.35rem; }
+@media (max-width: 760px) { .nav a.nav-brand { display: none; } }
