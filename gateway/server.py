@@ -268,7 +268,11 @@ def make_server(cfg: Config, backend: Optional[Backend] = None) -> ThreadingHTTP
         backend = backend or make_backend(cfg)
     except BackendError as e:
         raise SystemExit(f"Cannot start the gateway: {e}") from None
-    srv = ThreadingHTTPServer((cfg.host, cfg.port), make_handler(cfg, backend))
+    try:
+        srv = ThreadingHTTPServer((cfg.host, cfg.port), make_handler(cfg, backend))
+    except OSError as e:
+        raise SystemExit(f"Cannot start the gateway on {cfg.host}:{cfg.port}: {e.strerror or e} "
+                         "(another program, or another gateway, already uses this port?)") from None
     srv.daemon_threads = True
     return srv
 

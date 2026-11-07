@@ -125,7 +125,7 @@
       aPrinterFix: "Ce poți face: {step}", aPrinterNo: "Verificarea nu-mi arată o imprimantă cu problema asta.",
       aClean: "Verificarea nu arată nimic de reparat. Totul e bine!",
       // live app (local agent)
-      noScan: "Încă nu ai verificat casa", needScan: "Încă nu avem o verificare. Mergi la Acasă și apasă „Inspectează casa”.", goHome: "Mergi la Acasă",
+      noScan: "Încă nu ai verificat casa", needScan: "Încă nu avem nicio verificare. Verifică acum rețeaua la care ești conectat sau încarcă o verificare.", goHome: "Mergi la Acasă", scanNow: "Verifică rețeaua acum",
       cfTitle: "Verificăm rețeaua ta?", cfNet: "Ești conectat la:", cfAsk: "Este rețeaua ta (de acasă sau a echipei tale)? Verificăm doar rețeaua la care ești conectat acum, nimic altceva.",
       cfYes: "Da, e rețeaua mea", cfNo: "Nu, renunț", cfPrep: "Mă pregătesc…",
       cfPerm: "Calculatorul te va întreba dacă permiți aplicației să facă modificări. Apasă „Da”: doar programul de verificare (Nmap) primește permisiunea, doar pentru această verificare.",
@@ -147,6 +147,7 @@
       resFindings: "Ce a găsit verificarea", colIp: "Adresă (IP)", colPort: "Ușă (port)", colCode: "Cod", colSeverity: "Gravitate",
       colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă",
       resNoDetail: "Detaliile acestei verificări vechi nu mai sunt afișate aici; exportă CSV-ul ca să le vezi.",
+      resDelete: "Șterge toate datele", resDeleteAsk: "Ștergi toate verificările și rezultatele salvate pe acest calculator? Nu le mai poți aduce înapoi. Fișierele CSV exportate deja rămân.",
       exportBtn: "Exportă CSV", exportT: "Exportă rezultatele (CSV)",
       exportS: "Fac cele două fișiere standard, findings.csv și scores.csv, pentru un folder întreg de verificări Nmap (.xml). Un fișier care nu poate fi citit primește ERROR.",
       exportFolder: "Alege un folder", exportFiles: "Alege fișiere", exportSaved: "Exportă verificările salvate ({n})",
@@ -260,7 +261,7 @@
       aPrinterFix: "What you can do: {step}", aPrinterNo: "The check does not show me a printer with this problem.",
       aClean: "The check shows nothing to fix. All good!",
       // live app (local agent)
-      noScan: "You have not checked the house yet", needScan: "There is no check yet. Go to Home and press “Inspect house”.", goHome: "Go to Home",
+      noScan: "You have not checked the house yet", needScan: "There is no check yet. Check the network you are connected to now, or upload a check.", goHome: "Go to Home", scanNow: "Check my network now",
       cfTitle: "Shall we check your network?", cfNet: "You are connected to:", cfAsk: "Is this your network (at home or your team's)? We only check the network you are connected to right now, nothing else.",
       cfYes: "Yes, it is my network", cfNo: "No, cancel", cfPrep: "Getting ready…",
       cfPerm: "The computer will ask if you allow the app to make changes. Press “Yes”: only the checking program (Nmap) gets permission, only for this check.",
@@ -282,6 +283,7 @@
       resFindings: "What the check found", colIp: "Address (IP)", colPort: "Door (port)", colCode: "Code", colSeverity: "Severity",
       colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home",
       resNoDetail: "The details of this older check are not shown here; export the CSV to see them.",
+      resDelete: "Delete all data", resDeleteAsk: "Delete all checks and results saved on this computer? You cannot get them back. CSV files you already exported stay.",
       exportBtn: "Export CSV", exportT: "Export the results (CSV)",
       exportS: "I make the two standard files, findings.csv and scores.csv, for a whole folder of Nmap checks (.xml). A file that cannot be read gets ERROR.",
       exportFolder: "Choose a folder", exportFiles: "Choose files", exportSaved: "Export the saved checks ({n})",
@@ -453,9 +455,10 @@
     state.scan = i >= 0 ? i : 0;
     return true;
   }
+  // shown on every page when nothing is saved yet (first start, or after "delete everything")
   function needScanBox() {
     return h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0 0 1rem" }, icon("home"), h("span", { text: t("needScan") })),
-      h("button", { type: "button", class: "btn btn-cta", onclick: () => { if (state.chatOpen) closeChat(); setTab("home"); } }, icon("search"), t("goHome")));
+      h("button", { type: "button", class: "btn btn-cta", onclick: () => { if (state.chatOpen) closeChat(); setTab("home"); inspect(); } }, icon("search"), t("scanNow")));
   }
   // The side/bottom sheet, also used for the check flow (consent, problems).
   let lastOpener = null;
@@ -625,7 +628,7 @@
   function glassPanel() {
     return h("div", { class: "glass", "aria-hidden": "true" },
       h("div", { class: "glass-ico" }),
-      h("div", null, h("p", { class: "glass-main" }), h("p", { class: "glass-alt" })));
+      h("div", null, h("p", { class: "glass-main" })));
   }
   function houseScene() {
     if (window.Safehouse3D && window.Safehouse3D.supported) {
@@ -652,11 +655,8 @@
     const wrap = hero.querySelector(".stage-wrap");
     if (wrap) wrap.classList.toggle("is-scanning", st === "scanning");   // starts / stops the yoyo scanline
     hero.querySelector(".hs-icon").replaceChildren(icon(cfg.icon, "lg"));
-    const other = state.lang === "ro" ? "en" : "ro";
     hero.querySelector(".glass-ico").replaceChildren(icon(cfg.icon, "lg"));
     hero.querySelector(".glass-main").textContent = t(cfg.title);
-    hero.querySelector(".glass-alt").textContent = T[other][cfg.title];
-    hero.querySelector(".glass-alt").setAttribute("lang", other);
     if (window.Safehouse3D) window.Safehouse3D.setState(st);
     hero.querySelector(".hs-title").textContent = t(cfg.title);
     hero.querySelector(".hs-sub").textContent = st === "vulnerable" && toFix ? (toFix === 1 ? t("stVulnS1") : t("stVulnS", { n: toFix })) : t(cfg.sub);
@@ -838,7 +838,10 @@
     const gw = s.devices.find((d) => d.type === "router") || null;
     const gwItem = gw ? entry(gw) : null;
     const items = s.devices.filter((d) => d !== gw).map(entry).sort(byRisk);
-    const hubs = TOPO_SEVS.map((k) => ({ k, list: items.filter((x) => x.sev === k) })).filter((x) => x.list.length);
+    // the risk chips count the router too (it stays in the middle of the map; its chip lights it up instead of a branch)
+    const hubs = TOPO_SEVS.map((k) => ({ k, list: items.filter((x) => x.sev === k), gw: !!gwItem && gwItem.sev === k }))
+      .filter((x) => x.list.length || x.gw);
+    const hubN = (hb) => hb.list.length + (hb.gw ? 1 : 0);
     // the threat path: every device with open doors (the router too), most dangerous first
     const trail = (gwItem ? [gwItem, ...items] : items).filter((x) => x.probs.length).sort(byRisk);
 
@@ -867,8 +870,9 @@
     const search = h("input", { type: "search", class: "topo-search-in", placeholder: t("topoSearch"), "aria-label": t("topoSearch"), autocomplete: "off", spellcheck: "false" });
     const status = h("span", { class: "topo-status", role: "status", "aria-live": "polite" });
     const back = h("button", { type: "button", class: "btn-hud topo-back", hidden: true, onclick: () => setMode({ kind: "all" }) }, icon("chevron", "back"), h("span", { text: t("topoBack") }));
-    bar.append(items.length > 1 ? h("label", { class: "topo-search" }, icon("search"), search) : null, status, back,
-      trail.length ? h("button", { type: "button", class: "btn-hud primary start", onclick: () => goTo(0) }, icon("shield"), h("span", { text: t("topoStart") }), icon("chevron", "go")) : null);
+    // filter: a network with nothing to fix has no "start" button, and append(null) would print "null"
+    bar.append(...[items.length > 1 ? h("label", { class: "topo-search" }, icon("search"), search) : null, status, back,
+      trail.length ? h("button", { type: "button", class: "btn-hud primary start", onclick: () => goTo(0) }, icon("shield"), h("span", { text: t("topoStart") }), icon("chevron", "go")) : null].filter(Boolean));
     let searchTimer;
     const applySearch = () => { clearTimeout(searchTimer); query = search.value.trim().toLowerCase(); setMode(query ? { kind: "search" } : { kind: "all" }); };
     search.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(applySearch, 120); });
@@ -896,7 +900,8 @@
       svgEl.replaceChildren(); legend.replaceChildren();
       elOf.clear(); if (gwItem) elOf.set(gwItem, coreEl);
       vis = []; mores = [];
-      const view = narrow && mode.kind === "all" ? { kind: "branch", k: hubs[0] && hubs[0].k } : mode;   // phones: one branch at a time
+      const firstHub = hubs.find((x) => x.list.length) || hubs[0];
+      const view = narrow && mode.kind === "all" ? { kind: "branch", k: firstHub && firstHub.k } : mode;   // phones: one branch at a time
       openK = view.kind === "branch" ? view.k : null;
       let shown;
       if (view.kind === "all") shown = hubs.flatMap((hb) => (hb.list.length <= TOPO_K + 1 ? hb.list : hb.list.slice(0, TOPO_K)).map((it) => ({ it, hub: hb.k })));
@@ -904,14 +909,18 @@
       else shown = matches().map((it) => ({ it, hub: it.sev }));
       dots = shown.length > TOPO_DOTS;
       root.classList.toggle("is-branch", view.kind !== "all");
+      // a risk chip open: the router glows when it belongs to that risk level and fades back when it does not
+      const gwIn = !!gwItem && openK != null && gwItem.sev === openK;
+      coreEl.classList.toggle("is-match", gwIn);
+      coreEl.classList.toggle("is-other", openK != null && !gwIn);
       back.hidden = narrow || mode.kind === "all";
       status.textContent = mode.kind === "search" ? (shown.length === 1 ? t("topoResult1") : shown.length ? t("topoResults", { n: shown.length }) : t("topoNoResults")) : "";
 
       hubs.forEach((hb) => {
         const on = openK === hb.k;
         const b = h("button", { type: "button", class: `btn-hud chip topo-hub sev-${hb.k}${view.kind !== "all" && !on ? " is-off" : ""}`,
-            "aria-pressed": String(on), "aria-label": `${sevLabel(hb.k)}: ${hb.list.length}` },
-          h("span", { class: "hub-top" }, icon(sevIcon(hb.k)), h("span", { class: "chip-n", text: String(hb.list.length) })), h("span", { class: "hub-word", text: sevLabel(hb.k) }));
+            "aria-pressed": String(on), "aria-label": `${sevLabel(hb.k)}: ${hubN(hb)}` },
+          h("span", { class: "hub-top" }, icon(sevIcon(hb.k)), h("span", { class: "chip-n", text: String(hubN(hb)) })), h("span", { class: "hub-word", text: sevLabel(hb.k) }));
         b.addEventListener("click", () => setMode(on && !narrow ? { kind: "all" } : { kind: "branch", k: hb.k }));
         legend.append(b);
       });
@@ -1057,6 +1066,9 @@
       render();
       restoreSel();
       layout();
+      // a risk level where only the router is: open the router's details, there is no branch to show
+      const hb = m.kind === "branch" && hubs.find((x) => x.k === m.k);
+      if (hb && hb.gw && !hb.list.length && !selected) select(gwItem);
     }
     // after a re-render the selected device keeps its panel if it is still on screen
     function restoreSel() {
@@ -1326,8 +1338,7 @@
         h("button", { type: "button", class: "btn btn-tonal", onclick: () => { state.historyDeleted = false; store.set("historyDeleted", "0"); render(); } }, t("restore"))));
       return;
     }
-    if (LIVE && !D.scans.length) { root.append(state.justDeleted ? h("div", { class: "suggest" }, h("p", { class: "lead with-ico", role: "status" }, icon("trash"), h("span", { text: t("deleted") })),
-      h("p", { class: "muted", text: t("deletedTech") })) : needScanBox()); return; }
+    if (LIVE && !D.scans.length) { root.append(needScanBox()); return; }
     // live: the scan on screen compared with the one saved just before it
     const cur = scan();
     const ch = LIVE ? (cur.error ? D.history.changes : cur.changes || null) : D.history.changes, trend = D.history.trend;
@@ -1539,10 +1550,21 @@
         })
       : D.scans.map((x, i) => ({ no: i + 1, key: "f" + i, s: x, label: x.file, file: x.file, score: x.score, error: !!x.error,
           devices: x.devices.length, problems: x.findings.length }));
-    if (!rows.length) { root.append(needScanBox()); return; }
+    if (!rows.length) {
+      root.append(needScanBox());
+      return;
+    }
     const cur = scan();
-    const sel = rows.find((r) => r.key === state.resSel) || rows.find((r) => r.s === cur) || rows[rows.length - 1];
-    const pick = (r) => { state.resSel = r.key; render(); focusSel(`tr[data-key="${r.key}"]`); };
+    // one selection for the whole app: a row picked here is also the check shown in the top bar (and on Home)
+    const sel = rows.find((r) => r.key === state.resSel) || rows.find((r) => r.s && r.s === cur) || rows[rows.length - 1];
+    const pick = (r) => {
+      const i = r.s ? allScans().indexOf(r.s) : -1;
+      if (i >= 0) { if (i !== state.scan) { state.scan = i; state.chat = []; state.verify = {}; } state.resSel = null; }
+      else state.resSel = r.key;                       // an old check without details: shown here only
+      state.confirmDelete = false;
+      render();
+      focusSel(`tr[data-key="${r.key}"]`);
+    };
     const rating = (r) => r.error ? h("span", { class: "pill p-red" }, icon("x-circle"), t("errorWord")) : bandPill(r.score);
     const table = h("table", { class: "data results" },
       h("thead", null, h("tr", null, ["colNo", "colWhen", "colFile", "colScore", "colRating", "colDevices", "colProblems"]
@@ -1562,7 +1584,14 @@
         return tr;
       })));
     root.append(h("div", { class: "suggest" }, h("div", { class: "table-wrap" }, table),
-      LIVE && openExport ? h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: () => openExport() }, icon("chart"), t("exportBtn"))) : null));
+      LIVE ? h("div", { class: "actions" },
+        openExport ? h("button", { type: "button", class: "btn", onclick: () => openExport() }, icon("chart"), t("exportBtn")) : null,
+        h("button", { type: "button", class: "btn btn-danger res-delete", onclick: () => { state.confirmDelete = true; render(); focusSel(".res-confirm .btn-danger"); } }, icon("trash"), t("resDelete"))) : null,
+      LIVE && state.confirmDelete ? h("div", { class: "confirm res-confirm", role: "alertdialog", "aria-label": t("resDelete") },
+        h("p", { class: "lead", text: t("resDeleteAsk") }),
+        h("div", { class: "actions" },
+          h("button", { type: "button", class: "btn btn-danger", onclick: liveDelete }, icon("trash"), t("deleteYes")),
+          h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); focusSel(".res-delete"); } }, t("deleteNo")))) : null));
 
     // the findings of the selected check (findings.csv on screen)
     const x = sel.s;
@@ -1626,6 +1655,7 @@
   const RENDER = { home: renderHome, devices: renderDevices, history: renderHistory, results: renderResults };
   function setTab(name) {
     state.tab = name;
+    state.confirmDelete = false;                       // a delete question never follows you to another tab
     TABS.forEach((n) => { document.getElementById("panel-" + n).hidden = n !== name; });
     document.querySelectorAll(".nav-item").forEach((b) => { if (b.dataset.tab === name) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     render();
@@ -1653,7 +1683,7 @@
     if (window.Device3D) window.Device3D.scan(panel);       // 3D models into every .dev3d slot
   }
 
-  document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; state.confirmDelete = false; render(); });
+  document.getElementById("scan-select").addEventListener("change", (e) => { state.scan = Number(e.target.value); state.chat = []; state.confirmDelete = false; state.resSel = null; render(); });
 
   // ---------------------------------------------------------------- LIVE: upload a file, close the app, heartbeat
   if (LIVE) {
