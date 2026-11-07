@@ -109,7 +109,7 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
 * **Brand**: the official logo icon (`ui/assets/logo-icon.png`, cut from `ui/assets/logo-source.png` with
   `tools/extract_logo.py`; only the black background around it is made transparent, the dark inside of the
-  shield and the glow are kept) is embedded as a data URI next to the HTML wordmark **Safe**house (Safe 800
+  shield and the glow are kept) is embedded as a data URI next to the HTML wordmark **Safe**House (Safe 800
   white, house 400 `#9ca3af`). It sits in the sidebar on computers and in the header on phones.
 * **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
   defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.

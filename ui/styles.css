@@ -1030,6 +1030,8 @@ a.nav-brand { display: block; text-decoration: none; border-radius: 14px; }
 .nav .brand-logo img.brand-mark { height: 36px; width: auto; }
 .brand-logo .b-safe { font-weight: 800; color: #ffffff; }
 .brand-logo .b-house { font-weight: 400; color: #9ca3af; }
+
+/* =====================================================================================
    THREAT PATH (scroll-telling): vulnerable devices on isometric platforms, joined by a data line
    that is drawn while scrolling. Orange / red accents = vulnerabilities, always with words too.
    ===================================================================================== */
