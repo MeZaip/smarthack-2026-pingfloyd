@@ -75,6 +75,26 @@ python -m pytest -q
 Put the real Validation Set (with `expected_findings.csv` / `expected_scores.csv`) in
 `tests/fixtures/validation/`; the golden test picks it up automatically.
 
+
+## Live scan of your own network (Core Engine & CLI — `netcheck/net/`)
+
+Needs nmap (`brew install nmap`) and the laptop connected **only** to the team hotspot.
+
+```bash
+python -m netcheck detect                         # interface, subnet, gateway (FR-01); --json = contract "network"
+python -m netcheck scan --confirm                 # scan the connected subnet (FR-02/04); sudo only for nmap
+python -m netcheck scan 8.8.8.8 --confirm         # ⛔ REFUZAT / REFUSED — guardrail demo (live check 4)
+python -m netcheck parse scans/scan_x.xml         # §1 Raw Parsed Data JSON (service_data_contracts.md)
+python -m netcheck verify scans/scan_x.xml 172.20.10.5 8080 --confirm   # „Dovedește!”: re-check one fix, no root
+python -m netcheck watch --confirm --interval 30  # „Paznic”: desktop alert for a new device / newly opened port
+```
+
+Guardrail: refuses public IPs, carrier-NAT (100.64/10), loopback/multicast/link-local, ranges bigger than /22,
+anything outside the allowlist (default = the connected subnet; extra *private* ranges via `--allow` or
+`NETCHECK_ALLOWLIST`) and any live scan without `--confirm`. Rate ≤ 100 packets/s. Messages in RO (default) and EN (`--lang en`).
+`scan` saves the XML + `<scan>.raw.json` in `scans/` (git-ignored: real network data) and adds the result to the history.
+Lab targets (banner-only fake services, no real login behind them): `python lab/fake_services.py` (`--fixed` = the "after" state).
+
 ## Secrets check
 
 ```bash
@@ -87,5 +107,5 @@ gitleaks detect --source . -v
 - [x] FR-07/08: RO/EN explanations and fixes
 - [x] FR-10/13 (core): diff + alerts
 - [x] FR-12: grounded AI assistant with fallback
-- [ ] FR-01/02/04: network detection, scope guardrail, live scan
+- [x] FR-01/02/04: network detection, scope guardrail, live scan (`netcheck/net/`)
 - [ ] FR-11: web UI + history storage + "delete my history"

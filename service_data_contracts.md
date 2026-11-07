@@ -137,3 +137,22 @@ To satisfy FR-10 and FR-13 (Alert on change), the backend must compare the curre
   }
 }
 ```
+---
+
+## Anexă: §1 așa cum îl produce modulul Core CLI (Ștefan)
+Implementarea e în `netcheck/net/contract.py`. Testele din `tests/test_net.py` compară automat cheile cu exemplul §1 de mai sus și verifică că Rule Engine dă **exact aceleași findings** pornind din JSON ca pornind din XML.
+
+| Situație | Convenție |
+|---|---|
+| Valoare necunoscută (`vendor`, `hostname`, `version`, `evidence_banner`, `timestamp`, `gateway`) | `null`, niciodată `""` |
+| Serviciu peste TLS (nmap: `name="http" tunnel="ssl"`) | `"service": "ssl/http"` (notația nmap). Fără asta, Rule Engine ar confunda HTTPS cu HTTP (capcana din V1/V5). |
+| `version` | produs + versiune nmap, ex. `"OpenSSH 7.9p1 Debian 10"`; se separă la primul cuvânt care începe cu o cifră |
+| `evidence_banner` | `"title: <titlul paginii>"`, apoi alte scripturi nmap ca `"<id>: <output>"`, separate prin `" \| "` |
+| `timestamp` | `nmaprun@start` din XML, în UTC (`...Z`), deci determinist |
+| `network.subnet` (fișier offline) | ținta din comanda nmap; altfel /24-ul comun tuturor dispozitivelor |
+| `network.gateway` | doar la scanarea live (`netcheck scan`); pentru fișiere offline e `null` |
+
+**De discutat:** `mac_masked` respectă formatul de aici (`XX:XX:XX:XX:1A:2B`), dar ultimii octeți sunt partea care identifică dispozitivul.
+`core/device.mask_mac` (folosit în rest) păstrează primii 3 (producătorul, care e oricum în `vendor`), varianta mai bună pentru NFR-02.
+
+Comenzi: `netcheck parse <xml|folder> [--out DIR]`, `netcheck detect --json` (obiectul `network`), `netcheck scan --confirm` (scrie `<scan>.raw.json` lângă XML).
