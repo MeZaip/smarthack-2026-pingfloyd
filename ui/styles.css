@@ -981,3 +981,16 @@ main { position: relative; z-index: 0; }
 /* the snippet sets "House" white inline; keep it readable on the light theme */
 :root[data-theme="light"] .brand-text span:last-child { color: #0b2545 !important; }
 @media (max-width: 760px) { .nav-brand { display: none; } }
+
+/* Logo snippet "SafeHouse Mag7 style": the green indicator glows and pulses gently (markup unchanged). */
+.brand-logo-container svg { filter: none; overflow: visible; }
+.brand-logo-container svg > circle {
+  transform-box: fill-box; transform-origin: center;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 102, .8));
+  animation: indicator-pulse 2.4s ease-in-out infinite;
+}
+@keyframes indicator-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.82); } }
+@media (prefers-reduced-motion: reduce) { .brand-logo-container svg > circle { animation: none; } }
+/* the snippet colours the name for dark backgrounds; keep it readable on the light theme */
+:root[data-theme="light"] .brand-text span:first-child { color: #0b1220 !important; }
+:root[data-theme="light"] .brand-text span:last-child { color: #475569 !important; }

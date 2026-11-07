@@ -60,9 +60,10 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   tinted by the state, glass badge) next to one centred score card (glowing ring, status pills, gradient CTA),
   then **Uși lăsate deschise / Doors left open** (grid of fix cards, most dangerous marked *Start here*) and
   **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
-* **Brand**: the *Wi-Fi Home* logo snippet (same markup in the header and the sidebar): a house outline with two
-  Wi-Fi waves, cyan `#06b6d4` -> blue `#3b82f6` gradient, and the wordmark **Safe**House (Safe 800 gradient,
-  House 500 white; navy on the light theme).
+* **Brand**: the team's logo snippet (same markup in the header and the sidebar): a house outline with an
+  internal shield, Wi-Fi waves on the top right and a glowing, gently pulsing green indicator on the top left,
+  in a `#0055FF` -> `#00F0FF` gradient; wordmark **Safe**House (Safe 800 white, House 300 `#cbd5e1`; darker on
+  the light theme).
 * **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),
   defined once as `<symbol>`s in `ui/index.html`; `tests/test_ui_assets.py` keeps emoji out of the UI.
 * **SafeHouse** (fallback without WebGL): a CSS 3D house and an *Inspectează casa / Inspect house* button. Inspecting runs a scan
