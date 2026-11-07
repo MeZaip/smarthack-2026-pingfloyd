@@ -4,20 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#09090b">
-  <title>Safehouse</title>
+  <title>SafeHouse</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <!-- Icon set: one stroke style for the whole app (24px grid, 2px round strokes, Lucide/Feather style).
        Used everywhere through an svg.ico element that references one symbol below; no emoji in the interface. -->
   <svg xmlns="http://www.w3.org/2000/svg" class="sprite" aria-hidden="true" focusable="false">
-    <!-- Brand gradient for the Safehouse mark (deep cyber blue -> neon cyan; darker stops on the light theme). -->
-    <defs>
-      <linearGradient id="brand-grad" gradientUnits="userSpaceOnUse" x1="8" y1="44" x2="40" y2="4">
-        <stop offset="0" style="stop-color: var(--brand-g1)"/>
-        <stop offset="1" style="stop-color: var(--brand-g2)"/>
-      </linearGradient>
-    </defs>
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></symbol>
     <symbol id="i-router" viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 17h.01M10 17h.01M15 17h3"/><path d="M12 13V9.5"/><path d="M8.5 7a5 5 0 0 1 7 0"/><path d="M5.5 4a9.5 9.5 0 0 1 13 0"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
@@ -70,18 +63,30 @@
   <div class="app">
     <!-- One navigation: a side rail on computers, a bottom bar on phones (Google Home / Fing pattern). -->
     <nav class="nav" aria-label="Meniu / Menu">
-      <div class="nav-brand" aria-hidden="true">
-        <svg class="logo-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-              <g fill="none" stroke="url(#brand-grad)" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.52 9.64A5.2 5.2 0 0 1 27.48 9.64" stroke-width="2.75"/>
-                <path d="M17.58 6.37A9.6 9.6 0 0 1 30.42 6.37" stroke-width="2.75" opacity=".75"/>
-                <path d="M8 26 24 13.5l16 12.5V40a3.5 3.5 0 0 1-3.5 3.5h-25A3.5 3.5 0 0 1 8 40z" stroke-width="3"/>
-                <path d="M24 26.6l6 2.4v4.4c0 3.6-2.5 6.1-6 7.4-3.5-1.3-6-3.8-6-7.4V29z" stroke-width="2.75"/>
-                <path d="m21.4 33.4 1.9 1.9 3.4-3.5" stroke-width="2.5"/>
-              </g>
-              <circle class="logo-sensor-halo" cx="13.4" cy="18.2" r="3.2"/>
-              <circle class="logo-sensor" cx="13.4" cy="18.2" r="1.9"/>
-            </svg>
+      <div class="nav-brand">
+        <!-- LOGO CONTAINER -->
+        <div class="brand-logo-container" style="display: flex; align-items: center; gap: 12px;">
+          <!-- SVG Icon: Wi-Fi Home -->
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <!-- Wi-Fi Waves on top -->
+            <path d="M5 9C7.5 6.5 16.5 6.5 19 9" stroke="url(#wifi-grad-side)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7.5 11.5C9.5 9.5 14.5 9.5 16.5 11.5" stroke="url(#wifi-grad-side)" stroke-width="2" stroke-linecap="round"/>
+            <!-- House Outline -->
+            <path d="M3 10L12 3L21 10V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10Z" stroke="url(#wifi-grad-side)" stroke-width="2.2" stroke-linejoin="round"/>
+            <!-- Gradient Definition -->
+            <defs>
+              <linearGradient id="wifi-grad-side" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#06b6d4"/>
+                <stop offset="1" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+  
+          <!-- Brand Typography (CamelCase: SafeHouse) -->
+          <span class="brand-text" style="font-family: 'Inter', system-ui, sans-serif; font-size: 20px; letter-spacing: -0.03em;">
+            <span style="font-weight: 800; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Safe</span><span style="font-weight: 500; color: #ffffff;">House</span>
+          </span>
+        </div>
       </div>
       <button type="button" class="nav-item" data-tab="home"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-home"/></svg></span><span class="nav-label" data-i18n="navHome">Acasă</span></button>
       <button type="button" class="nav-item" data-tab="devices"><span class="nav-ico" aria-hidden="true"><svg class="ico"><use href="#i-phone"/></svg></span><span class="nav-label" data-i18n="navDevices">Aparate</span></button>
@@ -93,20 +98,31 @@
     <div class="content">
       <header class="appbar">
         <div class="appbar-title">
-          <!-- Logo: house + security shield + radar/Wi-Fi arcs in one stroke family, a pulsing green sensor, wordmark Safe(800 white)house(300 silver). -->
-          <a class="logo" href="#home" aria-label="Safehouse">
-            <svg class="logo-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-              <g fill="none" stroke="url(#brand-grad)" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.52 9.64A5.2 5.2 0 0 1 27.48 9.64" stroke-width="2.75"/>
-                <path d="M17.58 6.37A9.6 9.6 0 0 1 30.42 6.37" stroke-width="2.75" opacity=".75"/>
-                <path d="M8 26 24 13.5l16 12.5V40a3.5 3.5 0 0 1-3.5 3.5h-25A3.5 3.5 0 0 1 8 40z" stroke-width="3"/>
-                <path d="M24 26.6l6 2.4v4.4c0 3.6-2.5 6.1-6 7.4-3.5-1.3-6-3.8-6-7.4V29z" stroke-width="2.75"/>
-                <path d="m21.4 33.4 1.9 1.9 3.4-3.5" stroke-width="2.5"/>
-              </g>
-              <circle class="logo-sensor-halo" cx="13.4" cy="18.2" r="3.2"/>
-              <circle class="logo-sensor" cx="13.4" cy="18.2" r="1.9"/>
-            </svg>
-            <span class="brand-title" aria-hidden="true"><b>Safe</b><span>house</span></span>
+          <!-- Logo: Wi-Fi Home icon + SafeHouse wordmark (same snippet in the sidebar). -->
+          <a class="logo" href="#home" aria-label="SafeHouse">
+            <!-- LOGO CONTAINER -->
+            <div class="brand-logo-container" style="display: flex; align-items: center; gap: 12px;">
+              <!-- SVG Icon: Wi-Fi Home -->
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <!-- Wi-Fi Waves on top -->
+                <path d="M5 9C7.5 6.5 16.5 6.5 19 9" stroke="url(#wifi-grad)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7.5 11.5C9.5 9.5 14.5 9.5 16.5 11.5" stroke="url(#wifi-grad)" stroke-width="2" stroke-linecap="round"/>
+                <!-- House Outline -->
+                <path d="M3 10L12 3L21 10V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10Z" stroke="url(#wifi-grad)" stroke-width="2.2" stroke-linejoin="round"/>
+                <!-- Gradient Definition -->
+                <defs>
+                  <linearGradient id="wifi-grad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#06b6d4"/>
+                    <stop offset="1" stop-color="#3b82f6"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+  
+              <!-- Brand Typography (CamelCase: SafeHouse) -->
+              <span class="brand-text" style="font-family: 'Inter', system-ui, sans-serif; font-size: 20px; letter-spacing: -0.03em;">
+                <span style="font-weight: 800; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Safe</span><span style="font-weight: 500; color: #ffffff;">House</span>
+              </span>
+            </div>
           </a>
           <label class="net-chip">
             <span class="sr" data-i18n="scanFile">Verificarea afișată</span>

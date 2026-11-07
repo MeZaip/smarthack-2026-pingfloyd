@@ -98,7 +98,7 @@
       deletedTech: "În aplicație, asta șterge fișierul ~/.netcheck/history.sqlite.",
       restore: "Adu înapoi datele demo",
       askTitle: "Întreabă", askSub: "Îți răspund doar cu ce am văzut în verificare. Lângă fiecare propoziție scrie de unde știu. Dacă o propoziție nu are dovadă, o tai.",
-      botName: "Asistentul Safehouse",
+      botName: "Asistentul SafeHouse",
       botHello: "Salut! Sunt aici să te ajut. Alege o întrebare de mai jos sau scrie-mi una.",
       q1: "Ce repar prima dată?", q2: "Ce aparate am acasă?", q3: "E periculoasă imprimanta mea?",
       askPlaceholder: "De exemplu: Ce repar prima dată?", askBtn: "Trimite", askLabel: "Întrebarea ta",
@@ -201,7 +201,7 @@
       deletedTech: "In the app, this removes the file ~/.netcheck/history.sqlite.",
       restore: "Bring back the demo data",
       askTitle: "Ask", askSub: "I answer only with what I saw in the check. Next to each sentence it says how I know. If a sentence has no proof, I cross it out.",
-      botName: "Safehouse assistant",
+      botName: "SafeHouse assistant",
       botHello: "Hi! I am here to help. Pick a question below or write me one.",
       q1: "What do I fix first?", q2: "Which devices do I have at home?", q3: "Is my printer dangerous?",
       askPlaceholder: "For example: What do I fix first?", askBtn: "Send", askLabel: "Your question",
@@ -527,7 +527,7 @@
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
         h("div", { class: "hs-icon" }), h("div", null, h("p", { class: "hs-title" }), h("p", { class: "hs-sub" }))));
 
-    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "Safehouse" },
+    root.append(h("section", { class: "hero premium", "data-state": st, "aria-label": "SafeHouse" },
       h("div", { class: "stage-wrap" }, houseScene(), h("div", { class: "scanline", "aria-hidden": "true" })), scoreCard));
     const mountEl = root.querySelector(".house3d-mount");
     if (mountEl) window.Safehouse3D.mount(mountEl);

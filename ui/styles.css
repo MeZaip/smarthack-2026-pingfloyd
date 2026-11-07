@@ -964,3 +964,20 @@ main { position: relative; z-index: 0; }
 .nav-brand .logo-mark { width: 44px; height: 44px; }
 @media (max-width: 560px) { .logo-mark { width: 36px; height: 36px; } .brand-title { font-size: 1.35rem; } }
 @media (prefers-reduced-motion: reduce) { .logo-sensor-halo { animation: none; opacity: .3; } }
+
+/* =====================================================================================
+   Logo snippet "Wi-Fi Home" + SafeHouse (same markup in the header and the sidebar).
+   Inline styles come from the brand snippet; this only handles layout and the light theme.
+   ===================================================================================== */
+.logo { display: inline-flex; align-items: center; text-decoration: none; line-height: 1; filter: none; }
+.brand-logo-container { line-height: 1; }
+.brand-logo-container svg { flex: none; filter: drop-shadow(0 0 6px rgba(59, 130, 246, .35)); }
+.brand-text { display: inline-flex; align-items: center; white-space: nowrap; }
+/* sidebar: wide enough for icon + name */
+:root { --rail: 184px; }
+.nav { align-items: stretch; padding: 20px 16px; }
+.nav-brand { width: auto; height: auto; margin: 4px 4px 22px; background: transparent; border: 0; display: block; }
+.nav-item { width: 100%; }
+/* the snippet sets "House" white inline; keep it readable on the light theme */
+:root[data-theme="light"] .brand-text span:last-child { color: #0b2545 !important; }
+@media (max-width: 760px) { .nav-brand { display: none; } }
