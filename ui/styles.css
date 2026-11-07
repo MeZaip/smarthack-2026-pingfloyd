@@ -1433,9 +1433,13 @@ div.topo-node { cursor: default; }
 .chat-body .chat { flex: 1; }
 .chat-body .bubble { max-width: 92%; }
 .chat-body .composer {
-  position: sticky; bottom: 0; margin: 8px -16px 0; border-radius: 0; padding: 10px 10px 10px 18px;
-  background: var(--surface-1); border-top: 1px solid rgba(255, 255, 255, .08);
+  position: sticky; bottom: 0; z-index: 2; margin: 8px -16px 0; border-radius: 0; padding: 10px 10px 10px 18px;
+  /* solid, so the messages scrolling behind never show through what you are typing */
+  background: #18181b; border-top: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 -10px 24px rgba(0, 0, 0, .45);
 }
+.chat-body .composer input { background: #232327; border-radius: 999px; padding: 0 16px; color: var(--text); }
+:root[data-theme="light"] .chat-body .composer { background: #fff; border-top-color: #e4e4e7; box-shadow: 0 -8px 20px rgba(0, 0, 0, .08); }
+:root[data-theme="light"] .chat-body .composer input { background: #f4f4f5; }
 .foot { padding-bottom: 96px; }                       /* the floating button never covers the footer text */
 @media (max-width: 760px) {
   .chat-fab { right: 16px; bottom: calc(92px + env(safe-area-inset-bottom)); width: 56px; padding: 0; justify-content: center; }
@@ -1479,3 +1483,8 @@ table.results td.c-colProblem { min-width: 12rem; }
 }
 table.results .mob-file { display: none; }
 @media (max-width: 760px) { table.results .mob-file { display: block; font-size: .85rem; color: var(--muted); word-break: break-all; } }
+
+/* risk chip open: the router glows when it is in that risk level, fades when it is not */
+.topo-node.core.is-other { opacity: .5; }
+.topo-node.core.is-other:hover, .topo-node.core.is-other:focus-visible, .topo-node.core.is-other[aria-pressed="true"] { opacity: 1; }
+.topo-node.core.is-match .topo-orb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c, #ef4444) 55%, transparent), 0 0 32px color-mix(in srgb, var(--c, #ef4444) 45%, transparent); }
