@@ -61,7 +61,7 @@ python -m http.server 8000 -d ui        # then open http://localhost:8000  (or j
   then **Uși lăsate deschise / Doors left open** (grid of fix cards, most dangerous marked *Start here*) and
   **Aparate găsite / Devices found** (grid of device cards: icon, name, IP, masked MAC).
 * **Brand**: inline SVG logo *The Wi-Fi Home* (`#logo-wifi` in `ui/index.html`): a thick rounded house outline
-  with three Wi-Fi arcs under the roof, one cyan `#06b6d4` -> royal blue `#3b82f6` gradient (same family as the
+  with three Wi-Fi arcs emanating from the roof peak, one cyan `#06b6d4` -> royal blue `#3b82f6` gradient (same family as the
   main button) and a soft blue glow; wordmark **Safe**House (Safe 800 in the same gradient, House 500 white;
   darker blues + navy on the light theme).
 * **Icons**: every emoji was replaced by one SVG icon set (Lucide/Feather style, 2px strokes, `currentColor`),

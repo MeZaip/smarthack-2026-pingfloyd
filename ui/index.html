@@ -11,10 +11,10 @@
   <!-- Icon set: one stroke style for the whole app (24px grid, 2px round strokes, Lucide/Feather style).
        Used everywhere through an svg.ico element that references one symbol below; no emoji in the interface. -->
   <svg xmlns="http://www.w3.org/2000/svg" class="sprite" aria-hidden="true" focusable="false">
-    <!-- Logo "The Wi-Fi Home": thick rounded house outline with three Wi-Fi arcs nested under the roof,
+    <!-- Logo "The Wi-Fi Home": thick rounded house outline with three Wi-Fi arcs emanating from the roof peak,
          one cyan -> royal-blue gradient (same family as the main button) and a soft blue glow. -->
     <defs>
-      <linearGradient id="logo-grad" gradientUnits="userSpaceOnUse" x1="8" y1="8" x2="40" y2="42">
+      <linearGradient id="logo-grad" gradientUnits="userSpaceOnUse" x1="10" y1="2" x2="38" y2="46">
         <stop offset="0" style="stop-color: var(--logo-c1)"/>
         <stop offset="1" style="stop-color: var(--logo-c2)"/>
       </linearGradient>
@@ -22,11 +22,12 @@
     </defs>
     <symbol id="logo-wifi" viewBox="0 0 48 48">
       <g fill="none" stroke="url(#logo-grad)" stroke-linecap="round" stroke-linejoin="round" filter="url(#logo-glow)">
-        <path d="M7.5 22.5 24 8l16.5 14.5V39a3.5 3.5 0 0 1-3.5 3.5H11A3.5 3.5 0 0 1 7.5 39z" stroke-width="3.5"/>
-        <path d="M15.2 27.6a12.4 12.4 0 0 1 17.6 0" stroke-width="3"/>
-        <path d="M18.3 31a8 8 0 0 1 11.4 0" stroke-width="3"/>
-        <path d="M21.2 34.2a4 4 0 0 1 5.6 0" stroke-width="3"/>
-        <circle cx="24" cy="37.6" r="1.9" fill="url(#logo-grad)" stroke="none"/>
+        <!-- house: roof peak at (24, 19.5), walls down to the bottom -->
+        <path d="M8.5 31.5 24 19.5l15.5 12V41a3.5 3.5 0 0 1-3.5 3.5H12A3.5 3.5 0 0 1 8.5 41z" stroke-width="3.5"/>
+        <!-- Wi-Fi arcs emanating from the roof peak -->
+        <path d="M19.54 15.49A6 6 0 0 1 28.46 15.49" stroke-width="3.5"/>
+        <path d="M15.83 12.14A11 11 0 0 1 32.17 12.14" stroke-width="3.5"/>
+        <path d="M12.11 8.79A16 16 0 0 1 35.89 8.79" stroke-width="3.5"/>
       </g>
     </symbol>
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></symbol>
