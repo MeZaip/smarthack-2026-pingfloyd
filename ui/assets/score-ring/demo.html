@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scorul casei - indicator</title>
+  <link rel="stylesheet" href="score-ring.css">
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; gap: 28px; padding: 32px 16px; box-sizing: border-box;
+      background: radial-gradient(900px 600px at 50% 30%, #141626, #07080e 70%); color: #e8e9f3;
+      font: 16px/1.5 "Inter", "SF Pro Text", -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+    h1 { margin: 0; font-size: 1.1rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #9ea3bd; text-align: center; }
+    .stage { display: grid; justify-items: center; gap: 14px; }
+    .label { font-weight: 700; font-size: 1.1rem; }
+    .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 36px; }
+    .row figure { margin: 0; display: grid; justify-items: center; gap: 10px; }
+    .row figcaption { color: #c9cde0; }
+    button { font: inherit; font-weight: 600; color: #fff; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 999px; padding: .6rem 1.2rem; cursor: pointer; }
+    button:hover { background: rgba(255, 255, 255, .14); }
+  </style>
+</head>
+<body>
+  <h1>Scorul casei tale</h1>
+  <div class="stage" id="main"></div>
+  <div class="row" id="row"></div>
+  <button type="button" id="again">Animează din nou</button>
+
+  <script src="score-ring.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      const LABEL = { safe: "Sigur", warning: "Risc mediu", danger: "Risc înalt" };
+      const q = new URLSearchParams(location.search);
+      const main = Number(q.get("score") ?? 40);              // ?score=40 (the default: high risk, red)
+      function show() {
+        const st = ScoreRing.stateOf(main);
+        document.getElementById("main").replaceChildren(
+          ScoreRing.create(main, { of: "din 100", aria: `${main} din 100, ${LABEL[st]}`, size: 260 }),
+          Object.assign(document.createElement("div"), { className: "label", textContent: LABEL[st] }));
+        document.getElementById("row").replaceChildren(...[40, 65, 92].map((v) => {
+          const f = document.createElement("figure"), c = document.createElement("figcaption");
+          c.textContent = `${LABEL[ScoreRing.stateOf(v)]} (${v})`;
+          f.append(ScoreRing.create(v, { of: "din 100", aria: `${v} din 100, ${LABEL[ScoreRing.stateOf(v)]}`, size: 170 }), c);
+          return f;
+        }));
+      }
+      document.getElementById("again").addEventListener("click", show);
+      show();
+    })();
+  </script>
+</body>
+</html>
