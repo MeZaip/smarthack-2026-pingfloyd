@@ -90,10 +90,12 @@
   const camera = new T3.PerspectiveCamera(30, 1, 0.1, 100);
   const target = new T3.Vector3(0.4, 2.6, 0.6);
 
-  // Night / cyberpunk mood. The hemisphere light is the scene's ambient light: it is cut drastically
-  // (1.1 -> 0.14) so the rooms are dark and only the neon lights and the screens light them.
-  // The sun becomes a cool, dim moonlight so the garden is still readable. Tweak the mood here.
-  const MOOD = { ambient: 0.14, sky: "#4a5a9a", ground: "#0b1410", moon: 0.95, moonColor: "#a9bcff", exposure: 1.15 };
+  // Night / cyberpunk mood. The hemisphere light is the scene's ambient light: kept low (0.2) so the rooms stay dark
+  // and the neon lights and screens still lead, but ~40% brighter than before so the roof, the wooden upper floor and
+  // the trees do not sink into the dark page. The sun is a cool, dim moonlight; a soft rim light from high behind the
+  // house (MOOD.rim) draws the outline of the roof and the tree tops against the background. Tweak the mood here.
+  const MOOD = { ambient: 0.2, sky: "#4a5a9a", ground: "#0b1410", moon: 0.95, moonColor: "#a9bcff", exposure: 1.15,
+    rim: 0.75, rimColor: "#9fc3ff" };
   renderer.toneMappingExposure = MOOD.exposure;
   scene.add(new T3.HemisphereLight(MOOD.sky, MOOD.ground, MOOD.ambient));
   const sun = new T3.DirectionalLight(MOOD.moonColor, MOOD.moon);
@@ -103,6 +105,9 @@
   Object.assign(sun.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 });
   sun.shadow.bias = -0.0008;
   scene.add(sun);
+  const rim = new T3.DirectionalLight(MOOD.rimColor, MOOD.rim);   // from above and behind the house (the camera is in front)
+  rim.position.set(-4, 12, -11);
+  scene.add(rim);
 
   const mat = (o) => new T3.MeshStandardMaterial(Object.assign({ roughness: .85, metalness: 0 }, o));
   function mesh(geo, material, pos, opts) {
@@ -119,7 +124,8 @@
     group.add(lawn);
     const stoneMat = mat({ map: TEX.stone(), roughness: .95 });
     for (let i = 0; i < 6; i++) {
-      const s = mesh(new T3.BoxGeometry(1.0, 0.06, 0.55), stoneMat, [1.6 + (i % 2 ? .12 : -.12), 0.03, 3.25 + i * 0.85], { noCast: true });
+      // the path starts 0.18 further out than before, so the open door never reaches the first stone
+      const s = mesh(new T3.BoxGeometry(1.0, 0.06, 0.55), stoneMat, [1.6 + (i % 2 ? .12 : -.12), 0.03, 3.43 + i * 0.85], { noCast: true });
       s.rotation.y = (rand() - .5) * .25;
       group.add(s);
     }
@@ -234,17 +240,21 @@
     glass(1.8, 1.4, [3.0, 1.5, -0.4], Math.PI / 2, group);
     glass(1.6, 1.0, [3.2, 4.0, -0.3], Math.PI / 2, group);
     glass(1.2, 1.0, [-3.0, 1.6, 0.6], -Math.PI / 2, group);
-    // entrance: doorway (glows orange when a door is open), hinged wooden door, canopy and step
+    // entrance: doorway (glows orange when a door is open), hinged wooden door, canopy and step.
+    // The door opens outwards, so its hinge sits on the top face of the step (STEP_TOP) and it is as tall as the
+    // doorway above that (to 2.10, under the canopy at 2.30): when it swings open it passes over the step and the
+    // path, never through them.
+    const STEP_H = 0.14, STEP_TOP = STEP_H + 0.005, DOOR_H = 2.1 - STEP_TOP;   // +0.005: no flicker where they touch
     doorway = mesh(new T3.PlaneGeometry(1.0, 2.1), new T3.MeshStandardMaterial({ color: "#16181c", roughness: 1, emissive: BLACK.clone(), emissiveIntensity: 1 }), [1.6, 1.05, 2.104], { noCast: true });
     group.add(doorway);
     doorPivot = new T3.Group();
-    doorPivot.position.set(1.1, 0, 2.13);
-    const door = mesh(new T3.BoxGeometry(1.0, 2.1, 0.06), mat({ map: TEX.wood(), color: "#b98a63", roughness: .6 }), [0.5, 1.05, 0]);
-    const knob = mesh(new T3.SphereGeometry(0.045, 12, 12), mat({ color: "#d8c08a", metalness: .8, roughness: .3 }), [0.88, 1.05, 0.05]);
+    doorPivot.position.set(1.1, STEP_TOP, 2.13);
+    const door = mesh(new T3.BoxGeometry(1.0, DOOR_H, 0.06), mat({ map: TEX.wood(), color: "#b98a63", roughness: .6 }), [0.5, DOOR_H / 2, 0]);
+    const knob = mesh(new T3.SphereGeometry(0.045, 12, 12), mat({ color: "#d8c08a", metalness: .8, roughness: .3 }), [0.88, DOOR_H / 2, 0.05]);
     doorPivot.add(door, knob);
     group.add(doorPivot);
     group.add(mesh(new T3.BoxGeometry(1.7, 0.1, 1.0), slab, [1.6, 2.35, 2.55]));
-    group.add(mesh(new T3.BoxGeometry(1.5, 0.14, 0.7), mat({ color: "#bdb9b1" }), [1.6, 0.07, 2.5]));
+    group.add(mesh(new T3.BoxGeometry(1.5, STEP_H, 0.7), mat({ color: "#bdb9b1" }), [1.6, STEP_H / 2, 2.5]));
   }
 
   const world = new T3.Group();
@@ -576,6 +586,188 @@
   laser.position.set(0.3, TOP, 0);
   scene.add(laser);
 
+  // ------------------------------------------------------------------ guard dog: a stylised low-poly Doberman by the path
+  // Built from simple shapes like the rest of the house (no extra model file): a velvety anthracite coat (sheen),
+  // warm tan markings on the muzzle, brows, chest and paws, upright pointed ears, a short tail and a collar whose
+  // little LED follows the state of the house (green safe, amber when a door is open, red on error, calm cyan otherwise).
+  // It breathes, looks slowly left and right, and when a door is open it turns to watch the entrance.
+  const dog = (function () {
+    const velvet = (color, sheenColor) => new T3.MeshPhysicalMaterial({ color, roughness: 0.6, metalness: 0, sheen: 0.6,
+      sheenRoughness: 0.7, sheenColor: new T3.Color(sheenColor), flatShading: true });
+    const COAT = velvet("#33343c", "#8a94a8"), TAN = velvet("#b45309", "#d97706");
+    const GLOSS = new T3.MeshStandardMaterial({ color: "#0b0c10", roughness: 0.25 });
+    const COLLAR = new T3.MeshStandardMaterial({ color: "#7f1d1d", roughness: 0.5 });
+    const LED = new T3.MeshStandardMaterial({ color: "#0b0c10", emissive: new T3.Color("#22d3ee"), emissiveIntensity: 2.4 });
+    const part = (parent, geo, m, pos, rot, scale) => {
+      const o = mesh(geo, m, pos);
+      if (rot) o.rotation.set(rot[0], rot[1], rot[2]);
+      if (scale) o.scale.set(scale[0], scale[1], scale[2]);
+      parent.add(o);
+      return o;
+    };
+    const g = new T3.Group();
+    // body (the dog faces +z in its own space)
+    const torso = part(g, new T3.CapsuleGeometry(0.15, 0.42, 4, 10), COAT, [0, 0.57, -0.02], [Math.PI / 2, 0, 0], [1, 1, 0.95]);
+    const chest = part(g, new T3.SphereGeometry(0.17, 12, 10), COAT, [0, 0.6, 0.24], null, [0.95, 1.05, 1]);
+    part(g, new T3.SphereGeometry(0.1, 10, 8), TAN, [0, 0.52, 0.37], null, [1, 1.15, 0.55]);          // tan chest patch
+    part(g, new T3.SphereGeometry(0.15, 12, 10), COAT, [0, 0.58, -0.26]);                              // rump
+    [-1, 1].forEach((side) => {
+      // front legs: straight, tan socks and paws
+      part(g, new T3.CylinderGeometry(0.042, 0.034, 0.46, 8), COAT, [0.075 * side, 0.27, 0.25]);
+      part(g, new T3.CylinderGeometry(0.039, 0.036, 0.15, 8), TAN, [0.075 * side, 0.09, 0.25]);
+      part(g, new T3.SphereGeometry(0.045, 8, 6), TAN, [0.075 * side, 0.03, 0.27], null, [1, 0.6, 1.4]);
+      // hind legs: a strong thigh, the lower leg slightly back
+      part(g, new T3.SphereGeometry(0.1, 10, 8), COAT, [0.085 * side, 0.47, -0.27], null, [0.7, 1.3, 1]);
+      part(g, new T3.CylinderGeometry(0.036, 0.032, 0.4, 8), COAT, [0.085 * side, 0.21, -0.31], [-0.12, 0, 0]);
+      part(g, new T3.SphereGeometry(0.043, 8, 6), TAN, [0.085 * side, 0.03, -0.29], null, [1, 0.6, 1.4]);
+    });
+    part(g, new T3.CylinderGeometry(0.026, 0.02, 0.15, 6), COAT, [0, 0.68, -0.43], [-0.75, 0, 0]);   // short tail, up
+    // neck + head on a pivot, so the head can turn
+    const neck = new T3.Group();
+    neck.position.set(0, 0.66, 0.3);
+    g.add(neck);
+    part(neck, new T3.CylinderGeometry(0.068, 0.09, 0.3, 10), COAT, [0, 0.12, 0.04], [0.45, 0, 0]);
+    part(neck, new T3.TorusGeometry(0.088, 0.018, 8, 20), COLLAR, [0, 0.05, 0.02], [Math.PI / 2 + 0.45, 0, 0]);
+    const led = part(neck, new T3.SphereGeometry(0.024, 10, 8), LED, [0, 0.0, 0.115]);
+    const head = new T3.Group();
+    head.position.set(0, 0.28, 0.12);
+    neck.add(head);
+    part(head, new T3.SphereGeometry(0.1, 12, 10), COAT, [0, 0, 0], null, [0.9, 0.95, 1.15]);
+    part(head, new T3.CylinderGeometry(0.045, 0.065, 0.17, 8), COAT, [0, -0.025, 0.15], [Math.PI / 2, 0, 0]);   // muzzle
+    part(head, new T3.CylinderGeometry(0.04, 0.056, 0.15, 8), TAN, [0, -0.05, 0.15], [Math.PI / 2, 0, 0]);     // tan jaw
+    part(head, new T3.SphereGeometry(0.026, 8, 6), GLOSS, [0, -0.012, 0.24]);                                 // nose
+    [-1, 1].forEach((side) => {
+      part(head, new T3.SphereGeometry(0.016, 8, 6), GLOSS, [0.045 * side, 0.03, 0.09]);                    // eye
+      part(head, new T3.SphereGeometry(0.018, 8, 6), TAN, [0.046 * side, 0.058, 0.084], null, [1.2, 0.6, 1]);   // brow
+      part(head, new T3.ConeGeometry(0.036, 0.16, 6), COAT, [0.055 * side, 0.13, -0.02], [0, 0, -0.18 * side]);  // ear
+    });
+    const HOME = { x: 2.95, z: 3.2, yaw: -0.55 };                  // on the lawn, right of the path, by the lit entrance
+    const DOOR = new T3.Vector3(1.6, 1.0, 2.3);
+    g.position.set(HOME.x, 0, HOME.z);
+    g.rotation.y = HOME.yaw;
+    g.scale.setScalar(1.55);
+    const ledColor = { safe: new T3.Color("#22c55e"), vulnerable: new T3.Color("#f59e0b"), error: new T3.Color("#ef4444"), idle: new T3.Color("#22d3ee"), scanning: new T3.Color("#22d3ee") };
+    const look = { body: HOME.yaw, head: 0, pitch: 0 };
+    return {
+      group: g,
+      update(t, st, still) {
+        const alert = st === "vulnerable";
+        // where the door is, seen from the dog (yaw in the dog's own space)
+        const toDoor = Math.atan2(DOOR.x - g.position.x, DOOR.z - g.position.z);
+        const bodyGoal = alert ? HOME.yaw - 0.45 : HOME.yaw;
+        let headGoal = alert ? toDoor - bodyGoal : Math.sin(t * 0.45) * 0.45;
+        headGoal = Math.max(-1.0, Math.min(1.0, ((headGoal + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI));
+        const k = still ? 1 : 0.05;
+        look.body += (bodyGoal - look.body) * k;
+        look.head += (headGoal - look.head) * k;
+        look.pitch += ((alert ? 0.12 : 0) - look.pitch) * k;
+        g.rotation.y = look.body;
+        neck.rotation.y = look.head;
+        head.rotation.x = -look.pitch;
+        const breath = still ? 0 : Math.sin(t * 2.2);
+        chest.scale.set(0.95 * (1 + breath * 0.025), 1.05 * (1 + breath * 0.03), 1 + breath * 0.02);
+        torso.scale.set(1 + breath * 0.015, 1 + breath * 0.015, 0.95);
+        LED.emissive.copy(ledColor[st] || ledColor.idle);
+        LED.emissiveIntensity = alert && !still ? 2.2 + Math.sin(t * 6) * 0.9 : 2.4;
+      },
+    };
+  })();
+  world.add(dog.group);
+
+  // ------------------------------------------------------------------ glossy 3D warning sign for the "a door is open" badge
+  // A chubby, bevelled triangle of glossy yellow acrylic with a raised obsidian "!" (a tapered bar and a dot), rendered in a
+  // small canvas that replaces the flat icon of the floating badge over the house while a door is open. It floats gently
+  // and turns -12..+12 degrees so the reflections run along its rounded edges. Without WebGL the flat icon simply stays.
+  const sign = (function () {
+    const SIZE = 64;
+    let r2 = null, sc, cam, obj, running = false, failed = false;
+    function build() {
+      try {
+        r2 = new T3.WebGLRenderer({ antialias: true, alpha: true });
+      } catch (e) { failed = true; return false; }
+      r2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      r2.setSize(SIZE, SIZE, false);
+      r2.toneMapping = T3.ACESFilmicToneMapping;
+      r2.toneMappingExposure = 1.1;
+      const cv = r2.domElement;
+      cv.className = "glass-sign";
+      cv.setAttribute("aria-hidden", "true");
+      sc = new T3.Scene();
+      // a tiny studio for the reflections: two soft boxes and a cool rim panel
+      const pm = new T3.PMREMGenerator(r2);
+      const studio = new T3.Scene();
+      studio.background = new T3.Color("#1a2233");
+      [["#ffffff", [0, 5, 3], [7, 0.2, 3]], ["#fff1d6", [-5, 1, 3], [0.2, 4, 4]], ["#9fc3ff", [5, 0.5, -1], [0.2, 4, 4]]].forEach(([c, pos, sz]) => {
+        const b = new T3.Mesh(new T3.BoxGeometry(sz[0], sz[1], sz[2]), new T3.MeshBasicMaterial({ color: c }));
+        b.position.set(pos[0], pos[1], pos[2]);
+        studio.add(b);
+      });
+      sc.environment = pm.fromScene(studio, 0.02).texture;
+      pm.dispose();
+      const key = new T3.DirectionalLight("#ffffff", 1.4);
+      key.position.set(2, 3, 5);
+      sc.add(key, new T3.AmbientLight("#ffffff", 0.25));
+      cam = new T3.PerspectiveCamera(30, 1, 0.1, 50);
+      cam.position.set(0, 0, 6.4);
+      obj = new T3.Group();
+      sc.add(obj);
+      // rounded equilateral triangle (corner radius rr), extruded with a deep round bevel
+      const R = 1.05, rr = 0.34, pts = [90, 210, 330].map((d) => new T3.Vector2(Math.cos(d * Math.PI / 180) * R, Math.sin(d * Math.PI / 180) * R));
+      const shape = new T3.Shape();
+      pts.forEach((c, i) => {
+        const prev = pts[(i + 2) % 3], next = pts[(i + 1) % 3];
+        const a = c.clone().add(prev.clone().sub(c).normalize().multiplyScalar(rr));
+        const b = c.clone().add(next.clone().sub(c).normalize().multiplyScalar(rr));
+        if (i === 0) shape.moveTo(a.x, a.y); else shape.lineTo(a.x, a.y);
+        shape.quadraticCurveTo(c.x, c.y, b.x, b.y);
+      });
+      shape.closePath();
+      const DEPTH = 0.3, BEVEL = 0.16;
+      const triGeo = new T3.ExtrudeGeometry(shape, { depth: DEPTH, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: 0.14, bevelSegments: 8, curveSegments: 16 });
+      triGeo.center();
+      obj.add(new T3.Mesh(triGeo, new T3.MeshPhysicalMaterial({ color: "#facc15", metalness: 0.2, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.1 })));
+      const ink = new T3.MeshPhysicalMaterial({ color: "#090d16", metalness: 0.1, roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.05 });
+      const front = DEPTH / 2 + BEVEL - 0.02;
+      const bar = new T3.Group();
+      bar.add(new T3.Mesh(new T3.CylinderGeometry(0.1, 0.065, 0.5, 20), ink));
+      const capTop = new T3.Mesh(new T3.SphereGeometry(0.1, 20, 12), ink); capTop.position.y = 0.25;
+      const capBot = new T3.Mesh(new T3.SphereGeometry(0.065, 20, 12), ink); capBot.position.y = -0.25;
+      bar.add(capTop, capBot);
+      bar.position.set(0, 0.08, front);
+      bar.scale.z = 0.7;
+      const dot = new T3.Mesh(new T3.SphereGeometry(0.1, 20, 14), ink);
+      dot.position.set(0, -0.42, front);
+      dot.scale.z = 0.7;
+      obj.add(bar, dot);
+      return true;
+    }
+    function loop(now) {
+      if (!running) return;
+      const still = reduce(), t = now / 1000;
+      obj.position.y = still ? 0 : Math.sin(t * 1.8) * 0.09;
+      obj.rotation.y = still ? 0.12 : Math.sin(t * 1.1) * (12 * Math.PI / 180);
+      r2.render(sc, cam);
+      if (!r2.domElement.isConnected) { running = false; return; }
+      if (!still) requestAnimationFrame(loop);
+    }
+    return {
+      // put the sign into the badge's icon box (hero .glass-ico) while a door is open, else take it out
+      sync(st) {
+        const box = document.querySelector(".hero .glass-ico");
+        if (st !== "vulnerable" || !box || failed) {
+          running = false;
+          if (r2 && r2.domElement.parentNode) r2.domElement.parentNode.classList.remove("has-3d");
+          if (r2) r2.domElement.remove();
+          return;
+        }
+        if (!r2 && !build()) return;
+        box.classList.add("has-3d");
+        if (r2.domElement.parentNode !== box) box.appendChild(r2.domElement);
+        if (!running) { running = true; requestAnimationFrame(loop); }
+      },
+    };
+  })();
+
   // ------------------------------------------------------------------ state + animation
   let state = "idle", scanStart = 0;
   const cur = { door: -0.3, glow: 0, warm: 0, doorGlow: 0, laser: 0 };
@@ -593,6 +785,7 @@
     api.state = state;
     if (state === "scanning") scanStart = performance.now();
     if (reduce()) Object.assign(cur, goals());                 // jump straight to the result
+    sign.sync(state);                                          // the badge's 3D warning sign while a door is open
   };
 
   let az = 0, userAz = 0, dragging = false, lastX = 0;
@@ -621,6 +814,7 @@
     doorway.material.emissive.copy(BLACK).lerp(AMBER, cur.doorGlow);
     doorway.material.emissiveIntensity = 1.6 * cur.doorGlow;
     doorLight.intensity = cur.doorGlow * 18;
+    dog.update(now / 1000, state, reduce());
 
     if (state === "scanning" && !reduce()) {
       const p = (((now - scanStart) / 1000) / SWEEP) % 1;

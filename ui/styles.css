@@ -617,7 +617,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
    Semantic colours: safe #10B981, warning #F59E0B, danger #EF4444 - always with an SVG icon + words.
    ===================================================================================== */
 :root:not([data-theme="light"]) {
-  --bg: #09090b;
+  --bg: #131824;               /* a warm dark slate, not flat black: the house and the roof stand out */
   --surface: rgba(255, 255, 255, .03);
   --surface-1: rgba(255, 255, 255, .03);
   --surface-2: rgba(255, 255, 255, .06);
@@ -644,7 +644,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
   --solid: #ffffff; --text-2: #1f1f1f; --line: #e5e7eb;
   --safe: #0d8a5f; --warn: #b45309; --danger: #b91c1c;
 }
-:root:not([data-theme="light"]) body { background: radial-gradient(1200px 600px at 70% -10%, rgba(59, 130, 246, .08), transparent 60%), var(--bg); }
+:root:not([data-theme="light"]) body { background: radial-gradient(1200px 600px at 70% -10%, rgba(56, 189, 248, .1), transparent 60%), var(--bg); }
 
 body { font-family: Inter, "SF Pro Text", -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif; }
 h1, h2, h3, h4 { font-weight: 700; color: var(--text); }
@@ -708,7 +708,7 @@ details.tech { border-top-color: var(--line); }
 .stage-wrap { position: relative; min-height: 520px; }
 .stage-wrap::before {            /* soft glow behind the house, tinted by the state */
   content: ""; position: absolute; inset: 8% 10% 0; border-radius: 50%; filter: blur(60px); opacity: .55; z-index: 0;
-  background: radial-gradient(closest-side, rgba(96, 165, 250, .22), transparent);
+  background: radial-gradient(circle at 50% 45%, rgba(56, 189, 248, .14), rgba(19, 24, 36, 0) 70%);
   transition: background .6s;
 }
 .hero[data-state="safe"] .stage-wrap::before { background: radial-gradient(closest-side, rgba(16, 185, 129, .28), transparent); }
@@ -778,7 +778,7 @@ dialog.sheet { background: var(--solid, #111114); border-left: 1px solid var(--l
 @media (max-width: 1000px) { .hero.premium { grid-template-columns: minmax(0, 1fr); } .stage-wrap { min-height: 440px; } .hero.premium .house-stage, .hero.premium .house-stage.is3d { height: 440px; } }
 @media (max-width: 760px) {
   .appbar { padding: 16px 16px 4px; } main { padding: 8px 16px 32px; } .foot { padding: 20px 16px calc(120px + env(safe-area-inset-bottom)); }
-  .nav { border-right: 0; border-top: 1px solid var(--line); background: rgba(9, 9, 11, .92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .nav { border-right: 0; border-top: 1px solid var(--line); background: rgba(19, 24, 36, .92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
   :root[data-theme="light"] .nav { background: rgba(248, 250, 253, .95); }
   .page-head { margin: 12px 0 28px; } .page-head h2 { font-size: 2rem; }
   .section { margin-top: 48px; }
@@ -800,7 +800,7 @@ dialog.sheet { background: var(--solid, #111114); border-left: 1px solid var(--l
 /* header: opaque, above the content, so the page title is never blurred or cut */
 .appbar {
   position: sticky; top: 0; z-index: 30;
-  background: rgba(9, 9, 11, .88); border-bottom: 1px solid var(--line);
+  background: rgba(19, 24, 36, .88); border-bottom: 1px solid var(--line);
   padding-top: 18px; padding-bottom: 18px;
 }
 :root[data-theme="light"] .appbar { background: rgba(248, 250, 253, .92); }
@@ -1901,3 +1901,8 @@ table.results .mob-file { display: none; }
 .guard-devices li.is-stranger .gd-ico .ico { color: var(--red-dot); }
 .gd-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .gd-actions .btn { min-height: 40px; padding: .3rem .7rem; }
+
+/* the badge over the house: while a door is open, its flat icon becomes a glossy 3D warning sign (safehouse3d.js) */
+.glass-ico.has-3d { background: transparent !important; overflow: visible; animation: none !important; box-shadow: none !important; }
+.glass-ico.has-3d > svg { display: none; }
+.glass-ico .glass-sign { width: 64px; height: 64px; margin: -6px; display: block; animation: none; }
