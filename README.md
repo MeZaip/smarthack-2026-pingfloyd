@@ -247,15 +247,17 @@ python -m netcheck scan 8.8.8.8 --confirm         # ⛔ REFUZAT / REFUSED — gu
 python -m netcheck parse scans/scan_x.xml         # §1 Raw Parsed Data JSON (service_data_contracts.md)
 python -m netcheck verify scans/scan_x.xml 172.20.10.5 8080 --confirm   # „Dovedește!”: re-check one fix, no root
 python -m netcheck watch --confirm --interval 30  # „Paznic”: desktop alert for a new device / newly opened port
+python -m netcheck guard-test --confirm          # one look of the guard, step by step (what it sees and why)
 ```
 
-In the app the same guard is a switch on Home, **„Paznicul casei” / House guard**: after the user confirms it is their
-network, it looks every 20 s (`NETCHECK_GUARD_INTERVAL`) at who is connected (the hosts `nmap -sn` sees plus the ARP table,
-no admin rights; ping sweep as fallback), tells about a new device at once ("It's mine" / "I don't know it", maker from
-nmap's MAC list, private MACs shown as such) and, after an unprivileged top-100 connect check, about risky open doors.
-Same guardrail as a check: only the connected network, it stops by itself on any other one; no admin rights; it waits while a full
-check runs. What it remembers (HMAC of the MAC, masked MAC, open ports, the user's answer) lives in `~/.netcheck` and is
-removed by "Delete all data".
+In the app the guard is a switch on Home, **„Paznicul casei” / House guard**, and it watches **only devices**: after the
+user confirms it is their network, it looks every 8 s on a hotspot-size network (20 s on a bigger one,
+`NETCHECK_GUARD_INTERVAL`) at who is connected (the hosts `nmap -sn` sees plus the ARP table after a ping sweep, no admin
+rights, a look takes a few seconds) and shows an alert for any device it does not know ("It's mine" / "I don't know it",
+maker from nmap's MAC list, private MACs shown as such). Its list of devices can be edited (mine / stranger / forget). Open
+doors are not its job: that is the full check ("Inspect the house"). Same guardrail as a check: only the connected network,
+it stops by itself on any other one; it waits while a full check runs. What it remembers (HMAC of the MAC, masked MAC,
+maker, the user's answer) lives in `~/.netcheck` and is removed by "Delete all data".
 
 Guardrail: refuses public IPs, carrier-NAT (100.64/10), loopback/multicast/link-local, ranges bigger than /22,
 anything outside the allowlist (default = the connected subnet; extra *private* ranges via `--allow` or

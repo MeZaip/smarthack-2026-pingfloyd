@@ -11,9 +11,11 @@
   POST   /api/v1/export              nmap XML files (e.g. a whole folder) -> ZIP with findings.csv + scores.csv (FR-15)
   POST   /api/v1/export/history      the same two CSVs for the files saved on this computer (unreadable: ERROR)
   POST   /api/v1/report/{scan_id}    technical report of one saved check (.txt, nmap style, for an IT person)
-  GET    /api/v1/guard               „Păzește casa": on/off, state, recent events (new device, new open door)
+  GET    /api/v1/guard               „Păzește casa": on/off, state, devices it knows, alerts for unknown devices
   POST   /api/v1/guard               {"on": true, "confirm": true} start guarding THIS network / {"on": false} stop
   POST   /api/v1/guard/ack           {"id", "mine"} "it is mine" / "I do not know it" for one event
+  POST   /api/v1/guard/forget        forget the devices of this network (the guard learns it again)
+  POST   /api/v1/guard/device        {"id", "action": "mine" | "stranger" | "forget"} for one known device
   DELETE /api/v1/history             delete my history (one click, NFR-02)
   POST   /api/v1/heartbeat           the open page is alive (app mode)
   POST   /api/v1/shutdown            "Close SafeHouse" (app mode)
@@ -51,7 +53,8 @@ def _guard():
     global guard
     if guard is None:
         from ..net.watch import Guard
-        guard = Guard(interval=int(os.environ.get("NETCHECK_GUARD_INTERVAL", "20")), busy=lambda: jobs.current() is not None)
+        every = os.environ.get("NETCHECK_GUARD_INTERVAL")          # default: 8 s on a hotspot-size network, else 20 s
+        guard = Guard(interval=int(every) if every and every.isdigit() else None, busy=lambda: jobs.current() is not None)
     return guard
 
 
@@ -439,6 +442,26 @@ def guard_switch(body: GuardRequest, request: Request):
     except guardrail.ScopeError:
         return _error(403, "refused", lang, "Această rețea nu poate fi păzită." if lang == "ro" else "This network cannot be guarded.")
     return g.status()
+
+
+@router.post("/guard/forget")
+def guard_forget():
+    """„Uită aparatele": the guard learns this network again; saved checks stay."""
+    g = _guard()
+    g.forget_network()
+    return g.status()
+
+
+class GuardDevice(BaseModel):
+    id: str = Field(max_length=40)
+    action: str = Field(pattern="^(mine|stranger|forget)$")
+
+
+@router.post("/guard/device")
+def guard_device(body: GuardDevice):
+    """One device in the guard's list: "it is mine", "I do not know it" or "forget it"."""
+    g = _guard()
+    return {"ok": g.device(body.id, body.action), **g.status()}
 
 
 @router.post("/guard/ack")

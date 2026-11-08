@@ -155,18 +155,17 @@
       exporting: "Pregătesc fișierele…", exportDoneT: "Gata, fișierele CSV sunt descărcate",
       exportDone: "{f} fișiere analizate, {e} cu ERROR, {k} probleme găsite.", exportWhere: "Le-am salvat și aici:",
       exportSkipped: "Am sărit {n} fișiere care nu sunt .xml.", exportNone: "Nu am găsit fișiere .xml în ce ai ales.",
-      guardT: "Paznicul casei", guardOffS: "Te anunț imediat ce se conectează un aparat nou la Wi-Fi-ul tău sau se deschide o ușă nouă.",
+      guardT: "Paznicul casei", guardOffS: "Te anunț imediat ce se conectează la Wi-Fi-ul tău un aparat pe care nu-l cunosc.",
       guardStart: "Pornește paznicul", guardStop: "Oprește paznicul",
-      guardLearning: "Caut aparatele din rețea…", guardDoors: "Am găsit {n} aparate, mă uit la ușile lor…", guardWaiting: "Aștept să se termine verificarea casei…", guardMoved: "M-am oprit pentru că ai schimbat rețeaua. Pornește-mă din nou când ești pe rețeaua ta.", gdNet: "Rețeaua păzită", gdKnown: "cunoscute", gOff: "oprit", guardOffShort: "Te anunț când apare un aparat nou.", gStart: "Pornește", gsMoved: "Oprit: ai schimbat rețeaua.", gsWaiting: "Aștept verificarea casei…", gsLearning: "Caut aparatele…", gsPaused: "Pauză: nu ești pe nicio rețea.", gsError: "Nu văd rețeaua acum.", gsDoors: "Verific ușile a {n} aparate…", gsEmpty: "Nu văd alte aparate.", gsWatching: "{n} aparate · {ago}", gDetails: "Detalii", gNothing: "Încă n-am văzut nimic nou. Te anunț imediat ce apare ceva.", gdNow: "acum", gdHow: "Cum caut aparatele", gdSeen: "Aparate văzute", gdErr: "Mesaj de la Nmap",
+      guardLearning: "Caut aparatele din rețea…", guardWaiting: "Aștept să se termine verificarea casei…", guardMoved: "M-am oprit pentru că ai schimbat rețeaua. Pornește-mă din nou când ești pe rețeaua ta.", gdNet: "Rețeaua păzită", gdTimes: "Ultima trecere", gdKnown: "cunoscute", gOff: "oprit", guardOffShort: "Te anunț când apare un aparat nou.", gStart: "Pornește", gsMoved: "Oprit: ai schimbat rețeaua.", gsWaiting: "Aștept verificarea casei…", gsLearning: "Caut aparatele…", gsPaused: "Pauză: nu ești pe nicio rețea.", gsError: "Nu văd rețeaua acum.", gsEmpty: "Nu văd alte aparate.", gsWatching: "{n} aparate · {ago}", gDetails: "Detalii", gNothing: "Încă n-am văzut nimic nou. Te anunț imediat ce apare ceva.", gForget: "Uită toate aparatele", gDevices: "Aparatele din rețeaua ta ({n})", gDevicesS: "„Uită” îl scoate din listă: dacă e încă conectat, te anunț din nou. Ca să scoți un străin din rețea, schimbă parola Wi-Fi.", gOnline: "acum în rețea", gSeen: "văzut {ago}", gForgetOne: "Uită", gdNow: "acum", gdHow: "Cum caut aparatele", gdSeen: "Aparate văzute", gdErr: "Mesaj de la Nmap",
       guardEmpty: "Nu văd niciun alt aparat în rețea. Dacă știi că sunt aparate conectate, acest calculator nu poate citi lista lor.", guardWatching: "Păzesc rețeaua · {n} aparate cunoscute · m-am uitat {ago}",
       guardWatching0: "Păzesc rețeaua · m-am uitat {ago}", guardPaused: "Pauză: nu ești conectat la nicio rețea acum.",
       guardError: "Paznicul nu poate vedea rețeaua acum. Mai încerc.", guardAskT: "Pornim paznicul?",
       guardAsk: "La fiecare {s} secunde mă uit cine e conectat la rețeaua ta. Doar la rețeaua la care ești conectat acum și fără drepturi de administrator.",
       guardAsk2: "Este rețeaua ta?", guardYes: "Da, păzește-o",
       agoNow: "chiar acum", agoS: "acum {n} secunde", agoM: "acum {n} minute", agoM1: "acum un minut",
-      gNewDevT: "Aparat nou în Wi-Fi-ul tău", gNewPortT: "Ușă nouă deschisă", gPrivate: "Telefon sau laptop (adresă privată)", gUnknownDev: "Aparat necunoscut",
-      gChecking: "Mă uit ce uși are deschise…", gRisks: "Are uși periculoase: {list}", gNoRisk: "Nu are uși periculoase deschise.",
-      gKnow: "Îl cunoști?", gMine: "E al meu", gStranger: "Nu-l cunosc", gOk: "Am înțeles", gInspect: "Inspectează casa",
+      gNewDevT: "Aparat nou în Wi-Fi-ul tău", gPrivate: "Telefon sau laptop (adresă privată)", gUnknownDev: "Aparat necunoscut",
+      gKnow: "Îl cunoști?", gMine: "E al meu", gStranger: "Nu-l cunosc",
       gWasMine: "e al tău", gWasStranger: "nu-l cunoști", gRecent: "Ce a văzut paznicul",
       gStrangerT: "Un aparat pe care nu-l cunoști", gStrangerS: "S-ar putea să fie al unui vecin sau al cuiva care îți folosește Wi-Fi-ul. Iată ce faci:",
     },
@@ -306,18 +305,17 @@
       exporting: "Preparing the files…", exportDoneT: "Done, the CSV files are downloaded",
       exportDone: "{f} files analysed, {e} with ERROR, {k} problems found.", exportWhere: "I also saved them here:",
       exportSkipped: "I skipped {n} files that are not .xml.", exportNone: "I found no .xml files in what you chose.",
-      guardT: "House guard", guardOffS: "I tell you as soon as a new device joins your Wi-Fi or a new door opens.",
+      guardT: "House guard", guardOffS: "I tell you as soon as a device I do not know joins your Wi-Fi.",
       guardStart: "Turn on the guard", guardStop: "Turn off the guard",
-      guardLearning: "Looking for the devices on the network…", guardDoors: "Found {n} devices, checking their doors…", guardWaiting: "Waiting for the house check to finish…", guardMoved: "I stopped because you changed networks. Turn me on again when you are on your own network.", gdNet: "Guarded network", gdKnown: "known", gOff: "off", guardOffShort: "I tell you when a new device appears.", gStart: "Turn on", gsMoved: "Off: you changed networks.", gsWaiting: "Waiting for the house check…", gsLearning: "Looking for devices…", gsPaused: "Paused: no network.", gsError: "Cannot see the network now.", gsDoors: "Checking the doors of {n} devices…", gsEmpty: "I see no other devices.", gsWatching: "{n} devices · {ago}", gDetails: "Details", gNothing: "Nothing new so far. I will tell you as soon as something appears.", gdNow: "now", gdHow: "How I look for devices", gdSeen: "Devices seen", gdErr: "Message from Nmap",
+      guardLearning: "Looking for the devices on the network…", guardWaiting: "Waiting for the house check to finish…", guardMoved: "I stopped because you changed networks. Turn me on again when you are on your own network.", gdNet: "Guarded network", gdTimes: "Last look", gdKnown: "known", gOff: "off", guardOffShort: "I tell you when a new device appears.", gStart: "Turn on", gsMoved: "Off: you changed networks.", gsWaiting: "Waiting for the house check…", gsLearning: "Looking for devices…", gsPaused: "Paused: no network.", gsError: "Cannot see the network now.", gsEmpty: "I see no other devices.", gsWatching: "{n} devices · {ago}", gDetails: "Details", gNothing: "Nothing new so far. I will tell you as soon as something appears.", gForget: "Forget all devices", gDevices: "The devices on your network ({n})", gDevicesS: "“Forget” removes it from the list: if it is still connected, I will tell you again. To get a stranger off the network, change the Wi-Fi password.", gOnline: "on the network now", gSeen: "seen {ago}", gForgetOne: "Forget", gdNow: "now", gdHow: "How I look for devices", gdSeen: "Devices seen", gdErr: "Message from Nmap",
       guardEmpty: "I see no other device on the network. If you know devices are connected, this computer cannot read their list.", guardWatching: "Guarding the network · {n} known devices · looked {ago}",
       guardWatching0: "Guarding the network · looked {ago}", guardPaused: "Paused: you are not connected to any network right now.",
       guardError: "The guard cannot see the network right now. I keep trying.", guardAskT: "Turn on the guard?",
       guardAsk: "Every {s} seconds I look at who is connected to your network. Only the network you are connected to right now, and without administrator rights.",
       guardAsk2: "Is this your network?", guardYes: "Yes, guard it",
       agoNow: "just now", agoS: "{n} seconds ago", agoM: "{n} minutes ago", agoM1: "a minute ago",
-      gNewDevT: "New device on your Wi-Fi", gNewPortT: "New door opened", gPrivate: "Phone or laptop (private address)", gUnknownDev: "Unknown device",
-      gChecking: "Checking which doors it has open…", gRisks: "It has dangerous doors open: {list}", gNoRisk: "It has no dangerous doors open.",
-      gKnow: "Do you know it?", gMine: "It's mine", gStranger: "I don't know it", gOk: "Got it", gInspect: "Inspect the house",
+      gNewDevT: "New device on your Wi-Fi", gPrivate: "Phone or laptop (private address)", gUnknownDev: "Unknown device",
+      gKnow: "Do you know it?", gMine: "It's mine", gStranger: "I don't know it",
       gWasMine: "yours", gWasStranger: "you don't know it", gRecent: "What the guard saw",
       gStrangerT: "A device you don't know", gStrangerS: "It might belong to a neighbour or someone using your Wi-Fi. Here is what to do:",
     },
@@ -1771,7 +1769,6 @@
     return n < 5 ? t("agoNow") : n < 60 ? t("agoS", { n }) : n < 120 ? t("agoM1") : t("agoM", { n: Math.round(n / 60) });
   };
   const gName = (e) => shortVendor(e.vendor) || (e.private_mac ? t("gPrivate") : t("gUnknownDev"));
-  const gRiskLine = (e) => e.checking ? t("gChecking") : e.risks.length ? t("gRisks", { list: e.risks.map((c) => simple(c).title).join("; ") }) : t("gNoRisk");
   function guardLine(g) {
     if (g && !g.on && g.state === "moved") return t("guardMoved");
     if (!g || !g.on) return t("guardOffS");
@@ -1779,7 +1776,6 @@
     if (g.state === "learning") return t("guardLearning");
     if (g.state === "paused") return t("guardPaused");
     if (g.state === "error") return t("guardError") + (g.error ? ` (${g.error})` : "");
-    if (g.phase === "doors" && g.seen) return t("guardDoors", { n: g.seen });
     if (!g.known && !g.seen && g.last_check) return t("guardEmpty");
     const a = g.last_check ? ago(g.last_check) : t("agoNow");
     return g.known ? t("guardWatching", { n: g.known, ago: a }) : t("guardWatching0", { ago: a });
@@ -1792,7 +1788,6 @@
     if (g.state === "learning") return t("gsLearning");
     if (g.state === "paused") return t("gsPaused");
     if (g.state === "error") return t("gsError");
-    if (g.phase === "doors" && g.seen) return t("gsDoors", { n: g.seen });
     if (!g.known && !g.seen && g.last_check) return t("gsEmpty");
     return t("gsWatching", { n: g.known, ago: g.last_check ? ago(g.last_check) : t("agoNow") });
   }
@@ -1817,21 +1812,43 @@
       g.events.length ? [h("h4", { text: t("gRecent") + ":" }),
         h("ul", { class: "guard-recent" }, g.events.slice(0, 10).map((e) => h("li", null,
           icon(e.kind === "new_device" ? "plus" : "door"),
-          h("span", { text: `${e.kind === "new_device" ? t("gNewDevT") : t("gNewPortT")}: ${gName(e)} · ${e.ip}` +
-            (e.risks.length ? ` · ${e.risks.map((c) => simple(c).title).join("; ")}` : "") +
+          h("span", { text: `${t("gNewDevT")}: ${gName(e)} · ${e.ip}` +
             (e.status === "mine" ? ` · ${t("gWasMine")}` : e.status === "stranger" ? ` · ${t("gWasStranger")}` : "") }),
           h("span", { class: "muted", text: ago(e.when) }))))]
         : h("p", { class: "lead", style: "margin-top:1rem", text: t("gNothing") }),
+      g.devices && g.devices.length ? [h("h4", { text: t("gDevices", { n: g.devices.length }) }),
+        h("p", { class: "muted", style: "margin:.2rem 0 .6rem", text: t("gDevicesS") }),
+        h("ul", { class: "guard-devices" }, g.devices.map((d) => h("li", { class: d.mine === false ? "is-stranger" : "" },
+          h("span", { class: "gd-ico" + (d.online ? " on" : ""), "aria-hidden": "true" }, icon(d.mine === false ? "alert" : "wifi")),
+          h("div", { class: "grow" },
+            h("strong", { text: `${gName(d)} · ${d.ip}` }),
+            h("span", { class: "muted", text: [d.online ? t("gOnline") : d.last_seen ? t("gSeen", { ago: ago(d.last_seen) }) : "",
+              d.mine === true ? t("gWasMine") : d.mine === false ? t("gWasStranger") : ""].filter(Boolean).join(" · ") })),
+          h("div", { class: "gd-actions" },
+            d.mine !== true ? h("button", { type: "button", class: "btn btn-text", onclick: () => guardDevice(d.id, "mine") }, t("gMine")) : null,
+            d.mine !== false ? h("button", { type: "button", class: "btn btn-text", onclick: () => guardDevice(d.id, "stranger") }, t("gStranger")) : null,
+            h("button", { type: "button", class: "btn btn-text", "aria-label": `${t("gForgetOne")}: ${gName(d)} ${d.ip}`, onclick: () => guardDevice(d.id, "forget") }, icon("trash"), t("gForgetOne"))))))] : null,
       techBox(h("dl", { class: "meta" },
         h("dt", { text: t("gdNet") }), h("dd", { class: "mono", text: `${g.subnet || "–"} · ${t("gdNow")}: ${d.net_now || "–"}` }),
-        h("dt", { text: t("gdHow") }), h("dd", { class: "mono", text: d.how === "nmap" ? `nmap -sn (${d.nmap_rc ?? "–"})` : d.how === "ping" ? "ping" : "–" }),
+        h("dt", { text: t("gdHow") }), h("dd", { class: "mono", text: d.how ? `${d.how} · nmap ${d.nmap_rc ?? "–"}` : "–" }),
+        h("dt", { text: t("gdTimes") }), h("dd", { class: "mono", text: `#${d.looks ?? 0} · nmap ${d.nmap_s ?? "–"}s · ping ${d.ping_s ?? "–"}s` }),
         h("dt", { text: t("gdSeen") }), h("dd", { class: "mono", text: `nmap: ${d.from_nmap ?? "–"} / ${d.nmap_up ?? "–"} up · ARP: ${d.arp ?? "–"} · ${t("gdKnown")}: ${g.known ?? 0}` }),
         d.nmap_err ? [h("dt", { text: t("gdErr") }), h("dd", { class: "mono", text: d.nmap_err })] : null,
         g.error ? [h("dt", { text: t("gdErr") }), h("dd", { class: "mono", text: g.error })] : null)),
       h("div", { class: "actions" },
+        on ? h("button", { type: "button", class: "btn", onclick: guardForget }, icon("refresh"), t("gForget")) : null,
         on ? h("button", { type: "button", class: "btn btn-danger", onclick: () => { closeSheet(); guardSwitch(false); } }, t("guardStop"))
           : h("button", { type: "button", class: "btn btn-cta", onclick: guardAsk }, icon("shield"), t("guardStart")),
         h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close"))));
+  }
+  async function guardDevice(id, action) {
+    const res = await api("POST", "/api/v1/guard/device", { id, action });
+    if (res.ok) { guardSt.data = res.data; refreshGuardCard(); }
+    if (action === "stranger") strangerSheet();
+  }
+  async function guardForget() {
+    const res = await api("POST", "/api/v1/guard/forget");
+    if (res.ok) { guardSt.data = res.data; refreshGuardCard(); guardSchedule(); }
   }
   function guardSheet(opener) {
     showSheet(guardSheetBody(), opener);
@@ -1906,19 +1923,15 @@
       if (!mine) strangerSheet();
       guardPoll();
     };
-    const dev = e.kind === "new_device";
-    const el = h("div", { class: "guard-toast" + (e.risks.length ? " risky" : ""), role: "alert", "data-id": e.id,
-        "data-sig": `${e.checking}|${e.risks.join(",")}` },
-      h("div", { class: "gt-head" }, icon(dev ? "wifi" : "door"), h("strong", { text: dev ? t("gNewDevT") : t("gNewPortT") }),
+    // only devices: what doors it has open is for "Inspect the house"
+    const el = h("div", { class: "guard-toast", role: "alert", "data-id": e.id, "data-sig": e.status },
+      h("div", { class: "gt-head" }, icon("wifi"), h("strong", { text: t("gNewDevT") }),
         h("button", { type: "button", class: "icon-btn gt-x", "aria-label": t("close"), title: t("close"), onclick: close }, icon("x"))),
-      h("p", { class: "gt-name", text: `${gName(e)} · ${e.ip}` + (dev ? "" : ` · ${e.ports.join(", ")}`) }),
-      h("p", { class: "gt-risk", text: gRiskLine(e) }),
-      dev ? h("p", { class: "gt-q", text: t("gKnow") }) : null,
-      h("div", { class: "actions" }, dev
-        ? [h("button", { type: "button", class: "btn btn-tonal", onclick: () => answer(true) }, icon("check"), t("gMine")),
-           h("button", { type: "button", class: "btn", onclick: () => answer(false) }, icon("alert"), t("gStranger"))]
-        : [h("button", { type: "button", class: "btn btn-tonal", onclick: close }, t("gOk")),
-           h("button", { type: "button", class: "btn", onclick: () => { close(); setTab("home"); inspect(); } }, icon("search"), t("gInspect"))]));
+      h("p", { class: "gt-name", text: `${gName(e)} · ${e.ip}` }),
+      h("p", { class: "gt-q", text: t("gKnow") }),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-tonal", onclick: () => answer(true) }, icon("check"), t("gMine")),
+        h("button", { type: "button", class: "btn", onclick: () => answer(false) }, icon("alert"), t("gStranger"))));
     return el;
   }
   function strangerSheet() {

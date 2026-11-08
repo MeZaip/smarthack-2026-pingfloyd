@@ -27,7 +27,7 @@ A technical report (.txt, nmap style) exports one check for an IT person (no AI)
 **Differentiators.** SafeHouse UI: a 3D house that is "inspected" by a real live scan, a network map of every device (this computer
 marked), plain-language fixes; HMAC device IDs (no MAC stored); „Am reparat, verifică” one-click targeted re-check
 (unprivileged `nmap -sT`, same rules);
-„Paznic” unprivileged guard, in the app as a switch on Home and in the CLI: a new device on the Wi-Fi or a newly opened risky door shows an alert within seconds (nmap host list + ARP table, quick top-100 connect check; it stops by itself on another network).
+„Paznic” unprivileged guard, a switch on Home: an unknown device on the Wi-Fi shows an alert within seconds (nmap host list + ARP table, no port scan; editable device list; it stops by itself on another network).
 
 **Security & privacy.** One-click app (`SafeHouse.cmd`): the page is a thin client of a local agent on 127.0.0.1 (host check +
 SameSite session cookie + origin check against CSRF/DNS rebinding); only nmap is elevated, via the OS permission dialog. Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
