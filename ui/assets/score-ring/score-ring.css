@@ -1,0 +1,59 @@
+/* ScoreRing - the home score as a futuristic dial (see score-ring.js).
+   Orbitron is kept in this folder (SIL Open Font License, fonts/OFL.txt): no CDN, so it also works offline and nothing
+   is sent to a font server. Only the digits use it; "din 100" is a clean sans-serif.
+   The colours of the three states are CSS variables: --sr-a (start of the line, lighter) and --sr-b (the neon end and
+   the glow). Safe = neon green to cyan, warning = neon orange, danger = neon red. Animations stop with reduced motion. */
+@font-face {
+  font-family: "Orbitron";
+  font-style: normal;
+  font-weight: 500 800;
+  font-display: swap;
+  src: url("fonts/orbitron-latin.woff2") format("woff2");
+}
+
+.score-ring {
+  --sr-size: 230px;
+  --sr-a: #c9fff0; --sr-b: #2bf5b5;                     /* safe: neon green, a cyan tint at the start */
+  --sr-glow: 0.55;                                       /* strength of the light behind the dial (0-1) */
+  --sr-num: "Orbitron", "Share Tech Mono", "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  --sr-sans: "Inter", "SF Pro Text", -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+  position: relative; width: var(--sr-size); aspect-ratio: 1; flex: none; isolation: isolate;
+}
+.score-ring.is-safe    { --sr-a: #b8fff4; --sr-b: #19f0c0; }
+.score-ring.is-warning { --sr-a: #ffe0a3; --sr-b: #ff8a1c; }
+.score-ring.is-danger  { --sr-a: #ffb3b8; --sr-b: #ff2d4f; }
+.score-ring.is-none    { --sr-a: #8b93a7; --sr-b: #5b6375; --sr-glow: 0.15; }
+
+/* the soft light behind the dial, in the colour of the state */
+.score-ring::before {
+  content: ""; position: absolute; inset: -14%; z-index: -1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--sr-b) 55%, transparent) 0%, color-mix(in srgb, var(--sr-b) 18%, transparent) 38%, transparent 68%);
+  opacity: var(--sr-glow); filter: blur(6px);
+  animation: srBreathe 4s ease-in-out infinite;
+}
+.sr-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.sr-face-a { stop-color: #1b1e2c; } .sr-face-b { stop-color: #07080e; }
+.sr-face { stroke: rgba(255, 255, 255, .07); stroke-width: 1; }
+/* segmented track: short radial dashes across a wide stroke */
+.sr-track { fill: none; stroke: rgba(255, 255, 255, .13); stroke-width: 16; }
+.sr-lit { fill: none; stroke: var(--sr-b); stroke-width: 16; opacity: .38; }
+/* the score: a thicker glowing line over the segments */
+.sr-stop-a { stop-color: var(--sr-a); } .sr-stop-b { stop-color: var(--sr-b); }
+.sr-line { fill: none; stroke-width: 9; stroke-linecap: round; }
+/* end cap: a bright dot with a ring of light */
+.sr-cap-glow { fill: var(--sr-b); opacity: .55; }
+.sr-cap-dot { fill: #fff; stroke: var(--sr-b); stroke-width: 3.5; }
+.sr-cap { animation: srCap 2.4s ease-in-out infinite; transform-box: fill-box; }
+
+.sr-center { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; pointer-events: none; padding-top: 4%; }
+.sr-num {
+  font: 800 calc(var(--sr-size) * .27)/1 var(--sr-num); letter-spacing: .02em; color: #fff; font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 2px rgba(0, 0, 0, .8), 0 0 14px color-mix(in srgb, var(--sr-b) 80%, transparent), 0 0 34px color-mix(in srgb, var(--sr-b) 45%, transparent);
+}
+.sr-of { margin-top: calc(var(--sr-size) * .04); font: 600 max(.85rem, calc(var(--sr-size) * .068))/1.2 var(--sr-sans); color: #c9cde0; letter-spacing: .01em; }
+
+@keyframes srBreathe { 0%, 100% { opacity: var(--sr-glow); } 50% { opacity: calc(var(--sr-glow) * .7); } }
+@keyframes srCap { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
+@media (prefers-reduced-motion: reduce) {
+  .score-ring::before, .sr-cap { animation: none; }
+}

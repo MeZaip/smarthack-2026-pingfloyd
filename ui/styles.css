@@ -175,15 +175,6 @@ button { font: inherit; cursor: pointer; color: var(--text); }
   display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: center;
 }
 .network .muted { color: var(--on-pc); }
-.ring { position: relative; width: 184px; height: 184px; flex: none; }
-.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.ring .track { stroke: rgba(255, 255, 255, .55); }
-.ring .val-red { stroke: var(--red-dot); } .ring .val-amber { stroke: var(--amber-dot); } .ring .val-green { stroke: var(--green-dot); }
-.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-.ring-num { font-size: 3.5rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.ring-of { font-size: 1rem; font-weight: 600; }
-.ring.small { width: 128px; height: 128px; }
-.ring.small .ring-num { font-size: 2.4rem; }
 .network h2 { font-size: 1.75rem; margin-bottom: .6rem; }
 .network-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.2rem; }
 .network .btn { border-color: var(--on-pc); color: var(--on-pc); }
@@ -497,7 +488,6 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
 .inspect-btn[aria-busy="true"] { opacity: .85; cursor: progress; }
 .hero-score { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin: 18px 0 6px; }
 .hero-score .traffic { margin: 0; background: var(--surface-1); }
-.hero .ring .track { stroke: var(--surface-2); }
 
 /* device cards under the house */
 .dcards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); align-items: start; }
@@ -751,17 +741,6 @@ details.tech { border-top-color: var(--line); }
 .score-card .lead { margin: 0; }
 .score-card .actions { justify-content: center; width: 100%; flex-direction: column; margin: 4px 0 0; }
 .score-card .actions .btn { width: 100%; }
-.ring { border-radius: 50%; }
-.ring .track { stroke: rgba(255, 255, 255, .08); }
-:root[data-theme="light"] .ring .track { stroke: #e5e7eb; }
-.ring.b-green { box-shadow: 0 0 20px rgba(16, 185, 129, .2), 0 0 60px rgba(16, 185, 129, .08); }
-.ring.b-amber { box-shadow: 0 0 20px rgba(245, 158, 11, .2), 0 0 60px rgba(245, 158, 11, .08); }
-.ring.b-red { box-shadow: 0 0 20px rgba(239, 68, 68, .2), 0 0 60px rgba(239, 68, 68, .08); }
-.ring.b-none { box-shadow: 0 0 20px rgba(96, 165, 250, .14); }
-.ring .val-green { stroke: var(--safe); } .ring .val-amber { stroke: var(--warn); } .ring .val-red { stroke: var(--danger); }
-.ring.lg { width: 200px; height: 200px; }
-.ring.lg .ring-num { font-size: 3.75rem; font-weight: 700; letter-spacing: -.04em; }
-.ring-of { color: var(--muted); }
 
 /* status indicators as pill badges (no radio look): active = tinted + icon, others = quiet outline */
 .traffic { background: none; padding: 0; gap: 8px; justify-content: center; margin: 0; flex-wrap: wrap; }
@@ -1515,27 +1494,11 @@ div.topo-node { cursor: default; }
 .cyber .confirm { background: rgba(255, 107, 129, .1); border: 1.5px solid var(--c-bad); color: var(--cy-text); }
 
 /* Before / Now: radar dials */
-.cy-compare { display: flex; align-items: center; justify-content: space-around; gap: 10px; flex-wrap: wrap; }
-.cy-col { display: grid; justify-items: center; gap: 12px; text-align: center; }
+.cy-compare { display: flex; align-items: center; justify-content: space-around; gap: 10px; }
+.cy-col { flex: 1 1 0; min-width: 0; container-type: inline-size; display: grid; justify-items: center; gap: 12px; text-align: center; }
 .cy-col-k { font: 700 1.25rem var(--cy-sans); color: var(--cy-text); }
-.cy-dial { position: relative; width: 210px; aspect-ratio: 1; }
-.cy-dial-svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.cy-dial-grid line { stroke: color-mix(in srgb, var(--neon) 9%, transparent); stroke-width: .6; }
-.cy-dial-ring { fill: none; stroke: color-mix(in srgb, var(--neon) 18%, transparent); stroke-width: .8; }
-.cy-stop { stop-color: var(--neon); }
-.cy-sweep { transform-origin: 100px 100px; animation: cySpin 9s linear infinite; opacity: .6; }
-.cy-arc-track { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: 8; }
-.cy-arc { fill: none; stroke: var(--neon); stroke-width: 8; stroke-linecap: round; filter: drop-shadow(0 0 4px var(--neon));
-  animation: cyArc 1.3s cubic-bezier(.2, .8, .2, 1) .2s both; }
-.cy-ticks line { stroke: rgba(255, 255, 255, .18); stroke-width: 1.2; }
-.cy-ticks line.on { stroke: var(--neon); }
-.cy-orbit { fill: none; stroke: var(--neon); transform-origin: 100px 100px; }
-.cy-orbit.a { stroke-width: 2.2; stroke-dasharray: 1.4 5.6; opacity: .75; animation: cySpin 60s linear infinite; }
-.cy-orbit.b { stroke-width: 1.1; stroke-dasharray: 30 10 6 10; opacity: .4; animation: cySpin 90s linear infinite reverse; }
-.cy-dial-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
-.cy-num { font: 800 3.8rem/1 var(--cy-tech); color: #fff; font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 2px rgba(0, 0, 0, .9), 0 0 var(--glow-strong) color-mix(in srgb, var(--neon) 55%, transparent); }
-.cy-of { margin-top: 6px; font: 700 1.05rem var(--cy-sans); color: var(--cy-soft); }
+/* the dials are the Home score dial (ui/assets/score-ring/), sized for this panel */
+.cy-col .score-ring { --sr-size: min(200px, 100cqi); }       /* as large as the column allows, up to 200px */
 .cy-band { display: inline-flex; align-items: center; gap: 8px; padding: .4rem .9rem; border-radius: 999px; white-space: nowrap;
   border: 2px solid var(--neon); font: 700 1.1rem var(--cy-sans); color: #fff; background: color-mix(in srgb, var(--neon) 16%, #0b0c18); }
 .cy-band .ico { color: var(--neon); width: 1.2em; height: 1.2em; }
@@ -1620,7 +1583,6 @@ div.topo-node { cursor: default; }
 
 @keyframes cyIn { from { opacity: 0; transform: translateY(8px); } }
 @keyframes cyFade { from { opacity: 0; } }
-@keyframes cySpin { to { transform: rotate(360deg); } }
 @keyframes cyArc { from { stroke-dashoffset: var(--v, 0); } to { stroke-dashoffset: 0; } }
 @keyframes cyDraw { to { stroke-dashoffset: 0; } }
 @keyframes cyPulse { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(2); opacity: 0; } }
@@ -1635,10 +1597,8 @@ div.topo-node { cursor: default; }
   .cyber { padding: 12px; border-radius: 20px; }
   .cy-panel { padding: 18px 14px 20px; }
   .cy-title { font-size: 1.2rem; }
-  .cy-dial { width: 128px; }
-  .cy-num { font-size: 2.5rem; }
   .cy-col-k { font-size: 1.1rem; }
-  .cy-compare { justify-content: center; flex-wrap: nowrap; gap: 6px; }
+  .cy-compare { gap: 6px; }
   .cy-arrow span { width: 10px; height: 10px; border-width: 3px; }
   .cy-band { font-size: .95rem; padding: .3rem .65rem; }
   .cy-verdict { font-size: 1.15rem; }

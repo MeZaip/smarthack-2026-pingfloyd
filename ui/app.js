@@ -595,15 +595,6 @@
   }
 
   // Score ring (Fing) + labelled traffic light.
-  function ring(score, small) {
-    const b = bandOf(score), r = 52, c = 2 * Math.PI * r;
-    const s = svg("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" });
-    s.append(svg("circle", { class: "track", cx: 60, cy: 60, r, fill: "none", "stroke-width": 12 }));
-    s.append(svg("circle", { class: "val-" + b, cx: 60, cy: 60, r, fill: "none", "stroke-width": 12, "stroke-linecap": "round",
-      "stroke-dasharray": `${(score / 100) * c} ${c}` }));
-    return h("div", { class: "ring b-" + b + (small === "lg" ? " lg" : small ? " small" : ""), role: "img", "aria-label": `${score} ${t("scoreOf")}, ${t("band_" + b)}` },
-      s, h("div", { class: "ring-center", "aria-hidden": "true" }, h("div", { class: "ring-num", text: String(score) }), h("div", { class: "ring-of", text: t("scoreOf") })));
-  }
   function traffic(score) {
     const b = bandOf(score);
     const lamp = (tone, key) => h("span", { class: "lamp " + tone + (b === tone ? " on" : "") },
@@ -782,12 +773,15 @@
     root.append(pageHead(t("hello"), t("helloSub")));
 
     // right column: score, status pills and the call to action, centred in one card
-    const pendingRing = h("div", { class: "ring b-none lg", "aria-hidden": "true" },
-      (() => { const g = svg("svg", { viewBox: "0 0 120 120" }); g.append(svg("circle", { class: "track", cx: 60, cy: 60, r: 52, fill: "none", "stroke-width": 12 })); return g; })(),
-      h("div", { class: "ring-center" }, h("div", { class: "ring-num", text: "–" }), h("div", { class: "ring-of", text: t("scoreOf") })));
+    // the score as a dial (ui/assets/score-ring/): segmented track, glowing line and end cap, counting up from 0 the
+    // first time a scan is shown; before the house is inspected the same dial, empty
+    const scoreDial = () => window.ScoreRing.create(s.score, { of: t("scoreOf"), key: s.file,
+      aria: `${s.score} ${t("scoreOf")}, ${t("band_" + bandOf(s.score))}` });
+    const pendingRing = window.ScoreRing.pending(t("scoreOf"));
+    pendingRing.setAttribute("aria-hidden", "true");
     const scoreCard = h("div", { class: "score-card" },
       h("p", { class: "eyebrow muted", text: t("scoreTitle") }),
-      done && !s.error ? ring(s.score, "lg") : pendingRing,
+      done && !s.error ? scoreDial() : pendingRing,
       done && !s.error ? traffic(s.score) : null,
       h("p", { class: "lead sc-lead", text: state.scanning && state.job ? t("scanElapsed", { t: mmss(state.job.elapsed || 0) })
         : !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
@@ -1351,8 +1345,8 @@
   // ---------------------------------------------------------------- HISTORY: cyber data dashboard
   // The History tab as a dark command console: glass panels with a thin neon edge whose colour follows the state of the
   // network like a traffic light (green safe, yellow medium risk, red high risk: the colours everyone already knows),
-  // white text on a near-solid background, large type, so it reads easily at 80 too. The Before / Now scores as radar dials with slowly
-  // turning, broken outer rings, the score at each check as a glowing line chart (pure SVG built here: no chart library,
+  // white text on a near-solid background, large type, so it reads easily at 80 too. The Before / Now scores as the same
+  // dial as Home (ui/assets/score-ring/), the score at each check as a glowing line chart (pure SVG built here: no chart library,
   // the app has to work offline) and the events as a system log. Only real data from the saved history; every
   // animation stops with reduced motion, and every chart point is reachable with the keyboard.
   const NEON = { green: "ok", amber: "warn", red: "bad" };
@@ -1391,12 +1385,14 @@
     }
     const fixed = ch.resolved_findings.length;
     const verdict = ch.score_change > 0 ? (fixed === 1 ? t("bravoOne") : t("bravo", { n: fixed })) : ch.score_change < 0 ? t("worse") : t("same");
-    const col = (label, score) => h("div", { class: "cy-col" }, h("span", { class: "cy-col-k", text: label }), cyDial(score, label),
+    const dial = (label, score, id) => window.ScoreRing.create(score, { of: t("scoreOf"), key: `history|${label}|${id}`,
+      aria: `${label}: ${score} ${t("scoreOf")}, ${t("band_" + bandOf(score))}` });
+    const col = (label, score, id) => h("div", { class: "cy-col" }, h("span", { class: "cy-col-k", text: label }), dial(label, score, id),
       h("span", { class: "cy-band n-" + neonOf(score) }, icon(BAND_ICON[bandOf(score)]), t("band_" + bandOf(score))));
     const compare = cyPanel(t("cyCompare"), null,
-      h("div", { class: "cy-compare" }, col(t("before"), ch.score_before),
+      h("div", { class: "cy-compare" }, col(t("before"), ch.score_before, ch.before_scan_id ?? ch.before_file),
         h("div", { class: "cy-arrow", "aria-hidden": "true" }, h("span"), h("span"), h("span")),
-        col(t("now"), ch.score_after)),
+        col(t("now"), ch.score_after, ch.after_scan_id ?? ch.after_file)),
       h("p", { class: "cy-verdict n-" + (ch.score_change < 0 ? "bad" : ch.score_change > 0 ? "ok" : "warn") },
         icon(ch.score_change > 0 ? "sparkles" : ch.score_change < 0 ? "alert" : "info", "lg"), h("span", { text: verdict })));
     const log = cyPanel(t("events"), null, cyLog(ch, trend));
@@ -1414,38 +1410,6 @@
           h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); } }, t("deleteNo")))));
     }
     deck.append(del);
-  }
-
-  // A score as a holographic radar dial: a fine grid and a turning sweep inside, the score as a glowing arc, a tick
-  // ring, and two broken outer rings turning slowly in opposite directions. The number sits in the middle.
-  function cyDial(score, label) {
-    const b = bandOf(score), uid = "cy" + ++cyUid, R = 72, C = 2 * Math.PI * R, k = Math.max(0, Math.min(100, score)) / 100;
-    const s = svg("svg", { class: "cy-dial-svg", viewBox: "0 0 200 200", "aria-hidden": "true" });
-    const defs = svg("defs");
-    const clip = svg("clipPath", { id: uid + "-clip" }); clip.append(svg("circle", { cx: 100, cy: 100, r: 62 }));
-    const sweep = svg("linearGradient", { id: uid + "-sweep", x1: "0", y1: "1", x2: "1", y2: "0" });
-    sweep.append(svg("stop", { offset: "0", class: "cy-stop", "stop-opacity": "0" }), svg("stop", { offset: "1", class: "cy-stop", "stop-opacity": "0.5" }));
-    defs.append(clip, sweep);
-    s.append(defs);
-    const inner = svg("g", { class: "cy-dial-grid", "clip-path": `url(#${uid}-clip)` });
-    for (let v = 100 - 6 * 11; v <= 100 + 6 * 11; v += 11) inner.append(svg("line", { x1: v, y1: 30, x2: v, y2: 170 }), svg("line", { x1: 30, y1: v, x2: 170, y2: v }));
-    [20, 40, 60].forEach((r) => inner.append(svg("circle", { class: "cy-dial-ring", cx: 100, cy: 100, r })));
-    const wedge = svg("g", { class: "cy-sweep" });
-    wedge.append(svg("path", { d: "M100,100 L162,100 A62,62 0 0,0 143.8,56.2 Z", fill: `url(#${uid}-sweep)` }));
-    inner.append(wedge);
-    s.append(inner);
-    s.append(svg("circle", { class: "cy-arc-track", cx: 100, cy: 100, r: R }));
-    s.append(svg("circle", { class: "cy-arc", cx: 100, cy: 100, r: R, transform: "rotate(-90 100 100)",
-      "stroke-dasharray": `${(k * C).toFixed(1)} ${C.toFixed(1)}`, style: `--v:${(k * C).toFixed(1)}` }));
-    const ticks = svg("g", { class: "cy-ticks" });
-    for (let i = 0; i < 40; i++) {
-      const a = (i / 40) * 2 * Math.PI - Math.PI / 2, r1 = i % 10 === 0 ? 79 : 82;
-      ticks.append(svg("line", { x1: (100 + Math.cos(a) * r1).toFixed(1), y1: (100 + Math.sin(a) * r1).toFixed(1),
-        x2: (100 + Math.cos(a) * 86).toFixed(1), y2: (100 + Math.sin(a) * 86).toFixed(1), class: i / 40 <= k ? "on" : "" }));
-    }
-    s.append(ticks, svg("circle", { class: "cy-orbit a", cx: 100, cy: 100, r: 94 }), svg("circle", { class: "cy-orbit b", cx: 100, cy: 100, r: 90 }));
-    return h("div", { class: "cy-dial n-" + NEON[b], role: "img", "aria-label": `${label}: ${score} ${t("scoreOf")}, ${t("band_" + b)}` }, s,
-      h("div", { class: "cy-dial-center", "aria-hidden": "true" }, h("div", { class: "cy-num", text: String(score) }), h("div", { class: "cy-of", text: "/100" })));
   }
 
   // The score at each saved check: a smooth glowing line over a gradient area, a fine precision grid, hexagon points
