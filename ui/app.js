@@ -137,6 +137,35 @@
       verifyBtn: "Am reparat, verifică", verifying: "Verific…",
       histNeedTwo: "Avem o singură verificare. Repară un lucru, apoi apasă din nou „Inspectează casa” ca să vedem dacă rețeaua a devenit mai sigură.",
       thinking: "Mă gândesc…", newChat: "Conversație nouă",
+      vListen: "Ascultă", vStop: "Oprește", vListenAria: "Ascultă răspunsul cu voce tare", vStopAria: "Oprește citirea",
+      vgHi: "Bună! Te ajut să-ți faci casa mai sigură.",
+      vgScore: "Casa ta are {p} din 100. {band}.", vgNone: "Vestea bună: n-am găsit nimic de reparat. Casa ta e în siguranță.",
+      vgCount1: "Am găsit un singur lucru de reparat.", vgCount: "Am găsit {n} lucruri de reparat.",
+      vgFirst: "Cel mai important e la {dev}.", vgNext: "Următorul lucru e la {dev}.", vgLast: "Asta a fost ultima problemă. Când le repari, apasă „Inspectează din nou” ca să vezi scorul nou.",
+      vgSteps: "Uite ce faci:", vgStep: ["Mai întâi, {s}", "Apoi, {s}", "Și la final, {s}"],
+      vgAskSteps: "Vrei să-ți spun pașii?", vgAskNext: "Vrei să trecem la următoarea problemă?",
+      vgDevices1: "În casa ta e un singur aparat: {list}.", vgDevices: "În casa ta sunt {n} aparate: {list}.",
+      vgWho: { self: "Poți face asta singur.", helper: "Cere ajutorul cuiva care se pricepe la calculatoare.", it: "Pentru asta, sună firma care ți-a pus internetul." },
+      vgHelp: "Nu am înțeles sigur. Mă poți întreba: ce repar mai întâi, cum fac, care e următoarea problemă, ce aparate am sau cât de sigură e casa.",
+      vgVoiceNat: "Vocea: naturală (pe acest calculator).", vgVoiceBrowser: "Vocea: a browserului.",
+      vgFileHint: "Ca să ai vocea naturală și asistentul AI, deschide SafeHouse de la adresa http://127.0.0.1:8000 (pornit cu serverul), nu din fișier.",
+      vExitAria: "Închide modul voce", vTalk: "Vorbește", vTalkAria: "Vorbește cu asistentul (modul voce)", chatAria: "Întreabă asistentul în scris (chat)",
+      vMode: "Vorbește cu SafeHouse", vModeAria: "Vorbește cu SafeHouse: modul voce", vModeHint: "Vorbești, iar eu îți răspund cu voce, pe scurt.",
+      vListening: "Te ascult…", vThinking: "Mă gândesc…", vSpeaking: "SafeHouse îți răspunde…", vTap: "Atinge cercul și vorbește.",
+      vOrbListen: "Atinge ca să vorbești", vOrbDone: "Atinge când ai terminat", vOrbInterrupt: "Atinge ca să mă întrerupi",
+      vStopVoice: "Oprește vocea", vExit: "Închide", vYou: "Tu", vBot: "SafeHouse",
+      vConsentT: "Înainte să vorbim",
+      vConsent: "Ca să te înțeleagă, browserul trimite ce spui la serviciul lui de recunoaștere a vocii (Google în Chrome, Apple în Safari) și primește înapoi textul. Noi nu păstrăm nimic. Nu spune parole sau date personale.",
+      vConsentTTS: "Răspunsurile sunt citite de o voce naturală, făcută pe calculatorul care rulează SafeHouse (sau de asistentul AI al echipei), doar din textul răspunsului, fără adrese.",
+      vConsentYes: "Da, hai să vorbim", vConsentNo: "Nu, scriu întrebarea",
+      vLocal: "Vocea ta e transformată în text chiar pe acest dispozitiv.",
+      vBrowserVoice: "Vocea naturală nu e disponibilă acum, așa că citesc cu vocea calculatorului.",
+      vErrDenied: "Microfonul e blocat. Permite-l din setările browserului (lacătul de lângă adresă), apoi încearcă din nou.",
+      vErrNoSpeech: "N-am auzit nimic. Atinge cercul și vorbește mai aproape de microfon.",
+      vErrNetwork: "Recunoașterea vocii are nevoie de internet acum. Poți scrie întrebarea.",
+      vErrMic: "N-am găsit niciun microfon. Poți scrie întrebarea.",
+      vErrOther: "Nu am putut folosi microfonul. Poți scrie întrebarea.",
+      vNoListen: "Acest browser nu înțelege vorbirea. Folosește Chrome, Edge sau Safari, sau scrie întrebarea.",
       mode_ai: "Răspuns scris de inteligența artificială, doar din ce a văzut verificarea.",
       mode_offline: "Asistentul online nu e disponibil acum, așa că îți răspund din textele noastre.",
       mode_rejected: "Răspunsul inteligenței artificiale nu a trecut verificarea, așa că îți arăt textele noastre.",
@@ -287,6 +316,35 @@
       verifyBtn: "I fixed it, check", verifying: "Checking…",
       histNeedTwo: "We have only one check. Fix one thing, then press “Inspect the house” again to see if the network got safer.",
       thinking: "Thinking…", newChat: "New conversation",
+      vListen: "Listen", vStop: "Stop", vListenAria: "Read the answer aloud", vStopAria: "Stop reading",
+      vgHi: "Hi! I will help you make your home safer.",
+      vgScore: "Your home has {p} out of 100. {band}.", vgNone: "Good news: I found nothing to fix. Your home is safe.",
+      vgCount1: "I found one thing to fix.", vgCount: "I found {n} things to fix.",
+      vgFirst: "The most important one is on the {dev}.", vgNext: "The next one is on the {dev}.", vgLast: "That was the last problem. When you have fixed them, press “Inspect again” to see the new score.",
+      vgSteps: "Here is what to do:", vgStep: ["First, {s}", "Then, {s}", "And finally, {s}"],
+      vgAskSteps: "Shall I tell you the steps?", vgAskNext: "Shall we move to the next problem?",
+      vgDevices1: "There is one device in your home: {list}.", vgDevices: "There are {n} devices in your home: {list}.",
+      vgWho: { self: "You can do this yourself.", helper: "Ask someone who knows computers to help.", it: "For this one, call the company that set up your internet." },
+      vgHelp: "I am not sure I understood. You can ask me: what do I fix first, how do I do it, what is next, which devices do I have, or how safe is my home.",
+      vgVoiceNat: "Voice: natural (made on this computer).", vgVoiceBrowser: "Voice: the browser's own.",
+      vgFileHint: "For the natural voice and the AI assistant, open SafeHouse at http://127.0.0.1:8000 (started with the server), not from the file.",
+      vExitAria: "Close voice mode", vTalk: "Talk", vTalkAria: "Talk to the assistant (voice mode)", chatAria: "Ask the assistant in writing (chat)",
+      vMode: "Talk to SafeHouse", vModeAria: "Talk to SafeHouse: voice mode", vModeHint: "You talk, and I answer out loud, briefly.",
+      vListening: "I am listening…", vThinking: "Thinking…", vSpeaking: "SafeHouse is answering…", vTap: "Tap the circle and speak.",
+      vOrbListen: "Tap to talk", vOrbDone: "Tap when you are done", vOrbInterrupt: "Tap to interrupt me",
+      vStopVoice: "Stop the voice", vExit: "Close", vYou: "You", vBot: "SafeHouse",
+      vConsentT: "Before we talk",
+      vConsent: "To understand you, the browser sends what you say to its speech service (Google in Chrome, Apple in Safari) and gets the text back. We keep nothing. Do not say passwords or personal details.",
+      vConsentTTS: "Answers are read by a natural voice, made on the computer that runs SafeHouse (or by the team's AI assistant), from the answer text only, without addresses.",
+      vConsentYes: "Yes, let's talk", vConsentNo: "No, I will type",
+      vLocal: "Your voice is turned into text right on this device.",
+      vBrowserVoice: "The natural voice is not available right now, so I read with the computer's voice.",
+      vErrDenied: "The microphone is blocked. Allow it in the browser settings (the lock next to the address), then try again.",
+      vErrNoSpeech: "I did not hear anything. Tap the circle and talk closer to the microphone.",
+      vErrNetwork: "Voice recognition needs the internet right now. You can type the question.",
+      vErrMic: "I could not find a microphone. You can type the question.",
+      vErrOther: "I could not use the microphone. You can type the question.",
+      vNoListen: "This browser does not understand speech. Use Chrome, Edge or Safari, or type the question.",
       mode_ai: "Answer written by artificial intelligence, only from what the check saw.",
       mode_offline: "The online assistant is not available right now, so I answer from our own texts.",
       mode_rejected: "The AI answer did not pass the check, so I show you our own texts.",
@@ -353,6 +411,7 @@
     job: null,           // running check: {id, elapsed}
     busy: false,         // a chat answer is on its way
     chatOpen: false,     // the floating assistant panel
+    voice: { mode: false, phase: "idle", you: "", bot: "", note: null, local: {}, natural: null },   // voice mode (ui/voice.js)
     resSel: null,        // Results tab: the check whose findings are shown
     verify: {},          // "ip|port|code" -> {status, message}
     guides: {},          // "scan|ip|code" -> {status, answer?, sources?, message?}
@@ -1599,63 +1658,340 @@
   }
   // live: a real conversation with the assistant (AI through the team gateway, built-in texts as fallback).
   // Findings and scores never come from the AI; it only explains what this scan shows (NFR-06).
-  async function liveAsk(q) {
+  async function liveAsk(q, style) {
     q = (q || "").trim().slice(0, 500);
     const s = scan();
-    if (!q || state.busy || s.empty || s.error) return;
+    if (!q || state.busy || s.empty || s.error) return null;
     const turns = [];
     state.chat.filter((m) => m.source === "ai").slice(-6).forEach((m) => turns.push({ role: "user", content: m.q }, { role: "assistant", content: m.a }));
-    const item = { q, a: null, mode: null, source: null };
+    const item = { q, a: null, mode: null, source: null, id: ++msgId, voice: style === "voice" };
     state.chat.push(item);
     if (state.chat.length > 20) state.chat.shift();
     state.busy = true;
     renderChatPanel();
-    const res = await api("POST", "/api/v1/ask", { question: q, scan_id: s.scan_id, history: turns });
+    const res = await api("POST", "/api/v1/ask", { question: q, scan_id: s.scan_id, history: turns, style: style || "text" });
     state.busy = false;
     if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source, sources: res.data.sources || [], vendor: res.data.vendor, official: res.data.official !== false });
     else Object.assign(item, { a: errText(res), mode: "error", source: "error" });
     renderChatPanel();
-    if (state.chatOpen) focusSel("#ask-input");
+    if (state.chatOpen && !state.voice.mode) focusSel("#ask-input");
+    return item;
   }
+  function demoAsk(kind, text, voice) {
+    const item = { kind, text, id: ++msgId, voice: !!voice };
+    state.chat.push(item);
+    if (state.chat.length > 4) state.chat.shift();
+    renderChatPanel();
+    if (!state.voice.mode) focusSel("#ask-input");
+    return item;
+  }
+  const askAny = (kind, text) => (LIVE ? liveAsk(text) : demoAsk(kind, text));
+
+  // ---------------------------------------------------------------- VOICE MODE (speech to speech, like a live voice chat)
+  // Only after the user presses "Talk to SafeHouse": nothing ever speaks by itself. The answer comes from the same
+  // grounded assistant with style "voice" (2-3 warm sentences, no addresses or port numbers, gateway/prompts.py);
+  // it is read by the gateway's natural voice (/api/v1/tts) when available, else by the best browser voice.
+  let msgId = 0, orb = null;
+  const SV = () => window.SafeVoice || { canSpeak: false, canListen: false };
+  const RX_TECH = /\b(?:\d{1,3}\.){3}\d{1,3}\b|\b(?:[0-9A-FX]{2}:){5}[0-9A-FX]{2}\b|\b\d{1,5}\s*\/\s*(?:tcp|udp)\b|\b(?:port(?:ul)?|ușa|door)\s+\d{1,5}\b|\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b/i;
+  // Same idea as netcheck/ai/voice.py: speakable sentences only (technical ones left out), no lists or Markdown.
+  function speechText(text, max) {
+    const t = String(text || "").replace(/\*\*|__|`/g, "").replace(/^\s*(?:\d+[.)]|[-•*])\s+/gm, "")
+      .replace(/\s*\((?=[^()]*(?:\d{1,3}\.\d{1,3}\.|\/(?:tcp|udp)))[^()]*\)/gi, "").replace(/\s+/g, " ").trim();
+    const parts = t.split(/(?<=[.!?…])\s+/).filter((x) => /\w/.test(x));
+    const keep = parts.filter((x) => !RX_TECH.test(x));
+    return (keep.length ? keep : parts).slice(0, max || 3).join(" ");
+  }
+  function answerText(m) {
+    if (m.q !== undefined) return m.a || "";
+    const s = scan();
+    return answer(m.kind, s).filter((x) => check(x, s).ok).map((x) => x.text).join(" ");
+  }
+  // the gateway's natural voice (only when served by the app; 503 = none configured -> browser voice from now on)
+  async function naturalVoice(text) {
+    if (!LIVE || state.voice.natural === false) return null;
+    const ctl = typeof AbortController === "function" ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), 15000);
+    try {
+      const r = await fetch("/api/v1/tts?lang=" + state.lang, { method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }), signal: ctl ? ctl.signal : undefined });
+      if (r.status === 503) { state.voice.natural = false; return null; }
+      if (!r.ok) return null;
+      const blob = await r.blob();
+      state.voice.natural = true;
+      return blob.size ? blob : null;
+    } catch (e) { return null; } finally { clearTimeout(timer); }
+  }
+  function stopVoice() {
+    const v = SV();
+    if (v.stop) v.stop();
+    if (v.stopListening) v.stopListening(false);
+    if (state.voice.mode) state.voice.phase = "paused";
+  }
+  // "Listen" under an answer (text mode): reads that answer, without addresses or numbers.
+  function speakBtn(m) {
+    const v = SV();
+    if (!v.canSpeak || state.voice.mode) return null;
+    const on = v.speakingId === m.id;
+    return h("button", { type: "button", class: "speak-btn" + (on ? " on" : ""), "data-id": String(m.id), "aria-pressed": String(on),
+      "aria-label": on ? t("vStopAria") : t("vListenAria"),
+      onclick: () => {
+        if (on) { v.stop(); renderChatPanel(); focusSel(".speak-btn[data-id='" + m.id + "']"); return; }
+        if (v.unlock) v.unlock();
+        v.speak(speechText(answerText(m), 6), { lang: state.lang, id: m.id, natural: naturalVoice,
+          onstart: () => renderChatPanel(), onend: () => { renderChatPanel(); focusSel(".speak-btn[data-id='" + m.id + "']"); } });
+      } },
+      icon(on ? "stop" : "volume"), h("span", { text: on ? t("vStop") : t("vListen") }));
+  }
+
+  // Built-in voice guide: used when the AI assistant is not available (no key, offline, page opened from a file).
+  // It only says what the scan shows, in the plain texts written for children and older people
+  // (explain/simple_texts.py): the problem, why it matters, then the steps, one problem at a time.
+  const lower1 = (x) => x ? x.charAt(0).toLowerCase() + x.slice(1) : "";
+  const T_ = (key, vars) => { const v = T[state.lang][key]; return typeof v === "string" ? t(key, vars) : v; };
+  function guideProblem(s, f, first) {
+    const tx = simple(f.code), dev = deviceByIp(s, f.ip);
+    const devName = lower1(deviceLabel(dev ? dev.type : "unknown")) + (dev && shortVendor(dev.vendor) ? " " + shortVendor(dev.vendor) : "");
+    return [t(first ? "vgFirst" : "vgNext", { dev: devName }), tx.title.replace(/\.?$/, "."), tx.explain.split(/(?<=[.!?])\s+/)[0]].join(" ");
+  }
+  function guideSteps(f) {
+    const tx = simple(f.code), who = T_("vgWho")[whoOf(f.code)] || "";
+    const said = (x) => x.replace(/\bhttps:\/\/?/gi, "HTTPS").replace(/\bhttp:\/\/?/gi, "HTTP");
+    const steps = tx.steps.slice(0, 3).map((x, i) => T_("vgStep")[i].replace("{s}", said(lower1(x))));
+    return [t("vgSteps")].concat(steps, who ? [who] : []).join(" ");
+  }
+  function voiceGuide(q, s) {
+    const g = state.voice.guide && state.voice.guide.file === s.file ? state.voice.guide : (state.voice.guide = { file: s.file, i: 0, told: "" });
+    const list = queue(s), cur = list[g.i];
+    const x = (q || "").toLowerCase();
+    const has = (re) => re.test(x);
+    const yes = has(/^(da|yes|sigur|ok|okay|bine|te rog|please|go on|continuă|continua|spune)\b/);
+    const no = has(/^(nu|no)\b/);
+    if (!list.length && !has(/(aparat|dispozitiv|device|scor|score|sigur|safe)/)) return t("vgNone");
+    if (has(/(aparat|dispozitiv|device|ce am|what do i have|conectat|connected)/)) {
+      const names = s.devices.map((d) => lower1(deviceLabel(d.type)) + (shortVendor(d.vendor) ? " " + shortVendor(d.vendor) : ""));
+      const listTxt = names.length > 1 ? names.slice(0, -1).join(", ") + (state.lang === "ro" ? " și " : " and ") + names[names.length - 1] : names[0] || "";
+      return names.length === 1 ? t("vgDevices1", { list: listTxt }) : t("vgDevices", { n: names.length, list: listTxt });
+    }
+    if (has(/(scor|cât de sigur|cat de sigur|e sigur|score|how safe|is it safe|safe)/)) {
+      const b = bandOf(s.score);
+      return [t("vgScore", { p: points(s.score), band: t("band_" + b) }), list.length === 1 ? t("vgCount1") : list.length ? t("vgCount", { n: list.length }) : t("vgNone")].join(" ");
+    }
+    const wantsNext = has(/(următ|urmat|și apoi|si apoi|^apoi|mai departe|alt[ăa] problem|next|what else|after that)/) || (yes && g.told === "steps");
+    const wantsSteps = has(/(cum|pa[sș]i|ce fac|ce trebuie s[ăa] fac|ajut|how|steps|what do i do)/) || (yes && g.told === "problem");
+    if (no) { g.told = ""; return t("vgHelp"); }
+    if (wantsNext) {
+      if (g.i + 1 >= list.length) { g.told = ""; return t("vgLast"); }
+      g.i += 1; g.told = "problem";
+      return guideProblem(s, list[g.i], false) + " " + t("vgAskSteps");
+    }
+    if (wantsSteps && cur) { g.told = "steps"; return guideSteps(cur) + " " + (g.i + 1 < list.length ? t("vgAskNext") : t("vgLast")); }
+    if (has(/(repar|problem|primul|prima|întâi|intai|ce e|ce am de f|fix|first|wrong|start|ajutor|help|salut|bun[ăa]|hello|hi)/)) {
+      g.i = 0; g.told = "problem";
+      const count = list.length === 1 ? t("vgCount1") : t("vgCount", { n: list.length });
+      return [count, guideProblem(s, list[0], true), t("vgAskSteps")].join(" ");
+    }
+    return t("vgHelp");
+  }
+
+  function setPhase(ph, note) {
+    state.voice.phase = ph;
+    if (note !== undefined) state.voice.note = note;
+    updateVoiceView();
+  }
+  const VOICE_ERR = { "not-allowed": "vErrDenied", "service-not-allowed": "vErrDenied", "no-speech": "vErrNoSpeech",
+    network: "vErrNetwork", "audio-capture": "vErrMic", "language-not-supported": "vErrOther", unsupported: "vNoListen" };
+  async function enterVoiceMode() {
+    const v = SV();
+    if (v.stop) v.stop();
+    Object.assign(state.voice, { mode: true, phase: "idle", you: "", bot: "", note: null });
+    renderChatPanel();
+    if (!v.canListen) { setPhase("paused", t("vNoListen")); return; }
+    if (state.voice.local[state.lang] == null) state.voice.local[state.lang] = await v.localListening(state.lang);
+    if (!state.voice.mode) return;
+    if (!state.voice.local[state.lang] && store.get("voiceConsent") !== "1") { setPhase("consent"); focusSel("#voice-yes"); return; }
+    startVoice();
+  }
+  function startVoice() {
+    SV().startMeter();                                   // the orb follows your voice (best effort, nothing recorded)
+    voiceListen();
+    focusSel(".vm-orb");
+  }
+  function exitVoiceMode() {
+    const v = SV();
+    stopVoice();
+    if (v.stopMeter) v.stopMeter();
+    if (orb) { orb.stop(); orb = null; }
+    Object.assign(state.voice, { mode: false, phase: "idle", note: null });
+    state.chatOpen = false;                              // voice has its own button: leaving it closes the panel
+    renderChatPanel();
+    focusSel("#voice-btn");
+  }
+  function voiceListen() {
+    if (!state.voice.mode) return;
+    state.voice.you = "";
+    setPhase("listening", state.voice.local[state.lang] ? t("vLocal") : null);
+    SV().listen({ lang: state.lang, local: !!state.voice.local[state.lang],
+      onInterim: (txt) => { state.voice.you = txt; updateVoiceView(); },
+      onFinal: (txt) => { state.voice.you = txt; voiceAnswer(txt); },
+      onError: (code) => {
+        if (!state.voice.mode || code === "aborted") return;
+        if (code === "audio-capture" || code === "not-allowed") SV().stopMeter();
+        setPhase("paused", t(VOICE_ERR[code] || "vErrOther"));
+      } });
+  }
+  async function voiceAnswer(q) {
+    const s = scan();
+    state.voice.bot = "";
+    setPhase("thinking", null);
+    let text;
+    if (s.empty || s.error) text = t(s.error ? "stErrS" : "needScan");
+    else {
+      const item = LIVE ? await liveAsk(q, "voice") : null;
+      if (!state.voice.mode) return;
+      if (item && (item.mode === "ai" || item.mode === "guide") && item.a) text = speechText(item.a, 3);   // the AI (or the maker guide) answered
+      else {                                           // no AI answer: the built-in guide, also shown in the chat
+        text = voiceGuide(q, s);
+        if (item) Object.assign(item, { a: text, mode: "offline", source: "fallback" });
+        else { state.chat.push({ q, a: text, mode: "offline", source: "fallback", id: ++msgId, voice: true }); if (state.chat.length > 20) state.chat.shift(); }
+      }
+    }
+    if (!state.voice.mode) return;
+    state.voice.bot = text || t("noAnswer");
+    const v = SV();
+    v.speak(state.voice.bot, { lang: state.lang, id: "voice", natural: naturalVoice,
+      onstart: () => setPhase("speaking"),
+      onend: (ok) => {
+        if (!state.voice.mode || state.voice.phase !== "speaking") return;
+        if (ok) voiceListen(); else setPhase("paused");
+      } });
+    state.voice.which = null;
+    setTimeout(() => { state.voice.which = v.usedNatural ? "natural" : "browser"; updateVoiceView(); }, 1200);
+  }
+  function orbTap() {
+    const v = SV(), ph = state.voice.phase;
+    if (v.unlock) v.unlock();
+    if (ph === "listening") v.stopListening(true);                 // "I am done"
+    else if (ph === "speaking") { v.stop(); voiceListen(); }        // interrupt, like a real conversation
+    else if (ph === "paused" || ph === "idle") voiceListen();
+  }
+  // The SafeHouse shield from the logo, drawn as a vector so it stays sharp at any size (blue rim, dark inside,
+  // a two-tone metal shield in the middle). The energy around it is drawn by SafeVoice.Orb on the canvas behind.
+  let shieldUid = 0;
+  function shieldSvg(small) {
+    const u = "sh" + ++shieldUid;                        // unique gradient ids: many shields can be on the page
+    const NS = "http://www.w3.org/2000/svg", el = (tag, attrs, kids) => { const n = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); (kids || []).forEach((k) => n.append(k)); return n; };
+    const outer = "M50 4 C63 13 78 17 93 17 L93 52 C93 81 74 103 50 116 C26 103 7 81 7 52 L7 17 C22 17 37 13 50 4 Z";
+    const inner = "M50 27 C58 33 68 36 77 36 L77 57 C77 76 66 90 50 98 C34 90 23 76 23 57 L23 36 C32 36 42 33 50 27 Z";
+    return el("svg", { class: small ? "shield-mark" : "vm-shield", viewBox: "0 0 100 120", "aria-hidden": "true", focusable: "false" }, [
+      el("defs", {}, [
+        el("linearGradient", { id: u + "vmRim", x1: "0", y1: "0", x2: "1", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#7dd3fc" }), el("stop", { offset: ".5", "stop-color": "#3b82f6" }), el("stop", { offset: "1", "stop-color": "#1d4ed8" })]),
+        el("linearGradient", { id: u + "vmIn", x1: "0", y1: "0", x2: "0", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#13254b" }), el("stop", { offset: "1", "stop-color": "#0a1530" })]),
+        el("linearGradient", { id: u + "vmL", x1: "0", y1: "0", x2: "1", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#cbd5e1" }), el("stop", { offset: "1", "stop-color": "#475569" })]),
+        el("linearGradient", { id: u + "vmR", x1: "0", y1: "0", x2: "1", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#475569" }), el("stop", { offset: "1", "stop-color": "#1e293b" })]),
+        el("clipPath", { id: u + "vmLeft" }, [el("rect", { x: "0", y: "0", width: "50", height: "120" })]),
+        el("clipPath", { id: u + "vmRight" }, [el("rect", { x: "50", y: "0", width: "50", height: "120" })])]),
+      el("path", { d: outer, fill: `url(#${u}vmIn)`, stroke: `url(#${u}vmRim)`, "stroke-width": "8", "stroke-linejoin": "round" }),
+      el("path", { d: inner, fill: `url(#${u}vmL)`, "clip-path": `url(#${u}vmLeft)` }),
+      el("path", { d: inner, fill: `url(#${u}vmR)`, "clip-path": `url(#${u}vmRight)` }),
+      el("path", { d: inner, fill: "none", stroke: "#93c5fd", "stroke-opacity": ".55", "stroke-width": "1.5" }),
+      small ? el("g", {}) : el("path", { class: "vm-shield-energy", d: outer, fill: "none", "stroke-width": "3", "stroke-linejoin": "round" })]);
+  }
+  // Voice view: built once (the orb keeps running), then only its texts and buttons are updated.
+  function renderVoiceMode(root) {
+    const canvas = h("canvas", { class: "vm-canvas", "aria-hidden": "true" });
+    root.append(h("div", { class: "vm", "data-lang": state.lang },
+      h("button", { type: "button", class: "vm-orb", onclick: orbTap }, canvas, shieldSvg(), h("span", { class: "sr vm-orb-label" })),
+      h("p", { class: "vm-status", role: "status", "aria-live": "polite" }),
+      h("div", { class: "vm-captions", "aria-live": "polite" },
+        h("p", { class: "vm-you" }, h("strong", { text: t("vYou") + ": " }), h("span")),
+        h("p", { class: "vm-bot" }, h("strong", { text: t("vBot") + ": " }), h("span"))),
+      h("div", { class: "vm-consent", hidden: true },
+        h("p", { class: "with-ico" }, icon("mic"), h("strong", { text: t("vConsentT") })),
+        h("p", { text: t("vConsent") }),
+        LIVE ? h("p", { text: t("vConsentTTS") }) : null,
+        h("div", { class: "actions" },
+          h("button", { type: "button", id: "voice-yes", class: "btn btn-filled", onclick: () => { if (SV().unlock) SV().unlock(); store.set("voiceConsent", "1"); startVoice(); } }, icon("mic"), t("vConsentYes")),
+          h("button", { type: "button", class: "btn", onclick: () => exitVoiceMode() }, t("vConsentNo")))),
+      h("p", { class: "vm-note note with-ico", hidden: true }, icon("info"), h("span")),
+      h("p", { class: "vm-which muted", hidden: true }),
+      h("div", { class: "vm-controls" },
+        h("button", { type: "button", class: "btn vm-stop", onclick: () => { stopVoice(); setPhase("paused"); focusSel(".vm-orb"); } }, icon("stop"), t("vStopVoice")),
+        h("button", { type: "button", class: "btn vm-exit", "aria-label": t("vExitAria"), onclick: () => exitVoiceMode() }, icon("x"), t("vExit")))));
+    if (orb) orb.stop();
+    orb = SV().Orb ? new (SV().Orb)(canvas, root.querySelector(".vm-orb")) : null;
+    if (orb) orb.start();
+    updateVoiceView();
+  }
+  function updateVoiceView() {
+    const root = document.querySelector(".vm");
+    if (!root) return;
+    const ph = state.voice.phase, q = (sel) => root.querySelector(sel);
+    const orbState = ph === "listening" ? "listening" : ph === "thinking" ? "thinking" : ph === "speaking" ? "speaking" : "idle";
+    if (orb) orb.setState(orbState);
+    root.dataset.phase = ph;
+    const status = { listening: "vListening", thinking: "vThinking", speaking: "vSpeaking", paused: "vTap", idle: "vTap", consent: "vConsentT" }[ph];
+    q(".vm-status").textContent = t(status);
+    const orbBtn = q(".vm-orb");
+    q(".vm-orb-label").textContent = ph === "listening" ? t("vOrbDone") : ph === "speaking" ? t("vOrbInterrupt") : t("vOrbListen");
+    orbBtn.disabled = ph === "thinking" || ph === "consent";
+    orbBtn.title = q(".vm-orb-label").textContent;
+    q(".vm-you span").textContent = state.voice.you;
+    q(".vm-you").hidden = !state.voice.you;
+    q(".vm-bot span").textContent = state.voice.bot;
+    q(".vm-bot").hidden = !state.voice.bot || ph === "listening" && !!state.voice.you;
+    q(".vm-consent").hidden = ph !== "consent";
+    q(".vm-captions").hidden = ph === "consent";
+    q(".vm-note").hidden = !state.voice.note || ph === "consent";
+    q(".vm-note span").textContent = state.voice.note || "";
+    q(".vm-stop").disabled = ph === "consent";
+    const which = state.voice.which;
+    q(".vm-which").hidden = !which || ph === "consent";
+    q(".vm-which").textContent = which === "natural" ? t("vgVoiceNat") : which === "browser" ? t("vgVoiceBrowser") + (LIVE ? "" : " " + t("vgFileHint")) : "";
+  }
+
   function renderChat(root) {
     const s = scan();
     root.append(h("p", { class: "muted chat-sub", text: LIVE ? t("askSubLive") : t("askSub") }));
     if (s.empty) { root.append(needScanBox()); return; }
     if (s.error) { root.append(errorBox(s)); return; }
     const card = h("div", { class: "chat" });
-    card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
+    card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
     state.chat.forEach((m) => {
       if (m.q !== undefined) {               // live answer
         card.append(h("div", { class: "bubble me", text: m.q }));
-        card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
+        card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })));
         card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a }),
           m.sources && m.sources.length ? h("ul", { class: "guide-src" }, m.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
             h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : null));
         if (m.mode === "guide") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t(m.official ? "guideNote" : "guideNoteWeb", { v: m.vendor || "" }) }));
         else if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
+        if (m.a != null) card.append(speakBtn(m));
         return;
       }
       card.append(h("div", { class: "bubble me", text: m.text }));
       const res = answer(m.kind, s).map((x) => ({ x, r: check(x, s) }));
-      card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
+      card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })));
       res.forEach(({ x, r }) => card.append(h("div", { class: "bubble bot" + (r.ok ? "" : " blocked") },
         h("span", { class: "txt", text: x.text }),
         x.cites.filter((c) => c !== "scan").map((c) => h("span", { class: "proof", title: t("proof") }, icon("search"), h("span", { class: "sr", text: t("proof") + ": " }), c)),
         r.ok ? null : h("span", { class: "why" }, icon("scissors"), h("span", { text: t("blocked", { r: r.reason }) })))));
       const bad = res.filter((z) => !z.r.ok).length;
       card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("verified", { ok: res.length - bad, bad }) }));
+      card.append(speakBtn(m));
     });
     // offline demo (no local agent): answers from our own texts, checked sentence by sentence
-    const demoAsk = (kind, text) => { state.chat.push({ kind, text }); if (state.chat.length > 4) state.chat.shift(); renderChatPanel(); focusSel("#ask-input"); };
     const useLive = LIVE;
-    const ask = (kind, text) => (useLive ? liveAsk(text) : demoAsk(kind, text));
+    const ask = askAny;
     card.append(h("div", { class: "chips", style: "margin-top:.5rem" },
       [["first", "q1"], ["devices", "q2"], ["printer", "q3"]].map(([k, key]) => h("button", { type: "button", class: "chip-btn", disabled: useLive && state.busy, onclick: () => ask(k, t(key)) }, icon("message"), t(key))),
       LIVE && state.chat.length ? h("button", { type: "button", class: "chip-btn", onclick: () => { state.chat = []; renderChatPanel(); focusSel("#ask-input"); } }, icon("refresh"), t("newChat")) : null));
     const input = h("input", { type: "text", id: "ask-input", placeholder: t("askPlaceholder"), maxlength: useLive ? "500" : "200", "aria-label": t("askLabel") });
     root.append(card);
-    root.append(h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) ask(classify(q), q); } },
-      input, h("button", { type: "submit", class: "btn btn-filled", "aria-label": t("askBtn"), disabled: useLive && state.busy }, h("span", { class: "btn-label", text: t("askBtn") }), icon("send"))));
+    const v = SV();
+    root.append(h("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const q = input.value.trim(); if (q) { if (v.stop) v.stop(); ask(classify(q), q); } } },
+      input,
+      h("button", { type: "submit", class: "btn btn-filled", "aria-label": t("askBtn"), disabled: useLive && state.busy }, h("span", { class: "btn-label", text: t("askBtn") }), icon("send"))));
   }
 
   // ---------------------------------------------------------------- RESULTS: every check in a table (scores.csv + findings.csv on screen)
@@ -1944,38 +2280,66 @@
     focusSel("#sheet .actions .btn");
   }
 
-  // ---------------------------------------------------------------- the assistant: a floating button + chat panel
-  const chatFab = h("button", { type: "button", class: "chat-fab", id: "chat-fab", "aria-haspopup": "dialog", "aria-controls": "chat-panel",
-    onclick: () => openChat() }, icon("message"), h("span", { class: "chat-fab-label" }));
+  // ---------------------------------------------------------------- the assistant: "Ask" (chat) and "Talk" (voice) in the header
+  const chatBtn = document.getElementById("chat-btn"), voiceBtn = document.getElementById("voice-btn");
+  chatBtn.addEventListener("click", () => { if (state.chatOpen && !state.voice.mode) closeChat(); else openChat(); });
+  voiceBtn.addEventListener("click", () => { if (state.voice.mode) exitVoiceMode(); else { if (SV().unlock) SV().unlock(); openVoice(); } });
   const chatPanel = h("section", { class: "chat-panel", id: "chat-panel", role: "dialog", "aria-labelledby": "chat-title", hidden: true },
-    h("header", { class: "chat-head" }, icon("bot"), h("h2", { id: "chat-title" }),
+    h("header", { class: "chat-head" }, shieldSvg(true), h("h2", { id: "chat-title" }),
       h("button", { type: "button", class: "icon-btn chat-close", onclick: () => closeChat() }, icon("x"), h("span", { class: "sr" }))),
     h("div", { class: "chat-body" }));
-  chatPanel.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeChat(); } });
-  document.body.append(chatFab, chatPanel);
+  chatPanel.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    e.stopPropagation();
+    if (state.voice.mode) { exitVoiceMode(); return; }                // Esc first leaves voice mode
+    if (SV().speakingId != null) { SV().stop(); renderChatPanel(); return; }
+    closeChat();
+  });
+  document.body.append(chatPanel);
   function renderChatPanel() {
-    chatFab.querySelector(".chat-fab-label").textContent = t("askTitle");
-    chatFab.setAttribute("aria-label", t("askTitle"));
-    chatFab.title = t("askTitle");
-    chatPanel.querySelector("#chat-title").textContent = t("botName");
+    chatBtn.querySelector(".hdr-label").textContent = t("askTitle");
+    chatBtn.setAttribute("aria-label", t("chatAria")); chatBtn.title = t("chatAria");
+    voiceBtn.querySelector(".hdr-label").textContent = t("vTalk");
+    voiceBtn.setAttribute("aria-label", t("vTalkAria")); voiceBtn.title = t("vTalkAria");
+    chatBtn.setAttribute("aria-expanded", String(state.chatOpen && !state.voice.mode));
+    voiceBtn.setAttribute("aria-expanded", String(state.chatOpen && state.voice.mode));
+    chatBtn.classList.toggle("on", state.chatOpen && !state.voice.mode);
+    voiceBtn.classList.toggle("on", state.chatOpen && state.voice.mode);
+    voiceBtn.hidden = !SV().canListen;               // no speech recognition in this browser: only the chat
+    chatPanel.querySelector("#chat-title").textContent = state.voice.mode ? t("vMode") : t("botName");
     chatPanel.querySelector(".chat-close .sr").textContent = t("close");
-    chatFab.hidden = state.chatOpen;
     chatPanel.hidden = !state.chatOpen;
     if (!state.chatOpen) return;
     const body = chatPanel.querySelector(".chat-body");
+    chatPanel.classList.toggle("voice-on", state.voice.mode);
+    if (state.voice.mode) {                          // keep the running orb; rebuild only when the language changed
+      const vm = body.querySelector(".vm");
+      if (vm && vm.dataset.lang === state.lang) { updateVoiceView(); return; }
+      body.replaceChildren();
+      renderVoiceMode(body);
+      return;
+    }
     body.replaceChildren();
     renderChat(body);
     body.scrollTop = body.scrollHeight;              // newest message in view
   }
   function openChat() {
+    if (state.voice.mode) exitVoiceMode();
     state.chatOpen = true;
     renderChatPanel();
     focusSel("#ask-input");
   }
+  function openVoice() {
+    if (SV().stop) SV().stop();
+    state.chatOpen = true;
+    enterVoiceMode();
+  }
   function closeChat() {
+    if (state.voice.mode) { exitVoiceMode(); return; }
+    if (SV().stop) SV().stop();
     state.chatOpen = false;
     renderChatPanel();
-    chatFab.focus();
+    chatBtn.focus();
   }
 
   // ---------------------------------------------------------------- shell
@@ -2106,7 +2470,7 @@
       refreshGuardCard(); guardSchedule();
     });
   }
-  ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { state.lang = l; store.set("lang", l); render(); }));
+  ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { if (state.lang !== l) stopVoice(); if (state.voice.mode) state.voice.note = null; state.lang = l; store.set("lang", l); render(); }));
   document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); }));
   // the SafeHouse logo (side bar on computers, top bar on phones) always goes back to Home
   document.querySelectorAll(".nav-brand, .logo").forEach((a) => a.addEventListener("click", (e) => {
@@ -2132,7 +2496,7 @@
     if (p.get("inspect") === "1") state.inspected[scan().file] = true;
     if (p.get("theme") === "light" || p.get("theme") === "dark") document.documentElement.dataset.theme = p.get("theme");
     const q = { first: "q1", devices: "q2", printer: "q3" }[p.get("q")];
-    if (q) state.chat = [{ kind: p.get("q"), text: t(q) }];
+    if (q) state.chat = [{ kind: p.get("q"), text: t(q), id: ++msgId }];
     if (tab === "findings") { state.devFilter = "problems"; setTab("devices"); }       // old "Fixes" links
     else setTab(TABS.includes(tab) ? tab : "home");
     if (tab === "ask") openChat();                                                        // the assistant

@@ -32,6 +32,21 @@ Mandatory rules:
 10. The conversation may have several questions. Use earlier messages only to understand what the user refers to ("it", "step 2"); facts come only from DATA.""",
 }
 
+VOICE = {
+    "ro": """MOD VOCE: răspunsul tău va fi citit cu voce tare. Aceste reguli sunt mai importante decât regulile 5, 6 și 7:
+- Cel mult 3 propoziții scurte, sub 45 de cuvinte în total.
+- Nu spune adrese IP, adrese MAC, numere de porturi, versiuni sau coduri. Numește aparatul și producătorul, de exemplu „routerul tău TP-Link” sau „camera Hikvision”.
+- Fără liste și fără numerotare: spune doar primul pas, natural, într-o propoziție.
+- Vorbește cald și liniștit, ca un prieten care te ajută. Poți încheia cu o întrebare scurtă, de exemplu „Vrei să-ți spun ce apeși mai departe?”.
+- Fără paranteze, simboluri sau abrevieri.""",
+    "en": """VOICE MODE: your answer will be read aloud. These rules override rules 5, 6 and 7:
+- At most 3 short sentences, under 45 words in total.
+- Never say IP addresses, MAC addresses, port numbers, versions or codes. Name the device and its maker, for example "your TP-Link router" or "the Hikvision camera".
+- No lists and no numbering: say only the first step, naturally, in one sentence.
+- Speak warmly and calmly, like a friend who helps. You may end with a short question, for example "Shall I tell you what to press next?".
+- No brackets, symbols or abbreviations.""",
+}
+
 DATA_HEADER = {"ro": "DATE (rezultatul scanării, JSON):", "en": "DATA (scan result, JSON):"}
 RETRY_NOTE = {
     "ro": "Răspunsul tău anterior a menționat ceva ce nu apare în DATE ({reason}). Scrie din nou răspunsul fără acel lucru; restul poate rămâne.",
@@ -39,11 +54,13 @@ RETRY_NOTE = {
 }
 
 
-def build_messages(lang: str, question: str, context: dict, history: list[dict] | None = None) -> list[dict]:
+def build_messages(lang: str, question: str, context: dict, history: list[dict] | None = None,
+                   style: str = "text") -> list[dict]:
     """[system (rules + DATA), ...history, current question]. DATA sits in the system prompt so it
-    stays fixed across a multi-turn conversation."""
+    stays fixed across a multi-turn conversation. style="voice" adds the spoken-answer rules."""
     data = json.dumps(context, ensure_ascii=False, separators=(",", ":"))
-    system = f"{SYSTEM[lang]}\n\n{DATA_HEADER[lang]}\n{data}"
+    voice = f"\n\n{VOICE[lang]}" if style == "voice" else ""
+    system = f"{SYSTEM[lang]}{voice}\n\n{DATA_HEADER[lang]}\n{data}"
     return ([{"role": "system", "content": system}]
             + [dict(m) for m in (history or [])]
             + [{"role": "user", "content": question}])

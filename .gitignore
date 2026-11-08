@@ -33,3 +33,6 @@ scans/
 
 # Windows app environment (SafeHouse.cmd)
 .venv-windows/
+
+# Piper voice models for the assistant's voice mode (python tools/get_voices.py, ~60 MB each)
+voices/

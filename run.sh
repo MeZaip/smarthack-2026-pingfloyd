@@ -33,7 +33,10 @@ done
 PY=.venv/bin/python
 if [[ ! -x "$PY" ]]; then
   echo "• Creating .venv ..."
-  python3 -m venv .venv
+  # a Python with packages for every dependency (the newest releases may not have the voice engine yet)
+  BASE_PY=python3
+  for v in python3.12 python3.13 python3.11 python3.10; do if command -v "$v" >/dev/null 2>&1; then BASE_PY=$v; break; fi; done
+  "$BASE_PY" -m venv .venv
 fi
 STAMP=.venv/.requirements.sha
 WANT=$(sha256sum requirements.txt | cut -d' ' -f1)
@@ -42,6 +45,19 @@ if [[ ! -f "$STAMP" || "$(cat "$STAMP")" != "$WANT" ]]; then
   "$PY" -m pip install -q --upgrade pip
   "$PY" -m pip install -q -r requirements.txt
   echo "$WANT" > "$STAMP"
+fi
+
+# ---------------------------------------------------------------- natural voice (optional, free): Piper + its two voices
+# The assistant's voice mode reads answers with a natural voice made on this computer, the same on every device that
+# opens the app. Installed once; if it fails (offline, unsupported Python) the browser's own voice is used instead.
+if [[ -f requirements-voice.txt && ! -f .venv/.voice-ok && "${NETCHECK_TTS:-local}" != "off" ]]; then
+  echo "• Natural voice (Piper, free, runs here): installing once, ~130 MB ..."
+  if "$PY" -m pip install -q -r requirements-voice.txt >/dev/null 2>&1 && "$PY" tools/get_voices.py >/dev/null 2>&1; then
+    touch .venv/.voice-ok
+    echo "  ✓ voice ready (Romanian: Mihai, English: Lessac)"
+  else
+    echo "  ✖ could not install it now; the assistant uses the browser's voice. Try again later with ./run.sh."
+  fi
 fi
 
 # ---------------------------------------------------------------- settings (.env is optional, never committed)
@@ -54,6 +70,14 @@ env_value() {   # value from the environment, else from .env, else empty
 }
 GW_PORT=$(env_value NETCHECK_GATEWAY_PORT); GW_PORT=${GW_PORT:-8787}
 BACKEND=$(env_value NETCHECK_GATEWAY_BACKEND); BACKEND=${BACKEND:-claude}
+# no Claude key but a local model is installed: use it (free, offline) instead of the built-in texts only
+OLLAMA_MODEL=$(env_value NETCHECK_GATEWAY_OLLAMA_MODEL); OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3.5:9b}
+if [[ "$BACKEND" == "claude" && -z "$(env_value ANTHROPIC_API_KEY)" ]] && command -v ollama >/dev/null 2>&1 \
+   && [[ -f "$HOME/.ollama/models/manifests/registry.ollama.ai/library/${OLLAMA_MODEL%%:*}/${OLLAMA_MODEL#*:}" ]]; then
+  BACKEND=ollama
+  export NETCHECK_GATEWAY_BACKEND=ollama
+  echo "• AI: no ANTHROPIC_API_KEY, using the local model $OLLAMA_MODEL (Ollama)"
+fi
 
 if [[ $DEMO -eq 1 ]]; then
   export NETCHECK_DB="$HOME/.netcheck/demo.sqlite"
@@ -88,6 +112,14 @@ if [[ $AI -eq 1 ]]; then
     export NETCHECK_LLM_PROVIDER=none
   else
     export NETCHECK_AI_URL="http://127.0.0.1:$GW_PORT"
+    if [[ "$BACKEND" == "ollama" ]] && command -v ollama >/dev/null 2>&1 && \
+       ! curl -fsS --max-time 2 "$(env_value OLLAMA_URL || true)/api/version" >/dev/null 2>&1 && \
+       ! curl -fsS --max-time 2 "http://127.0.0.1:11434/api/version" >/dev/null 2>&1; then
+      echo "• Ollama (local AI, free): starting ..."
+      ollama serve >/dev/null 2>&1 &
+      PIDS+=($!)
+      for _ in $(seq 1 30); do curl -fsS --max-time 1 "http://127.0.0.1:11434/api/version" >/dev/null 2>&1 && break; sleep 0.5; done
+    fi
     if gw_healthy; then
       # e.g. started by run.cmd on Windows, or by another ./run.sh: use it instead of failing on a busy port
       echo "• AI gateway: already running on http://127.0.0.1:$GW_PORT - using it."
@@ -98,7 +130,7 @@ if [[ $AI -eq 1 ]]; then
       ok=0
       for _ in $(seq 1 30); do
         if gw_healthy; then ok=1; break; fi
-        kill -0 "${PIDS[-1]}" 2>/dev/null || break
+        kill -0 "${PIDS[${#PIDS[@]}-1]}" 2>/dev/null || break   # last pid (bash 3.2 on macOS has no [-1])
         sleep 0.3
       done
       if [[ $ok -eq 0 ]]; then
@@ -116,4 +148,8 @@ fi
 echo "• Web UI + JSON API on http://$HOST:$PORT   (Ctrl+C to stop)"
 "$PY" -m netcheck serve --host "$HOST" --port "$PORT" &
 PIDS+=($!)
-wait -n "${PIDS[@]}"
+# stop everything as soon as one service ends (portable: macOS ships bash 3.2, which has no "wait -n")
+while :; do
+  for pid in "${PIDS[@]}"; do kill -0 "$pid" 2>/dev/null || break 2; done
+  sleep 1
+done

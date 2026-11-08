@@ -185,7 +185,8 @@ Errors always look like `{"error": {"code": "...", "message": "<plain words, RO 
 | `POST /api/v1/scan` | `{"confirm": true}` | 202 job. Target = the connected network only (never from the page). Errors: `need_consent` 400, `refused` 400, `busy` 409, `no_nmap`/`no_network` 503 |
 | `GET /api/v1/scan/{id}` | – | job `{"id", "status": "running\|done\|error", "subnet", "elapsed", "scan_id", "score", "error"}`; job errors: `denied` (user said No), `unavailable`, `scan_failed` |
 | `POST /api/v1/verify` | `{"scan_id", "ip", "port", "code"}` | `{"status": "resolved\|still_open\|needs_root\|unsupported\|refused\|error", "message", "evidence"}` |
-| `POST /api/v1/ask` | `{"question", "scan_id"?, "history"?: [{"role": "user\|assistant", "content"}] (≤ 12)}` | `{"answer", "source": "ai\|fallback", "mode": "ai\|offline\|rejected", "scan_id"}` |
+| `POST /api/v1/ask` | `{"question", "scan_id"?, "history"?: [{"role": "user\|assistant", "content"}] (≤ 12), "style"?: "text\|voice"}` | `{"answer", "source": "ai\|fallback", "mode": "ai\|offline\|rejected", "scan_id"}` (`voice`: 2–3 spoken sentences, no IP/MAC/port) |
+| `POST /api/v1/tts` | `{"text"}` (≤ 2400) | `audio/mpeg`, or `503 tts_unavailable` when the gateway has no voice (the page then uses the browser voice) |
 | `DELETE /api/v1/history` | – | `{"deleted": true}` |
 | `POST /api/v1/heartbeat`, `POST /api/v1/shutdown` | – | app mode (`netcheck app`): keep alive / "Close" |
 

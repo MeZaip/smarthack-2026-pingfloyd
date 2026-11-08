@@ -1,0 +1,4 @@
+# Optional: the assistant's natural voice (voice mode), made on this computer - free, private, no API key.
+# ./run.sh installs it and downloads the two voices (python tools/get_voices.py, ~126 MB, once).
+# If it cannot be installed (offline, unsupported Python), the app simply uses the browser's own voice.
+piper-tts>=1.2

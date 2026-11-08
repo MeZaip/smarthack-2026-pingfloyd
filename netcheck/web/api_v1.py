@@ -32,12 +32,12 @@ from typing import Optional
 from pathlib import Path
 
 from fastapi import APIRouter, File, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from .. import history
 from ..ai.assistant import ask as ai_ask
-from ..ai.providers import get_provider
+from ..ai.providers import LLMUnavailable, get_provider
 from ..net import elevate, guardrail, netdetect, scanner
 from ..net import verify as verify_mod
 from . import agent
@@ -182,6 +182,7 @@ class AskRequest(BaseModel):
     question: str = Field(max_length=1000)
     scan_id: Optional[int] = None
     history: list[Turn] = Field(default_factory=list, max_length=12)
+    style: str = Field(default="text", pattern="^(text|voice)$")   # voice: the answer is read aloud
 
 
 @router.post("/ask")
@@ -215,9 +216,37 @@ def ask(body: AskRequest, request: Request):
         except LLMUnavailable:            # the search failed: say so and give the general steps, not a scan summary
             return {"answer": _guide_failed(target[0], target[1], qlang), "source": "fallback", "mode": "offline",
                     "scan_id": sid}
-    ans = ai_ask(body.question, a, lang, previous, history=turns or None)
+    ans = ai_ask(body.question, a, lang, previous, history=turns or None, style=body.style)
     mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
     return {"answer": ans.text, "source": ans.source, "mode": mode, "scan_id": sid}
+
+
+class TTSRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=2400)
+
+
+@router.post("/tts")
+def tts(body: TTSRequest, request: Request):
+    """Voice mode: a natural voice for one answer, so every device (computer, phone, tablet) hears the same one.
+    1. Piper on this computer (free, private, ai/local_tts.py), 2. the team gateway's voice (OpenAI / ElevenLabs,
+    key only there), else 503 tts_unavailable and the page uses the browser's own voice."""
+    lang = _lang(request)
+    from ..ai import local_tts
+    from ..ai.voice import to_speech_text
+    text = to_speech_text(body.text, lang, max_sentences=8, max_chars=local_tts.MAX_CHARS) or body.text[:local_tts.MAX_CHARS]
+    try:
+        return Response(content=local_tts.synthesize(text, lang), media_type="audio/wav", headers={"Cache-Control": "no-store"})
+    except local_tts.TTSUnavailable:
+        pass
+    provider = get_provider()
+    speak = getattr(provider, "tts", None)
+    if speak is None:
+        return _error(503, "tts_unavailable", lang, "voice off")
+    try:
+        audio = speak(text, lang)
+    except LLMUnavailable:
+        return _error(503, "tts_unavailable", lang, "voice off")
+    return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "no-store"})
 
 
 def _guide_failed(dev: dict, code: str, lang: str) -> str:

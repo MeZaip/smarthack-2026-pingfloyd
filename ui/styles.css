@@ -617,7 +617,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
    Semantic colours: safe #10B981, warning #F59E0B, danger #EF4444 - always with an SVG icon + words.
    ===================================================================================== */
 :root:not([data-theme="light"]) {
-  --bg: #09090b;
+  --bg: #131824;               /* a warm dark slate, not flat black: the house and the roof stand out */
   --surface: rgba(255, 255, 255, .03);
   --surface-1: rgba(255, 255, 255, .03);
   --surface-2: rgba(255, 255, 255, .06);
@@ -644,7 +644,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
   --solid: #ffffff; --text-2: #1f1f1f; --line: #e5e7eb;
   --safe: #0d8a5f; --warn: #b45309; --danger: #b91c1c;
 }
-:root:not([data-theme="light"]) body { background: radial-gradient(1200px 600px at 70% -10%, rgba(59, 130, 246, .08), transparent 60%), var(--bg); }
+:root:not([data-theme="light"]) body { background: radial-gradient(1200px 600px at 70% -10%, rgba(56, 189, 248, .1), transparent 60%), var(--bg); }
 
 body { font-family: Inter, "SF Pro Text", -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif; }
 h1, h2, h3, h4 { font-weight: 700; color: var(--text); }
@@ -708,7 +708,7 @@ details.tech { border-top-color: var(--line); }
 .stage-wrap { position: relative; min-height: 520px; }
 .stage-wrap::before {            /* soft glow behind the house, tinted by the state */
   content: ""; position: absolute; inset: 8% 10% 0; border-radius: 50%; filter: blur(60px); opacity: .55; z-index: 0;
-  background: radial-gradient(closest-side, rgba(96, 165, 250, .22), transparent);
+  background: radial-gradient(circle at 50% 45%, rgba(56, 189, 248, .14), rgba(19, 24, 36, 0) 70%);
   transition: background .6s;
 }
 .hero[data-state="safe"] .stage-wrap::before { background: radial-gradient(closest-side, rgba(16, 185, 129, .28), transparent); }
@@ -778,7 +778,7 @@ dialog.sheet { background: var(--solid, #111114); border-left: 1px solid var(--l
 @media (max-width: 1000px) { .hero.premium { grid-template-columns: minmax(0, 1fr); } .stage-wrap { min-height: 440px; } .hero.premium .house-stage, .hero.premium .house-stage.is3d { height: 440px; } }
 @media (max-width: 760px) {
   .appbar { padding: 16px 16px 4px; } main { padding: 8px 16px 32px; } .foot { padding: 20px 16px calc(120px + env(safe-area-inset-bottom)); }
-  .nav { border-right: 0; border-top: 1px solid var(--line); background: rgba(9, 9, 11, .92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .nav { border-right: 0; border-top: 1px solid var(--line); background: rgba(19, 24, 36, .92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
   :root[data-theme="light"] .nav { background: rgba(248, 250, 253, .95); }
   .page-head { margin: 12px 0 28px; } .page-head h2 { font-size: 2rem; }
   .section { margin-top: 48px; }
@@ -800,7 +800,7 @@ dialog.sheet { background: var(--solid, #111114); border-left: 1px solid var(--l
 /* header: opaque, above the content, so the page title is never blurred or cut */
 .appbar {
   position: sticky; top: 0; z-index: 30;
-  background: rgba(9, 9, 11, .88); border-bottom: 1px solid var(--line);
+  background: rgba(19, 24, 36, .88); border-bottom: 1px solid var(--line);
   padding-top: 18px; padding-bottom: 18px;
 }
 :root[data-theme="light"] .appbar { background: rgba(248, 250, 253, .92); }
@@ -1644,11 +1644,170 @@ table.results td.c-colProblem { min-width: 12rem; }
 table.results .mob-file { display: none; }
 @media (max-width: 760px) { table.results .mob-file { display: block; font-size: 1rem; color: var(--muted); word-break: break-all; } }
 
+/* =====================================================================================
+   VOICE MODE in the assistant chat (ui/voice.js): a round "Talk to SafeHouse" button in the composer (+ a big
+   invitation when the chat is empty); the voice view: a glowing orb with fluid waves (blue = listening, violet =
+   thinking, emerald = SafeHouse speaking), live captions, an always-visible "Stop the voice" and "Leave".
+   Targets >= 44px, text >= 16px, every state in words as well as colour.
+   ===================================================================================== */
+.speak-btn {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; margin: -4px 0 4px 2px;
+  border-radius: 10px; border: 1px solid var(--outline); background: transparent; color: var(--text); font-size: 1rem; font-weight: 600;
+}
+.speak-btn:hover { background: var(--surface-2); }
+.speak-btn .ico { width: 20px; height: 20px; color: #60a5fa; }
+.speak-btn.on { background: rgba(59, 130, 246, .14); border-color: rgba(59, 130, 246, .5); }
+.voice-mode-btn {
+  flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 0; color: #fff; cursor: pointer;
+  background: radial-gradient(circle at 30% 25%, #67e8f9, #3b82f6 55%, #6d28d9); box-shadow: 0 0 0 1px rgba(255, 255, 255, .15), 0 6px 18px rgba(59, 130, 246, .45);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.voice-mode-btn:hover { transform: scale(1.06); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25), 0 8px 26px rgba(99, 102, 241, .6); }
+.voice-mode-btn .ico { width: 22px; height: 22px; }
+.voice-mode-btn[disabled] { opacity: .5; cursor: progress; transform: none; }
+.voice-mode-btn:focus-visible, .speak-btn:focus-visible, .vm-orb:focus-visible, .vm-invite:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.vm-invite {
+  display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 12px; padding: 14px 16px; text-align: left; cursor: pointer;
+  border-radius: 16px; border: 1px solid rgba(99, 102, 241, .45); color: var(--text); font: inherit;
+  background: linear-gradient(135deg, rgba(14, 165, 233, .14), rgba(109, 40, 217, .14));
+}
+.vm-invite:hover { border-color: rgba(129, 140, 248, .8); }
+.vm-invite > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.vm-invite-ico { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #fff;
+  background: radial-gradient(circle at 30% 25%, #67e8f9, #3b82f6 55%, #6d28d9); }
+.vm-invite-ico .ico { width: 24px; height: 24px; }
+
+.chat-panel.voice-on .chat-body { display: flex; }
+.vm { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; min-height: 100%; padding: 8px 4px 4px; text-align: center; }
+.vm-title { margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--text); }
+.vm-orb { position: relative; width: min(260px, 70vw); aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.vm-orb[disabled] { cursor: progress; }
+.vm-canvas { display: block; width: 100%; height: 100%; }
+.vm-status { margin: 0; min-height: 1.6em; font-size: 1.25rem; font-weight: 700; color: var(--text); }
+.vm[data-phase="listening"] .vm-status { color: #7dd3fc; }
+.vm[data-phase="thinking"] .vm-status { color: #c4b5fd; }
+.vm[data-phase="speaking"] .vm-status { color: #6ee7b7; }
+:root[data-theme="light"] .vm[data-phase="listening"] .vm-status { color: #0369a1; }
+:root[data-theme="light"] .vm[data-phase="thinking"] .vm-status { color: #6d28d9; }
+:root[data-theme="light"] .vm[data-phase="speaking"] .vm-status { color: #047857; }
+.vm-captions { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.vm-captions p { margin: 0; padding: 10px 14px; border-radius: 14px; font-size: 1.0625rem; line-height: 1.45; }
+.vm-you { background: rgba(59, 130, 246, .12); border: 1px solid rgba(59, 130, 246, .3); }
+.vm-bot { background: rgba(16, 185, 129, .1); border: 1px solid rgba(16, 185, 129, .3); }
+.vm-captions strong { font-weight: 700; }
+.vm-consent { width: 100%; padding: 16px; border-radius: 16px; text-align: left; border: 1px solid rgba(245, 158, 11, .45); background: var(--amber-bg, rgba(245, 158, 11, .1)); }
+.vm-consent p { margin: 0 0 8px; }
+.vm-consent .actions { margin-top: 12px; }
+.vm-note { width: 100%; margin: 0; text-align: left; }
+.vm-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: auto; padding-top: 8px; width: 100%; }
+.vm-controls .btn { min-height: 52px; flex: 1 1 10rem; border-radius: 14px; font-size: 1.0625rem; }
+.vm-stop { border-color: rgba(239, 68, 68, .55); color: var(--text); }
+.vm-stop:hover { background: rgba(239, 68, 68, .12); }
+.vm [hidden] { display: none !important; }
+@media (forced-colors: active) { .voice-mode-btn, .vm-invite-ico { border: 2px solid ButtonText; } .speak-btn.on { border: 2px solid Highlight; } }
+/* voice view: the orb scales with the panel height; "Stop the voice" / "Leave" stay pinned at the bottom */
+.chat-panel.voice-on .chat-body { padding-bottom: 0; }
+.vm { min-height: auto; flex: 1; }
+.vm-orb { width: min(240px, 62vw, 30vh); flex: none; }
+.vm-controls {
+  position: sticky; bottom: 0; margin-top: auto; padding: 12px 0 14px;
+  background: linear-gradient(to bottom, transparent, var(--solid, #111114) 22%);
+}
+:root[data-theme="light"] .vm-controls { background: linear-gradient(to bottom, transparent, #fff 22%); }
+.vm-controls .btn { flex: 1 1 0; min-width: 0; padding: 0 12px; font-size: 1rem; line-height: 1.25; }
+@media (max-width: 420px) { .vm-controls { flex-direction: column; } .vm-controls .btn { flex: none; width: 100%; } }
+
+/* =====================================================================================
+   HEADER: "Ask" (text chat) and "Talk" (voice mode) are two separate buttons next to the language;
+   the language buttons wear their flags (Romania, United Kingdom), letters on a dark tag (>= 7:1).
+   The assistant panel now opens under the header, at the right (full screen on phones).
+   ===================================================================================== */
+.hdr-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border-radius: 999px;
+  border: 1px solid var(--outline); background: var(--surface-2); color: var(--text); font: inherit; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: background .15s ease, border-color .15s ease, transform .15s ease;
+}
+.hdr-btn:hover { background: rgba(255, 255, 255, .1); }
+.hdr-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hdr-btn .ico { width: 20px; height: 20px; }
+.hdr-chat { border-color: rgba(59, 130, 246, .5); }
+.hdr-chat .ico { color: #60a5fa; }
+.hdr-chat.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+.hdr-chat.on .ico { color: #fff; }
+.hdr-voice { padding-left: 5px; border-color: rgba(129, 140, 248, .55); }
+.hdr-voice-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #fff;
+  background: radial-gradient(circle at 30% 25%, #67e8f9, #3b82f6 55%, #6d28d9); box-shadow: 0 0 12px rgba(99, 102, 241, .5); }
+.hdr-voice-ico .ico { width: 18px; height: 18px; }
+.hdr-voice.on { background: rgba(99, 102, 241, .25); border-color: #818cf8; }
+.hdr-btn[hidden] { display: none; }
+:root[data-theme="light"] .hdr-btn { background: #fff; }
+
+/* flags: Romania (blue-yellow-red, vertical) and the United Kingdom (Union Jack) */
+.lang-seg { gap: 6px; padding: 4px; }
+.lang-seg .flag {
+  position: relative; display: grid; place-items: center; min-width: 52px; min-height: 40px; padding: 0; border-radius: 10px;
+  border: 2px solid transparent; overflow: hidden; background-size: cover; background-position: center;
+  opacity: .55; filter: saturate(.55); transition: opacity .15s ease, filter .15s ease, transform .15s ease;
+}
+.seg.lang-seg button.flag.flag-ro, .seg.lang-seg button.flag.flag-ro[aria-pressed] { background-color: #fcd116; background-image: linear-gradient(90deg, #002b7f 0 33.34%, #fcd116 33.34% 66.67%, #ce1126 66.67% 100%); }
+.seg.lang-seg button.flag.flag-en, .seg.lang-seg button.flag.flag-en[aria-pressed] { background-color: #012169; background-size: cover; background-position: center; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30' preserveAspectRatio='xMidYMid slice'%3E%3CclipPath id='s'%3E%3Cpath d='M0,0 v30 h60 v-30 z'/%3E%3C/clipPath%3E%3CclipPath id='t'%3E%3Cpath d='M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23s)'%3E%3Cpath d='M0,0 v30 h60 v-30 z' fill='%23012169'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' clip-path='url(%23t)' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23C8102E' stroke-width='6'/%3E%3C/g%3E%3C/svg%3E"); }
+.lang-seg .flag span {
+  padding: 1px 6px; border-radius: 6px; background: rgba(0, 0, 0, .62); color: #fff; font-size: 1rem; font-weight: 800; letter-spacing: .02em; line-height: 1.3;
+}
+.lang-seg .flag:hover { opacity: .85; filter: none; }
+.lang-seg .flag[aria-pressed="true"], :root[data-theme="light"] .lang-seg .flag[aria-pressed="true"] {
+  opacity: 1; filter: none; border-color: #fff; box-shadow: 0 0 0 2px rgba(59, 130, 246, .7);
+}
+.lang-seg .flag:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+:root[data-theme="light"] .lang-seg .flag[aria-pressed="true"] { border-color: #0f172a; }
+
+/* the panel opens under the header, next to the buttons that open it */
+.chat-panel { top: 84px; bottom: auto; right: 24px; height: min(680px, calc(100vh - 108px)); }
+.foot { padding-bottom: 32px; }
+@media (max-width: 760px) {
+  .chat-panel { inset: 0; top: 0; height: 100%; }
+  .foot { padding-bottom: 32px; }
+  .hdr-btn { padding: 0 12px 0 10px; }
+  .hdr-voice { padding-left: 5px; }
+}
+@media (max-width: 560px) {                           /* phones: icons only (their names stay for screen readers) */
+  .hdr-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hdr-btn { width: 44px; padding: 0; justify-content: center; }
+  .hdr-voice { width: 44px; padding: 0; }
+  .lang-seg .flag { min-width: 44px; }
+}
+@media (forced-colors: active) { .lang-seg .flag[aria-pressed="true"] { border-color: Highlight; } .lang-seg .flag span { background: Canvas; color: CanvasText; } }
 /* risk chip open: the router glows when it is in that risk level, fades when it is not */
 .topo-node.core.is-other { opacity: .5; }
 .topo-node.core.is-other:hover, .topo-node.core.is-other:focus-visible, .topo-node.core.is-other[aria-pressed="true"] { opacity: 1; }
 .topo-node.core.is-match .topo-orb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c, #ef4444) 55%, transparent), 0 0 32px color-mix(in srgb, var(--c, #ef4444) 45%, transparent); }
 
+/* voice mode: the SafeHouse shield (from the logo) with energy around it. --lv (0..1, set every frame from the
+   voice level) makes the shield glow and grow a little; green while you speak, cyan while SafeHouse speaks. */
+.vm-orb { --lv: 0; --e: 34, 255, 120; display: grid; place-items: center; overflow: visible; }
+.vm-orb .vm-canvas { position: absolute; inset: -18%; width: 136%; height: 136%; }
+.vm-shield {
+  position: relative; width: 46%; height: auto; overflow: visible;
+  transform: scale(calc(1 + var(--lv) * .07)); transition: transform .08s linear;
+  filter: drop-shadow(0 0 calc(6px + var(--lv) * 22px) rgba(var(--e), calc(.35 + var(--lv) * .6)));
+}
+.vm-shield-energy { stroke: rgb(var(--e)); opacity: calc(.15 + var(--lv) * .85); }
+.vm[data-phase="listening"] .vm-orb { --e: 34, 255, 120; }
+.vm[data-phase="speaking"] .vm-orb { --e: 34, 211, 238; }
+.vm[data-phase="thinking"] .vm-orb { --e: 167, 139, 250; }
+.vm[data-phase="paused"] .vm-orb, .vm[data-phase="idle"] .vm-orb, .vm[data-phase="consent"] .vm-orb { --e: 34, 197, 94; }
+.vm[data-phase="listening"] .vm-status { color: #4ade80; }
+.vm[data-phase="speaking"] .vm-status { color: #67e8f9; }
+:root[data-theme="light"] .vm[data-phase="listening"] .vm-status { color: #15803d; }
+:root[data-theme="light"] .vm[data-phase="speaking"] .vm-status { color: #0e7490; }
+.vm-you { background: rgba(34, 197, 94, .1); border-color: rgba(34, 197, 94, .35); }
+.vm-bot { background: rgba(34, 211, 238, .08); border-color: rgba(34, 211, 238, .3); }
+.vm-orb:focus-visible { outline-offset: 10px; }
+@media (prefers-reduced-motion: reduce) { .vm-shield { transform: none; transition: none; } }
+/* the SafeHouse shield replaces the robot next to "SafeHouse assistant" (panel title and every answer) */
+.shield-mark { flex: none; width: 20px; height: 24px; filter: drop-shadow(0 0 4px rgba(59, 130, 246, .45)); }
+.chat-head .shield-mark { width: 26px; height: 31px; }
+.bot-name .shield-mark { width: 18px; height: 22px; }
 /* compact device panel: header with the risk, one sentence, the problem titles, "Fix it now", then the walk */
 .topo-panel .topo-ph { align-items: flex-start; margin-bottom: 10px; }
 .topo-panel .topo-ph h4 { font-size: 1.15rem; line-height: 1.3; overflow-wrap: anywhere; }
@@ -1742,3 +1901,8 @@ table.results .mob-file { display: none; }
 .guard-devices li.is-stranger .gd-ico .ico { color: var(--red-dot); }
 .gd-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .gd-actions .btn { min-height: 40px; padding: .3rem .7rem; }
+
+/* the badge over the house: while a door is open, its flat icon becomes a glossy 3D warning sign (safehouse3d.js) */
+.glass-ico.has-3d { background: transparent !important; overflow: visible; animation: none !important; box-shadow: none !important; }
+.glass-ico.has-3d > svg { display: none; }
+.glass-ico .glass-sign { width: 64px; height: 64px; margin: -6px; display: block; animation: none; }

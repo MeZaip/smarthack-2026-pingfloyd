@@ -38,6 +38,17 @@ class Config:
     guide_searches: int = 3                      # web searches per "steps for my device" answer
     guide_timeout_s: int = 60
 
+    # optional natural voice for the assistant's voice mode (the app falls back to the browser voice)
+    tts: str = "none"                            # none | openai | elevenlabs
+    openai_api_key: str = field(default="", repr=False)
+    openai_tts_model: str = "gpt-4o-mini-tts"
+    openai_tts_voice: str = "coral"
+    elevenlabs_api_key: str = field(default="", repr=False)
+    elevenlabs_voice: str = "21m00Tcm4TlvDq8ikWAM"
+    elevenlabs_model: str = "eleven_multilingual_v2"
+    tts_timeout_s: int = 20
+    tts_daily_limit: int = 500                   # spoken answers per day (protects API credits)
+
     # abuse / cost protection
     rate_per_min: int = 12                       # per client IP
     daily_limit: int = 2000                      # total questions per day (protects API credits)
@@ -67,6 +78,15 @@ class Config:
             max_output_tokens=_int("NETCHECK_GATEWAY_MAX_OUTPUT_TOKENS", 1024),
             claude_thinking=os.environ.get("NETCHECK_GATEWAY_CLAUDE_THINKING", "") == "1",
             claude_effort=os.environ.get("NETCHECK_GATEWAY_CLAUDE_EFFORT", "low"),
+            tts=os.environ.get("NETCHECK_GATEWAY_TTS", "none").lower(),
+            openai_api_key=os.environ.get("OPENAI_API_KEY", ""),
+            openai_tts_model=os.environ.get("NETCHECK_GATEWAY_OPENAI_TTS_MODEL", "gpt-4o-mini-tts"),
+            openai_tts_voice=os.environ.get("NETCHECK_GATEWAY_OPENAI_TTS_VOICE", "coral"),
+            elevenlabs_api_key=os.environ.get("ELEVENLABS_API_KEY", ""),
+            elevenlabs_voice=os.environ.get("NETCHECK_GATEWAY_ELEVENLABS_VOICE", "21m00Tcm4TlvDq8ikWAM"),
+            elevenlabs_model=os.environ.get("NETCHECK_GATEWAY_ELEVENLABS_MODEL", "eleven_multilingual_v2"),
+            tts_timeout_s=_int("NETCHECK_GATEWAY_TTS_TIMEOUT", 20),
+            tts_daily_limit=_int("NETCHECK_GATEWAY_TTS_DAILY_LIMIT", 500),
             guide_searches=max(1, _int("NETCHECK_GATEWAY_GUIDE_SEARCHES", 3)),
             guide_timeout_s=_int("NETCHECK_GATEWAY_GUIDE_TIMEOUT", 60),
             rate_per_min=_int("NETCHECK_GATEWAY_RATE_PER_MIN", 12),
@@ -79,7 +99,7 @@ class Config:
     def describe(self) -> str:
         return (f"listening on http://{self.host}:{self.port}  backend={self.backend}  model={self.model}  "
                 f"auth={'on' if self.token else 'off'}  rate={self.rate_per_min}/min/IP  "
-                f"daily_limit={self.daily_limit}  concurrency={self.concurrency}")
+                f"daily_limit={self.daily_limit}  concurrency={self.concurrency}  tts={self.tts}")
 
     def ready(self) -> bool:
         """Can this machine run the gateway? (claude: a key is set here; ollama: always try)."""
