@@ -655,16 +655,17 @@
         // where the door is, seen from the dog (yaw in the dog's own space)
         const toDoor = Math.atan2(DOOR.x - g.position.x, DOOR.z - g.position.z);
         const bodyGoal = alert ? HOME.yaw - 0.45 : HOME.yaw;
-        let headGoal = alert ? toDoor - bodyGoal : Math.sin(t * 0.45) * 0.45;
+        const calm = st === "safe";                                   // a safe house: a relaxed dog
+        let headGoal = alert ? toDoor - bodyGoal : calm ? Math.sin(t * 0.25) * 0.25 : Math.sin(t * 0.45) * 0.45;
         headGoal = Math.max(-1.0, Math.min(1.0, ((headGoal + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI));
         const k = still ? 1 : 0.05;
         look.body += (bodyGoal - look.body) * k;
         look.head += (headGoal - look.head) * k;
-        look.pitch += ((alert ? 0.12 : 0) - look.pitch) * k;
+        look.pitch += ((alert ? 0.12 : calm ? -0.1 : 0) - look.pitch) * k;
         g.rotation.y = look.body;
         neck.rotation.y = look.head;
         head.rotation.x = -look.pitch;
-        const breath = still ? 0 : Math.sin(t * 2.2);
+        const breath = still ? 0 : Math.sin(t * (calm ? 1.4 : 2.2));
         chest.scale.set(0.95 * (1 + breath * 0.025), 1.05 * (1 + breath * 0.03), 1 + breath * 0.02);
         torso.scale.set(1 + breath * 0.015, 1 + breath * 0.015, 0.95);
         LED.emissive.copy(ledColor[st] || ledColor.idle);
@@ -674,13 +675,16 @@
   })();
   world.add(dog.group);
 
-  // ------------------------------------------------------------------ glossy 3D warning sign for the "a door is open" badge
-  // A chubby, bevelled triangle of glossy yellow acrylic with a raised obsidian "!" (a tapered bar and a dot), rendered in a
-  // small canvas that replaces the flat icon of the floating badge over the house while a door is open. It floats gently
-  // and turns -12..+12 degrees so the reflections run along its rounded edges. Without WebGL the flat icon simply stays.
+  // ------------------------------------------------------------------ glossy 3D symbols for the floating badge over the house
+  // Rendered in a small canvas that replaces the flat icon of the badge, in one tactile style (thick, chubby bevels, glossy
+  // clearcoat, a raised obsidian sign on the face):
+  //   a door is open -> a yellow triangle with "!" (a tapered bar and a dot)
+  //   the house is safe -> an emerald shield with a check mark (two rounded capsules joined at an angle)
+  // Both float gently and turn -12..+12 degrees so the reflections run along their edges. In the other states, or without
+  // WebGL, the badge keeps its flat icon.
   const sign = (function () {
     const SIZE = 64;
-    let r2 = null, sc, cam, obj, running = false, failed = false;
+    let r2 = null, sc, cam, obj, warn, shield, running = false, failed = false;
     function build() {
       try {
         r2 = new T3.WebGLRenderer({ antialias: true, alpha: true });
@@ -725,7 +729,10 @@
       const DEPTH = 0.3, BEVEL = 0.16;
       const triGeo = new T3.ExtrudeGeometry(shape, { depth: DEPTH, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: 0.14, bevelSegments: 8, curveSegments: 16 });
       triGeo.center();
-      obj.add(new T3.Mesh(triGeo, new T3.MeshPhysicalMaterial({ color: "#facc15", metalness: 0.2, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.1 })));
+      warn = new T3.Group();
+      shield = new T3.Group();
+      obj.add(warn, shield);
+      warn.add(new T3.Mesh(triGeo, new T3.MeshPhysicalMaterial({ color: "#facc15", metalness: 0.2, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.1 })));
       const ink = new T3.MeshPhysicalMaterial({ color: "#090d16", metalness: 0.1, roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.05 });
       const front = DEPTH / 2 + BEVEL - 0.02;
       const bar = new T3.Group();
@@ -738,7 +745,33 @@
       const dot = new T3.Mesh(new T3.SphereGeometry(0.1, 20, 14), ink);
       dot.position.set(0, -0.42, front);
       dot.scale.z = 0.7;
-      obj.add(bar, dot);
+      warn.add(bar, dot);
+
+      // the safe shield: a classic shield outline (gentle dip at the top, pointed bottom), thick and round-bevelled
+      const sh = new T3.Shape();
+      sh.moveTo(0, 0.98);
+      sh.bezierCurveTo(0.34, 0.78, 0.66, 0.72, 0.9, 0.72);
+      sh.lineTo(0.9, 0.12);
+      sh.bezierCurveTo(0.9, -0.46, 0.48, -0.82, 0, -1.02);
+      sh.bezierCurveTo(-0.48, -0.82, -0.9, -0.46, -0.9, 0.12);
+      sh.lineTo(-0.9, 0.72);
+      sh.bezierCurveTo(-0.66, 0.72, -0.34, 0.78, 0, 0.98);
+      const shGeo = new T3.ExtrudeGeometry(sh, { depth: DEPTH, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: 0.14, bevelSegments: 8, curveSegments: 20 });
+      shGeo.center();
+      shield.add(new T3.Mesh(shGeo, new T3.MeshPhysicalMaterial({ color: "#10b981", metalness: 0.2, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.1 })));
+      // the check mark: two capsules meeting at a rounded joint, raised on the face (same obsidian as the "!")
+      const R_CHECK = 0.095;
+      const arm = (a, b) => {
+        const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+        const c = new T3.Mesh(new T3.CapsuleGeometry(R_CHECK, len, 8, 16), ink);
+        c.position.set((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, front);
+        c.rotation.z = Math.atan2(b[1] - a[1], b[0] - a[0]) - Math.PI / 2;
+        c.scale.z = 0.7;
+        return c;
+      };
+      const joint = [-0.1, -0.3];
+      shield.add(arm([-0.4, 0.02], joint), arm(joint, [0.42, 0.36]));
+      shield.visible = false;
       return true;
     }
     function loop(now) {
@@ -751,19 +784,23 @@
       if (!still) requestAnimationFrame(loop);
     }
     return {
-      // put the sign into the badge's icon box (hero .glass-ico) while a door is open, else take it out
+      // put the right symbol into the badge's icon box (hero .glass-ico): the warning sign while a door is open, the
+      // shield when the house is safe; take it out in every other state
       sync(st) {
         const box = document.querySelector(".hero .glass-ico");
-        if (st !== "vulnerable" || !box || failed) {
+        const kind = st === "vulnerable" ? "warn" : st === "safe" ? "shield" : null;
+        if (!kind || !box || failed) {
           running = false;
           if (r2 && r2.domElement.parentNode) r2.domElement.parentNode.classList.remove("has-3d");
           if (r2) r2.domElement.remove();
           return;
         }
         if (!r2 && !build()) return;
+        warn.visible = kind === "warn";
+        shield.visible = kind === "shield";
         box.classList.add("has-3d");
         if (r2.domElement.parentNode !== box) box.appendChild(r2.domElement);
-        if (!running) { running = true; requestAnimationFrame(loop); }
+        if (!running) { running = true; requestAnimationFrame(loop); } else if (reduce()) r2.render(sc, cam);
       },
     };
   })();

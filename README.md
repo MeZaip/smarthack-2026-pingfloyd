@@ -109,6 +109,23 @@ The AI runs through a small gateway that keeps the API key. The app itself never
 
 To start without the AI, use `./run.sh --no-ai` (or `run.cmd -NoAI`).
 
+**Free, without an API key (local model):** install [Ollama](https://ollama.com) (`brew install ollama` on macOS) and
+download the model once with `ollama pull qwen3.5:9b` (about 7 GB). `./run.sh` then starts Ollama and the gateway by
+itself whenever there is no `ANTHROPIC_API_KEY`. The first answer takes ~30 s while the model loads, then a few seconds.
+
+### Voice: "Talk" (speech to speech)
+
+The **Talk** button next to the language opens voice mode: you speak, the assistant answers out loud, briefly.
+
+* It needs a browser that understands speech: **Chrome, Edge or Safari** (Firefox has no speech recognition, so the
+  button is hidden there). Open the app at `http://127.0.0.1:8000`, not from the file, and allow the microphone.
+* **The natural voice** (Romanian "Mihai", English "Lessac") is made on this computer by Piper: free, nothing is sent
+  anywhere. `./run.sh` installs it once (`requirements-voice.txt` + `tools/get_voices.py`, ~130 MB). If that is not
+  possible (offline, a Python without Piper packages), the browser's own voice is used. To install it again:
+  `rm .venv/.voice-ok && ./run.sh`.
+* On a phone opened over the network (`http://192.168.x.x`) the browser blocks the microphone (it needs HTTPS);
+  answers are still read aloud.
+
 ## Privacy
 
 - Your scans and history stay on your computer in `~/.netcheck/`. "Delete all data" in the app removes them.
