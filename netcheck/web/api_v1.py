@@ -5,10 +5,12 @@
   GET    /api/v1/scan/{job_id}       progress / result of a check
   POST   /api/v1/verify              {"scan_id", "ip", "port", "code"} -> re-check one fixed problem
   POST   /api/v1/ask                 {"question", "scan_id"?, "history"?} -> assistant answer (AI or built-in)
+  POST   /api/v1/guide               {"scan_id", "ip", "code"} -> fix steps for that device's brand/model (AI + maker's site)
   GET    /api/v1/ui-data             everything the SafeHouse page shows (scans saved on this computer)
   POST   /api/v1/upload              one or more nmap XML files -> analysed and saved (broken ones: error)
   POST   /api/v1/export              nmap XML files (e.g. a whole folder) -> ZIP with findings.csv + scores.csv (FR-15)
   POST   /api/v1/export/history      the same two CSVs for the files saved on this computer (unreadable: ERROR)
+  GET    /api/v1/report/{scan_id}    technical report of one saved check (.txt, nmap style, for an IT person)
   DELETE /api/v1/history             delete my history (one click, NFR-02)
   POST   /api/v1/heartbeat           the open page is alive (app mode)
   POST   /api/v1/shutdown            "Close SafeHouse" (app mode)
@@ -181,9 +183,72 @@ def ask(body: AskRequest, request: Request):
         prev = history.previous_id(conn, sid)
         previous = get_analysis(conn, prev) if prev is not None else None
     turns = [t.model_dump() for t in body.history]
+    # "how do I turn it off on my TP-Link?": steps for that maker, looked up on its official site
+    from ..ai.guide import device_steps_target
+    from ..ai.language import detect as detect_language
+    from ..ai.providers import LLMUnavailable
+    earlier = next((t["content"] for t in reversed(turns) if t["role"] == "user"), "")
+    target = device_steps_target(body.question, a.devices(), a.prioritized(), earlier)
+    if target:
+        qlang = detect_language(body.question, default=detect_language(earlier, default=lang) if earlier else lang)
+        try:
+            g = _device_guide(target[0], target[1], qlang)
+            return {"answer": g["answer"], "source": "ai", "mode": "guide", "scan_id": sid,
+                    "sources": g["sources"], "vendor": g["vendor"]}
+        except (ValueError, LLMUnavailable):
+            pass                          # no search right now: the normal assistant answers
     ans = ai_ask(body.question, a, lang, previous, history=turns or None)
     mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
     return {"answer": ans.text, "source": ans.source, "mode": mode, "scan_id": sid}
+
+
+class GuideRequest(BaseModel):
+    scan_id: int
+    ip: str = Field(max_length=64)
+    code: str = Field(max_length=40)
+
+
+_guides: dict = {}          # (vendor, model, type, code, lang) -> answer; the same device asks once per run
+
+
+def _device_guide(dev: dict, code: str, lang: str) -> dict:
+    """Steps for `code` on `dev`, for its maker (cached). Raises ValueError (unknown maker) or LLMUnavailable."""
+    from ..ai.guide import build_guide_request, vendor_name
+    from ..ai.providers import LLMUnavailable
+    from ..explain.texts import text_for
+    req = build_guide_request(dev, code, text_for(code, lang)["steps"], lang)
+    key = (req["vendor"], req["model"], req["type"], req["code"], req["lang"])
+    if key not in _guides:
+        provider = get_provider()
+        if not hasattr(provider, "guide"):
+            raise LLMUnavailable("AI disabled")
+        _guides[key] = provider.guide(req)
+    return {**_guides[key], "vendor": vendor_name(req["vendor"]), "model": req["model"]}
+
+
+@router.post("/guide")
+def guide(body: GuideRequest, request: Request):
+    """Steps for one problem on one device, for its maker and model, looked up on the maker's official site."""
+    from ..ai.providers import LLMUnavailable
+    from .app import get_analysis
+    lang = _lang(request)
+    with history.open_history() as conn:
+        try:
+            a = get_analysis(conn, body.scan_id)
+        except KeyError:
+            return _error(404, "no_scan", lang, "Verificarea nu mai există." if lang == "ro" else "This check no longer exists.")
+    dev = next((d for d in a.devices() if d["ip"] == body.ip), None)
+    if dev is None or not any(f.ip == body.ip and f.code == body.code for f in a.findings):
+        return _error(404, "no_problem", lang, "Problema nu mai apare în verificare." if lang == "ro"
+                      else "This problem is not in the check.")
+    try:
+        return _device_guide(dev, body.code, lang)
+    except ValueError:
+        return _error(422, "unknown_maker", lang, "Nu știm cine a făcut acest aparat, așa că rămân pașii generali." if lang == "ro"
+                      else "We do not know who made this device, so the general steps stay.")
+    except LLMUnavailable:
+        return _error(503, "ai_offline", lang, "Asistentul online nu răspunde acum. Pașii generali de mai sus rămân valabili." if lang == "ro"
+                      else "The online assistant is not answering right now. The general steps above still apply.")
 
 
 # ------------------------------------------------------------------ SafeHouse page data + file upload
@@ -292,12 +357,46 @@ def export_history(request: Request):
     return _export_response(results, lang)
 
 
+@router.get("/report/{scan_id}")
+def technical_report(scan_id: int, request: Request):
+    """The technical report of one saved check: a .txt file, also kept next to the CSV exports."""
+    import re
+    from datetime import datetime
+    from urllib.parse import quote
+
+    from fastapi.responses import Response
+
+    from ..explain.technical import technical_report as build
+    from .app import get_analysis
+    lang = _lang(request)
+    with history.open_history() as conn:
+        try:
+            a = get_analysis(conn, scan_id)
+        except KeyError:
+            return _error(404, "no_scan", lang, "Verificarea nu există sau fișierul nu a putut fi citit." if lang == "ro"
+                          else "This check does not exist or its file could not be read.")
+        prev = history.previous_id(conn, scan_id)
+        changes = history.changes(conn, prev, scan_id) if prev is not None else None
+    text = build(a, lang, changes)
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "_", Path(a.file).stem)[:60] or "scan"
+    name = f"safehouse_report_{stem}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    out = exports_dir()
+    out.mkdir(parents=True, exist_ok=True)
+    (out / name).write_text(text, encoding="utf-8")
+    return Response(text.encode("utf-8"), media_type="text/plain; charset=utf-8", headers={
+        "Content-Disposition": f'attachment; filename="{name}"',
+        "X-SafeHouse-Saved-To": quote(str(out / name)),
+        "Cache-Control": "no-store",
+    })
+
+
 # ------------------------------------------------------------------ privacy + app lifecycle
 @router.delete("/history")
 def delete_history():
     from .app import _cache
     history.delete_history()
     _cache.clear()
+    _guides.clear()
     return {"deleted": True}
 
 

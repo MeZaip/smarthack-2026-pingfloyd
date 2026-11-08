@@ -6,6 +6,8 @@ model with the team's API key. Users never see or need a key.
 Endpoints
   GET  /health    -> {"ok": bool, "backend": str, "model": str}
   POST /v1/ask    -> {"answer": str, "model": str, "ms": int}
+  POST /v1/guide  -> {"answer": str, "sources": [{"title", "url"}], "model": str, "ms": int}
+                     fix steps for one device brand/model, searched only on the maker's official site
 
 Protections: optional bearer token, per-IP rate limit, daily cap (protects API
 credits), body size limit, strict request whitelist (netcheck.ai.contract),
@@ -30,7 +32,10 @@ from netcheck.ai.grounding import GroundingError, check_evidence
 
 from .backends import Backend, BackendError, make_backend
 from .config import Config
-from .prompts import RETRY_NOTE, build_messages
+from netcheck.ai.guide import domains, validate_guide_request, vendor_name
+from netcheck.explain.texts import text_for
+
+from .prompts import GUIDE_RETRY, RETRY_NOTE, build_guide, build_messages
 
 
 class RateLimiter:
@@ -161,6 +166,51 @@ def answer_question(cfg: Config, backend: Backend, slots: threading.BoundedSemap
     raise GatewayError(502, "ungrounded", "the model answer could not be verified")  # pragma: no cover
 
 
+GUIDE_MAX_WORDS = 170
+
+
+def guide_answer(cfg: Config, backend: Backend, slots: threading.BoundedSemaphore,
+                 budget: DailyBudget, body: dict) -> tuple[str, list[dict], int]:
+    """Steps for one device brand/model (web search limited to the maker's site). Returns (answer, sources, ms)."""
+    try:
+        req = validate_guide_request(body)
+    except ContractError as e:
+        raise GatewayError(400, "bad_request", str(e)) from None
+    if not hasattr(backend, "guide"):
+        raise GatewayError(501, "not_supported", "this model cannot search the maker's site")
+    tx = text_for(req["code"], req["lang"])
+    system, user = build_guide(req, tx["title"], tx["explain"], vendor_name(req["vendor"]))
+    if not budget.take():
+        raise GatewayError(503, "daily_limit", "the assistant reached today's limit, built-in answers still work")
+    if not slots.acquire(timeout=cfg.queue_wait_s):
+        raise GatewayError(503, "busy", "the assistant is busy, try again in a moment")
+    started = time.monotonic()
+    try:
+        for attempt in range(2):
+            try:
+                text, sources = backend.guide(system, user, domains(req["vendor"]))
+            except BackendError as e:
+                raise GatewayError(503, "model_unavailable", str(e)) from None
+            text = shorten(plain_text(text), GUIDE_MAX_WORDS)
+            try:   # NFR-06: no IPs, ports, CVEs, phone numbers or links in the steps (the scan gave none here)
+                check_evidence(text, set(), set(), "")
+                break
+            except GroundingError as e:
+                if attempt == 1:
+                    raise GatewayError(502, "ungrounded", "the model answer could not be verified") from None
+                user = user + GUIDE_RETRY[req["lang"]].format(reason=str(e))
+    finally:
+        slots.release()
+    allowed = tuple(domains(req["vendor"]))
+    sources = [s for s in sources if any((urllib_host(s["url"]) == d or urllib_host(s["url"]).endswith("." + d)) for d in allowed)]
+    return text, sources, int((time.monotonic() - started) * 1000)
+
+
+def urllib_host(url: str) -> str:
+    from urllib.parse import urlsplit
+    return (urlsplit(url).hostname or "").lower()
+
+
 def make_handler(cfg: Config, backend: Backend):
     limiter = RateLimiter(cfg.rate_per_min)
     budget = DailyBudget(cfg.daily_limit)
@@ -216,7 +266,7 @@ def make_handler(cfg: Config, backend: Backend):
             started = time.monotonic()
             status = 500
             try:
-                if self.path != "/v1/ask":
+                if self.path not in ("/v1/ask", "/v1/guide"):
                     raise GatewayError(404, "not_found", "not found")
                 if not self._authorized():
                     raise GatewayError(401, "unauthorized", "missing or wrong token")
@@ -235,9 +285,14 @@ def make_handler(cfg: Config, backend: Backend):
                     body = json.loads(self.rfile.read(length).decode("utf-8"))
                 except (UnicodeDecodeError, json.JSONDecodeError):
                     raise GatewayError(400, "bad_json", "body is not valid JSON") from None
-                text, ms = answer_question(cfg, backend, slots, budget, body)
-                status = 200
-                self._send(200, {"answer": text, "model": cfg.model, "ms": ms})
+                if self.path == "/v1/guide":
+                    text, sources, ms = guide_answer(cfg, backend, slots, budget, body)
+                    status = 200
+                    self._send(200, {"answer": text, "sources": sources, "model": cfg.model, "ms": ms})
+                else:
+                    text, ms = answer_question(cfg, backend, slots, budget, body)
+                    status = 200
+                    self._send(200, {"answer": text, "model": cfg.model, "ms": ms})
             except GatewayError as e:
                 status = e.status
                 if e.code == "model_unavailable":   # operator needs the reason; it never contains the key

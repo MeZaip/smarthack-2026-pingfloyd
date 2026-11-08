@@ -20,6 +20,9 @@ stateless **AI gateway**, which holds the key and calls Claude Haiku 5.5 (option
 request contract, per-IP rate limit, daily cap, no logging of content. A **grounding validator** (in the gateway and again in the app)
 rejects any answer naming an IP, port, CVE, link or phone number not in the scan and shows the verified built-in text instead.
 Gateway down / no key / timeout → built-in answers, same UX. Conversations keep the last 6 turns in the app only.
+"Exact steps for <maker>": the gateway lets Claude search **only the maker's official site** for where the setting is,
+sends no IP/MAC/hostname, checks the answer the same way and shows it with its sources; the built-in steps stay visible.
+A technical report (.txt, nmap style) exports one check for an IT person (no AI).
 
 **Differentiators.** SafeHouse UI: a 3D house that is "inspected" by a real live scan, a network map of every device (this computer
 marked), plain-language fixes; HMAC device IDs (no MAC stored); „Am reparat, verifică” one-click targeted re-check

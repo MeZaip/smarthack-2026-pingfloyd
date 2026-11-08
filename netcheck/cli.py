@@ -60,6 +60,15 @@ def cmd_analyze(args) -> int:
 def cmd_report(args) -> int:
     a = analyze_file(args.file)
     lang = args.lang
+    if args.technical:
+        from .explain.technical import technical_report
+        text = technical_report(a, lang)
+        if args.out:
+            Path(args.out).write_text(text, encoding="utf-8")
+            _out(("Raport scris în " if lang == "ro" else "Report written to ") + args.out)
+        else:
+            _out(text)
+        return 0 if a.ok else 1
     if not a.ok:
         _out(("Fișierul nu poate fi citit: " if lang == "ro" else "The file cannot be read: ") + a.error)
         return 1
@@ -391,9 +400,11 @@ def main(argv=None) -> int:
                    help="read every (non-hidden) file in the folder, not only *.xml; unreadable ones get ERROR")
     s.set_defaults(fn=cmd_analyze)
 
-    s = sub.add_parser("report", help="plain-language report for one scan file")
+    s = sub.add_parser("report", help="plain-language report for one scan file (--technical: detailed, for IT)")
     s.add_argument("file")
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--technical", action="store_true", help="detailed technical report in nmap style (for an IT person)")
+    s.add_argument("--out", help="with --technical: write the report to this file instead of the screen")
     s.set_defaults(fn=cmd_report)
 
     s = sub.add_parser("ask", help="ask the assistant a question about one scan")

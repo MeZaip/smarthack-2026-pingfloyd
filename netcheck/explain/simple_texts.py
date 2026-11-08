@@ -12,10 +12,10 @@ from __future__ import annotations
 # "icon" names an SVG symbol in ui/index.html (#i-user, #i-users, #i-briefcase).
 WHO = {
     "self": {"ro": "Poți face singur", "en": "You can do this yourself", "icon": "user"},
-    "helper": {"ro": "Cere ajutorul cuiva care se pricepe (un părinte, un nepot, un prieten)",
-               "en": "Ask someone who knows computers (a parent, a grandchild, a friend)", "icon": "users"},
-    "it": {"ro": "Cere ajutorul firmei IT sau al celui care a instalat aparatul",
-           "en": "Ask the IT company or the person who set up the device", "icon": "briefcase"},
+    "helper": {"ro": "Cere ajutorul cuiva care se pricepe",
+               "en": "Ask someone who knows computers for help", "icon": "users"},
+    "it": {"ro": "Cere ajutorul celui care a instalat aparatul",
+           "en": "Ask the person who set up the device", "icon": "briefcase"},
 }
 
 SIMPLE: dict[str, dict] = {
@@ -73,13 +73,13 @@ SIMPLE: dict[str, dict] = {
         "ro": {
             "title": "Un dulap cu date e deschis pentru toată rețeaua",
             "explain": "Pe un aparat stă un program care păstrează date, ca un dulap cu dosare. Dulapul e deschis pentru oricine din rețea, deci cineva ar putea citi sau strica datele.",
-            "steps": ["Spune-i celui care a instalat programul (sau firmei IT) că acest dulap e deschis.",
+            "steps": ["Spune-i celui care a instalat programul că acest dulap e deschis.",
                       "Rugați-l să-l închidă pentru restul rețelei și să-i pună parolă."],
         },
         "en": {
             "title": "A cupboard full of data is open to the whole network",
             "explain": "A program on this device keeps data, like a cupboard full of files. The cupboard is open to anyone on the network, so someone could read or break the data.",
-            "steps": ["Tell the person who installed the program (or the IT company) that this cupboard is open.",
+            "steps": ["Tell the person who installed the program that this cupboard is open.",
                       "Ask them to close it to the rest of the network and give it a password."],
         },
     },
@@ -138,14 +138,14 @@ SIMPLE: dict[str, dict] = {
             "title": "Pagina cu setările aparatului nu e protejată",
             "explain": "Când scrii parola ca să schimbi setările aparatului, ea trece prin rețea neascunsă. Altcineva din rețea ar putea s-o citească.",
             "steps": ["Intră în pagina de setări doar când chiar e nevoie.",
-                      "Cere ajutor ca să fie pornit „HTTPS” (adresa paginii începe atunci cu https://).",
+                      "Cere ajutor ca să fie pornit „HTTPS”. Adresa paginii va începe apoi cu https://.",
                       "Schimbă parola aparatului cu una nouă și lungă."],
         },
         "en": {
             "title": "The device's settings page is not protected",
             "explain": "When you type the password to change this device's settings, it travels through the network without being hidden. Someone else on the network could read it.",
             "steps": ["Only open the settings page when you really need to.",
-                      "Ask for help to turn on “HTTPS” (the page address then starts with https://).",
+                      "Ask for help to turn on “HTTPS”. The page address will then start with https://.",
                       "Change the device password to a new, long one."],
         },
     },
@@ -186,14 +186,14 @@ SIMPLE: dict[str, dict] = {
         "ro": {
             "title": "Aparatele pot deschide singure uși spre internet",
             "explain": "Routerul lasă aparatele din casă să deschidă singure uși spre internet, fără să te întrebe. Dacă un aparat e păcălit, poate lăsa străini să intre.",
-            "steps": ["Deschide aplicația routerului (cutia care îți dă internetul).",
+            "steps": ["Deschide aplicația routerului, cutia care îți dă internet.",
                       "Caută „UPnP” și oprește-l, apoi apasă „Salvează”.",
                       "Dacă după asta un joc nu mai merge, cere ajutor."],
         },
         "en": {
             "title": "Devices can open doors to the internet by themselves",
             "explain": "Your router lets devices at home open doors to the internet without asking you. If a device is tricked, it can let strangers in.",
-            "steps": ["Open the app for your router (the box that gives you internet).",
+            "steps": ["Open the app for your router, the box that gives you internet.",
                       "Find “UPnP”, turn it off, then press “Save”.",
                       "If a game stops working after this, ask for help."],
         },
@@ -203,13 +203,13 @@ SIMPLE: dict[str, dict] = {
         "ro": {
             "title": "Aparatul spune multe despre el oricui întreabă",
             "explain": "Aparatul răspunde la întrebări despre el de la oricine din rețea și folosește o parolă pe care o știe toată lumea. Un străin ar putea afla multe sau chiar schimba setări.",
-            "steps": ["Cere ajutorul firmei IT sau al cuiva care se pricepe.",
+            "steps": ["Cere ajutorul cuiva care se pricepe.",
                       "Rugați-i să oprească „SNMP” sau să-i pună o parolă adevărată."],
         },
         "en": {
             "title": "The device tells a lot about itself to anyone who asks",
             "explain": "This device answers questions about itself from anyone on the network, using a password everybody knows. A stranger could learn a lot or even change settings.",
-            "steps": ["Ask the IT company or someone who knows computers.",
+            "steps": ["Ask someone who knows computers for help.",
                       "Ask them to turn off “SNMP” or give it a real password."],
         },
     },
@@ -219,14 +219,14 @@ SIMPLE: dict[str, dict] = {
             "title": "Oricine din rețea poate tipări la imprimanta ta",
             "explain": "Imprimanta tipărește orice primește, fără să întrebe cine trimite. Cineva din rețea ar putea să-ți consume hârtia sau să-i schimbe setările.",
             "steps": ["Nu e o urgență dacă în rețea sunt doar oamenii din casă.",
-                      "Pune o parolă la setările imprimantei (din aplicația sau instrucțiunile ei).",
+                      "Pune o parolă la setările imprimantei, din aplicația ei sau după instrucțiuni.",
                       "Dacă aplicația imprimantei îți arată o „Actualizare”, apasă pe ea."],
         },
         "en": {
             "title": "Anyone on the network can print on your printer",
             "explain": "The printer prints whatever it gets, without asking who sent it. Someone on the network could use up your paper or change its settings.",
             "steps": ["It is not urgent if only the people in your home use the network.",
-                      "Set a password for the printer settings (in its app or its instructions).",
+                      "Set a password for the printer settings, in its app or by following its instructions.",
                       "If the printer app shows an “Update”, tap it."],
         },
     },

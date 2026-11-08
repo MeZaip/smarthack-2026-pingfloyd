@@ -50,7 +50,7 @@
   font: 800 calc(var(--sr-size) * .27)/1 var(--sr-num); letter-spacing: .02em; color: #fff; font-variant-numeric: tabular-nums;
   text-shadow: 0 0 2px rgba(0, 0, 0, .8), 0 0 14px color-mix(in srgb, var(--sr-b) 80%, transparent), 0 0 34px color-mix(in srgb, var(--sr-b) 45%, transparent);
 }
-.sr-of { margin-top: calc(var(--sr-size) * .04); font: 600 max(.85rem, calc(var(--sr-size) * .068))/1.2 var(--sr-sans); color: #c9cde0; letter-spacing: .01em; }
+.sr-of { margin-top: calc(var(--sr-size) * .04); font: 600 max(1rem, calc(var(--sr-size) * .068))/1.2 var(--sr-sans); color: #c9cde0; letter-spacing: .01em; }
 
 @keyframes srBreathe { 0%, 100% { opacity: var(--sr-glow); } 50% { opacity: calc(var(--sr-glow) * .7); } }
 @keyframes srCap { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }

@@ -1301,7 +1301,7 @@ div.topo-node { cursor: default; }
 /* ---------- network map: risk chips above the map (they filter it) ---------- */
 .topo-legend { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px 0; }
 .topo-legend:empty { display: none; }
-.topo-legend .topo-hub { position: static; transform: none; min-height: 40px; padding: .3rem .85rem; font-size: .95rem; }
+.topo-legend .topo-hub { position: static; transform: none; min-height: 40px; padding: .3rem .85rem; font-size: 1rem; }
 .topo-legend .topo-hub .hub-top { display: contents; }
 .topo-legend .topo-hub .hub-top .ico { order: -2; }
 .topo-legend .topo-hub .hub-word { order: -1; }
@@ -1318,7 +1318,7 @@ div.topo-node { cursor: default; }
   .nav .brand-logo img.brand-mark, .nav .brand-mark { height: 30px; width: auto; }
   .nav .brand-text { font-size: 1.15rem; }
   .nav-item { position: relative; flex-direction: row; justify-content: flex-start; gap: 12px; width: 100%; min-height: 42px;
-    padding: 0 12px; border-radius: 10px; font-size: .95rem; font-weight: 600; color: var(--muted); transition: background .15s, color .15s; }
+    padding: 0 12px; border-radius: 10px; font-size: 1rem; font-weight: 600; color: var(--muted); transition: background .15s, color .15s; }
   .nav .nav-ico { width: auto; height: auto; background: transparent !important; transition: color .15s; }
   .nav .nav-ico .ico { width: 19px; height: 19px; }
   .nav-item:hover { background: rgba(255, 255, 255, .05); color: var(--text); }
@@ -1374,7 +1374,7 @@ div.topo-node { cursor: default; }
   input, select, textarea { font-size: 16px; }          /* iOS zooms into smaller inputs */
   .data td .pill { white-space: nowrap; }
   .chart-wrap { overflow-x: auto; }
-  .foot { font-size: .95rem; }
+  .foot { font-size: 1rem; }
 }
 @media (max-width: 420px) {
   .data td .pill { display: none; }                     /* the score number and the chart above already say it */
@@ -1550,7 +1550,7 @@ div.topo-node { cursor: default; }
 .cy-table td b { color: #fff; font-size: 1.2rem; }
 .cy-dot { display: inline-block; width: 12px; height: 12px; margin-right: 10px; border-radius: 3px; background: var(--neon); transform: rotate(45deg);
   box-shadow: 0 0 6px var(--neon); vertical-align: 1px; }
-.cy-when { display: block; margin: 3px 0 0 22px; color: var(--cy-muted); font-size: .95rem; font-weight: 500; }
+.cy-when { display: block; margin: 3px 0 0 22px; color: var(--cy-muted); font-size: 1rem; font-weight: 500; }
 .cyber details.tech { border-top-color: rgba(255, 255, 255, .15); color: var(--cy-soft); }
 .cyber details.tech > summary { color: var(--cy-soft); font-size: 1.05rem; }
 .cyber details.tech[open] > summary, .cyber details.tech > summary:hover { color: #fff; }
@@ -1558,7 +1558,7 @@ div.topo-node { cursor: default; }
 
 /* What happened: system log / terminal */
 .cy-term { border-radius: 12px; overflow: hidden; background: rgba(4, 5, 12, .9); border: 1.5px solid rgba(255, 255, 255, .14); }
-.cy-term-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font: 600 .95rem var(--cy-sans); color: var(--cy-muted);
+.cy-term-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font: 600 1rem var(--cy-sans); color: var(--cy-muted);
   background: rgba(255, 255, 255, .04); border-bottom: 1px solid rgba(255, 255, 255, .12); }
 .cy-term-bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--c-bad); }
 .cy-term-bar i:nth-child(2) { background: var(--c-warn); }
@@ -1570,7 +1570,7 @@ div.topo-node { cursor: default; }
   animation: cyIn .45s ease both; animation-delay: calc(var(--i, 0) * 90ms + 250ms); }
 .cy-log-line.t-green { --tone: var(--c-ok); } .cy-log-line.t-amber { --tone: var(--c-warn); } .cy-log-line.t-red { --tone: var(--c-bad); }
 .cy-log-line.t-info { --tone: var(--c-info); } .cy-log-line.t-neutral { --tone: var(--c-neutral); }
-.cy-stamp { padding-top: 7px; font: 700 .95rem var(--cy-sans); color: var(--tone); white-space: nowrap; }
+.cy-stamp { padding-top: 7px; font: 700 1rem var(--cy-sans); color: var(--tone); white-space: nowrap; }
 .cy-log-ico { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: var(--tone);
   background: color-mix(in srgb, var(--tone) 16%, #0b0c18); border: 2px solid var(--tone);
   box-shadow: 0 0 12px color-mix(in srgb, var(--tone) 50%, transparent); }
@@ -1600,7 +1600,7 @@ div.topo-node { cursor: default; }
   .cy-col-k { font-size: 1.1rem; }
   .cy-compare { gap: 6px; }
   .cy-arrow span { width: 10px; height: 10px; border-width: 3px; }
-  .cy-band { font-size: .95rem; padding: .3rem .65rem; }
+  .cy-band { font-size: 1rem; padding: .3rem .65rem; }
   .cy-verdict { font-size: 1.15rem; }
   .cy-log-line { grid-template-columns: auto minmax(0, 1fr); row-gap: 6px; padding: 12px; }
   .cy-stamp { grid-column: 1 / -1; padding-top: 0; }
@@ -1633,7 +1633,7 @@ table.results td.c-colProblem { min-width: 12rem; }
   table.results td.c-colWhen { min-width: 0; }
   .results td .pill { display: inline-flex !important; }
   table.findings-table .c-colIp, table.findings-table .c-colPort { display: none; }
-  table.results { font-size: .95rem; }
+  table.results { font-size: 1rem; }
   table.results td.c-colProblem { min-width: 0; }
   table.results .pill { padding-left: 8px; padding-right: 8px; }
 }
@@ -1642,7 +1642,7 @@ table.results td.c-colProblem { min-width: 12rem; }
   table.results .pill .ico { display: none; }
 }
 table.results .mob-file { display: none; }
-@media (max-width: 760px) { table.results .mob-file { display: block; font-size: .85rem; color: var(--muted); word-break: break-all; } }
+@media (max-width: 760px) { table.results .mob-file { display: block; font-size: 1rem; color: var(--muted); word-break: break-all; } }
 
 /* risk chip open: the router glows when it is in that risk level, fades when it is not */
 .topo-node.core.is-other { opacity: .5; }
@@ -1656,8 +1656,21 @@ table.results .mob-file { display: none; }
 .topo-panel .topo-why { margin: 0 0 12px; font-size: 1rem; }
 .topo-panel .topo-finds { gap: 6px; }
 .topo-panel .topo-finds li { padding: 7px 10px 7px 13px; }
-.topo-panel .topo-finds strong { font-weight: 600; font-size: .98rem; }
-.topo-more-probs { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+.topo-panel .topo-finds strong { font-weight: 600; font-size: 1rem; }
+.topo-more-probs { margin: 6px 0 0; color: var(--muted); font-size: 1rem; }
 .topo-panel .topo-cta { margin-top: 14px; }
 .topo-cta-soft { width: 100%; min-height: 48px; }
 .topo-panel .topo-nav { margin-top: 14px; }
+
+/* "Exact steps for <maker>": the assistant's answer from the maker's website */
+.guide-box { padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(37, 99, 235, .35); background: rgba(37, 99, 235, .08); }
+.guide-box h4 { margin: 0 0 .5rem; }
+.guide-text { white-space: pre-line; margin: 0; line-height: 1.6; }
+.guide-src { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: 4px; }
+.guide-src a { color: #60a5fa; overflow-wrap: anywhere; }
+:root[data-theme="light"] .guide-box { background: #eef4ff; }
+:root[data-theme="light"] .guide-src a { color: #1d4ed8; }
+.guide-note { margin: .6rem 0 0; font-size: 1rem; }
+
+.topo-fline { display: flex; align-items: flex-start; gap: 8px; }
+.topo-fline .ico { flex: none; width: 1.1em; height: 1.1em; margin-top: .2em; color: var(--c); }
