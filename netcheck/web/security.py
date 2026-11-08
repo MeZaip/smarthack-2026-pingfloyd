@@ -23,7 +23,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 COOKIE = "nc_session"
-LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1", "testserver"}   # testserver = FastAPI TestClient
+LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1"}
 UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
 
 SESSION_TOKEN = os.environ.get("NETCHECK_SESSION_TOKEN") or secrets.token_urlsafe(32)
@@ -41,7 +41,9 @@ def _hostname(value: str) -> str:
 def host_allowed(host_header: str) -> bool:
     if os.environ.get("NETCHECK_ALLOW_ANY_HOST") == "1":   # `netcheck serve --host <ip>`, opted in explicitly
         return True
-    return _hostname(host_header) in LOCAL_HOSTS
+    host = _hostname(host_header)
+    # "testserver" is the FastAPI TestClient's host: accepted only while pytest runs
+    return host in LOCAL_HOSTS or (host == "testserver" and "PYTEST_CURRENT_TEST" in os.environ)
 
 
 class LocalOnly(BaseHTTPMiddleware):

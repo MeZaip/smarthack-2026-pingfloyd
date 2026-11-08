@@ -101,13 +101,14 @@ def test_api_report_downloads_and_saves_a_txt(tmp_path):
     up = c.post("/api/v1/upload", files=[("files", (p.name, p.read_bytes(), "text/xml"))
                                          for p in (LAB / "lab_01_before.xml", LAB / "lab_03_final.xml")])
     ids = up.json()["saved"]
-    r = c.get(f"/api/v1/report/{ids[-1]}?lang=en")
+    assert c.get(f"/api/v1/report/{ids[-1]}").status_code in (404, 405)    # writes a file: POST only
+    r = c.post(f"/api/v1/report/{ids[-1]}?lang=en")
     assert r.status_code == 200 and r.headers["content-type"].startswith("text/plain")
     assert 'filename="safehouse_report_lab_03_final_' in r.headers["content-disposition"]
     assert "Nmap scan report for" in r.text and "CHANGES SINCE THE PREVIOUS CHECK" in r.text
     saved = list((tmp_path / "exports").glob("safehouse_report_*.txt"))
     assert len(saved) == 1 and saved[0].read_text(encoding="utf-8") == r.text
-    assert c.get("/api/v1/report/9999").status_code == 404
+    assert c.post("/api/v1/report/9999").status_code == 404
 
 
 def test_cli_technical_report(tmp_path):

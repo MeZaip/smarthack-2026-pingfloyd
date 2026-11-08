@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Optional
 
 from .models import Finding, Host, Port, ScanResult
 

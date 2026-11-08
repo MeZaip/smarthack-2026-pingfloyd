@@ -141,7 +141,7 @@
       mode_offline: "Asistentul online nu e disponibil acum, așa că îți răspund din textele noastre.",
       mode_rejected: "Răspunsul inteligenței artificiale nu a trecut verificarea, așa că îți arăt textele noastre.",
       closeApp: "Închide aplicația", closedApp: "Aplicația s-a închis. Poți închide această fereastră.",
-      thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.",
+      thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.", oldApp: "Aplicația care rulează e mai veche decât această pagină. Închide SafeHouse și pornește-l din nou.",
       askSubLive: "Îți răspund scurt, doar pe baza verificării afișate sus. Trimit întrebarea și un rezumat al verificării, fără să păstrăm nimic.",
       resTitle: "Toate verificările", resSub: "Fiecare verificare salvată pe acest calculator, cu scorul și cât de sigură e rețeaua. Apasă pe un rând ca să vezi tot ce a găsit.",
       colNo: "Nr.", colWhen: "Verificare", colFile: "Fișier", colRating: "Siguranță", colDevices: "Aparate", colProblems: "Probleme",
@@ -155,6 +155,20 @@
       exporting: "Pregătesc fișierele…", exportDoneT: "Gata, fișierele CSV sunt descărcate",
       exportDone: "{f} fișiere analizate, {e} cu ERROR, {k} probleme găsite.", exportWhere: "Le-am salvat și aici:",
       exportSkipped: "Am sărit {n} fișiere care nu sunt .xml.", exportNone: "Nu am găsit fișiere .xml în ce ai ales.",
+      guardT: "Paznicul casei", guardOffS: "Te anunț imediat ce se conectează un aparat nou la Wi-Fi-ul tău sau se deschide o ușă nouă.",
+      guardStart: "Pornește paznicul", guardStop: "Oprește paznicul",
+      guardLearning: "Caut aparatele din rețea…", guardDoors: "Am găsit {n} aparate, mă uit la ușile lor…", guardWaiting: "Aștept să se termine verificarea casei…", guardMoved: "M-am oprit pentru că ai schimbat rețeaua. Pornește-mă din nou când ești pe rețeaua ta.", gdNet: "Rețeaua păzită", gdKnown: "cunoscute", gOff: "oprit", guardOffShort: "Te anunț când apare un aparat nou.", gStart: "Pornește", gsMoved: "Oprit: ai schimbat rețeaua.", gsWaiting: "Aștept verificarea casei…", gsLearning: "Caut aparatele…", gsPaused: "Pauză: nu ești pe nicio rețea.", gsError: "Nu văd rețeaua acum.", gsDoors: "Verific ușile a {n} aparate…", gsEmpty: "Nu văd alte aparate.", gsWatching: "{n} aparate · {ago}", gDetails: "Detalii", gNothing: "Încă n-am văzut nimic nou. Te anunț imediat ce apare ceva.", gdNow: "acum", gdHow: "Cum caut aparatele", gdSeen: "Aparate văzute", gdErr: "Mesaj de la Nmap",
+      guardEmpty: "Nu văd niciun alt aparat în rețea. Dacă știi că sunt aparate conectate, acest calculator nu poate citi lista lor.", guardWatching: "Păzesc rețeaua · {n} aparate cunoscute · m-am uitat {ago}",
+      guardWatching0: "Păzesc rețeaua · m-am uitat {ago}", guardPaused: "Pauză: nu ești conectat la nicio rețea acum.",
+      guardError: "Paznicul nu poate vedea rețeaua acum. Mai încerc.", guardAskT: "Pornim paznicul?",
+      guardAsk: "La fiecare {s} secunde mă uit cine e conectat la rețeaua ta. Doar la rețeaua la care ești conectat acum și fără drepturi de administrator.",
+      guardAsk2: "Este rețeaua ta?", guardYes: "Da, păzește-o",
+      agoNow: "chiar acum", agoS: "acum {n} secunde", agoM: "acum {n} minute", agoM1: "acum un minut",
+      gNewDevT: "Aparat nou în Wi-Fi-ul tău", gNewPortT: "Ușă nouă deschisă", gPrivate: "Telefon sau laptop (adresă privată)", gUnknownDev: "Aparat necunoscut",
+      gChecking: "Mă uit ce uși are deschise…", gRisks: "Are uși periculoase: {list}", gNoRisk: "Nu are uși periculoase deschise.",
+      gKnow: "Îl cunoști?", gMine: "E al meu", gStranger: "Nu-l cunosc", gOk: "Am înțeles", gInspect: "Inspectează casa",
+      gWasMine: "e al tău", gWasStranger: "nu-l cunoști", gRecent: "Ce a văzut paznicul",
+      gStrangerT: "Un aparat pe care nu-l cunoști", gStrangerS: "S-ar putea să fie al unui vecin sau al cuiva care îți folosește Wi-Fi-ul. Iată ce faci:",
     },
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
@@ -278,7 +292,7 @@
       mode_offline: "The online assistant is not available right now, so I answer from our own texts.",
       mode_rejected: "The AI answer did not pass the check, so I show you our own texts.",
       closeApp: "Close the app", closedApp: "The app is closed. You can close this window.",
-      thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.",
+      thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.", oldApp: "The running app is older than this page. Close SafeHouse and start it again.",
       askSubLive: "I answer briefly, only from the check shown at the top. I send your question and a summary of the check, and we keep nothing.",
       resTitle: "All checks", resSub: "Every check saved on this computer, with its score and how safe the network is. Tap a row to see everything it found.",
       colNo: "No.", colWhen: "Check", colFile: "File", colRating: "Safety", colDevices: "Devices", colProblems: "Problems",
@@ -292,6 +306,20 @@
       exporting: "Preparing the files…", exportDoneT: "Done, the CSV files are downloaded",
       exportDone: "{f} files analysed, {e} with ERROR, {k} problems found.", exportWhere: "I also saved them here:",
       exportSkipped: "I skipped {n} files that are not .xml.", exportNone: "I found no .xml files in what you chose.",
+      guardT: "House guard", guardOffS: "I tell you as soon as a new device joins your Wi-Fi or a new door opens.",
+      guardStart: "Turn on the guard", guardStop: "Turn off the guard",
+      guardLearning: "Looking for the devices on the network…", guardDoors: "Found {n} devices, checking their doors…", guardWaiting: "Waiting for the house check to finish…", guardMoved: "I stopped because you changed networks. Turn me on again when you are on your own network.", gdNet: "Guarded network", gdKnown: "known", gOff: "off", guardOffShort: "I tell you when a new device appears.", gStart: "Turn on", gsMoved: "Off: you changed networks.", gsWaiting: "Waiting for the house check…", gsLearning: "Looking for devices…", gsPaused: "Paused: no network.", gsError: "Cannot see the network now.", gsDoors: "Checking the doors of {n} devices…", gsEmpty: "I see no other devices.", gsWatching: "{n} devices · {ago}", gDetails: "Details", gNothing: "Nothing new so far. I will tell you as soon as something appears.", gdNow: "now", gdHow: "How I look for devices", gdSeen: "Devices seen", gdErr: "Message from Nmap",
+      guardEmpty: "I see no other device on the network. If you know devices are connected, this computer cannot read their list.", guardWatching: "Guarding the network · {n} known devices · looked {ago}",
+      guardWatching0: "Guarding the network · looked {ago}", guardPaused: "Paused: you are not connected to any network right now.",
+      guardError: "The guard cannot see the network right now. I keep trying.", guardAskT: "Turn on the guard?",
+      guardAsk: "Every {s} seconds I look at who is connected to your network. Only the network you are connected to right now, and without administrator rights.",
+      guardAsk2: "Is this your network?", guardYes: "Yes, guard it",
+      agoNow: "just now", agoS: "{n} seconds ago", agoM: "{n} minutes ago", agoM1: "a minute ago",
+      gNewDevT: "New device on your Wi-Fi", gNewPortT: "New door opened", gPrivate: "Phone or laptop (private address)", gUnknownDev: "Unknown device",
+      gChecking: "Checking which doors it has open…", gRisks: "It has dangerous doors open: {list}", gNoRisk: "It has no dangerous doors open.",
+      gKnow: "Do you know it?", gMine: "It's mine", gStranger: "I don't know it", gOk: "Got it", gInspect: "Inspect the house",
+      gWasMine: "yours", gWasStranger: "you don't know it", gRecent: "What the guard saw",
+      gStrangerT: "A device you don't know", gStrangerS: "It might belong to a neighbour or someone using your Wi-Fi. Here is what to do:",
     },
   };
 
@@ -463,7 +491,9 @@
     try { data = await r.json(); } catch (e) { /* not JSON */ }
     return { ok: r.ok, status: r.status, data };
   }
-  const errText = (res) => (res.data && res.data.error && res.data.error.message) || t("connErr");
+  // a 404/405 without our error body: the page is newer than the running app (it was not restarted after an update)
+  const errText = (res) => (res.data && res.data.error && res.data.error.message)
+    || (res.status === 404 || res.status === 405 ? t("oldApp") : t("connErr"));
   // Fresh data after a check, an upload or a delete; keeps the scan on screen when it still exists.
   async function reloadData(selectId) {
     const keep = selectId != null ? selectId : scan().scan_id;
@@ -800,6 +830,7 @@
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
         done && toFix ? h("button", { type: "button", class: "btn", onclick: () => showFixes() }, icon("shield"), t("seeFixes")) : null),
+      LIVE ? guardRow() : null,
       privacyRow(),
       // screen-reader status (the glass badge over the house is the visible one)
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
@@ -1187,31 +1218,6 @@
     // re-layout when the graph area changes size (window resize, panel opening)
     new ResizeObserver(() => layout()).observe(graph);
     requestAnimationFrame(layout);
-  }
-
-  // Device cards: icon, name, IP and a very simple explanation (max 2 sentences) in both languages.
-  function explainIn(lang, d, worst) {
-    return worst ? D.simple[worst.code][lang].explain : T[lang].devOkExplain;
-  }
-  function deviceCards(s) {
-    const other = state.lang === "ro" ? "en" : "ro";
-    return h("div", { class: "grid-devices" }, s.devices.slice().sort((a, b) => b.risk_points - a.risk_points).map((d) => {
-      const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
-      const name = vendor || deviceLabel(d.type);
-      const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${deviceLabel(d.type)} ${vendor}, ${t("ipLabel")} ${d.ip}, ${t("macLabel")} ${d.mac || t("unknown")}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
-        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
-          h("div", null, h("h3", { text: name }), h("div", { class: "sub", text: deviceLabel(d.type) }))),
-        h("dl", { class: "dcard-meta" },
-          h("dt", { text: t("ipLabel") }), h("dd", { class: "mono", text: d.ip }),
-          h("dt", { text: t("macLabel") }), h("dd", { class: "mono", text: d.mac || t("unknown") })),
-        worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")),
-        h("p", { lang: state.lang, style: "margin-top:.8rem", text: explainIn(state.lang, d, worst) }),
-        h("p", { class: "other", lang: other }, h("span", { class: "lang-tag", text: t("otherLang") + ":" }), explainIn(other, d, worst)),
-        h("button", { type: "button", class: "btn btn-text", onclick: (e) => { e.stopPropagation(); openDevice(d, card); } }, t("whatToDo"), icon("chevron")));
-      card.addEventListener("click", () => openDevice(d, card));
-      card.addEventListener("keydown", (e) => { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDevice(d, card); } });
-      return card;
-    }));
   }
 
   function suggestion(s) {
@@ -1739,9 +1745,9 @@
   async function techReport(scanId) {
     showSheet(h("p", { class: "lead", role: "status", text: t("techReporting") }));
     let r;
-    try { r = await fetch(`/api/v1/report/${scanId}?lang=${state.lang}`, { credentials: "same-origin" }); }
+    try { r = await fetch(`/api/v1/report/${scanId}?lang=${state.lang}`, { method: "POST", credentials: "same-origin" }); }
     catch (e) { problemSheet(t("techReport"), t("connErr")); return; }
-    if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("techReport"), errText({ data })); return; }
+    if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("techReport"), errText({ data, status: r.status })); return; }
     const blob = await r.blob();
     const name = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "safehouse_report.txt";
     const a = h("a", { href: URL.createObjectURL(blob), download: name, style: "display:none" });
@@ -1753,6 +1759,176 @@
       h("p", { class: "lead", style: "margin-top:.6rem", text: t("techReportDone") }),
       where ? [h("p", { class: "muted", text: t("techReportWhere") }), h("p", { class: "evidence mono", text: where })] : null,
       h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
+  }
+
+  // ---------------------------------------------------------------- „Păzește casa": the guard
+  // A card on Home (on / off, what it is doing, the last things it saw) and, while it is on, a small alert in the
+  // corner for every new device or newly opened door, with "It's mine" / "I don't know it". The page asks the
+  // local agent every few seconds; the agent does the looking (no admin rights, only this network).
+  const guardSt = { data: null, timer: null, shown: new Set() };
+  const ago = (ts) => {
+    const n = Math.max(0, Math.round(Date.now() / 1000 - ts));
+    return n < 5 ? t("agoNow") : n < 60 ? t("agoS", { n }) : n < 120 ? t("agoM1") : t("agoM", { n: Math.round(n / 60) });
+  };
+  const gName = (e) => shortVendor(e.vendor) || (e.private_mac ? t("gPrivate") : t("gUnknownDev"));
+  const gRiskLine = (e) => e.checking ? t("gChecking") : e.risks.length ? t("gRisks", { list: e.risks.map((c) => simple(c).title).join("; ") }) : t("gNoRisk");
+  function guardLine(g) {
+    if (g && !g.on && g.state === "moved") return t("guardMoved");
+    if (!g || !g.on) return t("guardOffS");
+    if (g.phase === "waiting") return t("guardWaiting");
+    if (g.state === "learning") return t("guardLearning");
+    if (g.state === "paused") return t("guardPaused");
+    if (g.state === "error") return t("guardError") + (g.error ? ` (${g.error})` : "");
+    if (g.phase === "doors" && g.seen) return t("guardDoors", { n: g.seen });
+    if (!g.known && !g.seen && g.last_check) return t("guardEmpty");
+    const a = g.last_check ? ago(g.last_check) : t("agoNow");
+    return g.known ? t("guardWatching", { n: g.known, ago: a }) : t("guardWatching0", { ago: a });
+  }
+  // the same, in a few words, for the row in the score card (the full sentence is in the sheet)
+  function guardShort(g) {
+    if (g && !g.on && g.state === "moved") return t("gsMoved");
+    if (!g || !g.on) return t("guardOffShort");
+    if (g.phase === "waiting") return t("gsWaiting");
+    if (g.state === "learning") return t("gsLearning");
+    if (g.state === "paused") return t("gsPaused");
+    if (g.state === "error") return t("gsError");
+    if (g.phase === "doors" && g.seen) return t("gsDoors", { n: g.seen });
+    if (!g.known && !g.seen && g.last_check) return t("gsEmpty");
+    return t("gsWatching", { n: g.known, ago: g.last_check ? ago(g.last_check) : t("agoNow") });
+  }
+  // a compact row in the score card (between the house and the network map nothing changes); the details in a sheet
+  function guardRow() {
+    const g = guardSt.data, on = !!(g && g.on);
+    const fresh = on && g.events.filter((e) => e.status === "new").length;
+    return h("div", { class: "guard-row" + (on ? " is-on" : "") },
+      h("span", { class: "guard-dot", "aria-hidden": "true" }, icon("shield")),
+      h("div", { class: "grow" },
+        h("strong", { text: t("guardT") + (on ? "" : " · " + t("gOff")) }),
+        h("p", { class: "muted guard-line", role: "status", "aria-live": "polite", text: guardShort(g) })),
+      on ? h("button", { type: "button", class: "btn btn-text guard-more", "aria-haspopup": "dialog", onclick: (e) => guardSheet(e.currentTarget) },
+            fresh ? h("span", { class: "badge", text: String(fresh) }) : null, t("gDetails"))
+        : h("button", { type: "button", class: "btn btn-text", id: "guard-start", "aria-label": t("guardStart"), onclick: guardAsk }, t("gStart")));
+  }
+  function guardSheetBody() {
+    const g = guardSt.data || { events: [] }, on = !!g.on, d = g.diag || {};
+    return h("div", { class: "guard-sheet" },
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico" + (on ? " green" : ""), "aria-hidden": "true" }, icon("shield")),
+        h("div", null, h("h2", { id: "sheet-title", text: t("guardT") }), h("p", { class: "muted", role: "status", text: guardLine(g) }))),
+      g.events.length ? [h("h4", { text: t("gRecent") + ":" }),
+        h("ul", { class: "guard-recent" }, g.events.slice(0, 10).map((e) => h("li", null,
+          icon(e.kind === "new_device" ? "plus" : "door"),
+          h("span", { text: `${e.kind === "new_device" ? t("gNewDevT") : t("gNewPortT")}: ${gName(e)} · ${e.ip}` +
+            (e.risks.length ? ` · ${e.risks.map((c) => simple(c).title).join("; ")}` : "") +
+            (e.status === "mine" ? ` · ${t("gWasMine")}` : e.status === "stranger" ? ` · ${t("gWasStranger")}` : "") }),
+          h("span", { class: "muted", text: ago(e.when) }))))]
+        : h("p", { class: "lead", style: "margin-top:1rem", text: t("gNothing") }),
+      techBox(h("dl", { class: "meta" },
+        h("dt", { text: t("gdNet") }), h("dd", { class: "mono", text: `${g.subnet || "–"} · ${t("gdNow")}: ${d.net_now || "–"}` }),
+        h("dt", { text: t("gdHow") }), h("dd", { class: "mono", text: d.how === "nmap" ? `nmap -sn (${d.nmap_rc ?? "–"})` : d.how === "ping" ? "ping" : "–" }),
+        h("dt", { text: t("gdSeen") }), h("dd", { class: "mono", text: `nmap: ${d.from_nmap ?? "–"} / ${d.nmap_up ?? "–"} up · ARP: ${d.arp ?? "–"} · ${t("gdKnown")}: ${g.known ?? 0}` }),
+        d.nmap_err ? [h("dt", { text: t("gdErr") }), h("dd", { class: "mono", text: d.nmap_err })] : null,
+        g.error ? [h("dt", { text: t("gdErr") }), h("dd", { class: "mono", text: g.error })] : null)),
+      h("div", { class: "actions" },
+        on ? h("button", { type: "button", class: "btn btn-danger", onclick: () => { closeSheet(); guardSwitch(false); } }, t("guardStop"))
+          : h("button", { type: "button", class: "btn btn-cta", onclick: guardAsk }, icon("shield"), t("guardStart")),
+        h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close"))));
+  }
+  function guardSheet(opener) {
+    showSheet(guardSheetBody(), opener);
+    focusSel("#sheet .actions .btn");
+  }
+  function refreshGuardCard() {
+    const swap = (old, fresh) => {
+      const det = fresh.querySelector("details");
+      if (old.querySelector("details[open]") && det) det.open = true;      // keep "Advanced details" open
+      if (fresh.innerHTML !== old.innerHTML || fresh.className !== old.className) swapKeepFocus(old, fresh);
+    };
+    const row = document.querySelector(".guard-row");
+    if (row) swap(row, guardRow());
+    const sheet = document.querySelector("#sheet[open] .guard-sheet");
+    if (sheet) swap(sheet, guardSheetBody());
+  }
+  async function guardAsk() {
+    showSheet(h("div", { class: "lead", role: "status", text: t("cfPrep") }));
+    const res = await api("GET", "/api/v1/status");
+    if (!res.ok) return problemSheet(t("probT"), errText(res));
+    const net = res.data.network;
+    if (!net.ok) return problemSheet(t("probT"), net.message);
+    showSheet(h("div", null,
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico", "aria-hidden": "true" }, icon("shield")), h("h2", { id: "sheet-title", text: t("guardAskT") })),
+      h("p", { class: "muted", style: "margin-top:.8rem", text: t("cfNet") }),
+      h("p", { class: "lead" }, h("strong", { text: net.wifi || t("topoNet") }), h("span", { class: "mono", text: "  ·  " + net.subnet })),
+      h("p", { text: t("guardAsk", { s: (guardSt.data && guardSt.data.interval) || 20 }) }),
+      h("p", { class: "lead", text: t("guardAsk2") }),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-cta", id: "guard-yes", onclick: () => { closeSheet(); guardSwitch(true); } }, icon("shield"), t("guardYes")),
+        h("button", { type: "button", class: "btn", onclick: closeSheet }, t("cfNo")))));
+    focusSel("#guard-yes");
+  }
+  async function guardSwitch(on) {
+    const res = await api("POST", "/api/v1/guard", { on, confirm: on });
+    if (!res.ok) return problemSheet(t("probT"), errText(res));
+    guardSt.data = res.data;
+    if (on) res.data.events.forEach((e) => guardSt.shown.add(e.id));   // only what happens from now on
+    refreshGuardCard(); guardSchedule();
+  }
+  function guardSchedule() {
+    clearTimeout(guardSt.timer);
+    if (guardSt.data && guardSt.data.on) guardSt.timer = setTimeout(guardPoll, 4000);
+  }
+  async function guardPoll() {
+    const res = await api("GET", "/api/v1/guard");
+    if (res.ok) {
+      guardSt.data = res.data;
+      refreshGuardCard();
+      renderGuardToasts();
+    }
+    guardSchedule();
+  }
+  // the alerts in the corner: one per new event, until the user answers or closes it
+  const toastBox = h("div", { class: "guard-toasts", "aria-live": "assertive", "aria-relevant": "additions" });
+  document.body.append(toastBox);
+  function renderGuardToasts() {
+    const evs = (guardSt.data ? guardSt.data.events : []).filter((e) => e.status === "new" && !guardSt.shown.has(e.id)).slice(0, 3);
+    const want = new Set(evs.map((e) => e.id));
+    toastBox.querySelectorAll(".guard-toast").forEach((el) => { if (!want.has(el.dataset.id)) el.remove(); });
+    evs.forEach((e) => {
+      const old = toastBox.querySelector(`[data-id="${CSS.escape(e.id)}"]`);
+      const fresh = guardToast(e);
+      if (old) { if (old.dataset.sig !== fresh.dataset.sig) old.replaceWith(fresh); } else toastBox.append(fresh);
+    });
+  }
+  function guardToast(e) {
+    const close = () => { guardSt.shown.add(e.id); renderGuardToasts(); };
+    const answer = async (mine) => {
+      guardSt.shown.add(e.id); renderGuardToasts();
+      await api("POST", "/api/v1/guard/ack", { id: e.id, mine });
+      if (!mine) strangerSheet();
+      guardPoll();
+    };
+    const dev = e.kind === "new_device";
+    const el = h("div", { class: "guard-toast" + (e.risks.length ? " risky" : ""), role: "alert", "data-id": e.id,
+        "data-sig": `${e.checking}|${e.risks.join(",")}` },
+      h("div", { class: "gt-head" }, icon(dev ? "wifi" : "door"), h("strong", { text: dev ? t("gNewDevT") : t("gNewPortT") }),
+        h("button", { type: "button", class: "icon-btn gt-x", "aria-label": t("close"), title: t("close"), onclick: close }, icon("x"))),
+      h("p", { class: "gt-name", text: `${gName(e)} · ${e.ip}` + (dev ? "" : ` · ${e.ports.join(", ")}`) }),
+      h("p", { class: "gt-risk", text: gRiskLine(e) }),
+      dev ? h("p", { class: "gt-q", text: t("gKnow") }) : null,
+      h("div", { class: "actions" }, dev
+        ? [h("button", { type: "button", class: "btn btn-tonal", onclick: () => answer(true) }, icon("check"), t("gMine")),
+           h("button", { type: "button", class: "btn", onclick: () => answer(false) }, icon("alert"), t("gStranger"))]
+        : [h("button", { type: "button", class: "btn btn-tonal", onclick: close }, t("gOk")),
+           h("button", { type: "button", class: "btn", onclick: () => { close(); setTab("home"); inspect(); } }, icon("search"), t("gInspect"))]));
+    return el;
+  }
+  function strangerSheet() {
+    const tx = simple("UNKNOWN_DEVICE");
+    showSheet(h("div", null,
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico red", "aria-hidden": "true" }, icon("alert")), h("h2", { id: "sheet-title", text: t("gStrangerT") })),
+      h("p", { class: "lead", style: "margin-top:.6rem", text: t("gStrangerS") }),
+      steps(tx.steps),
+      h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
+    focusSel("#sheet .actions .btn");
   }
 
   // ---------------------------------------------------------------- the assistant: a floating button + chat panel
@@ -1879,7 +2055,7 @@
         r = await fetch((files ? "/api/v1/export" : "/api/v1/export/history") + "?lang=" + state.lang,
           { method: "POST", credentials: "same-origin", body });
       } catch (e) { problemSheet(t("exportT"), t("connErr")); return; }
-      if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("exportT"), errText({ data })); return; }
+      if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("exportT"), errText({ data, status: r.status })); return; }
       const blob = await r.blob();
       const name = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "safehouse_results.zip";
       const a = h("a", { href: URL.createObjectURL(blob), download: name, style: "display:none" });
@@ -1910,6 +2086,12 @@
     }
     // a check already running (e.g. the page was reloaded): follow it
     api("GET", "/api/v1/status").then((res) => { if (res.ok && res.data.scan && res.data.scan.status === "running") followJob(res.data.scan); });
+    // the guard may already be on (page reloaded): show its state, alerts only for what happens from now on
+    api("GET", "/api/v1/guard").then((res) => {
+      if (!res.ok) return;
+      guardSt.data = res.data; res.data.events.forEach((e) => guardSt.shown.add(e.id));
+      refreshGuardCard(); guardSchedule();
+    });
   }
   ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { state.lang = l; store.set("lang", l); render(); }));
   document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); }));
