@@ -1,19 +1,25 @@
-# SafeHouse — 1-page technical summary
+# SafeHouse — Technical Summary
 
-**Lab setup.** One phone runs hotspot `RSH-<team>` (WPA2/3). Scanner laptop joins only the hotspot. Target laptop runs
-`lab/fake_services.py` (banner-only telnet, FTP vsFTPd 2.3.4, SSH OpenSSH 7.2, VNC, plain-HTTP "Admin Login") and optionally
-Docker Redis / Mosquitto 1.6 / nginx admin page. ≥ 6 catalog finding types. Before/after: `--fixed` turns off telnet, FTP and HTTP admin.
-Measured in our lab (iPhone hotspot `172.20.10.0/28`, MacBook scanner, Windows target; `tests/fixtures/lab/`): score **0 → 30 → 80** (all fake services + file sharing → `--fixed` → services and file sharing off).
+## Lab setup
 
-**Architecture.** Python 3, one package, five layers:
-`scanner (nmap, sudo only)` → `parser (defusedxml)` → `rules + score (deterministic)` → `explain (RO/EN JSON) / assistant (Claude, optional)` →
-`history (SQLite) + SafeHouse web UI (FastAPI local agent, scan text inserted only as text) + CSV export`. CLI first, UI second; both call the same functions.
+SafeHouse was designed and tested on a small, isolated Wi-Fi network owned by the
+team. A phone hotspot provides the private subnet; a scanner laptop runs the
+application; and a second laptop acts as the target. The target runs
+[`lab/fake_services.py`](./lab/fake_services.py), which exposes banner-only
+services and contains no login, shell, or real data: Telnet, FTP/vsftpd 2.3.4,
+OpenSSH 7.2, VNC, and a plain-HTTP page titled “Admin Login”. Optional Docker
+services add Redis, anonymous MQTT, and an nginx admin page
+([`lab/docker-compose.yml`](./lab/docker-compose.yml)). The `--fixed` mode turns
+off selected insecure services, providing a reproducible before/after experiment.
+The checked-in lab fixtures contain at least five finding types and test that the
+score improves across the repair steps.
 
-**Rules.** Literal implementation of the official catalog: only `state="open"`, decision by nmap service name, UPnP/SNMP only on UDP,
-HTTP admin = service `http` without `tunnel="ssl"` and title containing login/admin/config/setup/router/settings,
-SMB one finding per device (445 else 139), OUTDATED in addition to the service finding, UNKNOWN_DEVICE with empty port.
-Score = max(0, 100 − Σ points). Validation Set: 24/24 rows, 0 extra, 8/8 scores (automated test).
+Offline validation uses nmap XML fixtures, including home, smart-home, legacy,
+non-standard-port, before/after, and malformed inputs. The golden tests compare
+both missing and extra finding rows and exact network scores; malformed input
+produces an `ERROR` row without stopping the batch.
 
+<<<<<<< Updated upstream
 **AI use (governed).** Findings, severities and scores never touch the LLM. The app holds **no API key**: it sends the question
 plus a minimal scan context (device type, vendor, private IP, open ports, findings; never hostnames, MACs or raw XML) to our
 stateless **AI gateway**, which holds the key and calls Claude Haiku 5.5 (optional: a local Ollama model). Gateway limits: strict
@@ -23,19 +29,75 @@ Gateway down / no key / timeout → built-in answers, same UX. Conversations kee
 "Exact steps for <maker>": the gateway lets Claude search **only the maker's official site** (any site, clearly flagged, for makers not on our list) for where the setting is,
 sends no IP/MAC/hostname, checks the answer the same way and shows it with its sources; the built-in steps stay visible.
 A technical report (.txt, nmap style) exports one check for an IT person (no AI).
+=======
+## Architecture
+>>>>>>> Stashed changes
 
-**Differentiators.** SafeHouse UI: a 3D house that is "inspected" by a real live scan, a network map of every device (this computer
-marked), plain-language fixes; HMAC device IDs (no MAC stored); „Am reparat, verifică” one-click targeted re-check
-(unprivileged `nmap -sT`, same rules);
-„Paznic” unprivileged guard, a switch on Home: an unknown device on the Wi-Fi shows an alert within seconds (nmap host list + ARP table, no port scan; editable device list; it stops by itself on another network).
+The implementation is a Python 3 application with a shared domain model:
 
-**Security & privacy.** One-click app (`SafeHouse.cmd`): the page is a thin client of a local agent on 127.0.0.1 (host check +
-SameSite session cookie + origin check against CSRF/DNS rebinding); only nmap is elevated, via the OS permission dialog. Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
-masked MACs, local-only history with one-click delete, hostile-input tests (XXE, entity bomb, XSS in titles), secrets only via env vars
-(`gitleaks` clean).
+```text
+nmap (only privileged operation)
+        ↓ XML
+safe parser (defusedxml) → deterministic catalog rules and score
+        ↓
+SQLite history / CSV and technical report / FastAPI local agent / web UI
+                                      ↓ optional
+                              AI gateway → Claude or Ollama
+```
 
-**Assumptions.** Service names are taken exactly as nmap reports them (e.g. `http-proxy` is not `http`). Samba version ranges such as "3.X - 4.X"
-are judged by their upper bound (not outdated) — to confirm with the mentors. A host with no MAC entry at all counts as "no MAC vendor". Only `.xml` files are analysed in batch mode (`--all-files` to override).
+The CLI and web UI call the same parser, analysis, rules, history, and reporting
+functions. A live scan uses nmap service/version detection, HTTP page titles,
+the top TCP ports, and a small UDP set. The guardrail permits only private,
+connected, allowlisted networks, limits the range to 1,024 addresses, caps the
+scan rate at 100 packets/second, and requires explicit confirmation. The Python
+agent and UI run unprivileged on `127.0.0.1`; only nmap may request elevation.
 
-**Limitations / next steps.** Device-type guess is heuristic; filtered ports are not judged; maker-specific steps come from the
-maker's site, not from the scan (shown with their sources). Next: a passive mDNS/SSDP listener and a signed PDF report.
+The rule engine recognizes the official catalog (for example Telnet, exposed
+databases, cleartext FTP/HTTP administration, SMB, MQTT, UPnP, SNMP, outdated
+software, and unknown devices). Only ports whose nmap state is exactly `open`
+are evaluated. The score is deterministic:
+`max(0, 100 − sum(finding points))`. MAC addresses are masked before they enter
+JSON, SQLite, reports, or the UI. History uses a keyed identifier to recognize a
+device without storing its full MAC.
+
+## Assumptions
+
+Nmap service names and version evidence are treated as authoritative; therefore
+`http-proxy` is not silently treated as `http`. HTTPS is identified through
+Nmap’s `tunnel="ssl"` field. HTTP administration is reported only when the exact
+service is `http`, TLS is absent, and the page title contains an administration
+term such as “login”, “admin”, or “settings”. SMB creates one finding per
+device,
+preferring port 445. UDP-only findings require UDP. A version range such as
+`3.X - 4.X` is judged by its upper major version. Device type is a heuristic
+based on the available Nmap metadata, not an inventory guarantee.
+
+## LLM use and safeguards
+
+LLMs are optional enrichment, never the source of findings, severities, scores,
+or built-in remediation text. The application sends a minimal context
+(question, device type/vendor, private IP, open ports, and finding data) to a
+stateless gateway; it does not send raw XML, full MAC addresses, or hostnames.
+The API key exists only on the gateway. The default backend is Claude Haiku 5.5;
+an Ollama backend is available for local execution. The gateway applies a
+per-IP rate limit, daily request budget, bounded concurrency, request-size
+limits, and timeouts, and does not log request bodies or client IPs.
+
+Responses are checked both at the gateway and in the application. The grounding
+validator rejects unobserved IPs, ports, CVEs, external links, and phone-like
+numbers. If the gateway is unavailable, exceeds a limit, times out, or returns
+ungrounded text, SafeHouse uses deterministic Romanian/English fallback text.
+Maker-specific repair guidance may use Claude’s web search, restricted to the
+maker’s official domains, and is displayed with sources.
+
+## Limitations
+
+The tool evaluates observed open ports, not filtered ports, vulnerabilities
+behind authentication, or the complete device inventory. Service fingerprinting,
+device classification, vendor identification, and page-title matching are
+heuristics and can miss non-standard implementations. The live scan is limited
+to the connected private subnet and requires nmap/Npcap plus suitable local
+permissions. AI guidance depends on gateway/model availability and is advisory;
+the deterministic report remains the authoritative result. Future work includes
+passive mDNS/SSDP discovery, broader protocol-specific checks, and signed PDF
+reports.
