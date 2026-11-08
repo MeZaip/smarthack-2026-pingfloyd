@@ -193,15 +193,23 @@ class TTSRequest(BaseModel):
 
 @router.post("/tts")
 def tts(body: TTSRequest, request: Request):
-    """Voice mode: a natural voice for one answer, made by the team gateway (it holds the key).
-    503 tts_unavailable when the gateway has no voice: the page then uses the browser's own voice."""
+    """Voice mode: a natural voice for one answer, so every device (computer, phone, tablet) hears the same one.
+    1. Piper on this computer (free, private, ai/local_tts.py), 2. the team gateway's voice (OpenAI / ElevenLabs,
+    key only there), else 503 tts_unavailable and the page uses the browser's own voice."""
     lang = _lang(request)
+    from ..ai import local_tts
+    from ..ai.voice import to_speech_text
+    text = to_speech_text(body.text, lang, max_sentences=8, max_chars=local_tts.MAX_CHARS) or body.text[:local_tts.MAX_CHARS]
+    try:
+        return Response(content=local_tts.synthesize(text, lang), media_type="audio/wav", headers={"Cache-Control": "no-store"})
+    except local_tts.TTSUnavailable:
+        pass
     provider = get_provider()
     speak = getattr(provider, "tts", None)
     if speak is None:
         return _error(503, "tts_unavailable", lang, "voice off")
     try:
-        audio = speak(body.text, lang)
+        audio = speak(text, lang)
     except LLMUnavailable:
         return _error(503, "tts_unavailable", lang, "voice off")
     return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "no-store"})

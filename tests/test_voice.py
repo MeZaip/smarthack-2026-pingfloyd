@@ -226,3 +226,45 @@ def test_api_ask_accepts_voice_style(client, monkeypatch):
     r = client.post("/api/v1/ask?lang=en", json={"question": "What first?", "style": "voice"})
     assert r.status_code == 200 and r.json()["mode"] == "ai" and seen["style"] == "voice"
     assert client.post("/api/v1/ask", json={"question": "x", "style": "sing"}).status_code == 422
+
+
+# ------------------------------------------------------------------ local natural voice (Piper, free, on this computer)
+def test_local_voice_is_off_without_piper_or_models(tmp_path, monkeypatch):
+    from netcheck.ai import local_tts
+    monkeypatch.setenv("NETCHECK_TTS_DIR", str(tmp_path))
+    assert local_tts.available("ro") is False
+    with pytest.raises(local_tts.TTSUnavailable):
+        local_tts.synthesize("Salut.", "ro")
+
+
+def test_api_tts_prefers_the_local_voice(client, monkeypatch):
+    from netcheck.ai import local_tts
+    from netcheck.web import api_v1
+    seen = {}
+
+    def fake(text, lang):
+        seen["text"], seen["lang"] = text, lang
+        return b"RIFF....WAVEfake"
+
+    monkeypatch.setattr(local_tts, "synthesize", fake)
+    monkeypatch.setattr(api_v1, "get_provider", lambda: pytest.fail("the gateway must not be asked"))
+    r = client.post("/api/v1/tts?lang=ro", json={"text": "Routerul tău (192.168.1.1) are o ușă deschisă. Pune o parolă."})
+    assert r.status_code == 200 and r.headers["content-type"] == "audio/wav" and r.content.startswith(b"RIFF")
+    assert seen["lang"] == "ro" and "192.168" not in seen["text"] and "Pune o parolă." in seen["text"]
+
+
+def test_local_voice_pace_is_slow_by_default(monkeypatch):
+    from netcheck.ai import local_tts
+    monkeypatch.delenv("NETCHECK_TTS_SLOW", raising=False)
+    assert local_tts._pace() > 1.0
+    monkeypatch.setenv("NETCHECK_TTS_SLOW", "9")
+    assert local_tts._pace() == 2.0
+
+
+def test_every_script_of_the_page_is_served_by_the_app(client):
+    """voice.js was once missing from the server's file list: the page loaded without its voice."""
+    html = (Path(__file__).parents[1] / "ui" / "index.html").read_text(encoding="utf-8")
+    scripts = [s for s in re.findall(r'<script src="([^"]+)"', html) if s != "data.js"]   # data.js: live data instead
+    assert "voice.js" in scripts
+    for src in scripts:
+        assert client.get("/" + src).status_code == 200, src

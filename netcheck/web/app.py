@@ -101,7 +101,7 @@ def ui_data_js():
 
 
 # registered last, so it never shadows the pages above
-_UI_FILES = {"app.js": "application/javascript", "device3d.js": "application/javascript",
+_UI_FILES = {"app.js": "application/javascript", "device3d.js": "application/javascript", "voice.js": "application/javascript",
              "safehouse3d.js": "application/javascript", "styles.css": "text/css"}
 
 

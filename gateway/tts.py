@@ -23,8 +23,8 @@ MAX_AUDIO_BYTES = 4 * 1024 * 1024
 
 # how the voice should sound (OpenAI gpt-4o-mini-tts follows these instructions)
 STYLE = {
-    "ro": "Vorbește în limba română, cald, calm și prietenos, ca un nepot care își ajută bunicii. Ritm puțin mai lent, clar.",
-    "en": "Speak English warmly, calmly and kindly, like a grandchild helping their grandparents. A slightly slower, clear pace.",
+    "ro": "Vorbește în limba română ca un om adevărat, nu ca un robot: cald, calm, prietenos, ca un nepot care își ajută bunicii. Vorbește rar și încet, cu pauze scurte între propoziții, articulând clar fiecare cuvânt.",
+    "en": "Speak English like a real person, not a robot: warm, calm and kind, like a grandchild helping their grandparents. Speak slowly, with short pauses between sentences, every word clear.",
 }
 
 
@@ -70,7 +70,7 @@ class OpenAITTS:
 
     def speak(self, text: str, lang: str) -> bytes:
         body = {"model": self.cfg.openai_tts_model, "voice": self.cfg.openai_tts_voice, "input": text,
-                "response_format": "mp3"}
+                "response_format": "mp3", "speed": 0.9}                      # a little slower than normal
         if not self.cfg.openai_tts_model.startswith("tts-1"):     # tts-1 / tts-1-hd take no instructions
             body["instructions"] = STYLE.get(lang, STYLE["en"])
         return _post_audio(self.URL, body, {"authorization": f"Bearer {self.cfg.openai_api_key}"},
@@ -92,7 +92,7 @@ class ElevenLabsTTS:
     def speak(self, text: str, lang: str) -> bytes:
         url = self.URL.format(voice=urllib.parse.quote(self.cfg.elevenlabs_voice, safe=""))
         body = {"text": text, "model_id": self.cfg.elevenlabs_model,
-                "voice_settings": {"stability": 0.55, "similarity_boost": 0.75, "style": 0.2}}
+                "voice_settings": {"stability": 0.6, "similarity_boost": 0.75, "style": 0.15, "speed": 0.88}}
         return _post_audio(url, body, {"xi-api-key": self.cfg.elevenlabs_api_key},
                            self.cfg.tts_timeout_s, "elevenlabs", self.cfg.elevenlabs_api_key)
 

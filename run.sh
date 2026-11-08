@@ -88,6 +88,14 @@ if [[ $AI -eq 1 ]]; then
     export NETCHECK_LLM_PROVIDER=none
   else
     export NETCHECK_AI_URL="http://127.0.0.1:$GW_PORT"
+    if [[ "$BACKEND" == "ollama" ]] && command -v ollama >/dev/null 2>&1 && \
+       ! curl -fsS --max-time 2 "$(env_value OLLAMA_URL || true)/api/version" >/dev/null 2>&1 && \
+       ! curl -fsS --max-time 2 "http://127.0.0.1:11434/api/version" >/dev/null 2>&1; then
+      echo "• Ollama (local AI, free): starting ..."
+      ollama serve >/dev/null 2>&1 &
+      PIDS+=($!)
+      for _ in $(seq 1 30); do curl -fsS --max-time 1 "http://127.0.0.1:11434/api/version" >/dev/null 2>&1 && break; sleep 0.5; done
+    fi
     if gw_healthy; then
       # e.g. started by run.cmd on Windows, or by another ./run.sh: use it instead of failing on a busy port
       echo "• AI gateway: already running on http://127.0.0.1:$GW_PORT - using it."
@@ -98,7 +106,7 @@ if [[ $AI -eq 1 ]]; then
       ok=0
       for _ in $(seq 1 30); do
         if gw_healthy; then ok=1; break; fi
-        kill -0 "${PIDS[-1]}" 2>/dev/null || break
+        kill -0 "${PIDS[${#PIDS[@]}-1]}" 2>/dev/null || break   # last pid (bash 3.2 on macOS has no [-1])
         sleep 0.3
       done
       if [[ $ok -eq 0 ]]; then
@@ -116,4 +124,8 @@ fi
 echo "• Web UI + JSON API on http://$HOST:$PORT   (Ctrl+C to stop)"
 "$PY" -m netcheck serve --host "$HOST" --port "$PORT" &
 PIDS+=($!)
-wait -n "${PIDS[@]}"
+# stop everything as soon as one service ends (portable: macOS ships bash 3.2, which has no "wait -n")
+while :; do
+  for pid in "${PIDS[@]}"; do kill -0 "$pid" 2>/dev/null || break 2; done
+  sleep 1
+done

@@ -137,6 +137,17 @@
       histNeedTwo: "Avem o singură verificare. Repară un lucru, apoi apasă din nou „Inspectează casa” ca să vedem dacă rețeaua a devenit mai sigură.",
       thinking: "Mă gândesc…", newChat: "Conversație nouă",
       vListen: "Ascultă", vStop: "Oprește", vListenAria: "Ascultă răspunsul cu voce tare", vStopAria: "Oprește citirea",
+      vgHi: "Bună! Te ajut să-ți faci casa mai sigură.",
+      vgScore: "Casa ta are {p} din 100. {band}.", vgNone: "Vestea bună: n-am găsit nimic de reparat. Casa ta e în siguranță.",
+      vgCount1: "Am găsit un singur lucru de reparat.", vgCount: "Am găsit {n} lucruri de reparat.",
+      vgFirst: "Cel mai important e la {dev}.", vgNext: "Următorul lucru e la {dev}.", vgLast: "Asta a fost ultima problemă. Când le repari, apasă „Inspectează din nou” ca să vezi scorul nou.",
+      vgSteps: "Uite ce faci:", vgStep: ["Mai întâi, {s}", "Apoi, {s}", "Și la final, {s}"],
+      vgAskSteps: "Vrei să-ți spun pașii?", vgAskNext: "Vrei să trecem la următoarea problemă?",
+      vgDevices1: "În casa ta e un singur aparat: {list}.", vgDevices: "În casa ta sunt {n} aparate: {list}.",
+      vgWho: { self: "Poți face asta singur.", helper: "Cere ajutorul cuiva care se pricepe la calculatoare.", it: "Pentru asta, sună firma care ți-a pus internetul." },
+      vgHelp: "Nu am înțeles sigur. Mă poți întreba: ce repar mai întâi, cum fac, care e următoarea problemă, ce aparate am sau cât de sigură e casa.",
+      vgVoiceNat: "Vocea: naturală (pe acest calculator).", vgVoiceBrowser: "Vocea: a browserului.",
+      vgFileHint: "Ca să ai vocea naturală și asistentul AI, deschide SafeHouse de la adresa http://127.0.0.1:8000 (pornit cu serverul), nu din fișier.",
       vExitAria: "Închide modul voce", vTalk: "Vorbește", vTalkAria: "Vorbește cu asistentul (modul voce)", chatAria: "Întreabă asistentul în scris (chat)",
       vMode: "Vorbește cu SafeHouse", vModeAria: "Vorbește cu SafeHouse: modul voce", vModeHint: "Vorbești, iar eu îți răspund cu voce, pe scurt.",
       vListening: "Te ascult…", vThinking: "Mă gândesc…", vSpeaking: "SafeHouse îți răspunde…", vTap: "Atinge cercul și vorbește.",
@@ -144,7 +155,7 @@
       vStopVoice: "Oprește vocea", vExit: "Închide", vYou: "Tu", vBot: "SafeHouse",
       vConsentT: "Înainte să vorbim",
       vConsent: "Ca să te înțeleagă, browserul trimite ce spui la serviciul lui de recunoaștere a vocii (Google în Chrome, Apple în Safari) și primește înapoi textul. Noi nu păstrăm nimic. Nu spune parole sau date personale.",
-      vConsentTTS: "Răspunsurile sunt citite de o voce naturală, făcută de asistentul AI al echipei doar din textul răspunsului, fără adrese.",
+      vConsentTTS: "Răspunsurile sunt citite de o voce naturală, făcută pe calculatorul care rulează SafeHouse (sau de asistentul AI al echipei), doar din textul răspunsului, fără adrese.",
       vConsentYes: "Da, hai să vorbim", vConsentNo: "Nu, scriu întrebarea",
       vLocal: "Vocea ta e transformată în text chiar pe acest dispozitiv.",
       vBrowserVoice: "Vocea naturală nu e disponibilă acum, așa că citesc cu vocea calculatorului.",
@@ -291,6 +302,17 @@
       histNeedTwo: "We have only one check. Fix one thing, then press “Inspect house” again so we can see if the network got safer.",
       thinking: "Thinking…", newChat: "New conversation",
       vListen: "Listen", vStop: "Stop", vListenAria: "Read the answer aloud", vStopAria: "Stop reading",
+      vgHi: "Hi! I will help you make your home safer.",
+      vgScore: "Your home has {p} out of 100. {band}.", vgNone: "Good news: I found nothing to fix. Your home is safe.",
+      vgCount1: "I found one thing to fix.", vgCount: "I found {n} things to fix.",
+      vgFirst: "The most important one is on the {dev}.", vgNext: "The next one is on the {dev}.", vgLast: "That was the last problem. When you have fixed them, press “Inspect again” to see the new score.",
+      vgSteps: "Here is what to do:", vgStep: ["First, {s}", "Then, {s}", "And finally, {s}"],
+      vgAskSteps: "Shall I tell you the steps?", vgAskNext: "Shall we move to the next problem?",
+      vgDevices1: "There is one device in your home: {list}.", vgDevices: "There are {n} devices in your home: {list}.",
+      vgWho: { self: "You can do this yourself.", helper: "Ask someone who knows computers to help.", it: "For this one, call the company that set up your internet." },
+      vgHelp: "I am not sure I understood. You can ask me: what do I fix first, how do I do it, what is next, which devices do I have, or how safe is my home.",
+      vgVoiceNat: "Voice: natural (made on this computer).", vgVoiceBrowser: "Voice: the browser's own.",
+      vgFileHint: "For the natural voice and the AI assistant, open SafeHouse at http://127.0.0.1:8000 (started with the server), not from the file.",
       vExitAria: "Close voice mode", vTalk: "Talk", vTalkAria: "Talk to the assistant (voice mode)", chatAria: "Ask the assistant in writing (chat)",
       vMode: "Talk to SafeHouse", vModeAria: "Talk to SafeHouse: voice mode", vModeHint: "You talk, and I answer out loud, briefly.",
       vListening: "I am listening…", vThinking: "Thinking…", vSpeaking: "SafeHouse is answering…", vTap: "Tap the circle and speak.",
@@ -298,7 +320,7 @@
       vStopVoice: "Stop the voice", vExit: "Close", vYou: "You", vBot: "SafeHouse",
       vConsentT: "Before we talk",
       vConsent: "To understand you, the browser sends what you say to its speech service (Google in Chrome, Apple in Safari) and gets the text back. We keep nothing. Do not say passwords or personal details.",
-      vConsentTTS: "Answers are read by a natural voice, made by the team's AI assistant from the answer text only, without addresses.",
+      vConsentTTS: "Answers are read by a natural voice, made on the computer that runs SafeHouse (or by the team's AI assistant), from the answer text only, without addresses.",
       vConsentYes: "Yes, let's talk", vConsentNo: "No, I will type",
       vLocal: "Your voice is turned into text right on this device.",
       vBrowserVoice: "The natural voice is not available right now, so I read with the computer's voice.",
@@ -1597,10 +1619,61 @@
       "aria-label": on ? t("vStopAria") : t("vListenAria"),
       onclick: () => {
         if (on) { v.stop(); renderChatPanel(); focusSel(".speak-btn[data-id='" + m.id + "']"); return; }
+        if (v.unlock) v.unlock();
         v.speak(speechText(answerText(m), 6), { lang: state.lang, id: m.id, natural: naturalVoice,
           onstart: () => renderChatPanel(), onend: () => { renderChatPanel(); focusSel(".speak-btn[data-id='" + m.id + "']"); } });
       } },
       icon(on ? "stop" : "volume"), h("span", { text: on ? t("vStop") : t("vListen") }));
+  }
+
+  // Built-in voice guide: used when the AI assistant is not available (no key, offline, page opened from a file).
+  // It only says what the scan shows, in the plain texts written for children and older people
+  // (explain/simple_texts.py): the problem, why it matters, then the steps, one problem at a time.
+  const lower1 = (x) => x ? x.charAt(0).toLowerCase() + x.slice(1) : "";
+  const T_ = (key, vars) => { const v = T[state.lang][key]; return typeof v === "string" ? t(key, vars) : v; };
+  function guideProblem(s, f, first) {
+    const tx = simple(f.code), dev = deviceByIp(s, f.ip);
+    const devName = lower1(deviceLabel(dev ? dev.type : "unknown")) + (dev && shortVendor(dev.vendor) ? " " + shortVendor(dev.vendor) : "");
+    return [t(first ? "vgFirst" : "vgNext", { dev: devName }), tx.title.replace(/\.?$/, "."), tx.explain.split(/(?<=[.!?])\s+/)[0]].join(" ");
+  }
+  function guideSteps(f) {
+    const tx = simple(f.code), who = T_("vgWho")[whoOf(f.code)] || "";
+    const said = (x) => x.replace(/\bhttps:\/\/?/gi, "HTTPS").replace(/\bhttp:\/\/?/gi, "HTTP");
+    const steps = tx.steps.slice(0, 3).map((x, i) => T_("vgStep")[i].replace("{s}", said(lower1(x))));
+    return [t("vgSteps")].concat(steps, who ? [who] : []).join(" ");
+  }
+  function voiceGuide(q, s) {
+    const g = state.voice.guide && state.voice.guide.file === s.file ? state.voice.guide : (state.voice.guide = { file: s.file, i: 0, told: "" });
+    const list = queue(s), cur = list[g.i];
+    const x = (q || "").toLowerCase();
+    const has = (re) => re.test(x);
+    const yes = has(/^(da|yes|sigur|ok|okay|bine|te rog|please|go on|continuă|continua|spune)\b/);
+    const no = has(/^(nu|no)\b/);
+    if (!list.length && !has(/(aparat|dispozitiv|device|scor|score|sigur|safe)/)) return t("vgNone");
+    if (has(/(aparat|dispozitiv|device|ce am|what do i have|conectat|connected)/)) {
+      const names = s.devices.map((d) => lower1(deviceLabel(d.type)) + (shortVendor(d.vendor) ? " " + shortVendor(d.vendor) : ""));
+      const listTxt = names.length > 1 ? names.slice(0, -1).join(", ") + (state.lang === "ro" ? " și " : " and ") + names[names.length - 1] : names[0] || "";
+      return names.length === 1 ? t("vgDevices1", { list: listTxt }) : t("vgDevices", { n: names.length, list: listTxt });
+    }
+    if (has(/(scor|cât de sigur|cat de sigur|e sigur|score|how safe|is it safe|safe)/)) {
+      const b = bandOf(s.score);
+      return [t("vgScore", { p: points(s.score), band: t("band_" + b) }), list.length === 1 ? t("vgCount1") : list.length ? t("vgCount", { n: list.length }) : t("vgNone")].join(" ");
+    }
+    const wantsNext = has(/(următ|urmat|și apoi|si apoi|^apoi|mai departe|alt[ăa] problem|next|what else|after that)/) || (yes && g.told === "steps");
+    const wantsSteps = has(/(cum|pa[sș]i|ce fac|ce trebuie s[ăa] fac|ajut|how|steps|what do i do)/) || (yes && g.told === "problem");
+    if (no) { g.told = ""; return t("vgHelp"); }
+    if (wantsNext) {
+      if (g.i + 1 >= list.length) { g.told = ""; return t("vgLast"); }
+      g.i += 1; g.told = "problem";
+      return guideProblem(s, list[g.i], false) + " " + t("vgAskSteps");
+    }
+    if (wantsSteps && cur) { g.told = "steps"; return guideSteps(cur) + " " + (g.i + 1 < list.length ? t("vgAskNext") : t("vgLast")); }
+    if (has(/(repar|problem|primul|prima|întâi|intai|ce e|ce am de f|fix|first|wrong|start|ajutor|help|salut|bun[ăa]|hello|hi)/)) {
+      g.i = 0; g.told = "problem";
+      const count = list.length === 1 ? t("vgCount1") : t("vgCount", { n: list.length });
+      return [count, guideProblem(s, list[0], true), t("vgAskSteps")].join(" ");
+    }
+    return t("vgHelp");
   }
 
   function setPhase(ph, note) {
@@ -1655,11 +1728,16 @@
     setPhase("thinking", null);
     let text;
     if (s.empty || s.error) text = t(s.error ? "stErrS" : "needScan");
-    else if (LIVE) {
-      const item = await liveAsk(q, "voice");
+    else {
+      const item = LIVE ? await liveAsk(q, "voice") : null;
       if (!state.voice.mode) return;
-      text = item ? speechText(item.a || "", 3) : "";
-    } else text = speechText(answerText(demoAsk(classify(q), q, true)), 3);
+      if (item && item.mode === "ai" && item.a) text = speechText(item.a, 3);
+      else {                                           // no AI answer: the built-in guide, also shown in the chat
+        text = voiceGuide(q, s);
+        if (item) Object.assign(item, { a: text, mode: "offline", source: "fallback" });
+        else { state.chat.push({ q, a: text, mode: "offline", source: "fallback", id: ++msgId, voice: true }); if (state.chat.length > 20) state.chat.shift(); }
+      }
+    }
     if (!state.voice.mode) return;
     state.voice.bot = text || t("noAnswer");
     const v = SV();
@@ -1667,21 +1745,45 @@
       onstart: () => setPhase("speaking"),
       onend: (ok) => {
         if (!state.voice.mode || state.voice.phase !== "speaking") return;
-        if (LIVE && !v.usedNatural && state.voice.natural === false) state.voice.note = t("vBrowserVoice");
         if (ok) voiceListen(); else setPhase("paused");
       } });
+    state.voice.which = null;
+    setTimeout(() => { state.voice.which = v.usedNatural ? "natural" : "browser"; updateVoiceView(); }, 1200);
   }
   function orbTap() {
     const v = SV(), ph = state.voice.phase;
+    if (v.unlock) v.unlock();
     if (ph === "listening") v.stopListening(true);                 // "I am done"
     else if (ph === "speaking") { v.stop(); voiceListen(); }        // interrupt, like a real conversation
     else if (ph === "paused" || ph === "idle") voiceListen();
+  }
+  // The SafeHouse shield from the logo, drawn as a vector so it stays sharp at any size (blue rim, dark inside,
+  // a two-tone metal shield in the middle). The energy around it is drawn by SafeVoice.Orb on the canvas behind.
+  let shieldUid = 0;
+  function shieldSvg(small) {
+    const u = "sh" + ++shieldUid;                        // unique gradient ids: many shields can be on the page
+    const NS = "http://www.w3.org/2000/svg", el = (tag, attrs, kids) => { const n = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); (kids || []).forEach((k) => n.append(k)); return n; };
+    const outer = "M50 4 C63 13 78 17 93 17 L93 52 C93 81 74 103 50 116 C26 103 7 81 7 52 L7 17 C22 17 37 13 50 4 Z";
+    const inner = "M50 27 C58 33 68 36 77 36 L77 57 C77 76 66 90 50 98 C34 90 23 76 23 57 L23 36 C32 36 42 33 50 27 Z";
+    return el("svg", { class: small ? "shield-mark" : "vm-shield", viewBox: "0 0 100 120", "aria-hidden": "true", focusable: "false" }, [
+      el("defs", {}, [
+        el("linearGradient", { id: u + "vmRim", x1: "0", y1: "0", x2: "1", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#7dd3fc" }), el("stop", { offset: ".5", "stop-color": "#3b82f6" }), el("stop", { offset: "1", "stop-color": "#1d4ed8" })]),
+        el("linearGradient", { id: u + "vmIn", x1: "0", y1: "0", x2: "0", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#13254b" }), el("stop", { offset: "1", "stop-color": "#0a1530" })]),
+        el("linearGradient", { id: u + "vmL", x1: "0", y1: "0", x2: "1", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#cbd5e1" }), el("stop", { offset: "1", "stop-color": "#475569" })]),
+        el("linearGradient", { id: u + "vmR", x1: "0", y1: "0", x2: "1", y2: "1" }, [el("stop", { offset: "0", "stop-color": "#475569" }), el("stop", { offset: "1", "stop-color": "#1e293b" })]),
+        el("clipPath", { id: u + "vmLeft" }, [el("rect", { x: "0", y: "0", width: "50", height: "120" })]),
+        el("clipPath", { id: u + "vmRight" }, [el("rect", { x: "50", y: "0", width: "50", height: "120" })])]),
+      el("path", { d: outer, fill: `url(#${u}vmIn)`, stroke: `url(#${u}vmRim)`, "stroke-width": "8", "stroke-linejoin": "round" }),
+      el("path", { d: inner, fill: `url(#${u}vmL)`, "clip-path": `url(#${u}vmLeft)` }),
+      el("path", { d: inner, fill: `url(#${u}vmR)`, "clip-path": `url(#${u}vmRight)` }),
+      el("path", { d: inner, fill: "none", stroke: "#93c5fd", "stroke-opacity": ".55", "stroke-width": "1.5" }),
+      small ? el("g", {}) : el("path", { class: "vm-shield-energy", d: outer, fill: "none", "stroke-width": "3", "stroke-linejoin": "round" })]);
   }
   // Voice view: built once (the orb keeps running), then only its texts and buttons are updated.
   function renderVoiceMode(root) {
     const canvas = h("canvas", { class: "vm-canvas", "aria-hidden": "true" });
     root.append(h("div", { class: "vm", "data-lang": state.lang },
-      h("button", { type: "button", class: "vm-orb", onclick: orbTap }, canvas, h("span", { class: "sr vm-orb-label" })),
+      h("button", { type: "button", class: "vm-orb", onclick: orbTap }, canvas, shieldSvg(), h("span", { class: "sr vm-orb-label" })),
       h("p", { class: "vm-status", role: "status", "aria-live": "polite" }),
       h("div", { class: "vm-captions", "aria-live": "polite" },
         h("p", { class: "vm-you" }, h("strong", { text: t("vYou") + ": " }), h("span")),
@@ -1691,14 +1793,15 @@
         h("p", { text: t("vConsent") }),
         LIVE ? h("p", { text: t("vConsentTTS") }) : null,
         h("div", { class: "actions" },
-          h("button", { type: "button", id: "voice-yes", class: "btn btn-filled", onclick: () => { store.set("voiceConsent", "1"); startVoice(); } }, icon("mic"), t("vConsentYes")),
+          h("button", { type: "button", id: "voice-yes", class: "btn btn-filled", onclick: () => { if (SV().unlock) SV().unlock(); store.set("voiceConsent", "1"); startVoice(); } }, icon("mic"), t("vConsentYes")),
           h("button", { type: "button", class: "btn", onclick: () => exitVoiceMode() }, t("vConsentNo")))),
       h("p", { class: "vm-note note with-ico", hidden: true }, icon("info"), h("span")),
+      h("p", { class: "vm-which muted", hidden: true }),
       h("div", { class: "vm-controls" },
         h("button", { type: "button", class: "btn vm-stop", onclick: () => { stopVoice(); setPhase("paused"); focusSel(".vm-orb"); } }, icon("stop"), t("vStopVoice")),
         h("button", { type: "button", class: "btn vm-exit", "aria-label": t("vExitAria"), onclick: () => exitVoiceMode() }, icon("x"), t("vExit")))));
     if (orb) orb.stop();
-    orb = SV().Orb ? new (SV().Orb)(canvas) : null;
+    orb = SV().Orb ? new (SV().Orb)(canvas, root.querySelector(".vm-orb")) : null;
     if (orb) orb.start();
     updateVoiceView();
   }
@@ -1724,6 +1827,9 @@
     q(".vm-note").hidden = !state.voice.note || ph === "consent";
     q(".vm-note span").textContent = state.voice.note || "";
     q(".vm-stop").disabled = ph === "consent";
+    const which = state.voice.which;
+    q(".vm-which").hidden = !which || ph === "consent";
+    q(".vm-which").textContent = which === "natural" ? t("vgVoiceNat") : which === "browser" ? t("vgVoiceBrowser") + (LIVE ? "" : " " + t("vgFileHint")) : "";
   }
 
   function renderChat(root) {
@@ -1732,11 +1838,11 @@
     if (s.empty) { root.append(needScanBox()); return; }
     if (s.error) { root.append(errorBox(s)); return; }
     const card = h("div", { class: "chat" });
-    card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
+    card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })), h("div", { class: "bubble bot", text: t("botHello") }));
     state.chat.forEach((m) => {
       if (m.q !== undefined) {               // live answer
         card.append(h("div", { class: "bubble me", text: m.q }));
-        card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
+        card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })));
         card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a })));
         if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
         if (m.a != null) card.append(speakBtn(m));
@@ -1744,7 +1850,7 @@
       }
       card.append(h("div", { class: "bubble me", text: m.text }));
       const res = answer(m.kind, s).map((x) => ({ x, r: check(x, s) }));
-      card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
+      card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })));
       res.forEach(({ x, r }) => card.append(h("div", { class: "bubble bot" + (r.ok ? "" : " blocked") },
         h("span", { class: "txt", text: x.text }),
         x.cites.filter((c) => c !== "scan").map((c) => h("span", { class: "proof", title: t("proof") }, icon("search"), h("span", { class: "sr", text: t("proof") + ": " }), c)),
@@ -1850,9 +1956,9 @@
   // ---------------------------------------------------------------- the assistant: "Ask" (chat) and "Talk" (voice) in the header
   const chatBtn = document.getElementById("chat-btn"), voiceBtn = document.getElementById("voice-btn");
   chatBtn.addEventListener("click", () => { if (state.chatOpen && !state.voice.mode) closeChat(); else openChat(); });
-  voiceBtn.addEventListener("click", () => { if (state.voice.mode) exitVoiceMode(); else openVoice(); });
+  voiceBtn.addEventListener("click", () => { if (state.voice.mode) exitVoiceMode(); else { if (SV().unlock) SV().unlock(); openVoice(); } });
   const chatPanel = h("section", { class: "chat-panel", id: "chat-panel", role: "dialog", "aria-labelledby": "chat-title", hidden: true },
-    h("header", { class: "chat-head" }, icon("bot"), h("h2", { id: "chat-title" }),
+    h("header", { class: "chat-head" }, shieldSvg(true), h("h2", { id: "chat-title" }),
       h("button", { type: "button", class: "icon-btn chat-close", onclick: () => closeChat() }, icon("x"), h("span", { class: "sr" }))),
     h("div", { class: "chat-body" }));
   chatPanel.addEventListener("keydown", (e) => {

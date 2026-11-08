@@ -30,18 +30,24 @@
     if (typeof synth.addEventListener === "function") synth.addEventListener("voiceschanged", loadVoices);
     else synth.onvoiceschanged = loadVoices;
   }
-  const NATURAL = /(natural|neural|premium|enhanced|siri|wavenet|online)/i;
+  // The most human-sounding voice installed: Premium / Enhanced / Neural / Natural first, then the calm everyday
+  // system voices; never the novelty voices (macOS "Zarvox", "Bells"...) and the robotic network voices last.
+  const NATURAL = /(premium|enhanced|neural|natural|îmbunătățit|imbunatatit)/i;
+  const GOOD = /^(ioana|samantha|ava|allison|susan|karen|moira|tessa|serena|daniel|kate|zoe|evan|nathan|joelle|nicky|alex|microsoft (?:emma|jenny|aria|guy|alina|emil))/i;
+  const NOVELTY = /(albert|bad news|bahh|bells|boing|bubbles|cellos|wobble|eddy|flo|fred|good news|grandma|grandpa|jester|junior|kathy|organ|superstar|ralph|reed|rocko|sandy|shelley|trinoids|whisper|zarvox|espeak|compact)/i;
   function voiceFor(lang) {
     if (!voices.length) loadVoices();
     const tag = norm(tagOf(lang)), base = tag.slice(0, 2);
     const same = voices.filter((v) => norm(v.lang).startsWith(base));
-    const score = (v) => (NATURAL.test(v.name) ? 8 : 0) + (/google/i.test(v.name) ? 4 : 0)
-      + (norm(v.lang) === tag ? 2 : 0) + (v.localService ? 1 : 0) - (/compact|espeak/i.test(v.name) ? 6 : 0);
-    return same.sort((a, b) => score(b) - score(a))[0] || null;
+    const score = (v) => (NATURAL.test(v.name) ? 20 : 0) + (GOOD.test(v.name) ? 8 : 0) + (v.localService ? 3 : 0)
+      + (norm(v.lang) === tag ? 2 : 0) - (/google/i.test(v.name) ? 2 : 0) - (NOVELTY.test(v.name) ? 50 : 0);
+    const best = same.sort((a, b) => score(b) - score(a))[0];
+    return best && score(best) > -20 ? best : null;
   }
 
+  const RATE = 0.82;
   function speakable(text) {
-    return String(text || "").replace(/https?:\/\/\S+/g, "").replace(/[·•→←]/g, ", ")
+    return String(text || "").replace(/https?:\/\/[^\s)]*\.[^\s)]+/g, "").replace(/\bhttps:\/\/?/gi, "HTTPS").replace(/\bhttp:\/\/?/gi, "HTTP").replace(/[·•→←]/g, ", ")
       .replace(/\s*[—–]\s*/g, ", ").replace(/[*_#`>]/g, "").replace(/\s+/g, " ").trim();
   }
   function chunks(text) {
@@ -72,9 +78,27 @@
     return Math.min(1, Math.sqrt(sum / buf.length) * 4);
   }
 
-  let speakToken = 0, audioEl = null, current = null;
+  // ONE audio player for the natural voice, unlocked during a tap (unlock()): Safari and phones refuse to start
+  // sound later, after the answer arrived, on an element that was never played during a user gesture.
+  const SILENT = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+  let speakToken = 0, player = null, playerUrl = null, playerAnalyser = null, current = null;
+  function getPlayer() {
+    if (player) return player;
+    player = new Audio();
+    player.preload = "auto";
+    try {                                     // route through Web Audio only when it runs (else it would be silent)
+      const c = audioCtx();
+      if (c && c.state === "running") {
+        const src = c.createMediaElementSource(player);
+        playerAnalyser = c.createAnalyser(); playerAnalyser.fftSize = 512;
+        src.connect(playerAnalyser); playerAnalyser.connect(c.destination);
+      }
+    } catch (e) { playerAnalyser = null; }
+    return player;
+  }
   function stopAudio() {
-    if (audioEl) { try { audioEl.pause(); } catch (e) { /* ignore */ } if (audioEl._url) URL.revokeObjectURL(audioEl._url); audioEl = null; }
+    if (player) { try { player.pause(); } catch (e) { /* ignore */ } }
+    if (playerUrl) { URL.revokeObjectURL(playerUrl); playerUrl = null; }
     outAnalyser = null;
   }
 
@@ -84,8 +108,10 @@
     speakingId: null,
     listening: false,
     usedNatural: false,                 // last answer was read by the gateway's natural voice
+    isSafari: !window.SpeechRecognition && !!window.webkitSpeechRecognition && /^((?!chrome|chromium|android|crios|edg).)*safari/i.test(navigator.userAgent),
 
     hasVoice(lang) { return !!voiceFor(lang); },
+    voiceName(lang) { const v = voiceFor(lang); return v ? v.name : null; },     // which browser voice reads (for help texts)
 
     // opts.natural: async (text) => Blob|null  (the page fetches /api/v1/tts); null/failure -> browser voice.
     speak(text, opts) {
@@ -113,7 +139,7 @@
           const u = new window.SpeechSynthesisUtterance(list[i++]);
           u.lang = voice ? voice.lang : tagOf(o.lang);
           if (voice) u.voice = voice;
-          u.rate = 0.95; u.pitch = 1;
+          u.rate = RATE; u.pitch = 1;                     // slower and calm: easier for older listeners
           u.onboundary = () => { synthPulse = 1; };          // the orb moves with the words
           u.onend = next;
           u.onerror = (e) => { if (e && (e.error === "interrupted" || e.error === "canceled")) return; finish(false); };
@@ -126,13 +152,11 @@
         Promise.resolve().then(() => o.natural(list.join(" "))).then((blob) => {
           if (token !== speakToken) return;
           if (!blob) { browserVoice(); return; }
-          const url = URL.createObjectURL(blob);
-          const el = new Audio(url);
-          el._url = url; audioEl = el;
-          try {
-            const c = audioCtx();
-            if (c) { const src = c.createMediaElementSource(el); outAnalyser = c.createAnalyser(); outAnalyser.fftSize = 512; src.connect(outAnalyser); outAnalyser.connect(c.destination); }
-          } catch (e) { outAnalyser = null; }
+          const el = getPlayer();
+          if (playerUrl) URL.revokeObjectURL(playerUrl);
+          playerUrl = URL.createObjectURL(blob);
+          el.src = playerUrl;
+          outAnalyser = playerAnalyser;
           el.onended = () => finish(true);
           el.onerror = () => { if (token === speakToken) { stopAudio(); browserVoice(); } };
           api.usedNatural = true;
@@ -140,6 +164,18 @@
         }).catch(() => browserVoice());
       } else browserVoice();
       return true;
+    },
+
+    // Call from a tap/click handler: wakes up the sound so a later answer can be played (Safari, iPhone, Android).
+    unlock() {
+      const c = audioCtx();
+      const el = getPlayer();
+      if (!el._unlocked) {
+        el._unlocked = true;
+        try { el.src = SILENT; const p = el.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignore */ }
+      }
+      if (synth && synth.paused) { try { synth.resume(); } catch (e) { /* ignore */ } }
+      return !!c;
     },
 
     stop() {
@@ -172,31 +208,42 @@
       r.continuous = false;
       r.maxAlternatives = 1;
       if (o.local) { try { r.processLocally = true; } catch (e) { /* older browser */ } }
-      let finalText = "", error = null;
+      let finalText = "", heard = "", error = null, silence = null;
+      // Safari keeps listening after you stop talking and often never marks a result as final:
+      // after ~1.5 s of silence we stop ourselves and use what was heard; nothing at all after 8 s = "no speech";
+      // never longer than 25 s.
+      const stopSoon = (ms) => { clearTimeout(silence); silence = setTimeout(() => { try { r.stop(); } catch (e) { /* ended */ } }, ms); };
+      const hardStop = setTimeout(() => { try { r.stop(); } catch (e) { /* ended */ } }, 25000);
       r.onresult = (e) => {
         if (r.cancelled) return;
         let interim = "";
-        for (let i = e.resultIndex; i < e.results.length; i++) {
+        finalText = "";
+        for (let i = 0; i < e.results.length; i++) {
           const res = e.results[i];
-          if (res.isFinal) finalText += res[0].transcript; else interim += res[0].transcript;
+          if (res.isFinal) finalText += res[0].transcript + " "; else interim += res[0].transcript + " ";
         }
+        heard = (finalText + interim).replace(/\s+/g, " ").trim();
         synthPulse = 1;
-        if (o.onInterim) o.onInterim((finalText + " " + interim).replace(/\s+/g, " ").trim());
+        stopSoon(1500);
+        if (o.onInterim) o.onInterim(heard);
       };
+      r.onspeechstart = () => { synthPulse = 1; stopSoon(6000); };
       r.onerror = (e) => { error = e.error || "error"; };
       r.onend = () => {
+        clearTimeout(silence); clearTimeout(hardStop);
         if (current === r) current = null;
         api.listening = false;
         if (r.done) return;
         r.done = true;
-        const text = r.cancelled ? "" : finalText.replace(/\s+/g, " ").trim();
+        const text = r.cancelled ? "" : (finalText.trim() ? finalText : heard).replace(/\s+/g, " ").trim();
         if (r.cancelled) { if (o.onError) o.onError("aborted"); }
         else if (text) { if (o.onFinal) o.onFinal(text); }
         else if (o.onError) o.onError(error === "aborted" ? "aborted" : error || "no-speech");
       };
       current = r;
       api.listening = true;
-      try { r.start(); } catch (e) { current = null; api.listening = false; if (o.onError) o.onError("error"); return false; }
+      try { r.start(); } catch (e) { clearTimeout(hardStop); current = null; api.listening = false; if (o.onError) o.onError("error"); return false; }
+      stopSoon(8000);                                   // nobody spoke: end with "no speech" instead of waiting forever
       return true;
     },
 
@@ -209,6 +256,7 @@
 
     // Microphone level for the orb only (analysed in the page, never recorded or sent). Best effort.
     async startMeter() {
+      if (api.isSafari) return false;                    // Safari: the recognition needs the microphone to itself
       if (micStream || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return !!micStream;
       try {
         micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
@@ -232,64 +280,65 @@
     },
   };
 
-  // ------------------------------------------------------------------ the orb: a glowing sphere with fluid waves
-  // Colours by state: listening = blue/cyan, thinking = violet, speaking = emerald/teal, idle = dim blue.
+  // ------------------------------------------------------------------ the shield's energy (voice mode)
+  // Drawn on a canvas behind the SafeHouse shield: a soft glow plus rings of energy that ripple outwards, stronger
+  // the louder the voice. Green while YOU speak, cyan-blue while SafeHouse speaks, a slow violet pulse while it
+  // thinks, a faint green breath when idle. The level is also written to --lv on the button (the shield glows/grows).
   const PALETTE = {
-    idle: ["#1e3a8a", "#3b82f6", "#93c5fd"],
-    listening: ["#0ea5e9", "#3b82f6", "#a5f3fc"],
-    thinking: ["#6d28d9", "#8b5cf6", "#ddd6fe"],
-    speaking: ["#059669", "#14b8a6", "#a7f3d0"],
+    idle: [34, 197, 94], listening: [34, 255, 120], thinking: [139, 92, 246], speaking: [34, 211, 238],
   };
-  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const mix = (a, b, t) => a.map((x, i) => Math.round(x + (b[i] - x) * t));
+  const mix = (a, b, t) => a.map((x, i) => x + (b[i] - x) * t);
   class Orb {
-    constructor(canvas) {
-      this.c = canvas; this.g = canvas.getContext("2d"); this.state = "idle"; this.t = 0; this.lv = 0;
-      this.col = PALETTE.idle.map(hex); this.running = false;
+    constructor(canvas, host) {
+      this.c = canvas; this.host = host || canvas.parentElement; this.g = canvas.getContext("2d");
+      this.state = "idle"; this.t = 0; this.lv = 0; this.col = PALETTE.idle.slice(); this.rings = []; this.spawn = 0;
+      this.running = false;
       this.still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     }
-    setState(s) { this.state = PALETTE[s] ? s : "idle"; if (this.still) { this.col = PALETTE[this.state].map(hex); this.draw(); } }
+    setState(s) { this.state = PALETTE[s] ? s : "idle"; if (this.still) { this.col = PALETTE[this.state].slice(); this.draw(); } }
     start() { if (this.running) return; this.running = true; const loop = () => { if (!this.running || !this.c.isConnected) { this.running = false; return; } this.draw(); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
     stop() { this.running = false; }
     draw() {
       const c = this.c, g = this.g, dpr = Math.min(2, window.devicePixelRatio || 1);
-      const w = c.clientWidth || 240, hgt = c.clientHeight || 240;
+      const w = c.clientWidth || 260, hgt = c.clientHeight || 260;
       if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(hgt * dpr); }
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, w, hgt);
-      const target = PALETTE[this.state].map(hex);
-      this.col = this.col.map((cc, i) => mix(cc, target[i], 0.18));
-      const raw = this.still ? 0.15 : this.state === "thinking" ? 0.25 + 0.15 * Math.sin(this.t * 3) : api.level();
-      this.lv += (raw - this.lv) * 0.25;
-      this.t += this.still ? 0 : 0.016 * (this.state === "thinking" ? 1.8 : 1);
-      const cx = w / 2, cy = hgt / 2, R = Math.min(w, hgt) * 0.3 * (1 + this.lv * 0.18);
-      const [c0, c1, c2] = this.col.map((x) => `rgb(${x[0]},${x[1]},${x[2]})`);
-      const glow = g.createRadialGradient(cx, cy, R * 0.6, cx, cy, R * 1.9);       // outer glow
-      glow.addColorStop(0, `rgba(${this.col[1].join(",")},${0.35 + this.lv * 0.3})`);
-      glow.addColorStop(1, "rgba(0,0,0,0)");
-      g.fillStyle = glow; g.beginPath(); g.arc(cx, cy, R * 1.9, 0, Math.PI * 2); g.fill();
-      for (let layer = 0; layer < 3; layer++) {                                       // three fluid layers
-        const amp = (4 + this.lv * 22) * (1 - layer * 0.25), rr = R * (1.06 - layer * 0.1), n = 64;
-        g.beginPath();
-        for (let i = 0; i <= n; i++) {
-          const a = (i / n) * Math.PI * 2;
-          const d = Math.sin(a * 3 + this.t * (1.3 + layer * 0.4)) * 0.5 + Math.sin(a * 5 - this.t * (1.1 + layer * 0.3)) * 0.35 + Math.sin(a * 2 + this.t * 0.7 + layer) * 0.4;
-          const r = rr + d * amp;
-          const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
-          if (i) g.lineTo(x, y); else g.moveTo(x, y);
-        }
-        g.closePath();
-        const fill = g.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, rr * 1.15);
-        fill.addColorStop(0, layer === 2 ? c2 : c1);
-        fill.addColorStop(1, c0);
-        g.globalAlpha = layer === 0 ? 0.35 : layer === 1 ? 0.55 : 0.95;
-        g.fillStyle = fill; g.fill();
+      this.col = mix(this.col, PALETTE[this.state], 0.15);
+      const idle = this.state === "idle";
+      const raw = this.still ? 0.2 : this.state === "thinking" ? 0.3 + 0.2 * Math.sin(this.t * 3) : idle ? 0.12 + 0.08 * Math.sin(this.t * 1.5) : api.level();
+      this.lv += (raw - this.lv) * 0.3;
+      this.t += this.still ? 0 : 0.016;
+      if (this.host && this.host.style) this.host.style.setProperty("--lv", this.lv.toFixed(3));
+      const rgb = this.col.map((x) => Math.round(x)).join(","), cx = w / 2, cy = hgt / 2, R = Math.min(w, hgt) * 0.27;
+      // the glow behind the shield
+      const glow = g.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * (1.5 + this.lv * 0.9));
+      glow.addColorStop(0, `rgba(${rgb},${0.45 + this.lv * 0.4})`);
+      glow.addColorStop(0.55, `rgba(${rgb},${0.12 + this.lv * 0.2})`);
+      glow.addColorStop(1, `rgba(${rgb},0)`);
+      g.fillStyle = glow; g.beginPath(); g.arc(cx, cy, R * 2.2, 0, Math.PI * 2); g.fill();
+      // rings of energy rippling outwards (more and brighter while someone speaks)
+      if (!this.still) {
+        this.spawn += 0.012 + this.lv * 0.09;
+        if (this.spawn >= 1) { this.spawn = 0; this.rings.push({ r: R * 0.95, a: 0.35 + this.lv * 0.6, seed: Math.random() * 6 }); }
+        this.rings = this.rings.filter((ring) => ring.a > 0.02 && ring.r < Math.min(w, hgt) * 0.5);
+        this.rings.forEach((ring) => {
+          ring.r += 0.6 + this.lv * 2.2; ring.a *= 0.975;
+          g.beginPath();
+          for (let i = 0; i <= 72; i++) {
+            const a = (i / 72) * Math.PI * 2;
+            const wob = Math.sin(a * 6 + this.t * 4 + ring.seed) * (1.5 + this.lv * 5);
+            const x = cx + Math.cos(a) * (ring.r + wob), y = cy + Math.sin(a) * (ring.r + wob);
+            if (i) g.lineTo(x, y); else g.moveTo(x, y);
+          }
+          g.closePath();
+          g.strokeStyle = `rgba(${rgb},${ring.a})`; g.lineWidth = 1.5 + this.lv * 2.5;
+          g.shadowColor = `rgba(${rgb},${ring.a})`; g.shadowBlur = 12;
+          g.stroke(); g.shadowBlur = 0;
+        });
+      } else {
+        g.strokeStyle = `rgba(${rgb},.5)`; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, R * 1.25, 0, Math.PI * 2); g.stroke();
       }
-      g.globalAlpha = 0.5;                                                            // highlight
-      const hl = g.createRadialGradient(cx - R * 0.4, cy - R * 0.45, 0, cx - R * 0.4, cy - R * 0.45, R * 0.7);
-      hl.addColorStop(0, "rgba(255,255,255,.55)"); hl.addColorStop(1, "rgba(255,255,255,0)");
-      g.fillStyle = hl; g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.fill();
-      g.globalAlpha = 1;
     }
   }
   api.Orb = Orb;
