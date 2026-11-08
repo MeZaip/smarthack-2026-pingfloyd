@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SafeHouse - modele 3D</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 24px; background: #090b10; color: #e4e4e7; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    h1 { margin: 0 0 4px; font-size: 1.5rem; }
+    h2 { margin: 28px 0 10px; font-size: 1.1rem; color: #a1a1aa; font-weight: 600; }
+    p { margin: 0 0 16px; color: #a1a1aa; max-width: 70ch; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+    .card { background: #11141b; border: 1px solid #23293a; border-radius: 14px; padding: 12px; }
+    .card.new { border-color: #2f4f86; }
+    .card h3 { margin: 0 0 2px; font-size: 1rem; }
+    .card code { color: #93c5fd; font-size: .85rem; }
+    .dev3d { position: relative; width: 100%; aspect-ratio: 1; }
+    .dev3d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .tones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 6px; }
+    .one { width: var(--size, 640px); max-width: 100%; }
+    body.single { padding: 0; background: #0b0d12; }
+    body.single h1, body.single p, body.single h2 { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Modele 3D pentru aparate</h1>
+  <p>Modelele noi (chenar albastru) sunt construite în cod după poze de referință; restul sunt modelele <code>.glb</code> de acum.
+    Fiecare model e arătat mare și în cele 4 culori de risc ale LED-ului (roșu, portocaliu, albastru, verde). Trage de un model ca să-l rotești.</p>
+  <h2>Noi</h2>
+  <div class="grid" id="new"></div>
+  <h2>De acum (.glb)</h2>
+  <div class="grid" id="old"></div>
+
+  <script src="../../vendor/three.min.js"></script>
+  <script src="models-bundle.js"></script>
+  <script src="procedural/kit.js"></script>
+  <script src="procedural/computer-macbook.js"></script>
+  <script src="procedural/computer-imac.js"></script>
+  <script src="procedural/phone-iphone.js"></script>
+  <script src="procedural/phone-android.js"></script>
+  <script src="procedural/iot-raspberrypi.js"></script>
+  <script src="../../device3d.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      const NEW = [
+        ["computer-macbook", "Laptop Apple (MacBook)"],
+        ["computer-imac", "Desktop Apple (iMac)"],
+        ["phone-iphone", "iPhone"],
+        ["phone-android", "Telefon Android (standard)"],
+        ["iot-raspberrypi", "Raspberry Pi"],
+      ];
+      const OLD = ["router", "camera", "tv", "iot", "computer", "printer", "server", "nas", "phone", "unknown"].map((t) => [t, t]);
+      const q = new URLSearchParams(location.search);
+      const slot = (key, tone, angle) => {
+        const d = document.createElement("div");
+        d.className = "dev3d";
+        d.dataset.model = key; d.dataset.type = key.split("-")[0]; d.dataset.tone = tone;
+        if (angle != null) d.dataset.angle = String(angle);
+        return d;
+      };
+      if (q.get("only")) {                                  // one big model, for screenshots: ?only=key&angle=0.55&tone=green&size=640
+        document.body.classList.add("single");
+        const wrap = document.createElement("div");
+        wrap.className = "one"; wrap.style.setProperty("--size", (q.get("size") || 640) + "px");
+        wrap.append(slot(q.get("only"), q.get("tone") || "green", q.get("angle") ?? 0.55));
+        document.body.prepend(wrap);
+      } else {
+        const card = (into, key, title, isNew) => {
+          const c = document.createElement("div");
+          c.className = "card" + (isNew ? " new" : "");
+          c.innerHTML = `<h3></h3><code></code>`;
+          c.querySelector("h3").textContent = title; c.querySelector("code").textContent = key;
+          c.append(slot(key, "green"));
+          const t = document.createElement("div"); t.className = "tones";
+          ["red", "amber", "blue", "green"].forEach((tone) => t.append(slot(key, tone, 0.55)));
+          c.append(t);
+          document.getElementById(into).append(c);
+        };
+        NEW.forEach(([k, title]) => card("new", k, title, true));
+        OLD.forEach(([k, title]) => card("old", k, title, false));
+      }
+      if (window.Device3D) window.Device3D.scan(document);
+    })();
+  </script>
+</body>
+</html>

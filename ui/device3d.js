@@ -7,7 +7,7 @@
  *   - ONE hidden WebGLRenderer draws every slot in turn and copies the picture into a plain 2D <canvas> in the
  *     slot, so there is no limit on WebGL contexts and slots also work inside the <dialog> sheet.
  *
- * Usage: any element <div class="dev3d" data-type="router" data-tone="red|amber|blue|green" [data-float] [data-angle]>
+ * Usage: any element <div class="dev3d" data-type="router" [data-model="phone-iphone"] data-tone="red|amber|blue|green" [data-float] [data-angle]>
  * is picked up by Device3D.scan(); the model rotates gently, can be turned by dragging, and its `status`
  * part (LED) plus a rim light take the risk colour. Without WebGL, or without the bundle, the SVG icon that
  * sits inside the slot stays visible.
@@ -90,20 +90,33 @@
     return root;
   }
 
+  // A model is looked up by its key: a procedural builder first (ui/assets/models/procedural/<key>.js, e.g.
+  // "phone-iphone"), then the .glb of that key, then the .glb of the base type ("phone-iphone" -> "phone"), then
+  // "unknown". Builders are plain functions (THREE) -> Group, registered on window.SAFEHOUSE_MODEL_BUILDERS.
+  const BUILDERS = window.SAFEHOUSE_MODEL_BUILDERS || {};
+  function resolveKey(key) {
+    if (BUILDERS[key] || BUNDLE[key]) return key;
+    const base = String(key).split("-")[0];
+    return BUILDERS[base] || BUNDLE[base] ? base : "unknown";
+  }
   const templates = {};
+  const tmp = new T3.Vector3();
   function template(type) {
-    const key = BUNDLE[type] ? type : "unknown";
+    const key = resolveKey(type);
     if (!templates[key]) {
-      const g = parseGlb(decode(BUNDLE[key]));
+      const g = BUILDERS[key] ? BUILDERS[key](T3) : parseGlb(decode(BUNDLE[key]));
       // the model spins around its own vertical axis (x = z = 0): what must fit in the frame is the widest it can
-      // ever look (the farthest point from that axis) and its height
+      // ever look (the farthest point from that axis) and its height. Procedural models place their parts with
+      // position / rotation / scale, so every vertex is taken in model space (the .glb files have none).
+      g.updateMatrixWorld(true);
       let rxz = 0, ymin = Infinity, ymax = -Infinity;
       g.traverse((o) => {
         if (!o.isMesh) return;
-        const a = o.geometry.attributes.position.array;
-        for (let i = 0; i < a.length; i += 3) {
-          rxz = Math.max(rxz, Math.hypot(a[i], a[i + 2]));
-          ymin = Math.min(ymin, a[i + 1]); ymax = Math.max(ymax, a[i + 1]);
+        const a = o.geometry.attributes.position;
+        for (let i = 0; i < a.count; i++) {
+          tmp.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
+          rxz = Math.max(rxz, Math.hypot(tmp.x, tmp.z));
+          ymin = Math.min(ymin, tmp.y); ymax = Math.max(ymax, tmp.y);
         }
       });
       templates[key] = { group: g, rxz, height: ymax - ymin, cy: (ymin + ymax) / 2 };
@@ -129,7 +142,7 @@
   }
 
   function makeSlot(el) {
-    const type = el.dataset.type || "unknown";
+    const type = el.dataset.model || el.dataset.type || "unknown";     // data-model: a variant such as "phone-iphone"
     const tone = TONES[el.dataset.tone] || TONES.green;
     const t = template(type);
     const model = t.group.clone(true);

@@ -101,6 +101,7 @@
       evFirst: "Verificarea de dinainte: scor {s}, {f} lucruri de reparat",
       chartTitle: "Scorul la fiecare verificare", chartLabel: "Grafic cu scorul la fiecare verificare salvată",
       colScan: "Verificare", colScore: "Scor", colFindings: "De reparat",
+      cyLog: "Jurnal de sistem", cyDevices: "Aparate", cyCompare: "Scorul casei", cyWhen: "Verificarea",
       deleteTitle: "Istoricul tău", deleteSub: "Poți șterge oricând tot ce am salvat pe acest calculator.",
       deleteBtn: "Șterge tot ce am salvat",
       deleteConfirm: "Sigur ștergi toate verificările salvate pe acest calculator? Nu le mai poți aduce înapoi.",
@@ -237,6 +238,7 @@
       evFirst: "The check before: score {s}, {f} things to fix",
       chartTitle: "The score at each check", chartLabel: "Chart of the score at each saved check",
       colScan: "Check", colScore: "Score", colFindings: "To fix",
+      cyLog: "System log", cyDevices: "Devices", cyCompare: "Home score", cyWhen: "Check",
       deleteTitle: "Your history", deleteSub: "You can delete everything we saved on this computer at any time.",
       deleteBtn: "Delete everything saved",
       deleteConfirm: "Delete all checks saved on this computer? You cannot get them back.",
@@ -398,10 +400,26 @@
   }
   // Risk colour of the 3D model's LED and rim light: red high, amber medium, blue low, green safe.
   const MODEL_TONE = { red: "red", high: "red", amber: "amber", medium: "amber", low: "blue", info: "green", green: "green" };
-  function devIco(type, tone, big) {
+  // Which 3D model a device gets: the model of its type, or a variant when its name or maker says more (a MacBook,
+  // an iMac, an iPhone, a Raspberry Pi; ui/assets/models/procedural/). Every phone that is not an iPhone gets the
+  // standard Android model. A variant without a model falls back to its type in device3d.js.
+  function modelOf(d) {
+    if (!d) return "unknown";
+    const type = DEVICE_ICON[d.type] ? d.type : "unknown";
+    const name = String(d.hostname || "").toLowerCase(), vendor = String(d.vendor || "").toLowerCase();
+    const apple = vendor.includes("apple");
+    if (type === "computer") {
+      if (name.includes("imac")) return "computer-imac";
+      if (apple || /macbook|\bmbp\b|\bmac\b/.test(name)) return "computer-macbook";
+    }
+    if (type === "phone") return apple || /iphone|ipad/.test(name) ? "phone-iphone" : "phone-android";
+    if (type === "iot" && vendor.includes("raspberry")) return "iot-raspberrypi";
+    return type;
+  }
+  function devIco(type, tone, big, d) {
     const t = DEVICE_ICON[type] ? type : "unknown";
     return h("div", { class: "dev-ico dev3d" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true",
-      "data-type": t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
+      "data-type": t, "data-model": d ? modelOf(d) : t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
   }
   function whoLine(code) {
     const w = D.who[whoOf(code)];
@@ -577,15 +595,6 @@
   }
 
   // Score ring (Fing) + labelled traffic light.
-  function ring(score, small) {
-    const b = bandOf(score), r = 52, c = 2 * Math.PI * r;
-    const s = svg("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" });
-    s.append(svg("circle", { class: "track", cx: 60, cy: 60, r, fill: "none", "stroke-width": 12 }));
-    s.append(svg("circle", { class: "val-" + b, cx: 60, cy: 60, r, fill: "none", "stroke-width": 12, "stroke-linecap": "round",
-      "stroke-dasharray": `${(score / 100) * c} ${c}` }));
-    return h("div", { class: "ring b-" + b + (small === "lg" ? " lg" : small ? " small" : ""), role: "img", "aria-label": `${score} ${t("scoreOf")}, ${t("band_" + b)}` },
-      s, h("div", { class: "ring-center", "aria-hidden": "true" }, h("div", { class: "ring-num", text: String(score) }), h("div", { class: "ring-of", text: t("scoreOf") })));
-  }
   function traffic(score) {
     const b = bandOf(score);
     const lamp = (tone, key) => h("span", { class: "lamp " + tone + (b === tone ? " on" : "") },
@@ -764,12 +773,15 @@
     root.append(pageHead(t("hello"), t("helloSub")));
 
     // right column: score, status pills and the call to action, centred in one card
-    const pendingRing = h("div", { class: "ring b-none lg", "aria-hidden": "true" },
-      (() => { const g = svg("svg", { viewBox: "0 0 120 120" }); g.append(svg("circle", { class: "track", cx: 60, cy: 60, r: 52, fill: "none", "stroke-width": 12 })); return g; })(),
-      h("div", { class: "ring-center" }, h("div", { class: "ring-num", text: "–" }), h("div", { class: "ring-of", text: t("scoreOf") })));
+    // the score as a dial (ui/assets/score-ring/): segmented track, glowing line and end cap, counting up from 0 the
+    // first time a scan is shown; before the house is inspected the same dial, empty
+    const scoreDial = () => window.ScoreRing.create(s.score, { of: t("scoreOf"), key: s.file,
+      aria: `${s.score} ${t("scoreOf")}, ${t("band_" + bandOf(s.score))}` });
+    const pendingRing = window.ScoreRing.pending(t("scoreOf"));
+    pendingRing.setAttribute("aria-hidden", "true");
     const scoreCard = h("div", { class: "score-card" },
       h("p", { class: "eyebrow muted", text: t("scoreTitle") }),
-      done && !s.error ? ring(s.score, "lg") : pendingRing,
+      done && !s.error ? scoreDial() : pendingRing,
       done && !s.error ? traffic(s.score) : null,
       h("p", { class: "lead sc-lead", text: state.scanning && state.job ? t("scanElapsed", { t: mmss(state.job.elapsed || 0) })
         : !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
@@ -855,7 +867,7 @@
           "aria-label": `${vendor || deviceLabel(d.type)}, ${deviceLabel(d.type)}, ${d.ip}. ${sevLabel(sev)}`, "aria-pressed": "false" },
         h("span", { class: "topo-orb" }, dot ? icon(ico)
           : h("span", { class: "dev3d topo-model", "aria-hidden": "true", "data-type": DEVICE_ICON[d.type] ? d.type : "unknown",
-              "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
+              "data-model": modelOf(d), "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
         h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
           h("span", { text: (core ? t("topoGateway") : sevLabel(sev)) + meSuffix(d) })));
       b.addEventListener("click", () => select(it));
@@ -1117,18 +1129,10 @@
       const name = (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d);
       panel.className = `topo-panel grunge sev-${sev}`;
       panel.replaceChildren(...[                // filter: replaceChildren() would print a skipped part as "null"
-        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
-          h("div", { class: "grow" }, h("h4", { text: name }),
-            h("div", { class: "topo-risk" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")))),
-          h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x"))),
-        h("p", { class: "topo-why", style: "--i:1", text: worst ? simple(worst.code).explain : t("devOkExplain") }),
-        probs.length ? h("ul", { class: "topo-finds", style: "--i:2" }, probs.slice(0, SHOW).map((f) =>
-          h("li", { class: "sev-" + f.severity }, h("strong", { text: simple(f.code).title })))) : null,
-        more > 0 ? h("p", { class: "topo-more-probs", style: "--i:2", text: more === 1 ? t("moreProb1") : t("moreProbs", { n: more }) }) : null,
-        worst ? h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:3", onclick: (e) => openDevice(d, e.currentTarget) },
-            icon("shield"), h("span", { class: "grow", text: t("fixNow") }), icon("chevron", "go"))
-          : h("button", { type: "button", class: "btn-hud topo-cta topo-cta-soft", style: "--i:3", onclick: (e) => openDevice(d, e.currentTarget) },
-            h("span", { class: "grow", text: t("devDetails") }), icon("chevron", "go")),
+        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
+          h("div", { class: "grow" }, h("h4", { text: (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
+          h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
+            h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
         navRow(it),
         h("div", { class: "topo-scan", "aria-hidden": "true" })].filter(Boolean));
       if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
@@ -1175,7 +1179,7 @@
       const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
       const name = vendor || deviceLabel(d.type);
       const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${deviceLabel(d.type)} ${vendor}, ${t("ipLabel")} ${d.ip}, ${t("macLabel")} ${d.mac || t("unknown")}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
-        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
+        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
           h("div", null, h("h3", { text: name }), h("div", { class: "sub", text: deviceLabel(d.type) }))),
         h("dl", { class: "dcard-meta" },
           h("dt", { text: t("ipLabel") }), h("dd", { class: "mono", text: d.ip }),
@@ -1204,7 +1208,7 @@
     const f = q[i], tx = simple(f.code), dev = deviceByIp(s, f.ip), top = mostDangerous(s);
     card.append(
       h("p", { class: "muted", text: t("suggestSub") }),
-      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true),
+      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true, dev),
         h("div", { class: "grow" },
           h("div", { class: "muted", text: top && top.ip === f.ip ? t("mostDangerous") : t("thisDevice") }),
           h("strong", { style: "font-size:1.3rem", text: deviceName(dev) })),
@@ -1232,7 +1236,7 @@
       const vendor = shortVendor(d.vendor);
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
-        devIco(d.type, tone === "green" ? "green" : worst.severity),
+        devIco(d.type, tone === "green" ? "green" : worst.severity, false, d),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "tile-sub", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null),
         h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
@@ -1279,7 +1283,7 @@
     const risky = new Set(probs.filter((f) => f.port != null).map((f) => f.port));
     const body = document.getElementById("sheet-body");
     body.replaceChildren(h("div", null,
-      h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true),
+      h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true, d),
         h("div", null, h("h2", { id: "sheet-title", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "muted", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null)),
       worst ? h("p", { class: "muted", style: "margin:.6rem 0 0", text: plural(probs.length, "devProblem", "devProblems") }) : null,
       all.length ? all.map((f, i) => fixBlock(s, f, i, all.length)) : null,
@@ -1317,6 +1321,25 @@
   }
 
   // ---------------------------------------------------------------- HISTORY (compare + events timeline)
+  // ---------------------------------------------------------------- HISTORY: cyber data dashboard
+  // The History tab as a dark command console: glass panels with a thin neon edge whose colour follows the state of the
+  // network like a traffic light (green safe, yellow medium risk, red high risk: the colours everyone already knows),
+  // white text on a near-solid background, large type, so it reads easily at 80 too. The Before / Now scores as the same
+  // dial as Home (ui/assets/score-ring/), the score at each check as a glowing line chart (pure SVG built here: no chart library,
+  // the app has to work offline) and the events as a system log. Only real data from the saved history; every
+  // animation stops with reduced motion, and every chart point is reachable with the keyboard.
+  const NEON = { green: "ok", amber: "warn", red: "bad" };
+  const neonOf = (score) => NEON[bandOf(score)] || "ok";
+  let cyUid = 0;
+  const when = (sec) => (sec ? new Date(sec * 1000).toLocaleString(state.lang === "ro" ? "ro-RO" : "en-GB",
+    { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "");
+  const scanName = (trend, i) => (i === 0 ? t("before") : i === trend.length - 1 ? t("now") : `#${trend[i].scan_id}`);
+
+  function cyPanel(title, cls, ...kids) {
+    return h("section", { class: "cy-panel" + (cls ? " " + cls : "") },
+      title ? h("h3", { class: "cy-title" }, h("span", { class: "cy-slash", "aria-hidden": "true", text: "//" }), h("span", { text: title })) : null, kids);
+  }
+
   function renderHistory(root) {
     root.append(pageHead(t("historyTitle"), t("historySub")));
     if (state.historyDeleted) {
@@ -1329,38 +1352,34 @@
     // live: the scan on screen compared with the one saved just before it
     const cur = scan();
     const ch = LIVE ? (cur.error ? D.history.changes : cur.changes || null) : D.history.changes, trend = D.history.trend;
+    const lastScore = ch ? ch.score_after : trend.length ? trend[trend.length - 1].network_score : cur.score;
+    const deck = h("div", { class: "cyber n-" + neonOf(lastScore == null ? 100 : lastScore) });
+    root.append(deck);
     if (!ch) {
-      root.append(h("div", { class: "two" },
-        h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("info", "lg"), h("span", { text: t("histNeedTwo") }))),
-        trend.length ? h("div", { class: "suggest" }, h("h3", { text: t("chartTitle") }), chart(trend)) : null));
-      if (LIVE) root.append(h("div", { class: "suggest", style: "margin-top:20px" }, h("h3", { text: t("deleteTitle") }), h("p", { class: "muted", text: t("deleteSub") }), privacyRow()));
+      deck.append(h("div", { class: "cy-grid" },
+        cyPanel(null, "cy-note", h("p", { class: "with-ico" }, icon("info", "lg"), h("span", { text: t("histNeedTwo") }))),
+        trend.length ? cyPanel(t("chartTitle"), null, cyChart(trend)) : null));
+      if (LIVE) deck.append(cyPanel(t("deleteTitle"), "cy-danger", h("p", { class: "cy-muted", text: t("deleteSub") }), privacyRow()));
       return;
     }
     const fixed = ch.resolved_findings.length;
     const verdict = ch.score_change > 0 ? (fixed === 1 ? t("bravoOne") : t("bravo", { n: fixed })) : ch.score_change < 0 ? t("worse") : t("same");
-
-    const compare = h("div", { class: "suggest" },
-      h("div", { class: "compare" },
-        h("div", { class: "compare-col" }, h("strong", { text: t("before") }), ring(ch.score_before, true), bandPill(ch.score_before)),
-        h("div", { class: "compare-arrow", "aria-hidden": "true" }, icon("arrow", "xl")),
-        h("div", { class: "compare-col" }, h("strong", { text: t("now") }), ring(ch.score_after, true), bandPill(ch.score_after))),
-      h("p", { class: "verdict with-ico" }, icon(ch.score_change > 0 ? "sparkles" : ch.score_change < 0 ? "alert" : "info", "lg"), h("span", { text: verdict })),
-      h("h3", { style: "margin-top:1.5rem", text: t("events") }),
-      timeline(ch, trend));
-
-    const chartCard = h("div", { class: "suggest" }, h("h3", { text: t("chartTitle") }), chart(trend),
-      h("table", { class: "data" },
-        h("thead", null, h("tr", null, ["colScan", "colScore", "colFindings"].map((k) => h("th", { scope: "col", text: t(k) })))),
-        h("tbody", null, trend.map((r, i) => h("tr", null,
-          h("td", { text: i === 0 ? t("before") : i === trend.length - 1 ? t("now") : "#" + r.scan_id }),
-          h("td", null, `${r.network_score} `, bandPill(r.network_score)),
-          h("td", { text: String(r.findings) }))))),
+    const dial = (label, score, id) => window.ScoreRing.create(score, { of: t("scoreOf"), key: `history|${label}|${id}`,
+      aria: `${label}: ${score} ${t("scoreOf")}, ${t("band_" + bandOf(score))}` });
+    const col = (label, score, id) => h("div", { class: "cy-col" }, h("span", { class: "cy-col-k", text: label }), dial(label, score, id),
+      h("span", { class: "cy-band n-" + neonOf(score) }, icon(BAND_ICON[bandOf(score)]), t("band_" + bandOf(score))));
+    const compare = cyPanel(t("cyCompare"), null,
+      h("div", { class: "cy-compare" }, col(t("before"), ch.score_before, ch.before_scan_id ?? ch.before_file),
+        h("div", { class: "cy-arrow", "aria-hidden": "true" }, h("span"), h("span"), h("span")),
+        col(t("now"), ch.score_after, ch.after_scan_id ?? ch.after_file)),
+      h("p", { class: "cy-verdict n-" + (ch.score_change < 0 ? "bad" : ch.score_change > 0 ? "ok" : "warn") },
+        icon(ch.score_change > 0 ? "sparkles" : ch.score_change < 0 ? "alert" : "info", "lg"), h("span", { text: verdict })));
+    const log = cyPanel(t("events"), null, cyLog(ch, trend));
+    const chartPanel = cyPanel(t("chartTitle"), null, cyChart(trend), cyTable(trend),
       techBox(h("p", { class: "mono", text: `${ch.before_file} → ${ch.after_file}` })));
+    deck.append(h("div", { class: "cy-grid" }, h("div", { class: "cy-stack" }, compare, log), chartPanel));
 
-    root.append(h("div", { class: "two" }, compare, chartCard));
-
-    const del = h("div", { class: "suggest", style: "margin-top:20px" },
-      h("h3", { text: t("deleteTitle") }), h("p", { class: "muted", text: t("deleteSub") }),
+    const del = cyPanel(t("deleteTitle"), "cy-danger", h("p", { class: "cy-muted", text: t("deleteSub") }),
       h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm button"); } }, icon("trash"), t("deleteBtn")));
     if (state.confirmDelete) {
       del.append(h("div", { class: "confirm", role: "alertdialog", "aria-label": t("deleteBtn") },
@@ -1369,56 +1388,113 @@
           h("button", { type: "button", class: "btn btn-danger", onclick: LIVE ? liveDelete : () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); } }, t("deleteYes")),
           h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); } }, t("deleteNo")))));
     }
-    root.append(del);
+    deck.append(del);
   }
 
-  function timeline(ch, trend) {
-    const ev = (tone, name, title, sub) => h("li", null, h("span", { class: "t-ico " + tone, "aria-hidden": "true" }, icon(name)),
-      h("div", { class: "t-text" }, h("strong", { text: title }), sub ? h("span", { class: "muted", text: sub }) : null));
-    const after = [];
-    ch.resolved_findings.forEach((f) => after.push(ev("green", "check", t("evFixed", { title: simple(f.code).title }), null)));
-    ch.secured_ports.forEach((u) => after.push(ev("blue", "lock", t("evSecured"), t("evSecuredSub", { from: u.from_port, to: u.to_port }))));
-    ch.new_findings.forEach((f) => after.push(ev("amber", "alert", t("evNew", { title: simple(f.code).title }), null)));
-    ch.new_devices.forEach((ip) => after.push(ev("red", "plus", t("evNewDev"), ip)));
-    ch.removed_devices.forEach((ip) => after.push(ev("", "leave", t("evGoneDev"), ip)));
-    if (!ch.alerts) after.push(ev("green", "shield", t("evQuiet"), null));
-    const first = (ch.before_scan_id != null && trend.find((r) => r.scan_id === ch.before_scan_id)) || trend[0];
-    return h("div", null,
-      h("div", { class: "t-when", text: t("now") }),
-      h("ul", { class: "timeline" }, after),
-      h("div", { class: "t-when", text: t("before") }),
-      h("ul", { class: "timeline" }, ev(bandOf(first.network_score) === "red" ? "red" : "amber", BAND_ICON[bandOf(first.network_score)],
-        t("evFirst", { s: first.network_score, f: first.findings }), null)));
-  }
-
-  function chart(trend) {
+  // The score at each saved check: a smooth glowing line over a gradient area, a fine precision grid, hexagon points
+  // in the colour of each check's state (the latest one pulses), and a technical tooltip on hover / keyboard focus.
+  function cyChart(trend) {
     const panelW = document.getElementById("panel-history").clientWidth || 1000;
-    const W = Math.round(Math.max(300, Math.min(560, (panelW > 900 ? panelW * 0.46 : panelW) - 56)));
-    const H = 250, L = 44, R = 12, TOP = 32, B = 44, innerW = W - L - R, innerH = H - TOP - B;
-    const y = (v) => TOP + innerH - (v / 100) * innerH, slot = innerW / trend.length, bw = Math.min(84, slot * 0.55);
-    const wrap = h("div", { class: "chart-wrap" });
-    const s = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": t("chartLabel") });
-    [0, 50, 80, 100].forEach((v) => {
-      s.append(svg("line", { class: "grid-line", x1: L, x2: W - R, y1: y(v), y2: y(v) }));
-      const lab = svg("text", { class: "axis-text", x: L - 8, y: y(v) + 5, "text-anchor": "end" }); lab.textContent = String(v); s.append(lab);
-    });
-    const tip = h("div", { class: "tooltip", hidden: true });
+    const W = Math.round(Math.max(300, Math.min(640, (panelW > 900 ? panelW * 0.5 : panelW) - 72)));
+    const H = 330, L = 48, R = 22, TOP = 44, B = 52, iw = W - L - R, ih = H - TOP - B, uid = "cy" + ++cyUid, n = trend.length;
+    const y = (v) => TOP + ih - (v / 100) * ih;
+    const x = (i) => (n === 1 ? L + iw / 2 : L + 30 + (i * (iw - 60)) / (n - 1));
+    const pts = trend.map((r, i) => [x(i), y(r.network_score)]);
+    const s = svg("svg", { class: "cy-chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": t("chartLabel") });
+    const defs = svg("defs");
+    const area = svg("linearGradient", { id: uid + "-area", x1: "0", y1: "0", x2: "0", y2: "1" });
+    area.append(svg("stop", { offset: "0", class: "cy-stop-a", "stop-opacity": "0.55" }), svg("stop", { offset: "0.55", class: "cy-stop-a", "stop-opacity": "0.14" }),
+      svg("stop", { offset: "1", class: "cy-stop-a", "stop-opacity": "0" }));
+    const glow = svg("filter", { id: uid + "-glow", x: "-30%", y: "-30%", width: "160%", height: "160%" });
+    const merge = svg("feMerge");
+    merge.append(svg("feMergeNode", { in: "blur" }), svg("feMergeNode", { in: "SourceGraphic" }));
+    glow.append(svg("feGaussianBlur", { stdDeviation: "3.2", result: "blur" }), merge);
+    defs.append(area, glow);
+    s.append(defs);
+    // precision grid: a fine line every 10 points, labelled dashed lines at the band limits, a faint column per check
+    for (let v = 0; v <= 100; v += 10) s.append(svg("line", { class: [0, 50, 80, 100].includes(v) ? "cy-grid-major" : "cy-grid-minor", x1: L, x2: W - R, y1: y(v), y2: y(v) }));
+    [0, 50, 80, 100].forEach((v) => { const lab = svg("text", { class: "cy-axis", x: L - 10, y: y(v) + 6, "text-anchor": "end" }); lab.textContent = String(v); s.append(lab); });
+    pts.forEach(([px]) => s.append(svg("line", { class: "cy-grid-v", x1: px, x2: px, y1: TOP, y2: TOP + ih })));
+    // the line: a smooth curve through the points that never overshoots the 0-100 range
+    let d = "";
+    if (n > 1) {
+      const c = (v) => Math.max(TOP, Math.min(TOP + ih, v));
+      d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+      for (let i = 1; i < n; i++) {
+        const p0 = pts[i - 2] || pts[i - 1], p1 = pts[i - 1], p2 = pts[i], p3 = pts[i + 1] || p2, k = 0.18;
+        d += ` C${(p1[0] + (p2[0] - p0[0]) * k).toFixed(1)},${c(p1[1] + (p2[1] - p0[1]) * k).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) * k).toFixed(1)},${c(p2[1] - (p3[1] - p1[1]) * k).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+      }
+      s.append(svg("path", { class: "cy-area", fill: `url(#${uid}-area)`, d: `${d} L${pts[n - 1][0].toFixed(1)},${y(0)} L${pts[0][0].toFixed(1)},${y(0)} Z` }));
+      s.append(svg("path", { class: "cy-line", d, pathLength: "1", filter: `url(#${uid}-glow)` }));
+    }
+    const hex = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 6 + (i * Math.PI) / 3; return `${(cx + Math.cos(a) * r).toFixed(1)},${(cy + Math.sin(a) * r).toFixed(1)}`; }).join(" ");
+    const tip = h("div", { class: "cy-tip", hidden: true, role: "status" });
     trend.forEach((r, i) => {
-      const cx = L + slot * i + slot / 2, x = cx - bw / 2, top = y(r.network_score), base = y(0), band = bandOf(r.network_score), rr = Math.min(6, (base - top) / 2);
-      s.append(svg("path", { class: "bar-" + band, d: `M${x},${base} V${top + rr} Q${x},${top} ${x + rr},${top} H${x + bw - rr} Q${x + bw},${top} ${x + bw},${top + rr} V${base} Z` }));
-      const v = svg("text", { class: "value-text", x: cx + 11, y: top - 8, "text-anchor": "middle" }); v.textContent = String(r.network_score); s.append(v);
-      s.append(svg("use", { href: "#i-" + BAND_ICON[band], x: cx - 30, y: top - 26, width: 20, height: 20, class: "chart-ico tone-" + band }));
-      const name = i === 0 ? t("before") : i === trend.length - 1 ? t("now") : `#${r.scan_id}`;
-      const lab = svg("text", { class: "axis-text", x: cx, y: H - B + 24, "text-anchor": "middle" }); lab.textContent = name; s.append(lab);
-      const label = `${name}: ${r.network_score} ${t("scoreOf")}, ${t("band_" + band)}`;
-      const hit = svg("rect", { class: "hit", x: cx - slot / 2, y: TOP - 24, width: slot, height: innerH + 24, tabindex: "0", "aria-label": label });
-      const show = () => { tip.textContent = label; tip.hidden = false; const k = s.getBoundingClientRect().width / W; tip.style.left = cx * k + "px"; tip.style.top = top * k + "px"; };
+      const [px, py] = pts[i], tone = neonOf(r.network_score), last = i === n - 1, name = scanName(trend, i);
+      const g = svg("g", { class: "cy-node n-" + tone, style: `--i:${i}` });
+      if (last) g.append(svg("circle", { class: "cy-pulse", cx: px, cy: py, r: 12 }));
+      g.append(svg("polygon", { class: "cy-pt" + (last ? " is-last" : ""), points: hex(px, py, last ? 11 : 9), filter: `url(#${uid}-glow)` }));
+      const v = svg("text", { class: "cy-val", x: px, y: py - 20, "text-anchor": "middle" }); v.textContent = String(r.network_score); g.append(v);
+      const lab = svg("text", { class: "cy-axis cy-x", x: px, y: H - B + 32, "text-anchor": "middle" }); lab.textContent = name; g.append(lab);
+      s.append(g);
+      const band = t("band_" + bandOf(r.network_score));
+      const label = `${name}: ${r.network_score} ${t("scoreOf")}, ${band}`;
+      const slot = n === 1 ? iw : (iw - 60) / (n - 1);
+      const hit = svg("rect", { class: "cy-hit", x: px - slot / 2, y: TOP - 24, width: slot, height: ih + 24, tabindex: "0", "aria-label": label });
+      const show = () => {
+        tip.replaceChildren(
+          h("div", { class: "cy-tip-head" }, h("b", { text: `${t("cyWhen")} ${name}` }), r.scanned_at ? h("span", { text: when(r.scanned_at) }) : null),
+          h("div", null, h("span", { text: t("colScore") + " " }), h("b", { text: `${r.network_score}/100` }), h("span", { text: ` · ${band}` })),
+          h("div", null, h("span", { text: `${t("colFindings")} ` }), h("b", { text: String(r.findings) }),
+            r.devices != null ? h("span", { text: ` · ${t("cyDevices")} ${r.devices}` }) : null));
+        tip.className = "cy-tip n-" + tone;
+        tip.hidden = false;
+        const k = s.getBoundingClientRect().width / W;
+        tip.style.left = Math.max(130, Math.min(W * k - 130, px * k)) + "px"; tip.style.top = py * k + "px";
+        g.classList.add("is-on");
+      };
+      const hide = () => { tip.hidden = true; g.classList.remove("is-on"); };
       hit.addEventListener("mouseenter", show); hit.addEventListener("focus", show);
-      hit.addEventListener("mouseleave", () => { tip.hidden = true; }); hit.addEventListener("blur", () => { tip.hidden = true; });
+      hit.addEventListener("mouseleave", hide); hit.addEventListener("blur", hide);
       s.append(hit);
     });
-    wrap.append(s, tip);
-    return wrap;
+    return h("div", { class: "cy-chart-wrap" }, s, tip);
+  }
+
+  // The checks as a data table in the console style (the same numbers as the chart, for screen readers and exact values).
+  function cyTable(trend) {
+    return h("table", { class: "cy-table" },
+      h("thead", null, h("tr", null, ["colScan", "colScore", "colFindings"].map((k) => h("th", { scope: "col", text: t(k) })))),
+      h("tbody", null, trend.map((r, i) => h("tr", { class: "n-" + neonOf(r.network_score) },
+        h("td", null, h("span", { class: "cy-dot", "aria-hidden": "true" }), scanName(trend, i), r.scanned_at ? h("span", { class: "cy-when", text: when(r.scanned_at) }) : null),
+        h("td", null, h("b", { text: String(r.network_score) }), h("span", { class: "cy-muted", text: "/100" }),
+          h("span", { class: "sr", text: ", " + t("band_" + bandOf(r.network_score)) })),     // the dot's colour says the band
+        h("td", { text: String(r.findings) })))));
+  }
+
+  // What happened between the two checks, as a system log: glowing status icons, thin luminous separators, alerts that
+  // pulse, a blinking cursor at the end.
+  function cyLog(ch, trend) {
+    let i = 0;
+    const line = (tone, name, title, sub, stamp) => h("li", { class: "cy-log-line t-" + tone, style: `--i:${i++}` },
+      h("span", { class: "cy-stamp", text: stamp }),
+      h("span", { class: "cy-log-ico", "aria-hidden": "true" }, icon(name)),
+      h("div", { class: "cy-log-text" }, h("strong", { text: title }), sub ? h("span", { class: "cy-log-sub", text: sub }) : null));
+    const now = `[${t("now").toUpperCase()}]`, before = `[${t("before").toUpperCase()}]`;
+    const after = [];
+    ch.resolved_findings.forEach((f) => after.push(line("green", "check", t("evFixed", { title: simple(f.code).title }), null, now)));
+    ch.secured_ports.forEach((u) => after.push(line("info", "lock", t("evSecured"), t("evSecuredSub", { from: u.from_port, to: u.to_port }), now)));
+    ch.new_findings.forEach((f) => after.push(line("amber", "alert", t("evNew", { title: simple(f.code).title }), null, now)));
+    ch.new_devices.forEach((ip) => after.push(line("red", "plus", t("evNewDev"), ip, now)));
+    ch.removed_devices.forEach((ip) => after.push(line("neutral", "leave", t("evGoneDev"), ip, now)));
+    if (!ch.alerts) after.push(line("green", "shield", t("evQuiet"), null, now));
+    const first = (ch.before_scan_id != null && trend.find((r) => r.scan_id === ch.before_scan_id)) || trend[0];
+    const firstLine = line(bandOf(first.network_score) === "red" ? "red" : "amber", BAND_ICON[bandOf(first.network_score)],
+      t("evFirst", { s: first.network_score, f: first.findings }), first.scanned_at ? when(first.scanned_at) : null, before);
+    return h("div", { class: "cy-term" },
+      h("div", { class: "cy-term-bar", "aria-hidden": "true" }, h("i"), h("i"), h("i"), h("span", { text: `safehouse ~ ${t("cyLog").toLowerCase()}` })),
+      h("ul", { class: "cy-log" }, after, firstLine),
+      h("div", { class: "cy-cursor", "aria-hidden": "true", text: ">" }));
   }
 
   // ---------------------------------------------------------------- ASK (grounded chat, NFR-06 / FR-12)
