@@ -3,7 +3,7 @@
 **Lab setup.** One phone runs hotspot `RSH-<team>` (WPA2/3). Scanner laptop joins only the hotspot. Target laptop runs
 `lab/fake_services.py` (banner-only telnet, FTP vsFTPd 2.3.4, SSH OpenSSH 7.2, VNC, plain-HTTP "Admin Login") and optionally
 Docker Redis / Mosquitto 1.6 / nginx admin page. ≥ 6 catalog finding types. Before/after: `--fixed` turns off telnet, FTP and HTTP admin.
-_TODO at the event: subnet, devices, screenshots, measured score before → after._
+Measured in our lab (iPhone hotspot `172.20.10.0/28`, MacBook scanner, Windows target; `tests/fixtures/lab/`): score **0 → 30 → 80** (all fake services + file sharing → `--fixed` → services and file sharing off).
 
 **Architecture.** Python 3, one package, five layers:
 `scanner (nmap, sudo only)` → `parser (defusedxml)` → `rules + score (deterministic)` → `explain (RO/EN JSON) / assistant (Claude, optional)` →
@@ -20,11 +20,14 @@ stateless **AI gateway**, which holds the key and calls Claude Haiku 5.5 (option
 request contract, per-IP rate limit, daily cap, no logging of content. A **grounding validator** (in the gateway and again in the app)
 rejects any answer naming an IP, port, CVE, link or phone number not in the scan and shows the verified built-in text instead.
 Gateway down / no key / timeout → built-in answers, same UX. Conversations keep the last 6 turns in the app only.
+"Exact steps for <maker>": the gateway lets Claude search **only the maker's official site** for where the setting is,
+sends no IP/MAC/hostname, checks the answer the same way and shows it with its sources; the built-in steps stay visible.
+A technical report (.txt, nmap style) exports one check for an IT person (no AI).
 
 **Differentiators.** SafeHouse UI: a 3D house that is "inspected" by a real live scan, a network map of every device (this computer
 marked), plain-language fixes; HMAC device IDs (no MAC stored); „Am reparat, verifică” one-click targeted re-check
 (unprivileged `nmap -sT`, same rules);
-„Paznic” unprivileged watch mode (ARP table + top-100 connect scan, desktop notifications, auto-pause on network change).
+„Paznic” unprivileged guard, a switch on Home: an unknown device on the Wi-Fi shows an alert within seconds (nmap host list + ARP table, no port scan; editable device list; it stops by itself on another network).
 
 **Security & privacy.** One-click app (`SafeHouse.cmd`): the page is a thin client of a local agent on 127.0.0.1 (host check +
 SameSite session cookie + origin check against CSRF/DNS rebinding); only nmap is elevated, via the OS permission dialog. Guardrail (allowlist = connected subnet, refuses public/CGNAT/oversized ranges, `--confirm`), rate ≤ 100 pps,
@@ -34,5 +37,5 @@ masked MACs, local-only history with one-click delete, hostile-input tests (XXE,
 **Assumptions.** Service names are taken exactly as nmap reports them (e.g. `http-proxy` is not `http`). Samba version ranges such as "3.X - 4.X"
 are judged by their upper bound (not outdated) — to confirm with the mentors. A host with no MAC entry at all counts as "no MAC vendor". Only `.xml` files are analysed in batch mode (`--all-files` to override).
 
-**Limitations / next steps.** Device-type guess is heuristic. No mDNS/SSDP passive listener yet. Router-model-specific guides and
-an insurer-ready signed PDF are next.
+**Limitations / next steps.** Device-type guess is heuristic; filtered ports are not judged; maker-specific steps come from the
+maker's site, not from the scan (shown with their sources). Next: a passive mDNS/SSDP listener and a signed PDF report.

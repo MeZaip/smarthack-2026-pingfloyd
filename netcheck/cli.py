@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 
 from .core.analysis import analyze_file, analyze_folder, scan_files_in, write_results
-from .core.device import DEVICE_LABELS
+from .core.device import DEVICE_LABELS, mask_mac
 from .core.diff import compare
 from .explain.texts import SEVERITY_LABELS, score_band, text_for
 
@@ -60,6 +60,15 @@ def cmd_analyze(args) -> int:
 def cmd_report(args) -> int:
     a = analyze_file(args.file)
     lang = args.lang
+    if args.technical:
+        from .explain.technical import technical_report
+        text = technical_report(a, lang)
+        if args.out:
+            Path(args.out).write_text(text, encoding="utf-8")
+            _out(("Raport scris în " if lang == "ro" else "Report written to ") + args.out)
+        else:
+            _out(text)
+        return 0 if a.ok else 1
     if not a.ok:
         _out(("Fișierul nu poate fi citit: " if lang == "ro" else "The file cannot be read: ") + a.error)
         return 1
@@ -357,6 +366,48 @@ def cmd_watch(args) -> int:
         return 3
 
 
+def cmd_guard_test(args) -> int:
+    """One look of the guard, step by step: what it sees and why (for "it does not see my phone")."""
+    import time
+
+    from .net import guardrail, netdetect, watch
+    if not args.confirm:
+        _out("⛔ add --confirm (you confirm this is your network)")
+        return 3
+    try:
+        n = netdetect.detect()
+    except netdetect.NetworkDetectError as e:
+        _out(f"✖ no network: {e}")
+        return 3
+    _out(f"1. network: interface={n.interface} this computer={n.ip} subnet={n.subnet} gateway={n.gateway}")
+    try:
+        guardrail.check_target(n.subnet, guardrail.build_allowlist(n.subnet), confirmed=True)
+    except guardrail.ScopeError as e:
+        return _refused(e, "en")
+    t = time.monotonic()
+    found = watch.discover(n.subnet)
+    look = dict(watch.last_look)
+    _out(f"2. nmap: {look.get('nmap') or 'NOT FOUND'}  exit={look.get('nmap_rc')}  {look.get('nmap_s')}s  "
+         f"hosts up={look.get('nmap_up')}  with MAC={look.get('from_nmap')}")
+    if look.get("nmap_err"):
+        _out(f"   nmap says: {look['nmap_err']}")
+    _out(f"   ping sweep: {look.get('ping_s')}s   (method: {look.get('how')}, total {time.monotonic() - t:.1f}s)")
+    for ip, mac in sorted(found.items()):
+        _out(f"   nmap  {ip:15} {mask_mac(mac)}")
+    raw = watch.read_arp_table()
+    table = watch.parse_arp(raw, n.subnet)
+    _out(f"3. ARP table: {len(table)} device(s) in {n.subnet} ({len(raw.splitlines())} lines read)")
+    for ip, mac in sorted(table.items()):
+        _out(f"   arp   {ip:15} {mask_mac(mac)}")
+    seen = {**found, **table}
+    seen.pop(n.ip, None)
+    _out(f"4. the guard sees {len(seen)} device(s) besides this computer:")
+    for ip, mac in sorted(seen.items()):
+        vendor = watch.mac_vendor(mac) or ("private MAC" if watch.is_private(mac) else "unknown maker")
+        _out(f"   {ip:15} {mask_mac(mac)}  {vendor}")
+    return 0
+
+
 def cmd_serve(args) -> int:
     try:
         import uvicorn
@@ -391,9 +442,11 @@ def main(argv=None) -> int:
                    help="read every (non-hidden) file in the folder, not only *.xml; unreadable ones get ERROR")
     s.set_defaults(fn=cmd_analyze)
 
-    s = sub.add_parser("report", help="plain-language report for one scan file")
+    s = sub.add_parser("report", help="plain-language report for one scan file (--technical: detailed, for IT)")
     s.add_argument("file")
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
+    s.add_argument("--technical", action="store_true", help="detailed technical report in nmap style (for an IT person)")
+    s.add_argument("--out", help="with --technical: write the report to this file instead of the screen")
     s.set_defaults(fn=cmd_report)
 
     s = sub.add_parser("ask", help="ask the assistant a question about one scan")
@@ -475,6 +528,10 @@ def main(argv=None) -> int:
     s.add_argument("--allow", action="append", default=[])
     s.add_argument("--lang", choices=["ro", "en"], default="ro")
     s.set_defaults(fn=cmd_watch)
+
+    s = sub.add_parser("guard-test", help="one look of the guard, step by step (what it sees and why)")
+    s.add_argument("--confirm", action="store_true")
+    s.set_defaults(fn=cmd_guard_test)
 
     s = sub.add_parser("serve", help="web UI + JSON API on this computer only (no root)")
     s.add_argument("--host", default="127.0.0.1",

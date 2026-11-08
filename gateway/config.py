@@ -35,6 +35,8 @@ class Config:
     max_output_tokens: int = 1024
     claude_thinking: bool = False                # Haiku 5.5 thinks by default; off = fast, short, predictable
     claude_effort: str = "low"
+    guide_searches: int = 3                      # web searches per "steps for my device" answer
+    guide_timeout_s: int = 60
 
     # optional natural voice for the assistant's voice mode (the app falls back to the browser voice)
     tts: str = "none"                            # none | openai | elevenlabs
@@ -85,6 +87,8 @@ class Config:
             elevenlabs_model=os.environ.get("NETCHECK_GATEWAY_ELEVENLABS_MODEL", "eleven_multilingual_v2"),
             tts_timeout_s=_int("NETCHECK_GATEWAY_TTS_TIMEOUT", 20),
             tts_daily_limit=_int("NETCHECK_GATEWAY_TTS_DAILY_LIMIT", 500),
+            guide_searches=max(1, _int("NETCHECK_GATEWAY_GUIDE_SEARCHES", 3)),
+            guide_timeout_s=_int("NETCHECK_GATEWAY_GUIDE_TIMEOUT", 60),
             rate_per_min=_int("NETCHECK_GATEWAY_RATE_PER_MIN", 12),
             daily_limit=_int("NETCHECK_GATEWAY_DAILY_LIMIT", 2000),
             concurrency=max(1, _int("NETCHECK_GATEWAY_CONCURRENCY", 2 if backend == "claude" else 1)),

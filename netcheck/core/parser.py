@@ -121,7 +121,9 @@ def _parse_host(el) -> Host | None:
     ip = mac = vendor = None
     for a in el.findall("address"):
         kind = a.get("addrtype")
-        if kind in ("ipv4", "ipv6") and ip is None:
+        if kind == "ipv4" and (ip is None or ":" in ip):      # IPv4 wins over an IPv6 listed first
+            ip = a.get("addr")
+        elif kind == "ipv6" and ip is None:
             ip = a.get("addr")
         elif kind == "mac":
             mac = a.get("addr")

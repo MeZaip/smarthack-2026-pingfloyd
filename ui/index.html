@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#09090b">
   <title>SafeHouse</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="assets/score-ring/score-ring.css">   <!-- the score dial (Orbitron kept locally) -->
 </head>
 <body>
   <!-- Icon set: one stroke style for the whole app (24px grid, 2px round strokes, Lucide/Feather style).
@@ -120,7 +121,7 @@
       </main>
 
       <footer class="foot">
-        <p class="with-ico"><svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg><span data-i18n="footer">Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator.</span></p>
+        <p class="with-ico"><svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg><span data-i18n="footer">Verificările tale rămân pe acest calculator.</span></p>
       </footer>
     </div>
   </div>
@@ -137,6 +138,14 @@
   <!-- Three.js r159 (MIT, ui/vendor/three.LICENSE) is bundled locally: no internet needed, nothing sent anywhere. -->
   <script src="vendor/three.min.js"></script>
   <script src="assets/models/models-bundle.js"></script>   <!-- the 10 device models as base64 .glb (works from file://) -->
+  <!-- models built in code from reference photos (variants: MacBook, iMac, iPhone, Android, Raspberry Pi) -->
+  <script src="assets/models/procedural/kit.js"></script>
+  <script src="assets/models/procedural/computer-macbook.js"></script>
+  <script src="assets/models/procedural/computer-imac.js"></script>
+  <script src="assets/models/procedural/phone-iphone.js"></script>
+  <script src="assets/models/procedural/phone-android.js"></script>
+  <script src="assets/models/procedural/iot-raspberrypi.js"></script>
+  <script src="assets/score-ring/score-ring.js"></script>
   <script src="device3d.js"></script>
   <script src="data.js"></script>
   <script src="safehouse3d.js"></script>

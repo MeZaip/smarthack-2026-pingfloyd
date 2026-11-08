@@ -22,23 +22,23 @@
     ro: {
       skip: "Sari la conținut", close: "Închide", scanFile: "Verificarea afișată",
       navHome: "Acasă", navDevices: "Aparate", navResults: "Rezultate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
-      footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
+      footer: "Verificările tale rămân pe acest calculator. Adresele aparatelor sunt ascunse parțial, pentru intimitatea ta.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
       topoCore: "Casa ta", topoGateway: "Poarta spre internet", topoHint: "Apasă pe un aparat ca să vezi detaliile.",
       topoNet: "Rețea", topoWhy: "Ce înseamnă", closeEsc: "Închide (Esc)", portOpen: "Deschis", portVuln: "Vulnerabil", portSecure: "criptat",
       netTitle: "Rețeaua ta ({n} aparate)", netSub: "{n} aparate au uși deschise. Începe cu cel mai periculos sau apasă pe orice aparat.", netSub1: "Un aparat are uși deschise. Începe cu el sau apasă pe orice aparat.",
-      topoMore: "+{n} mai multe", topoBack: "Toată rețeaua", topoShow: "Filtrează după risc", topoSearch: "Caută IP sau nume", topoResults: "{n} rezultate", topoResult1: "Un rezultat", topoNoResults: "Niciun aparat găsit",
+      topoMore: "+{n} mai multe", fixNow: "Repară acum", moreProbs: "+{n} alte probleme", moreProb1: "+1 altă problemă", devDetails: "Vezi detalii", topoBack: "Toată rețeaua", topoShow: "Filtrează după risc", topoSearch: "Caută IP sau nume", topoResults: "{n} rezultate", topoResult1: "Un rezultat", topoNoResults: "Niciun aparat găsit",
       topoStart: "Începe cu cel mai periculos", topoPrev: "Aparatul anterior", topoNext: "Următorul", topoFound: "Ce am găsit",
       tourStep: "Aparatul {i} din {n}", tourPort: "port {p}", tourFirst: "Primul pas",
       tourEndT: "Ai parcurs tot traseul", tourEndS1: "Un aparat are uși deschise. Reparațiile, pas cu pas:", tourEndS: "{n} aparate au uși deschise. Reparațiile, pas cu pas:",
       stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
       stScanT: "Inspectez casa…", stScanS: "Verific fiecare aparat și fiecare ușă. Durează câteva secunde.",
       stSafeT: "Casa este sigură", stSafeS: "Toate ușile sunt închise. Nu ai nimic de reparat.",
-      stVulnT: "Atenție: O ușă este deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
+      stVulnT: "Atenție: o ușă e deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
       stErrT: "Nu am putut citi verificarea", stErrS: "Fișierul verificării e stricat. Alege altă verificare din lista de sus.",
       houseLabel: "Casă 3D într-o grădină. Când o verificăm, o lumină trece peste ea, iar la final ferestrele se aprind.", errorWord: "EROARE",
-      devicesFound: "Aparate găsite ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "EN", whatToDo: "Ce pot face",
+      devicesFound: "Aparate găsite ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "EN", whatToDo: "Ce poți face",
       doorsOpen: "Uși lăsate deschise ({n})", doorsSub: "Fiecare card spune ce s-a întâmplat și ce faci, pas cu pas. Cel mai periculos e primul.",
       doorsNone: "Nicio ușă lăsată deschisă. Toate aparatele tale sunt în siguranță.",
       devicesSub2: "Toate aparatele conectate la rețeaua ta. Apasă pe un aparat ca să vezi ce poți face.",
@@ -62,12 +62,12 @@
       mostDangerous: "Aparatul cu cea mai mare problemă", thisDevice: "Aparatul",
       doThis: "Ce faci",
       btnDone: "Am făcut asta", btnSkip: "Arată-mi altceva",
-      progress: "Lucrul {i} din {n}",
+      progress: "Reparația {i} din {n}",
       doneNote: "Bravo! Ai rezolvat: {title}. Verifică din nou rețeaua mai târziu ca să vezi scorul nou.",
       allDone: "Ai trecut prin toate. Verifică din nou rețeaua ca să vezi cât de sigură e acum.",
       restart: "Ia-o de la capăt",
       noProblems: "Nu am găsit nimic de reparat. Felicitări! Verifică din nou din când în când.",
-      helpNote: "Ești copil? Arată această pagină unui părinte înainte să schimbi ceva. Nu te descurci? Arată-o cuiva de încredere: un nepot, un prieten sau firma care ți-a pus internetul.",
+      helpNote: "Dacă ești copil, arată pagina unui părinte înainte să schimbi ceva. Dacă ți se pare greu, cere ajutorul cuiva de încredere.",
       yourDevices: "Aparatele tale", seeAll: "Vezi toate",
       glossaryTitle: "Cuvinte utile",
       devicesTitle: "Aparate și reparații", devicesSub: "Toate aparatele din rețeaua ta, cel mai periculos primul. Apasă pe un aparat ca să vezi ce problemă are și cum o repari, pas cu pas.",
@@ -81,11 +81,11 @@
       sumHigh: "Risc înalt", sumMedium: "Risc mediu", sumLow: "Risc mic", sumInfo: "Doar de știut",
       cardHint: "Apasă Enter ca să vezi detaliile tehnice.",
       codeLabel: "Cod",
-      techMore: "Detalii pentru cine se pricepe (sau pentru firma IT)",
-      techTitle: "Numele tehnic", techSteps: "Pași detaliați", techWhere: "Unde (adresă și ușă)",
+      techMore: "Detalii avansate",
+      techTitle: "Numele tehnic", techSteps: "Pași detaliați", techWhere: "Unde",
       evidence: "Ce a văzut verificarea", refs: "Standarde de securitate",
-      ip: "Adresă (IP)", mac: "Adresă fizică (MAC, ascunsă pe jumătate)", vendor: "Producător", hostname: "Nume în rețea",
-      ports: "Uși deschise (porturi)", none: "niciuna", unknown: "nu știm",
+      ip: "Adresă IP", mac: "Adresă MAC", vendor: "Producător", hostname: "Nume în rețea",
+      ports: "Porturi deschise", none: "niciunul", unknown: "necunoscut",
       errorTitle: "Nu am putut citi această verificare",
       errorBody: "Fișierul verificării este stricat sau incomplet, așa că nu arătăm nimic pentru el. Alege altă verificare din lista de sus sau fă una nouă.",
       errorDetail: "Detaliu tehnic",
@@ -95,12 +95,13 @@
       worse: "Atenție: scorul a scăzut. Uită-te la lucrurile noi de reparat.", same: "Scorul a rămas la fel.",
       events: "Ce s-a întâmplat",
       evFixed: "Ai reparat: {title}", evNew: "Lucru nou de reparat: {title}",
-      evSecured: "Setările se deschid acum pe drumul sigur", evSecuredSub: "Din ușa {from} în ușa sigură {to}",
+      evSecured: "Pagina de setări folosește acum legătura sigură", evSecuredSub: "Ușa {from} a fost înlocuită cu ușa sigură {to}",
       evNewDev: "Aparat nou în rețea", evGoneDev: "Un aparat nu mai e în rețea",
       evQuiet: "Niciun aparat nou și nicio ușă nouă periculoasă",
       evFirst: "Verificarea de dinainte: scor {s}, {f} lucruri de reparat",
       chartTitle: "Scorul la fiecare verificare", chartLabel: "Grafic cu scorul la fiecare verificare salvată",
       colScan: "Verificare", colScore: "Scor", colFindings: "De reparat",
+      cyLog: "Jurnal de sistem", cyDevices: "Aparate", cyCompare: "Scorul casei", cyWhen: "Verificarea",
       deleteTitle: "Istoricul tău", deleteSub: "Poți șterge oricând tot ce am salvat pe acest calculator.",
       deleteBtn: "Șterge tot ce am salvat",
       deleteConfirm: "Sigur ștergi toate verificările salvate pe acest calculator? Nu le mai poți aduce înapoi.",
@@ -126,9 +127,9 @@
       aClean: "Verificarea nu arată nimic de reparat. Totul e bine!",
       // live app (local agent)
       noScan: "Încă nu ai verificat casa", needScan: "Încă nu avem nicio verificare. Verifică acum rețeaua la care ești conectat sau încarcă o verificare.", goHome: "Mergi la Acasă", scanNow: "Verifică rețeaua acum",
-      cfTitle: "Verificăm rețeaua ta?", cfNet: "Ești conectat la:", cfAsk: "Este rețeaua ta (de acasă sau a echipei tale)? Verificăm doar rețeaua la care ești conectat acum, nimic altceva.",
+      cfTitle: "Verificăm rețeaua ta?", cfNet: "Ești conectat la:", cfAsk: "Este rețeaua ta, de acasă sau a echipei? Verificăm doar rețeaua la care ești conectat acum.",
       cfYes: "Da, e rețeaua mea", cfNo: "Nu, renunț", cfPrep: "Mă pregătesc…",
-      cfPerm: "Calculatorul te va întreba dacă permiți aplicației să facă modificări. Apasă „Da”: doar programul de verificare (Nmap) primește permisiunea, doar pentru această verificare.",
+      cfPerm: "Calculatorul îți va cere permisiunea. Apasă „Da”: o primește doar programul de verificare, Nmap, și doar pentru această verificare.",
       scanElapsed: "A trecut {t}. De obicei durează 1–3 minute.",
       probT: "Verificarea nu s-a putut face", tryAgain: "Încearcă din nou",
       nmapT: "Lipsește programul de verificare", nmapLink: "Deschide pagina de descărcare Nmap",
@@ -166,44 +167,57 @@
       vErrOther: "Nu am putut folosi microfonul. Poți scrie întrebarea.",
       vNoListen: "Acest browser nu înțelege vorbirea. Folosește Chrome, Edge sau Safari, sau scrie întrebarea.",
       mode_ai: "Răspuns scris de inteligența artificială, doar din ce a văzut verificarea.",
-      mode_offline: "Răspuns din textele noastre (asistentul online nu e disponibil acum).",
+      mode_offline: "Asistentul online nu e disponibil acum, așa că îți răspund din textele noastre.",
       mode_rejected: "Răspunsul inteligenței artificiale nu a trecut verificarea, așa că îți arăt textele noastre.",
       closeApp: "Închide aplicația", closedApp: "Aplicația s-a închis. Poți închide această fereastră.",
-      thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.",
-      askSubLive: "Îți răspund scurt, doar din verificarea afișată sus. Ca să-ți răspund, trimit întrebarea și un rezumat al verificării, iar noi nu păstrăm nimic.",
+      thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.", oldApp: "Aplicația care rulează e mai veche decât această pagină. Închide SafeHouse și pornește-l din nou.",
+      askSubLive: "Îți răspund scurt, doar pe baza verificării afișate sus. Trimit întrebarea și un rezumat al verificării, fără să păstrăm nimic.",
       resTitle: "Toate verificările", resSub: "Fiecare verificare salvată pe acest calculator, cu scorul și cât de sigură e rețeaua. Apasă pe un rând ca să vezi tot ce a găsit.",
       colNo: "Nr.", colWhen: "Verificare", colFile: "Fișier", colRating: "Siguranță", colDevices: "Aparate", colProblems: "Probleme",
-      resFindings: "Ce a găsit verificarea", colIp: "Adresă (IP)", colPort: "Ușă (port)", colCode: "Cod", colSeverity: "Gravitate",
-      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă",
-      resNoDetail: "Detaliile acestei verificări vechi nu mai sunt afișate aici; exportă CSV-ul ca să le vezi.",
-      resDelete: "Șterge toate datele", resDeleteAsk: "Ștergi toate verificările și rezultatele salvate pe acest calculator? Nu le mai poți aduce înapoi. Fișierele CSV exportate deja rămân.",
-      exportBtn: "Exportă CSV", exportT: "Exportă rezultatele (CSV)",
+      resFindings: "Ce a găsit verificarea", colIp: "Adresă IP", colPort: "Port", colCode: "Cod", colSeverity: "Gravitate",
+      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă", techReport: "Raport tehnic", guideBtn: "Pași exacți pentru {v}", guideWait: "Caut pe site-ul {v} pașii pentru aparatul tău…", guideT: "Pași pentru {v}", guideNote: "Găsiți de asistent pe site-ul oficial {v}. Meniurile pot diferi puțin de la un model la altul.", guideSrc: "Sursa", guideNone: "Asistentul nu a dat surse, așa că urmează pașii cu grijă.", techReporting: "Pregătesc raportul tehnic…", techReportDoneT: "Gata, raportul tehnic e descărcat", techReportDone: "Un fișier text cu toate aparatele, porturile, versiunile și problemele găsite, pe care îl poți trimite unui specialist IT.", techReportWhere: "L-am salvat și aici:",
+      resNoDetail: "Detaliile acestei verificări vechi nu mai apar aici. Exportă CSV-ul ca să le vezi.",
+      resDelete: "Șterge toate datele", resDeleteAsk: "Ștergi toate verificările și rezultatele salvate pe acest calculator? Nu le mai poți aduce înapoi. Fișierele CSV și rapoartele tehnice exportate deja rămân.",
+      exportBtn: "Exportă CSV", exportT: "Exportă rezultatele în CSV",
       exportS: "Fac cele două fișiere standard, findings.csv și scores.csv, pentru un folder întreg de verificări Nmap (.xml). Un fișier care nu poate fi citit primește ERROR.",
       exportFolder: "Alege un folder", exportFiles: "Alege fișiere", exportSaved: "Exportă verificările salvate ({n})",
       exporting: "Pregătesc fișierele…", exportDoneT: "Gata, fișierele CSV sunt descărcate",
       exportDone: "{f} fișiere analizate, {e} cu ERROR, {k} probleme găsite.", exportWhere: "Le-am salvat și aici:",
       exportSkipped: "Am sărit {n} fișiere care nu sunt .xml.", exportNone: "Nu am găsit fișiere .xml în ce ai ales.",
+      guardT: "Paznicul casei", guardOffS: "Te anunț imediat ce se conectează la Wi-Fi-ul tău un aparat pe care nu-l cunosc.",
+      guardStart: "Pornește paznicul", guardStop: "Oprește paznicul",
+      guardLearning: "Caut aparatele din rețea…", guardWaiting: "Aștept să se termine verificarea casei…", guardMoved: "M-am oprit pentru că ai schimbat rețeaua. Pornește-mă din nou când ești pe rețeaua ta.", gdNet: "Rețeaua păzită", gdTimes: "Ultima trecere", gdKnown: "cunoscute", gOff: "oprit", guardOffShort: "Te anunț când apare un aparat nou.", gStart: "Pornește", gsMoved: "Oprit: ai schimbat rețeaua.", gsWaiting: "Aștept verificarea casei…", gsLearning: "Caut aparatele…", gsPaused: "Pauză: nu ești pe nicio rețea.", gsError: "Nu văd rețeaua acum.", gsEmpty: "Nu văd alte aparate.", gsWatching: "{n} aparate · {ago}", gDetails: "Detalii", gNothing: "Încă n-am văzut nimic nou. Te anunț imediat ce apare ceva.", gForget: "Uită toate aparatele", gDevices: "Aparatele din rețeaua ta ({n})", gDevicesS: "„Uită” îl scoate din listă: dacă e încă conectat, te anunț din nou. Ca să scoți un străin din rețea, schimbă parola Wi-Fi.", gOnline: "acum în rețea", gSeen: "văzut {ago}", gForgetOne: "Uită", gdNow: "acum", gdHow: "Cum caut aparatele", gdSeen: "Aparate văzute", gdErr: "Mesaj de la Nmap",
+      guardEmpty: "Nu văd niciun alt aparat în rețea. Dacă știi că sunt aparate conectate, acest calculator nu poate citi lista lor.", guardWatching: "Păzesc rețeaua · {n} aparate cunoscute · m-am uitat {ago}",
+      guardWatching0: "Păzesc rețeaua · m-am uitat {ago}", guardPaused: "Pauză: nu ești conectat la nicio rețea acum.",
+      guardError: "Paznicul nu poate vedea rețeaua acum. Mai încerc.", guardAskT: "Pornim paznicul?",
+      guardAsk: "La fiecare {s} secunde mă uit cine e conectat la rețeaua ta. Doar la rețeaua la care ești conectat acum și fără drepturi de administrator.",
+      guardAsk2: "Este rețeaua ta?", guardYes: "Da, păzește-o",
+      agoNow: "chiar acum", agoS: "acum {n} secunde", agoM: "acum {n} minute", agoM1: "acum un minut",
+      gNewDevT: "Aparat nou în Wi-Fi-ul tău", gPrivate: "Telefon sau laptop (adresă privată)", gUnknownDev: "Aparat necunoscut",
+      gKnow: "Îl cunoști?", gMine: "E al meu", gStranger: "Nu-l cunosc",
+      gWasMine: "e al tău", gWasStranger: "nu-l cunoști", gRecent: "Ce a văzut paznicul",
+      gStrangerT: "Un aparat pe care nu-l cunoști", gStrangerS: "S-ar putea să fie al unui vecin sau al cuiva care îți folosește Wi-Fi-ul. Iată ce faci:",
     },
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
       navHome: "Home", navDevices: "Devices", navResults: "Results", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
-      footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
+      footer: "Your checks stay on this computer. Device addresses are partly hidden, for your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
-      inspect: "Inspect house", inspectAgain: "Inspect again",
+      inspect: "Inspect the house", inspectAgain: "Inspect again",
       topoCore: "Your home", topoGateway: "Gateway to the internet", topoHint: "Tap a device to see its details.",
       topoNet: "Network", topoWhy: "What it means", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
       netTitle: "Your network ({n} devices)", netSub: "{n} devices have open doors. Start with the most dangerous one or tap any device.", netSub1: "One device has open doors. Start with it or tap any device.",
-      topoMore: "+{n} more", topoBack: "Whole network", topoShow: "Filter by risk", topoSearch: "Search IP or name", topoResults: "{n} results", topoResult1: "One result", topoNoResults: "No device found",
+      topoMore: "+{n} more", fixNow: "Fix it now", moreProbs: "+{n} more problems", moreProb1: "+1 more problem", devDetails: "See details", topoBack: "Whole network", topoShow: "Filter by risk", topoSearch: "Search IP or name", topoResults: "{n} results", topoResult1: "One result", topoNoResults: "No device found",
       topoStart: "Start with the most dangerous", topoPrev: "Previous device", topoNext: "Next", topoFound: "What we found",
       tourStep: "Device {i} of {n}", tourPort: "port {p}", tourFirst: "First step",
       tourEndT: "That's the whole path", tourEndS1: "One device has open doors. The fixes, step by step:", tourEndS: "{n} devices have open doors. The fixes, step by step:",
-      stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
+      stIdleT: "Your digital home", stIdleS: "Press “Inspect the house” so we can check every door.",
       stScanT: "Inspecting the house…", stScanS: "Checking every device and every door. It takes a few seconds.",
       stSafeT: "The house is safe", stSafeS: "All doors are closed. You have nothing to fix.",
-      stVulnT: "Warning: A door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
+      stVulnT: "Warning: a door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
       stErrT: "We could not read the check", stErrS: "The check file is broken. Pick another check from the list at the top.",
       houseLabel: "3D house in a garden. When we check it, a light passes over it and at the end the windows light up.", errorWord: "ERROR",
-      devicesFound: "Devices found ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "RO", whatToDo: "What I can do",
+      devicesFound: "Devices found ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "RO", whatToDo: "What you can do",
       doorsOpen: "Doors left open ({n})", doorsSub: "Each card says what is wrong and what to do, step by step. The most dangerous one comes first.",
       doorsNone: "No door left open. All your devices are safe.",
       devicesSub2: "All the devices connected to your network. Tap a device to see what you can do.",
@@ -227,12 +241,12 @@
       mostDangerous: "The device with the biggest problem", thisDevice: "Device",
       doThis: "What to do",
       btnDone: "I did this", btnSkip: "Show me something else",
-      progress: "Thing {i} of {n}",
+      progress: "Fix {i} of {n}",
       doneNote: "Well done! You fixed: {title}. Check the network again later to see the new score.",
       allDone: "You went through everything. Check the network again to see how safe it is now.",
       restart: "Start again",
       noProblems: "We found nothing to fix. Congratulations! Check again from time to time.",
-      helpNote: "Are you a child? Show this page to a parent before you change anything. Finding it hard? Show it to someone you trust: a grandchild, a friend or the company that set up your internet.",
+      helpNote: "If you are a child, show this page to a parent before you change anything. If it feels hard, ask someone you trust for help.",
       yourDevices: "Your devices", seeAll: "See all",
       glossaryTitle: "Useful words",
       devicesTitle: "Devices and fixes", devicesSub: "Every device on your network, the most dangerous first. Tap a device to see its problem and how to fix it, step by step.",
@@ -246,11 +260,11 @@
       sumHigh: "High risk", sumMedium: "Medium risk", sumLow: "Low risk", sumInfo: "Just so you know",
       cardHint: "Press Enter to see the technical details.",
       codeLabel: "Code",
-      techMore: "Details for people who know computers (or for the IT company)",
-      techTitle: "Technical name", techSteps: "Detailed steps", techWhere: "Where (address and door)",
+      techMore: "Advanced details",
+      techTitle: "Technical name", techSteps: "Detailed steps", techWhere: "Where",
       evidence: "What the check saw", refs: "Security standards",
-      ip: "Address (IP)", mac: "Physical address (MAC, half hidden)", vendor: "Maker", hostname: "Network name",
-      ports: "Open doors (ports)", none: "none", unknown: "we don't know",
+      ip: "IP address", mac: "MAC address", vendor: "Maker", hostname: "Network name",
+      ports: "Open ports", none: "none", unknown: "unknown",
       errorTitle: "We could not read this check",
       errorBody: "The check file is broken or incomplete, so we show nothing for it. Pick another check from the list at the top or make a new one.",
       errorDetail: "Technical detail",
@@ -260,12 +274,13 @@
       worse: "Careful: the score went down. Look at the new things to fix.", same: "The score stayed the same.",
       events: "What happened",
       evFixed: "You fixed: {title}", evNew: "New thing to fix: {title}",
-      evSecured: "The settings now open on the safe road", evSecuredSub: "From door {from} to safe door {to}",
+      evSecured: "The settings page now uses the secure connection", evSecuredSub: "Door {from} was replaced by the secure door {to}",
       evNewDev: "New device on the network", evGoneDev: "A device is no longer on the network",
       evQuiet: "No new device and no dangerous new door",
       evFirst: "The check before: score {s}, {f} things to fix",
       chartTitle: "The score at each check", chartLabel: "Chart of the score at each saved check",
       colScan: "Check", colScore: "Score", colFindings: "To fix",
+      cyLog: "System log", cyDevices: "Devices", cyCompare: "Home score", cyWhen: "Check",
       deleteTitle: "Your history", deleteSub: "You can delete everything we saved on this computer at any time.",
       deleteBtn: "Delete everything saved",
       deleteConfirm: "Delete all checks saved on this computer? You cannot get them back.",
@@ -291,15 +306,15 @@
       aClean: "The check shows nothing to fix. All good!",
       // live app (local agent)
       noScan: "You have not checked the house yet", needScan: "There is no check yet. Check the network you are connected to now, or upload a check.", goHome: "Go to Home", scanNow: "Check my network now",
-      cfTitle: "Shall we check your network?", cfNet: "You are connected to:", cfAsk: "Is this your network (at home or your team's)? We only check the network you are connected to right now, nothing else.",
+      cfTitle: "Shall we check your network?", cfNet: "You are connected to:", cfAsk: "Is this your network, at home or your team's? We only check the network you are connected to right now.",
       cfYes: "Yes, it is my network", cfNo: "No, cancel", cfPrep: "Getting ready…",
-      cfPerm: "The computer will ask if you allow the app to make changes. Press “Yes”: only the checking program (Nmap) gets permission, only for this check.",
+      cfPerm: "The computer will ask for permission. Press “Yes”: only the checking program, Nmap, gets it, and only for this check.",
       scanElapsed: "{t} so far. It usually takes 1–3 minutes.",
       probT: "The check could not be done", tryAgain: "Try again",
       nmapT: "The checking program is missing", nmapLink: "Open the Nmap download page",
       upload: "Upload a check", uploading: "Uploading…", uploadBad: "The file cannot be read: it is broken or not an Nmap check.",
       verifyBtn: "I fixed it, check", verifying: "Checking…",
-      histNeedTwo: "We have only one check. Fix one thing, then press “Inspect house” again so we can see if the network got safer.",
+      histNeedTwo: "We have only one check. Fix one thing, then press “Inspect the house” again to see if the network got safer.",
       thinking: "Thinking…", newChat: "New conversation",
       vListen: "Listen", vStop: "Stop", vListenAria: "Read the answer aloud", vStopAria: "Stop reading",
       vgHi: "Hi! I will help you make your home safer.",
@@ -331,23 +346,36 @@
       vErrOther: "I could not use the microphone. You can type the question.",
       vNoListen: "This browser does not understand speech. Use Chrome, Edge or Safari, or type the question.",
       mode_ai: "Answer written by artificial intelligence, only from what the check saw.",
-      mode_offline: "Answer from our own texts (the online assistant is not available right now).",
+      mode_offline: "The online assistant is not available right now, so I answer from our own texts.",
       mode_rejected: "The AI answer did not pass the check, so I show you our own texts.",
       closeApp: "Close the app", closedApp: "The app is closed. You can close this window.",
-      thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.",
-      askSubLive: "I answer briefly, only from the check shown at the top. To answer, I send your question and a summary of the check, and we keep nothing.",
+      thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.", oldApp: "The running app is older than this page. Close SafeHouse and start it again.",
+      askSubLive: "I answer briefly, only from the check shown at the top. I send your question and a summary of the check, and we keep nothing.",
       resTitle: "All checks", resSub: "Every check saved on this computer, with its score and how safe the network is. Tap a row to see everything it found.",
       colNo: "No.", colWhen: "Check", colFile: "File", colRating: "Safety", colDevices: "Devices", colProblems: "Problems",
-      resFindings: "What the check found", colIp: "Address (IP)", colPort: "Door (port)", colCode: "Code", colSeverity: "Severity",
-      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home",
-      resNoDetail: "The details of this older check are not shown here; export the CSV to see them.",
-      resDelete: "Delete all data", resDeleteAsk: "Delete all checks and results saved on this computer? You cannot get them back. CSV files you already exported stay.",
-      exportBtn: "Export CSV", exportT: "Export the results (CSV)",
+      resFindings: "What the check found", colIp: "IP address", colPort: "Port", colCode: "Code", colSeverity: "Severity",
+      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home", techReport: "Technical report", guideBtn: "Exact steps for {v}", guideWait: "Looking on the {v} website for the steps for your device…", guideT: "Steps for {v}", guideNote: "Found by the assistant on the official {v} website. Menus can differ a little from model to model.", guideSrc: "Source", guideNone: "The assistant gave no sources, so follow the steps carefully.", techReporting: "Preparing the technical report…", techReportDoneT: "Done, the technical report is downloaded", techReportDone: "A text file with every device, port, version and problem found, ready to send to an IT specialist.", techReportWhere: "I also saved it here:",
+      resNoDetail: "The details of this older check are not shown here. Export the CSV to see them.",
+      resDelete: "Delete all data", resDeleteAsk: "Delete all checks and results saved on this computer? You cannot get them back. CSV files and technical reports you already exported stay.",
+      exportBtn: "Export CSV", exportT: "Export the results as CSV",
       exportS: "I make the two standard files, findings.csv and scores.csv, for a whole folder of Nmap checks (.xml). A file that cannot be read gets ERROR.",
       exportFolder: "Choose a folder", exportFiles: "Choose files", exportSaved: "Export the saved checks ({n})",
       exporting: "Preparing the files…", exportDoneT: "Done, the CSV files are downloaded",
       exportDone: "{f} files analysed, {e} with ERROR, {k} problems found.", exportWhere: "I also saved them here:",
       exportSkipped: "I skipped {n} files that are not .xml.", exportNone: "I found no .xml files in what you chose.",
+      guardT: "House guard", guardOffS: "I tell you as soon as a device I do not know joins your Wi-Fi.",
+      guardStart: "Turn on the guard", guardStop: "Turn off the guard",
+      guardLearning: "Looking for the devices on the network…", guardWaiting: "Waiting for the house check to finish…", guardMoved: "I stopped because you changed networks. Turn me on again when you are on your own network.", gdNet: "Guarded network", gdTimes: "Last look", gdKnown: "known", gOff: "off", guardOffShort: "I tell you when a new device appears.", gStart: "Turn on", gsMoved: "Off: you changed networks.", gsWaiting: "Waiting for the house check…", gsLearning: "Looking for devices…", gsPaused: "Paused: no network.", gsError: "Cannot see the network now.", gsEmpty: "I see no other devices.", gsWatching: "{n} devices · {ago}", gDetails: "Details", gNothing: "Nothing new so far. I will tell you as soon as something appears.", gForget: "Forget all devices", gDevices: "The devices on your network ({n})", gDevicesS: "“Forget” removes it from the list: if it is still connected, I will tell you again. To get a stranger off the network, change the Wi-Fi password.", gOnline: "on the network now", gSeen: "seen {ago}", gForgetOne: "Forget", gdNow: "now", gdHow: "How I look for devices", gdSeen: "Devices seen", gdErr: "Message from Nmap",
+      guardEmpty: "I see no other device on the network. If you know devices are connected, this computer cannot read their list.", guardWatching: "Guarding the network · {n} known devices · looked {ago}",
+      guardWatching0: "Guarding the network · looked {ago}", guardPaused: "Paused: you are not connected to any network right now.",
+      guardError: "The guard cannot see the network right now. I keep trying.", guardAskT: "Turn on the guard?",
+      guardAsk: "Every {s} seconds I look at who is connected to your network. Only the network you are connected to right now, and without administrator rights.",
+      guardAsk2: "Is this your network?", guardYes: "Yes, guard it",
+      agoNow: "just now", agoS: "{n} seconds ago", agoM: "{n} minutes ago", agoM1: "a minute ago",
+      gNewDevT: "New device on your Wi-Fi", gPrivate: "Phone or laptop (private address)", gUnknownDev: "Unknown device",
+      gKnow: "Do you know it?", gMine: "It's mine", gStranger: "I don't know it",
+      gWasMine: "yours", gWasStranger: "you don't know it", gRecent: "What the guard saw",
+      gStrangerT: "A device you don't know", gStrangerS: "It might belong to a neighbour or someone using your Wi-Fi. Here is what to do:",
     },
   };
 
@@ -386,6 +414,7 @@
     voice: { mode: false, phase: "idle", you: "", bot: "", note: null, local: {}, natural: null },   // voice mode (ui/voice.js)
     resSel: null,        // Results tab: the check whose findings are shown
     verify: {},          // "ip|port|code" -> {status, message}
+    guides: {},          // "scan|ip|code" -> {status, answer?, sources?, message?}
     justDeleted: false,
   };
 
@@ -457,10 +486,26 @@
   }
   // Risk colour of the 3D model's LED and rim light: red high, amber medium, blue low, green safe.
   const MODEL_TONE = { red: "red", high: "red", amber: "amber", medium: "amber", low: "blue", info: "green", green: "green" };
-  function devIco(type, tone, big) {
+  // Which 3D model a device gets: the model of its type, or a variant when its name or maker says more (a MacBook,
+  // an iMac, an iPhone, a Raspberry Pi; ui/assets/models/procedural/). Every phone that is not an iPhone gets the
+  // standard Android model. A variant without a model falls back to its type in device3d.js.
+  function modelOf(d) {
+    if (!d) return "unknown";
+    const type = DEVICE_ICON[d.type] ? d.type : "unknown";
+    const name = String(d.hostname || "").toLowerCase(), vendor = String(d.vendor || "").toLowerCase();
+    const apple = vendor.includes("apple");
+    if (type === "computer") {
+      if (name.includes("imac")) return "computer-imac";
+      if (apple || /macbook|\bmbp\b|\bmac\b/.test(name)) return "computer-macbook";
+    }
+    if (type === "phone") return apple || /iphone|ipad/.test(name) ? "phone-iphone" : "phone-android";
+    if (type === "iot" && vendor.includes("raspberry")) return "iot-raspberrypi";
+    return type;
+  }
+  function devIco(type, tone, big, d) {
     const t = DEVICE_ICON[type] ? type : "unknown";
     return h("div", { class: "dev-ico dev3d" + (big ? " lg" : "") + (tone ? " " + tone : ""), "aria-hidden": "true",
-      "data-type": t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
+      "data-type": t, "data-model": d ? modelOf(d) : t, "data-tone": MODEL_TONE[tone] || "green" }, icon(DEVICE_ICON[t]));
   }
   function whoLine(code) {
     const w = D.who[whoOf(code)];
@@ -503,7 +548,9 @@
     try { data = await r.json(); } catch (e) { /* not JSON */ }
     return { ok: r.ok, status: r.status, data };
   }
-  const errText = (res) => (res.data && res.data.error && res.data.error.message) || t("connErr");
+  // a 404/405 without our error body: the page is newer than the running app (it was not restarted after an update)
+  const errText = (res) => (res.data && res.data.error && res.data.error.message)
+    || (res.status === 404 || res.status === 405 ? t("oldApp") : t("connErr"));
   // Fresh data after a check, an upload or a delete; keeps the scan on screen when it still exists.
   async function reloadData(selectId) {
     const keep = selectId != null ? selectId : scan().scan_id;
@@ -631,20 +678,20 @@
   function refreshVerify(key, s, f) {
     document.querySelectorAll(`[data-verify="${CSS.escape(key)}"]`).forEach((el) => {
       const fresh = verifyRow(s, f);
-      if (fresh) el.replaceWith(fresh);
+      if (fresh) swapKeepFocus(el, fresh);
     });
+  }
+  // replace a block that may hold the keyboard focus: the focus moves to the new block (its button, else the block)
+  function swapKeepFocus(el, fresh) {
+    const had = el.contains(document.activeElement);
+    el.replaceWith(fresh);
+    if (!had) return;
+    const target = fresh.querySelector("button:not([disabled])") || fresh;
+    if (target === fresh) fresh.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
   }
 
   // Score ring (Fing) + labelled traffic light.
-  function ring(score, small) {
-    const b = bandOf(score), r = 52, c = 2 * Math.PI * r;
-    const s = svg("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" });
-    s.append(svg("circle", { class: "track", cx: 60, cy: 60, r, fill: "none", "stroke-width": 12 }));
-    s.append(svg("circle", { class: "val-" + b, cx: 60, cy: 60, r, fill: "none", "stroke-width": 12, "stroke-linecap": "round",
-      "stroke-dasharray": `${(score / 100) * c} ${c}` }));
-    return h("div", { class: "ring b-" + b + (small === "lg" ? " lg" : small ? " small" : ""), role: "img", "aria-label": `${score} ${t("scoreOf")}, ${t("band_" + b)}` },
-      s, h("div", { class: "ring-center", "aria-hidden": "true" }, h("div", { class: "ring-num", text: String(score) }), h("div", { class: "ring-of", text: t("scoreOf") })));
-  }
   function traffic(score) {
     const b = bandOf(score);
     const lamp = (tone, key) => h("span", { class: "lamp " + tone + (b === tone ? " on" : "") },
@@ -782,7 +829,7 @@
     const res = await api("DELETE", "/api/v1/history");
     state.confirmDelete = false;
     if (!res.ok) { problemSheet(t("probT"), errText(res)); return; }
-    state.broken = []; state.chat = []; state.verify = {}; state.justDeleted = true;
+    state.broken = []; state.chat = []; state.verify = {}; state.guides = {}; state.justDeleted = true;
     await reloadData(-1);
     render();
   }
@@ -823,12 +870,15 @@
     root.append(pageHead(t("hello"), t("helloSub")));
 
     // right column: score, status pills and the call to action, centred in one card
-    const pendingRing = h("div", { class: "ring b-none lg", "aria-hidden": "true" },
-      (() => { const g = svg("svg", { viewBox: "0 0 120 120" }); g.append(svg("circle", { class: "track", cx: 60, cy: 60, r: 52, fill: "none", "stroke-width": 12 })); return g; })(),
-      h("div", { class: "ring-center" }, h("div", { class: "ring-num", text: "–" }), h("div", { class: "ring-of", text: t("scoreOf") })));
+    // the score as a dial (ui/assets/score-ring/): segmented track, glowing line and end cap, counting up from 0 the
+    // first time a scan is shown; before the house is inspected the same dial, empty
+    const scoreDial = () => window.ScoreRing.create(s.score, { of: t("scoreOf"), key: s.file,
+      aria: `${s.score} ${t("scoreOf")}, ${t("band_" + bandOf(s.score))}` });
+    const pendingRing = window.ScoreRing.pending(t("scoreOf"));
+    pendingRing.setAttribute("aria-hidden", "true");
     const scoreCard = h("div", { class: "score-card" },
       h("p", { class: "eyebrow muted", text: t("scoreTitle") }),
-      done && !s.error ? ring(s.score, "lg") : pendingRing,
+      done && !s.error ? scoreDial() : pendingRing,
       done && !s.error ? traffic(s.score) : null,
       h("p", { class: "lead sc-lead", text: state.scanning && state.job ? t("scanElapsed", { t: mmss(state.job.elapsed || 0) })
         : !done || s.error ? (s.error && done ? t("stErrS") : t("scorePending"))
@@ -837,6 +887,7 @@
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-cta inspect-btn", onclick: inspect }, icon(done ? "refresh" : "search"), done ? t("inspectAgain") : t("inspect")),
         done && toFix ? h("button", { type: "button", class: "btn", onclick: () => showFixes() }, icon("shield"), t("seeFixes")) : null),
+      LIVE ? guardRow() : null,
       privacyRow(),
       // screen-reader status (the glass badge over the house is the visible one)
       h("div", { class: "house-status sr", role: "status", "aria-live": "polite" },
@@ -914,7 +965,7 @@
           "aria-label": `${vendor || deviceLabel(d.type)}, ${deviceLabel(d.type)}, ${d.ip}. ${sevLabel(sev)}`, "aria-pressed": "false" },
         h("span", { class: "topo-orb" }, dot ? icon(ico)
           : h("span", { class: "dev3d topo-model", "aria-hidden": "true", "data-type": DEVICE_ICON[d.type] ? d.type : "unknown",
-              "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
+              "data-model": modelOf(d), "data-tone": MODEL_TONE[sev] || "green", "data-float": "" }, icon(ico))),
         h("span", { class: "topo-label" }, h("strong", { text: vendor || deviceLabel(d.type) }),
           h("span", { text: (core ? t("topoGateway") : sevLabel(sev)) + meSuffix(d) })));
       b.addEventListener("click", () => select(it));
@@ -1150,16 +1201,6 @@
       if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
     }
 
-    function portsOf(d, probs) {
-      const vuln = new Map(probs.filter((f) => f.port != null).map((f) => [f.port + "/" + f.protocol, f]));
-      return d.open_ports.map((p) => {
-        const f = vuln.get(p.port + "/" + p.protocol);
-        return h("li", { class: f ? "sev-" + f.severity : "" },
-          h("span", { class: "topo-port", text: `${p.port}/${p.protocol}` }),
-          h("span", { class: "topo-svc", text: (p.service || "?").toUpperCase() + (p.tls ? " · " + t("portSecure") : "") }),
-          h("span", { class: "topo-state" }, icon(f ? RISK[f.severity].icon : p.tls ? "lock" : "door"), f ? t("portVuln") : t("portOpen")));
-      });
-    }
     function navRow(it) {
       const ti = trail.indexOf(it);
       if (!trail.length) return null;
@@ -1180,28 +1221,27 @@
       selected = { it, btn };
       btn.setAttribute("aria-pressed", "true");
       const d = it.d, probs = it.probs, worst = probs[0], vendor = shortVendor(d.vendor), sev = it.sev;
-      const ports = portsOf(d, probs), ti = trail.indexOf(it);
-      const box = (title, i, ...kids) => h("section", { class: "topo-box grunge", style: `--i:${i}` }, h("p", { class: "topo-k", text: title }), kids);
+      // kept short on purpose: who it is, how bad, what we found (titles only) and one clear button to fix it.
+      // The technical part (IP, MAC, ports) and every step live in the device sheet behind the button.
+      const SHOW = 3, more = probs.length - SHOW;
+      const name = (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d);
       panel.className = `topo-panel grunge sev-${sev}`;
       panel.replaceChildren(...[                // filter: replaceChildren() would print a skipped part as "null"
-        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
-          h("div", { class: "grow" }, h("h4", { text: (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
-          h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
-            h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
+        h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
+          h("div", { class: "grow" }, h("h4", { text: name }),
+            h("div", { class: "topo-risk" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")))),
+          h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x"))),
+        h("p", { class: "topo-why", style: "--i:1", text: worst ? simple(worst.code).explain : t("devOkExplain") }),
+        // every problem: icon + title, so the colour is never the only sign of how bad it is (NFR-08)
+        probs.length ? h("ul", { class: "topo-finds", style: "--i:2" }, probs.slice(0, SHOW).map((f) =>
+          h("li", { class: "sev-" + f.severity, "aria-label": `${RISK[f.severity][state.lang]}: ${simple(f.code).title}` },
+            h("span", { class: "topo-fline" }, icon(RISK[f.severity].icon), h("strong", { text: simple(f.code).title }))))) : null,
+        more > 0 ? h("p", { class: "topo-more-probs", style: "--i:2", text: more === 1 ? t("moreProb1") : t("moreProbs", { n: more }) }) : null,
+        worst ? h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:3", onclick: (e) => openDevice(d, e.currentTarget) },
+            icon("shield"), h("span", { class: "grow", text: t("fixNow") }), icon("chevron", "go"))
+          : h("button", { type: "button", class: "btn-hud topo-cta topo-cta-soft", style: "--i:3", onclick: (e) => openDevice(d, e.currentTarget) },
+            h("span", { class: "grow", text: t("devDetails") }), icon("chevron", "go")),
         navRow(it),
-        h("div", { class: "topo-risk", style: "--i:2" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk"))),
-        probs.length ? box(t("topoFound"), 3, h("ul", { class: "topo-finds" }, probs.map((f) => {
-          const tx = simple(f.code);
-          return h("li", { class: "sev-" + f.severity }, h("strong", { text: tx.title }),
-            f.port != null ? h("span", { class: "topo-fport", text: t("tourPort", { p: `${f.port}/${f.protocol}` }) }) : null,
-            tx.steps[0] ? h("p", { class: "topo-fix" }, h("b", { text: t("tourFirst") + ": " }), tx.steps[0]) : null);
-        }))) : null,
-        box(t("topoNet"), 4, h("dl", { class: "topo-dl" }, h("dt", { text: t("ipLabel") }), h("dd", { text: d.ip }), h("dt", { text: t("macLabel") }), h("dd", { text: d.mac || t("unknown") }))),
-        box(t("ports"), 5, ports.length ? h("ul", { class: "topo-ports" }, ports) : h("p", { class: "muted", style: "margin:0", text: t("none") })),
-        box(t("topoWhy"), 6, h("p", { class: "topo-why", text: worst ? simple(worst.code).explain : t("devOkExplain") })),
-        ti >= 0 && ti === trail.length - 1 ? box(t("tourEndT"), 7, h("p", { class: "topo-why", text: trail.length === 1 ? t("tourEndS1") : t("tourEndS", { n: trail.length }) })) : null,
-        h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:8", onclick: (e) => openDevice(d, e.currentTarget) },
-          icon("shield"), h("span", { class: "grow", text: t("whatToDo") }), icon("chevron", "go")),
         h("div", { class: "topo-scan", "aria-hidden": "true" })].filter(Boolean));
       if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
       // replay the reveal (scan line + boxes one by one) for every device that is opened
@@ -1237,31 +1277,6 @@
     requestAnimationFrame(layout);
   }
 
-  // Device cards: icon, name, IP and a very simple explanation (max 2 sentences) in both languages.
-  function explainIn(lang, d, worst) {
-    return worst ? D.simple[worst.code][lang].explain : T[lang].devOkExplain;
-  }
-  function deviceCards(s) {
-    const other = state.lang === "ro" ? "en" : "ro";
-    return h("div", { class: "grid-devices" }, s.devices.slice().sort((a, b) => b.risk_points - a.risk_points).map((d) => {
-      const probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
-      const name = vendor || deviceLabel(d.type);
-      const card = h("article", { class: "dcard", tabindex: "0", "aria-label": `${deviceLabel(d.type)} ${vendor}, ${t("ipLabel")} ${d.ip}, ${t("macLabel")} ${d.mac || t("unknown")}. ${worst ? RISK[worst.severity][state.lang] : t("devOk")}.` },
-        h("div", { class: "dcard-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green"),
-          h("div", null, h("h3", { text: name }), h("div", { class: "sub", text: deviceLabel(d.type) }))),
-        h("dl", { class: "dcard-meta" },
-          h("dt", { text: t("ipLabel") }), h("dd", { class: "mono", text: d.ip }),
-          h("dt", { text: t("macLabel") }), h("dd", { class: "mono", text: d.mac || t("unknown") })),
-        worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")),
-        h("p", { lang: state.lang, style: "margin-top:.8rem", text: explainIn(state.lang, d, worst) }),
-        h("p", { class: "other", lang: other }, h("span", { class: "lang-tag", text: t("otherLang") + ":" }), explainIn(other, d, worst)),
-        h("button", { type: "button", class: "btn btn-text", onclick: (e) => { e.stopPropagation(); openDevice(d, card); } }, t("whatToDo"), icon("chevron")));
-      card.addEventListener("click", () => openDevice(d, card));
-      card.addEventListener("keydown", (e) => { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openDevice(d, card); } });
-      return card;
-    }));
-  }
-
   function suggestion(s) {
     const q = queue(s);
     const card = h("div", { class: "suggest", "aria-live": "polite" });
@@ -1276,7 +1291,7 @@
     const f = q[i], tx = simple(f.code), dev = deviceByIp(s, f.ip), top = mostDangerous(s);
     card.append(
       h("p", { class: "muted", text: t("suggestSub") }),
-      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true),
+      h("div", { class: "suggest-top" }, devIco(dev ? dev.type : "unknown", toneOf(f.severity), true, dev),
         h("div", { class: "grow" },
           h("div", { class: "muted", text: top && top.ip === f.ip ? t("mostDangerous") : t("thisDevice") }),
           h("strong", { style: "font-size:1.3rem", text: deviceName(dev) })),
@@ -1304,7 +1319,7 @@
       const vendor = shortVendor(d.vendor);
       return h("button", { type: "button", class: "tile " + tone, onclick: (e) => openDevice(d, e.currentTarget),
         "aria-label": `${deviceLabel(d.type)}${vendor ? ", " + vendor : ""}. ${status}` },
-        devIco(d.type, tone === "green" ? "green" : worst.severity),
+        devIco(d.type, tone === "green" ? "green" : worst.severity, false, d),
         h("div", null, h("div", { class: "tile-name", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "tile-sub", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null),
         h("div", { class: "tile-meta" }, h("span", { class: "mono", text: `${t("ipLabel")} ${d.ip}` }), h("span", { class: "mono", text: `${t("macLabel")} ${d.mac || t("unknown")}` })),
         h("div", { class: "tile-status" }, icon(worst ? RISK[worst.severity].icon : "check"), h("span", { text: status })));
@@ -1342,8 +1357,39 @@
       h("p", { class: "lead", style: "margin-top:.5rem", text: tx.explain }),
       tx.steps.length ? [h("h4", { text: t("doThis") + ":" }), steps(tx.steps)] : null,
       f.severity !== "info" ? whoLine(f.code) : null,
+      guideRow(s, f),
       verifyRow(s, f),
       techFor(f));
+  }
+  // "Exact steps for TP-Link": the assistant looks on the maker's official site (live app, known maker only)
+  function guideRow(s, f) {
+    const d = LIVE && f.severity !== "info" && s.scan_id != null ? deviceByIp(s, f.ip) : null;
+    if (!d || !d.guide) return null;
+    const key = `${s.scan_id}|${f.ip}|${f.code}`, g = state.guides[key], v = d.guide;
+    const wrap = h("div", { class: "guide-row", "data-guide": key, style: "margin-top:1rem" });
+    if (!g || g.status === "error") {
+      wrap.append(h("button", { type: "button", class: "btn btn-tonal", onclick: async (e) => {
+        e.stopPropagation();
+        state.guides[key] = { status: "pending" }; refreshGuide(key, s, f);
+        const res = await api("POST", "/api/v1/guide", { scan_id: s.scan_id, ip: f.ip, code: f.code });
+        state.guides[key] = res.ok ? { status: "ok", answer: res.data.answer, sources: res.data.sources || [] } : { status: "error", message: errText(res) };
+        refreshGuide(key, s, f);
+      } }, icon("bot"), t("guideBtn", { v })));
+      if (g) wrap.append(h("p", { class: "note with-ico", role: "status" }, icon("info"), h("span", { text: g.message })));
+    } else if (g.status === "pending") {
+      wrap.append(h("p", { class: "note with-ico", role: "status" }, icon("search"), h("span", { text: t("guideWait", { v }) })));
+    } else {
+      wrap.append(h("div", { class: "guide-box", role: "status" },
+        h("h4", { class: "with-ico" }, icon("bot"), h("span", { text: t("guideT", { v }) })),
+        h("p", { class: "guide-text", text: g.answer }),
+        g.sources.length ? h("ul", { class: "guide-src" }, g.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
+          h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : h("p", { class: "muted", text: t("guideNone") }),
+        h("p", { class: "muted guide-note", text: t("guideNote", { v }) })));
+    }
+    return wrap;
+  }
+  function refreshGuide(key, s, f) {
+    document.querySelectorAll(`[data-guide="${CSS.escape(key)}"]`).forEach((el) => { const fresh = guideRow(s, f); if (fresh) swapKeepFocus(el, fresh); });
   }
   function openDevice(d, opener) {
     const s = scan(), probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
@@ -1351,7 +1397,7 @@
     const risky = new Set(probs.filter((f) => f.port != null).map((f) => f.port));
     const body = document.getElementById("sheet-body");
     body.replaceChildren(h("div", null,
-      h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true),
+      h("div", { class: "sheet-head" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", true, d),
         h("div", null, h("h2", { id: "sheet-title", text: deviceLabel(d.type) }), vendor || d.me ? h("div", { class: "muted", text: (vendor || "") + (vendor ? meSuffix(d) : t("thisPc")) }) : null)),
       worst ? h("p", { class: "muted", style: "margin:.6rem 0 0", text: plural(probs.length, "devProblem", "devProblems") }) : null,
       all.length ? all.map((f, i) => fixBlock(s, f, i, all.length)) : null,
@@ -1389,6 +1435,25 @@
   }
 
   // ---------------------------------------------------------------- HISTORY (compare + events timeline)
+  // ---------------------------------------------------------------- HISTORY: cyber data dashboard
+  // The History tab as a dark command console: glass panels with a thin neon edge whose colour follows the state of the
+  // network like a traffic light (green safe, yellow medium risk, red high risk: the colours everyone already knows),
+  // white text on a near-solid background, large type, so it reads easily at 80 too. The Before / Now scores as the same
+  // dial as Home (ui/assets/score-ring/), the score at each check as a glowing line chart (pure SVG built here: no chart library,
+  // the app has to work offline) and the events as a system log. Only real data from the saved history; every
+  // animation stops with reduced motion, and every chart point is reachable with the keyboard.
+  const NEON = { green: "ok", amber: "warn", red: "bad" };
+  const neonOf = (score) => NEON[bandOf(score)] || "ok";
+  let cyUid = 0;
+  const when = (sec) => (sec ? new Date(sec * 1000).toLocaleString(state.lang === "ro" ? "ro-RO" : "en-GB",
+    { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "");
+  const scanName = (trend, i) => (i === 0 ? t("before") : i === trend.length - 1 ? t("now") : `#${trend[i].scan_id}`);
+
+  function cyPanel(title, cls, ...kids) {
+    return h("section", { class: "cy-panel" + (cls ? " " + cls : "") },
+      title ? h("h3", { class: "cy-title" }, h("span", { class: "cy-slash", "aria-hidden": "true", text: "//" }), h("span", { text: title })) : null, kids);
+  }
+
   function renderHistory(root) {
     root.append(pageHead(t("historyTitle"), t("historySub")));
     if (state.historyDeleted) {
@@ -1401,38 +1466,34 @@
     // live: the scan on screen compared with the one saved just before it
     const cur = scan();
     const ch = LIVE ? (cur.error ? D.history.changes : cur.changes || null) : D.history.changes, trend = D.history.trend;
+    const lastScore = ch ? ch.score_after : trend.length ? trend[trend.length - 1].network_score : cur.score;
+    const deck = h("div", { class: "cyber n-" + neonOf(lastScore == null ? 100 : lastScore) });
+    root.append(deck);
     if (!ch) {
-      root.append(h("div", { class: "two" },
-        h("div", { class: "suggest" }, h("p", { class: "lead with-ico", style: "margin:0" }, icon("info", "lg"), h("span", { text: t("histNeedTwo") }))),
-        trend.length ? h("div", { class: "suggest" }, h("h3", { text: t("chartTitle") }), chart(trend)) : null));
-      if (LIVE) root.append(h("div", { class: "suggest", style: "margin-top:20px" }, h("h3", { text: t("deleteTitle") }), h("p", { class: "muted", text: t("deleteSub") }), privacyRow()));
+      deck.append(h("div", { class: "cy-grid" },
+        cyPanel(null, "cy-note", h("p", { class: "with-ico" }, icon("info", "lg"), h("span", { text: t("histNeedTwo") }))),
+        trend.length ? cyPanel(t("chartTitle"), null, cyChart(trend)) : null));
+      if (LIVE) deck.append(cyPanel(t("deleteTitle"), "cy-danger", h("p", { class: "cy-muted", text: t("deleteSub") }), privacyRow()));
       return;
     }
     const fixed = ch.resolved_findings.length;
     const verdict = ch.score_change > 0 ? (fixed === 1 ? t("bravoOne") : t("bravo", { n: fixed })) : ch.score_change < 0 ? t("worse") : t("same");
-
-    const compare = h("div", { class: "suggest" },
-      h("div", { class: "compare" },
-        h("div", { class: "compare-col" }, h("strong", { text: t("before") }), ring(ch.score_before, true), bandPill(ch.score_before)),
-        h("div", { class: "compare-arrow", "aria-hidden": "true" }, icon("arrow", "xl")),
-        h("div", { class: "compare-col" }, h("strong", { text: t("now") }), ring(ch.score_after, true), bandPill(ch.score_after))),
-      h("p", { class: "verdict with-ico" }, icon(ch.score_change > 0 ? "sparkles" : ch.score_change < 0 ? "alert" : "info", "lg"), h("span", { text: verdict })),
-      h("h3", { style: "margin-top:1.5rem", text: t("events") }),
-      timeline(ch, trend));
-
-    const chartCard = h("div", { class: "suggest" }, h("h3", { text: t("chartTitle") }), chart(trend),
-      h("table", { class: "data" },
-        h("thead", null, h("tr", null, ["colScan", "colScore", "colFindings"].map((k) => h("th", { scope: "col", text: t(k) })))),
-        h("tbody", null, trend.map((r, i) => h("tr", null,
-          h("td", { text: i === 0 ? t("before") : i === trend.length - 1 ? t("now") : "#" + r.scan_id }),
-          h("td", null, `${r.network_score} `, bandPill(r.network_score)),
-          h("td", { text: String(r.findings) }))))),
+    const dial = (label, score, id) => window.ScoreRing.create(score, { of: t("scoreOf"), key: `history|${label}|${id}`,
+      aria: `${label}: ${score} ${t("scoreOf")}, ${t("band_" + bandOf(score))}` });
+    const col = (label, score, id) => h("div", { class: "cy-col" }, h("span", { class: "cy-col-k", text: label }), dial(label, score, id),
+      h("span", { class: "cy-band n-" + neonOf(score) }, icon(BAND_ICON[bandOf(score)]), t("band_" + bandOf(score))));
+    const compare = cyPanel(t("cyCompare"), null,
+      h("div", { class: "cy-compare" }, col(t("before"), ch.score_before, ch.before_scan_id ?? ch.before_file),
+        h("div", { class: "cy-arrow", "aria-hidden": "true" }, h("span"), h("span"), h("span")),
+        col(t("now"), ch.score_after, ch.after_scan_id ?? ch.after_file)),
+      h("p", { class: "cy-verdict n-" + (ch.score_change < 0 ? "bad" : ch.score_change > 0 ? "ok" : "warn") },
+        icon(ch.score_change > 0 ? "sparkles" : ch.score_change < 0 ? "alert" : "info", "lg"), h("span", { text: verdict })));
+    const log = cyPanel(t("events"), null, cyLog(ch, trend));
+    const chartPanel = cyPanel(t("chartTitle"), null, cyChart(trend), cyTable(trend),
       techBox(h("p", { class: "mono", text: `${ch.before_file} → ${ch.after_file}` })));
+    deck.append(h("div", { class: "cy-grid" }, h("div", { class: "cy-stack" }, compare, log), chartPanel));
 
-    root.append(h("div", { class: "two" }, compare, chartCard));
-
-    const del = h("div", { class: "suggest", style: "margin-top:20px" },
-      h("h3", { text: t("deleteTitle") }), h("p", { class: "muted", text: t("deleteSub") }),
+    const del = cyPanel(t("deleteTitle"), "cy-danger", h("p", { class: "cy-muted", text: t("deleteSub") }),
       h("button", { type: "button", class: "btn btn-danger", onclick: () => { state.confirmDelete = true; render(); focusSel(".confirm button"); } }, icon("trash"), t("deleteBtn")));
     if (state.confirmDelete) {
       del.append(h("div", { class: "confirm", role: "alertdialog", "aria-label": t("deleteBtn") },
@@ -1441,56 +1502,113 @@
           h("button", { type: "button", class: "btn btn-danger", onclick: LIVE ? liveDelete : () => { state.historyDeleted = true; state.confirmDelete = false; store.set("historyDeleted", "1"); render(); } }, t("deleteYes")),
           h("button", { type: "button", class: "btn", onclick: () => { state.confirmDelete = false; render(); } }, t("deleteNo")))));
     }
-    root.append(del);
+    deck.append(del);
   }
 
-  function timeline(ch, trend) {
-    const ev = (tone, name, title, sub) => h("li", null, h("span", { class: "t-ico " + tone, "aria-hidden": "true" }, icon(name)),
-      h("div", { class: "t-text" }, h("strong", { text: title }), sub ? h("span", { class: "muted", text: sub }) : null));
-    const after = [];
-    ch.resolved_findings.forEach((f) => after.push(ev("green", "check", t("evFixed", { title: simple(f.code).title }), null)));
-    ch.secured_ports.forEach((u) => after.push(ev("blue", "lock", t("evSecured"), t("evSecuredSub", { from: u.from_port, to: u.to_port }))));
-    ch.new_findings.forEach((f) => after.push(ev("amber", "alert", t("evNew", { title: simple(f.code).title }), null)));
-    ch.new_devices.forEach((ip) => after.push(ev("red", "plus", t("evNewDev"), ip)));
-    ch.removed_devices.forEach((ip) => after.push(ev("", "leave", t("evGoneDev"), ip)));
-    if (!ch.alerts) after.push(ev("green", "shield", t("evQuiet"), null));
-    const first = (ch.before_scan_id != null && trend.find((r) => r.scan_id === ch.before_scan_id)) || trend[0];
-    return h("div", null,
-      h("div", { class: "t-when", text: t("now") }),
-      h("ul", { class: "timeline" }, after),
-      h("div", { class: "t-when", text: t("before") }),
-      h("ul", { class: "timeline" }, ev(bandOf(first.network_score) === "red" ? "red" : "amber", BAND_ICON[bandOf(first.network_score)],
-        t("evFirst", { s: first.network_score, f: first.findings }), null)));
-  }
-
-  function chart(trend) {
+  // The score at each saved check: a smooth glowing line over a gradient area, a fine precision grid, hexagon points
+  // in the colour of each check's state (the latest one pulses), and a technical tooltip on hover / keyboard focus.
+  function cyChart(trend) {
     const panelW = document.getElementById("panel-history").clientWidth || 1000;
-    const W = Math.round(Math.max(300, Math.min(560, (panelW > 900 ? panelW * 0.46 : panelW) - 56)));
-    const H = 250, L = 44, R = 12, TOP = 32, B = 44, innerW = W - L - R, innerH = H - TOP - B;
-    const y = (v) => TOP + innerH - (v / 100) * innerH, slot = innerW / trend.length, bw = Math.min(84, slot * 0.55);
-    const wrap = h("div", { class: "chart-wrap" });
-    const s = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": t("chartLabel") });
-    [0, 50, 80, 100].forEach((v) => {
-      s.append(svg("line", { class: "grid-line", x1: L, x2: W - R, y1: y(v), y2: y(v) }));
-      const lab = svg("text", { class: "axis-text", x: L - 8, y: y(v) + 5, "text-anchor": "end" }); lab.textContent = String(v); s.append(lab);
-    });
-    const tip = h("div", { class: "tooltip", hidden: true });
+    const W = Math.round(Math.max(300, Math.min(640, (panelW > 900 ? panelW * 0.5 : panelW) - 72)));
+    const H = 330, L = 48, R = 22, TOP = 44, B = 52, iw = W - L - R, ih = H - TOP - B, uid = "cy" + ++cyUid, n = trend.length;
+    const y = (v) => TOP + ih - (v / 100) * ih;
+    const x = (i) => (n === 1 ? L + iw / 2 : L + 30 + (i * (iw - 60)) / (n - 1));
+    const pts = trend.map((r, i) => [x(i), y(r.network_score)]);
+    const s = svg("svg", { class: "cy-chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": t("chartLabel") });
+    const defs = svg("defs");
+    const area = svg("linearGradient", { id: uid + "-area", x1: "0", y1: "0", x2: "0", y2: "1" });
+    area.append(svg("stop", { offset: "0", class: "cy-stop-a", "stop-opacity": "0.55" }), svg("stop", { offset: "0.55", class: "cy-stop-a", "stop-opacity": "0.14" }),
+      svg("stop", { offset: "1", class: "cy-stop-a", "stop-opacity": "0" }));
+    const glow = svg("filter", { id: uid + "-glow", x: "-30%", y: "-30%", width: "160%", height: "160%" });
+    const merge = svg("feMerge");
+    merge.append(svg("feMergeNode", { in: "blur" }), svg("feMergeNode", { in: "SourceGraphic" }));
+    glow.append(svg("feGaussianBlur", { stdDeviation: "3.2", result: "blur" }), merge);
+    defs.append(area, glow);
+    s.append(defs);
+    // precision grid: a fine line every 10 points, labelled dashed lines at the band limits, a faint column per check
+    for (let v = 0; v <= 100; v += 10) s.append(svg("line", { class: [0, 50, 80, 100].includes(v) ? "cy-grid-major" : "cy-grid-minor", x1: L, x2: W - R, y1: y(v), y2: y(v) }));
+    [0, 50, 80, 100].forEach((v) => { const lab = svg("text", { class: "cy-axis", x: L - 10, y: y(v) + 6, "text-anchor": "end" }); lab.textContent = String(v); s.append(lab); });
+    pts.forEach(([px]) => s.append(svg("line", { class: "cy-grid-v", x1: px, x2: px, y1: TOP, y2: TOP + ih })));
+    // the line: a smooth curve through the points that never overshoots the 0-100 range
+    let d = "";
+    if (n > 1) {
+      const c = (v) => Math.max(TOP, Math.min(TOP + ih, v));
+      d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+      for (let i = 1; i < n; i++) {
+        const p0 = pts[i - 2] || pts[i - 1], p1 = pts[i - 1], p2 = pts[i], p3 = pts[i + 1] || p2, k = 0.18;
+        d += ` C${(p1[0] + (p2[0] - p0[0]) * k).toFixed(1)},${c(p1[1] + (p2[1] - p0[1]) * k).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) * k).toFixed(1)},${c(p2[1] - (p3[1] - p1[1]) * k).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+      }
+      s.append(svg("path", { class: "cy-area", fill: `url(#${uid}-area)`, d: `${d} L${pts[n - 1][0].toFixed(1)},${y(0)} L${pts[0][0].toFixed(1)},${y(0)} Z` }));
+      s.append(svg("path", { class: "cy-line", d, pathLength: "1", filter: `url(#${uid}-glow)` }));
+    }
+    const hex = (cx, cy, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 6 + (i * Math.PI) / 3; return `${(cx + Math.cos(a) * r).toFixed(1)},${(cy + Math.sin(a) * r).toFixed(1)}`; }).join(" ");
+    const tip = h("div", { class: "cy-tip", hidden: true, role: "status" });
     trend.forEach((r, i) => {
-      const cx = L + slot * i + slot / 2, x = cx - bw / 2, top = y(r.network_score), base = y(0), band = bandOf(r.network_score), rr = Math.min(6, (base - top) / 2);
-      s.append(svg("path", { class: "bar-" + band, d: `M${x},${base} V${top + rr} Q${x},${top} ${x + rr},${top} H${x + bw - rr} Q${x + bw},${top} ${x + bw},${top + rr} V${base} Z` }));
-      const v = svg("text", { class: "value-text", x: cx + 11, y: top - 8, "text-anchor": "middle" }); v.textContent = String(r.network_score); s.append(v);
-      s.append(svg("use", { href: "#i-" + BAND_ICON[band], x: cx - 30, y: top - 26, width: 20, height: 20, class: "chart-ico tone-" + band }));
-      const name = i === 0 ? t("before") : i === trend.length - 1 ? t("now") : `#${r.scan_id}`;
-      const lab = svg("text", { class: "axis-text", x: cx, y: H - B + 24, "text-anchor": "middle" }); lab.textContent = name; s.append(lab);
-      const label = `${name}: ${r.network_score} ${t("scoreOf")}, ${t("band_" + band)}`;
-      const hit = svg("rect", { class: "hit", x: cx - slot / 2, y: TOP - 24, width: slot, height: innerH + 24, tabindex: "0", "aria-label": label });
-      const show = () => { tip.textContent = label; tip.hidden = false; const k = s.getBoundingClientRect().width / W; tip.style.left = cx * k + "px"; tip.style.top = top * k + "px"; };
+      const [px, py] = pts[i], tone = neonOf(r.network_score), last = i === n - 1, name = scanName(trend, i);
+      const g = svg("g", { class: "cy-node n-" + tone, style: `--i:${i}` });
+      if (last) g.append(svg("circle", { class: "cy-pulse", cx: px, cy: py, r: 12 }));
+      g.append(svg("polygon", { class: "cy-pt" + (last ? " is-last" : ""), points: hex(px, py, last ? 11 : 9), filter: `url(#${uid}-glow)` }));
+      const v = svg("text", { class: "cy-val", x: px, y: py - 20, "text-anchor": "middle" }); v.textContent = String(r.network_score); g.append(v);
+      const lab = svg("text", { class: "cy-axis cy-x", x: px, y: H - B + 32, "text-anchor": "middle" }); lab.textContent = name; g.append(lab);
+      s.append(g);
+      const band = t("band_" + bandOf(r.network_score));
+      const label = `${name}: ${r.network_score} ${t("scoreOf")}, ${band}`;
+      const slot = n === 1 ? iw : (iw - 60) / (n - 1);
+      const hit = svg("rect", { class: "cy-hit", x: px - slot / 2, y: TOP - 24, width: slot, height: ih + 24, tabindex: "0", "aria-label": label });
+      const show = () => {
+        tip.replaceChildren(
+          h("div", { class: "cy-tip-head" }, h("b", { text: `${t("cyWhen")} ${name}` }), r.scanned_at ? h("span", { text: when(r.scanned_at) }) : null),
+          h("div", null, h("span", { text: t("colScore") + " " }), h("b", { text: `${r.network_score}/100` }), h("span", { text: ` · ${band}` })),
+          h("div", null, h("span", { text: `${t("colFindings")} ` }), h("b", { text: String(r.findings) }),
+            r.devices != null ? h("span", { text: ` · ${t("cyDevices")} ${r.devices}` }) : null));
+        tip.className = "cy-tip n-" + tone;
+        tip.hidden = false;
+        const k = s.getBoundingClientRect().width / W;
+        tip.style.left = Math.max(130, Math.min(W * k - 130, px * k)) + "px"; tip.style.top = py * k + "px";
+        g.classList.add("is-on");
+      };
+      const hide = () => { tip.hidden = true; g.classList.remove("is-on"); };
       hit.addEventListener("mouseenter", show); hit.addEventListener("focus", show);
-      hit.addEventListener("mouseleave", () => { tip.hidden = true; }); hit.addEventListener("blur", () => { tip.hidden = true; });
+      hit.addEventListener("mouseleave", hide); hit.addEventListener("blur", hide);
       s.append(hit);
     });
-    wrap.append(s, tip);
-    return wrap;
+    return h("div", { class: "cy-chart-wrap" }, s, tip);
+  }
+
+  // The checks as a data table in the console style (the same numbers as the chart, for screen readers and exact values).
+  function cyTable(trend) {
+    return h("table", { class: "cy-table" },
+      h("thead", null, h("tr", null, ["colScan", "colScore", "colFindings"].map((k) => h("th", { scope: "col", text: t(k) })))),
+      h("tbody", null, trend.map((r, i) => h("tr", { class: "n-" + neonOf(r.network_score) },
+        h("td", null, h("span", { class: "cy-dot", "aria-hidden": "true" }), scanName(trend, i), r.scanned_at ? h("span", { class: "cy-when", text: when(r.scanned_at) }) : null),
+        h("td", null, h("b", { text: String(r.network_score) }), h("span", { class: "cy-muted", text: "/100" }),
+          h("span", { class: "sr", text: ", " + t("band_" + bandOf(r.network_score)) })),     // the dot's colour says the band
+        h("td", { text: String(r.findings) })))));
+  }
+
+  // What happened between the two checks, as a system log: glowing status icons, thin luminous separators, alerts that
+  // pulse, a blinking cursor at the end.
+  function cyLog(ch, trend) {
+    let i = 0;
+    const line = (tone, name, title, sub, stamp) => h("li", { class: "cy-log-line t-" + tone, style: `--i:${i++}` },
+      h("span", { class: "cy-stamp", text: stamp }),
+      h("span", { class: "cy-log-ico", "aria-hidden": "true" }, icon(name)),
+      h("div", { class: "cy-log-text" }, h("strong", { text: title }), sub ? h("span", { class: "cy-log-sub", text: sub }) : null));
+    const now = `[${t("now").toUpperCase()}]`, before = `[${t("before").toUpperCase()}]`;
+    const after = [];
+    ch.resolved_findings.forEach((f) => after.push(line("green", "check", t("evFixed", { title: simple(f.code).title }), null, now)));
+    ch.secured_ports.forEach((u) => after.push(line("info", "lock", t("evSecured"), t("evSecuredSub", { from: u.from_port, to: u.to_port }), now)));
+    ch.new_findings.forEach((f) => after.push(line("amber", "alert", t("evNew", { title: simple(f.code).title }), null, now)));
+    ch.new_devices.forEach((ip) => after.push(line("red", "plus", t("evNewDev"), ip, now)));
+    ch.removed_devices.forEach((ip) => after.push(line("neutral", "leave", t("evGoneDev"), ip, now)));
+    if (!ch.alerts) after.push(line("green", "shield", t("evQuiet"), null, now));
+    const first = (ch.before_scan_id != null && trend.find((r) => r.scan_id === ch.before_scan_id)) || trend[0];
+    const firstLine = line(bandOf(first.network_score) === "red" ? "red" : "amber", BAND_ICON[bandOf(first.network_score)],
+      t("evFirst", { s: first.network_score, f: first.findings }), first.scanned_at ? when(first.scanned_at) : null, before);
+    return h("div", { class: "cy-term" },
+      h("div", { class: "cy-term-bar", "aria-hidden": "true" }, h("i"), h("i"), h("i"), h("span", { text: `safehouse ~ ${t("cyLog").toLowerCase()}` })),
+      h("ul", { class: "cy-log" }, after, firstLine),
+      h("div", { class: "cy-cursor", "aria-hidden": "true", text: ">" }));
   }
 
   // ---------------------------------------------------------------- ASK (grounded chat, NFR-06 / FR-12)
@@ -1553,7 +1671,7 @@
     renderChatPanel();
     const res = await api("POST", "/api/v1/ask", { question: q, scan_id: s.scan_id, history: turns, style: style || "text" });
     state.busy = false;
-    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source });
+    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source, sources: res.data.sources || [], vendor: res.data.vendor });
     else Object.assign(item, { a: errText(res), mode: "error", source: "error" });
     renderChatPanel();
     if (state.chatOpen && !state.voice.mode) focusSel("#ask-input");
@@ -1731,7 +1849,7 @@
     else {
       const item = LIVE ? await liveAsk(q, "voice") : null;
       if (!state.voice.mode) return;
-      if (item && item.mode === "ai" && item.a) text = speechText(item.a, 3);
+      if (item && (item.mode === "ai" || item.mode === "guide") && item.a) text = speechText(item.a, 3);   // the AI (or the maker guide) answered
       else {                                           // no AI answer: the built-in guide, also shown in the chat
         text = voiceGuide(q, s);
         if (item) Object.assign(item, { a: text, mode: "offline", source: "fallback" });
@@ -1843,8 +1961,11 @@
       if (m.q !== undefined) {               // live answer
         card.append(h("div", { class: "bubble me", text: m.q }));
         card.append(h("div", { class: "bot-name with-ico" }, shieldSvg(true), h("span", { text: t("botName") })));
-        card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a })));
-        if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
+        card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a }),
+          m.sources && m.sources.length ? h("ul", { class: "guide-src" }, m.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
+            h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : null));
+        if (m.mode === "guide") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("guideNote", { v: m.vendor || "" }) }));
+        else if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
         if (m.a != null) card.append(speakBtn(m));
         return;
       }
@@ -1949,8 +2070,214 @@
           h("td", { class: "c-colCode mono", text: f.code }));
       })))));
     if (x && !sel.error) box.append(h("div", { class: "actions" }, h("button", { type: "button", class: "btn btn-tonal", onclick: () => {
-      const i = allScans().indexOf(x); if (i >= 0) { state.scan = i; state.chat = []; } setTab("home"); } }, icon("home"), t("resOpen"))));
+      const i = allScans().indexOf(x); if (i >= 0) { state.scan = i; state.chat = []; } setTab("home"); } }, icon("home"), t("resOpen")),
+      LIVE && x.scan_id != null ? h("button", { type: "button", class: "btn", onclick: () => techReport(x.scan_id) }, icon("code"), t("techReport")) : null));
     root.append(box);
+  }
+
+  // the technical report of one saved check (.txt, nmap style): downloaded and also kept on disk by the agent
+  async function techReport(scanId) {
+    showSheet(h("p", { class: "lead", role: "status", text: t("techReporting") }));
+    let r;
+    try { r = await fetch(`/api/v1/report/${scanId}?lang=${state.lang}`, { method: "POST", credentials: "same-origin" }); }
+    catch (e) { problemSheet(t("techReport"), t("connErr")); return; }
+    if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("techReport"), errText({ data, status: r.status })); return; }
+    const blob = await r.blob();
+    const name = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "safehouse_report.txt";
+    const a = h("a", { href: URL.createObjectURL(blob), download: name, style: "display:none" });
+    document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    let where = "";
+    try { where = decodeURIComponent(r.headers.get("X-SafeHouse-Saved-To") || ""); } catch (e) { /* keep empty */ }
+    showSheet(h("div", { role: "status" },
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico green", "aria-hidden": "true" }, icon("check")), h("h2", { id: "sheet-title", text: t("techReportDoneT") })),
+      h("p", { class: "lead", style: "margin-top:.6rem", text: t("techReportDone") }),
+      where ? [h("p", { class: "muted", text: t("techReportWhere") }), h("p", { class: "evidence mono", text: where })] : null,
+      h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
+  }
+
+  // ---------------------------------------------------------------- „Păzește casa": the guard
+  // A card on Home (on / off, what it is doing, the last things it saw) and, while it is on, a small alert in the
+  // corner for every new device or newly opened door, with "It's mine" / "I don't know it". The page asks the
+  // local agent every few seconds; the agent does the looking (no admin rights, only this network).
+  const guardSt = { data: null, timer: null, shown: new Set() };
+  const ago = (ts) => {
+    const n = Math.max(0, Math.round(Date.now() / 1000 - ts));
+    return n < 5 ? t("agoNow") : n < 60 ? t("agoS", { n }) : n < 120 ? t("agoM1") : t("agoM", { n: Math.round(n / 60) });
+  };
+  const gName = (e) => shortVendor(e.vendor) || (e.private_mac ? t("gPrivate") : t("gUnknownDev"));
+  function guardLine(g) {
+    if (g && !g.on && g.state === "moved") return t("guardMoved");
+    if (!g || !g.on) return t("guardOffS");
+    if (g.phase === "waiting") return t("guardWaiting");
+    if (g.state === "learning") return t("guardLearning");
+    if (g.state === "paused") return t("guardPaused");
+    if (g.state === "error") return t("guardError") + (g.error ? ` (${g.error})` : "");
+    if (!g.known && !g.seen && g.last_check) return t("guardEmpty");
+    const a = g.last_check ? ago(g.last_check) : t("agoNow");
+    return g.known ? t("guardWatching", { n: g.known, ago: a }) : t("guardWatching0", { ago: a });
+  }
+  // the same, in a few words, for the row in the score card (the full sentence is in the sheet)
+  function guardShort(g) {
+    if (g && !g.on && g.state === "moved") return t("gsMoved");
+    if (!g || !g.on) return t("guardOffShort");
+    if (g.phase === "waiting") return t("gsWaiting");
+    if (g.state === "learning") return t("gsLearning");
+    if (g.state === "paused") return t("gsPaused");
+    if (g.state === "error") return t("gsError");
+    if (!g.known && !g.seen && g.last_check) return t("gsEmpty");
+    return t("gsWatching", { n: g.known, ago: g.last_check ? ago(g.last_check) : t("agoNow") });
+  }
+  // a compact row in the score card (between the house and the network map nothing changes); the details in a sheet
+  function guardRow() {
+    const g = guardSt.data, on = !!(g && g.on);
+    const fresh = on && g.events.filter((e) => e.status === "new").length;
+    return h("div", { class: "guard-row" + (on ? " is-on" : "") },
+      h("span", { class: "guard-dot", "aria-hidden": "true" }, icon("shield")),
+      h("div", { class: "grow" },
+        h("strong", { text: t("guardT") + (on ? "" : " · " + t("gOff")) }),
+        h("p", { class: "muted guard-line", role: "status", "aria-live": "polite", text: guardShort(g) })),
+      on ? h("button", { type: "button", class: "btn btn-text guard-more", "aria-haspopup": "dialog", onclick: (e) => guardSheet(e.currentTarget) },
+            fresh ? h("span", { class: "badge", text: String(fresh) }) : null, t("gDetails"))
+        : h("button", { type: "button", class: "btn btn-text", id: "guard-start", "aria-label": t("guardStart"), onclick: guardAsk }, t("gStart")));
+  }
+  function guardSheetBody() {
+    const g = guardSt.data || { events: [] }, on = !!g.on, d = g.diag || {};
+    return h("div", { class: "guard-sheet" },
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico" + (on ? " green" : ""), "aria-hidden": "true" }, icon("shield")),
+        h("div", null, h("h2", { id: "sheet-title", text: t("guardT") }), h("p", { class: "muted", role: "status", text: guardLine(g) }))),
+      g.events.length ? [h("h4", { text: t("gRecent") + ":" }),
+        h("ul", { class: "guard-recent" }, g.events.slice(0, 10).map((e) => h("li", null,
+          icon(e.kind === "new_device" ? "plus" : "door"),
+          h("span", { text: `${t("gNewDevT")}: ${gName(e)} · ${e.ip}` +
+            (e.status === "mine" ? ` · ${t("gWasMine")}` : e.status === "stranger" ? ` · ${t("gWasStranger")}` : "") }),
+          h("span", { class: "muted", text: ago(e.when) }))))]
+        : h("p", { class: "lead", style: "margin-top:1rem", text: t("gNothing") }),
+      g.devices && g.devices.length ? [h("h4", { text: t("gDevices", { n: g.devices.length }) }),
+        h("p", { class: "muted", style: "margin:.2rem 0 .6rem", text: t("gDevicesS") }),
+        h("ul", { class: "guard-devices" }, g.devices.map((d) => h("li", { class: d.mine === false ? "is-stranger" : "" },
+          h("span", { class: "gd-ico" + (d.online ? " on" : ""), "aria-hidden": "true" }, icon(d.mine === false ? "alert" : "wifi")),
+          h("div", { class: "grow" },
+            h("strong", { text: `${gName(d)} · ${d.ip}` }),
+            h("span", { class: "muted", text: [d.online ? t("gOnline") : d.last_seen ? t("gSeen", { ago: ago(d.last_seen) }) : "",
+              d.mine === true ? t("gWasMine") : d.mine === false ? t("gWasStranger") : ""].filter(Boolean).join(" · ") })),
+          h("div", { class: "gd-actions" },
+            d.mine !== true ? h("button", { type: "button", class: "btn btn-text", onclick: () => guardDevice(d.id, "mine") }, t("gMine")) : null,
+            d.mine !== false ? h("button", { type: "button", class: "btn btn-text", onclick: () => guardDevice(d.id, "stranger") }, t("gStranger")) : null,
+            h("button", { type: "button", class: "btn btn-text", "aria-label": `${t("gForgetOne")}: ${gName(d)} ${d.ip}`, onclick: () => guardDevice(d.id, "forget") }, icon("trash"), t("gForgetOne"))))))] : null,
+      techBox(h("dl", { class: "meta" },
+        h("dt", { text: t("gdNet") }), h("dd", { class: "mono", text: `${g.subnet || "–"} · ${t("gdNow")}: ${d.net_now || "–"}` }),
+        h("dt", { text: t("gdHow") }), h("dd", { class: "mono", text: d.how ? `${d.how} · nmap ${d.nmap_rc ?? "–"}` : "–" }),
+        h("dt", { text: t("gdTimes") }), h("dd", { class: "mono", text: `#${d.looks ?? 0} · nmap ${d.nmap_s ?? "–"}s · ping ${d.ping_s ?? "–"}s` }),
+        h("dt", { text: t("gdSeen") }), h("dd", { class: "mono", text: `nmap: ${d.from_nmap ?? "–"} / ${d.nmap_up ?? "–"} up · ARP: ${d.arp ?? "–"} · ${t("gdKnown")}: ${g.known ?? 0}` }),
+        d.nmap_err ? [h("dt", { text: t("gdErr") }), h("dd", { class: "mono", text: d.nmap_err })] : null,
+        g.error ? [h("dt", { text: t("gdErr") }), h("dd", { class: "mono", text: g.error })] : null)),
+      h("div", { class: "actions" },
+        on ? h("button", { type: "button", class: "btn", onclick: guardForget }, icon("refresh"), t("gForget")) : null,
+        on ? h("button", { type: "button", class: "btn btn-danger", onclick: () => { closeSheet(); guardSwitch(false); } }, t("guardStop"))
+          : h("button", { type: "button", class: "btn btn-cta", onclick: guardAsk }, icon("shield"), t("guardStart")),
+        h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close"))));
+  }
+  async function guardDevice(id, action) {
+    const res = await api("POST", "/api/v1/guard/device", { id, action });
+    if (res.ok) { guardSt.data = res.data; refreshGuardCard(); }
+    if (action === "stranger") strangerSheet();
+  }
+  async function guardForget() {
+    const res = await api("POST", "/api/v1/guard/forget");
+    if (res.ok) { guardSt.data = res.data; refreshGuardCard(); guardSchedule(); }
+  }
+  function guardSheet(opener) {
+    showSheet(guardSheetBody(), opener);
+    focusSel("#sheet .actions .btn");
+  }
+  function refreshGuardCard() {
+    const swap = (old, fresh) => {
+      const det = fresh.querySelector("details");
+      if (old.querySelector("details[open]") && det) det.open = true;      // keep "Advanced details" open
+      if (fresh.innerHTML !== old.innerHTML || fresh.className !== old.className) swapKeepFocus(old, fresh);
+    };
+    const row = document.querySelector(".guard-row");
+    if (row) swap(row, guardRow());
+    const sheet = document.querySelector("#sheet[open] .guard-sheet");
+    if (sheet) swap(sheet, guardSheetBody());
+  }
+  async function guardAsk() {
+    showSheet(h("div", { class: "lead", role: "status", text: t("cfPrep") }));
+    const res = await api("GET", "/api/v1/status");
+    if (!res.ok) return problemSheet(t("probT"), errText(res));
+    const net = res.data.network;
+    if (!net.ok) return problemSheet(t("probT"), net.message);
+    showSheet(h("div", null,
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico", "aria-hidden": "true" }, icon("shield")), h("h2", { id: "sheet-title", text: t("guardAskT") })),
+      h("p", { class: "muted", style: "margin-top:.8rem", text: t("cfNet") }),
+      h("p", { class: "lead" }, h("strong", { text: net.wifi || t("topoNet") }), h("span", { class: "mono", text: "  ·  " + net.subnet })),
+      h("p", { text: t("guardAsk", { s: (guardSt.data && guardSt.data.interval) || 20 }) }),
+      h("p", { class: "lead", text: t("guardAsk2") }),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-cta", id: "guard-yes", onclick: () => { closeSheet(); guardSwitch(true); } }, icon("shield"), t("guardYes")),
+        h("button", { type: "button", class: "btn", onclick: closeSheet }, t("cfNo")))));
+    focusSel("#guard-yes");
+  }
+  async function guardSwitch(on) {
+    const res = await api("POST", "/api/v1/guard", { on, confirm: on });
+    if (!res.ok) return problemSheet(t("probT"), errText(res));
+    guardSt.data = res.data;
+    if (on) res.data.events.forEach((e) => guardSt.shown.add(e.id));   // only what happens from now on
+    refreshGuardCard(); guardSchedule();
+  }
+  function guardSchedule() {
+    clearTimeout(guardSt.timer);
+    if (guardSt.data && guardSt.data.on) guardSt.timer = setTimeout(guardPoll, 4000);
+  }
+  async function guardPoll() {
+    const res = await api("GET", "/api/v1/guard");
+    if (res.ok) {
+      guardSt.data = res.data;
+      refreshGuardCard();
+      renderGuardToasts();
+    }
+    guardSchedule();
+  }
+  // the alerts in the corner: one per new event, until the user answers or closes it
+  const toastBox = h("div", { class: "guard-toasts", "aria-live": "assertive", "aria-relevant": "additions" });
+  document.body.append(toastBox);
+  function renderGuardToasts() {
+    const evs = (guardSt.data ? guardSt.data.events : []).filter((e) => e.status === "new" && !guardSt.shown.has(e.id)).slice(0, 3);
+    const want = new Set(evs.map((e) => e.id));
+    toastBox.querySelectorAll(".guard-toast").forEach((el) => { if (!want.has(el.dataset.id)) el.remove(); });
+    evs.forEach((e) => {
+      const old = toastBox.querySelector(`[data-id="${CSS.escape(e.id)}"]`);
+      const fresh = guardToast(e);
+      if (old) { if (old.dataset.sig !== fresh.dataset.sig) old.replaceWith(fresh); } else toastBox.append(fresh);
+    });
+  }
+  function guardToast(e) {
+    const close = () => { guardSt.shown.add(e.id); renderGuardToasts(); };
+    const answer = async (mine) => {
+      guardSt.shown.add(e.id); renderGuardToasts();
+      await api("POST", "/api/v1/guard/ack", { id: e.id, mine });
+      if (!mine) strangerSheet();
+      guardPoll();
+    };
+    // only devices: what doors it has open is for "Inspect the house"
+    const el = h("div", { class: "guard-toast", role: "alert", "data-id": e.id, "data-sig": e.status },
+      h("div", { class: "gt-head" }, icon("wifi"), h("strong", { text: t("gNewDevT") }),
+        h("button", { type: "button", class: "icon-btn gt-x", "aria-label": t("close"), title: t("close"), onclick: close }, icon("x"))),
+      h("p", { class: "gt-name", text: `${gName(e)} · ${e.ip}` }),
+      h("p", { class: "gt-q", text: t("gKnow") }),
+      h("div", { class: "actions" },
+        h("button", { type: "button", class: "btn btn-tonal", onclick: () => answer(true) }, icon("check"), t("gMine")),
+        h("button", { type: "button", class: "btn", onclick: () => answer(false) }, icon("alert"), t("gStranger"))));
+    return el;
+  }
+  function strangerSheet() {
+    const tx = simple("UNKNOWN_DEVICE");
+    showSheet(h("div", null,
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico red", "aria-hidden": "true" }, icon("alert")), h("h2", { id: "sheet-title", text: t("gStrangerT") })),
+      h("p", { class: "lead", style: "margin-top:.6rem", text: t("gStrangerS") }),
+      steps(tx.steps),
+      h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
+    focusSel("#sheet .actions .btn");
   }
 
   // ---------------------------------------------------------------- the assistant: "Ask" (chat) and "Talk" (voice) in the header
@@ -2105,7 +2432,7 @@
         r = await fetch((files ? "/api/v1/export" : "/api/v1/export/history") + "?lang=" + state.lang,
           { method: "POST", credentials: "same-origin", body });
       } catch (e) { problemSheet(t("exportT"), t("connErr")); return; }
-      if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("exportT"), errText({ data })); return; }
+      if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("exportT"), errText({ data, status: r.status })); return; }
       const blob = await r.blob();
       const name = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "safehouse_results.zip";
       const a = h("a", { href: URL.createObjectURL(blob), download: name, style: "display:none" });
@@ -2136,6 +2463,12 @@
     }
     // a check already running (e.g. the page was reloaded): follow it
     api("GET", "/api/v1/status").then((res) => { if (res.ok && res.data.scan && res.data.scan.status === "running") followJob(res.data.scan); });
+    // the guard may already be on (page reloaded): show its state, alerts only for what happens from now on
+    api("GET", "/api/v1/guard").then((res) => {
+      if (!res.ok) return;
+      guardSt.data = res.data; res.data.events.forEach((e) => guardSt.shown.add(e.id));
+      refreshGuardCard(); guardSchedule();
+    });
   }
   ["ro", "en"].forEach((l) => document.getElementById("lang-" + l).addEventListener("click", () => { if (state.lang !== l) stopVoice(); if (state.voice.mode) state.voice.note = null; state.lang = l; store.set("lang", l); render(); }));
   document.querySelectorAll(".nav-item").forEach((b) => b.addEventListener("click", () => { setTab(b.dataset.tab); document.getElementById("main").focus({ preventScroll: true }); }));

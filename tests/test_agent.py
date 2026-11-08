@@ -234,7 +234,7 @@ def test_verify_udp_asks_for_a_full_check(client):
     sid = _saved()
     r = client.post("/api/v1/verify?lang=en", json={"scan_id": sid, "ip": "192.168.1.1", "port": 1900,
                                                      "code": "UPNP_EXPOSED"})
-    assert r.json()["status"] == "needs_root" and "Check my network again" in r.json()["message"]
+    assert r.json()["status"] == "needs_root" and "Inspect again" in r.json()["message"]
 
 
 def test_verify_unknown_finding(client):

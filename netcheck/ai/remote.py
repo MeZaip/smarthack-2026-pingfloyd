@@ -104,6 +104,16 @@ class RemoteProvider:
             raise LLMUnavailable("gateway returned no audio")
         return audio
 
+    def guide(self, payload: dict) -> dict:
+        """Steps for one device brand/model (netcheck.ai.guide). Search can take a while: longer timeout."""
+        resp = self._request("POST", "/v1/guide", payload, timeout=max(self.timeout, 75))
+        text = resp.get("answer")
+        if not isinstance(text, str) or not text.strip():
+            raise LLMUnavailable("gateway returned no answer")
+        sources = [{"title": str(x.get("title") or x.get("url"))[:160], "url": str(x.get("url"))[:500]}
+                   for x in resp.get("sources") or [] if isinstance(x, dict) and str(x.get("url", "")).startswith("https://")]
+        return {"answer": text.strip()[:3000], "sources": sources[:4]}
+
     def status(self) -> dict:
         """For the UI badge: is the assistant online right now?"""
         try:

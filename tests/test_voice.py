@@ -183,6 +183,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("NETCHECK_DB", str(tmp_path / "history.sqlite"))
     monkeypatch.setenv("NETCHECK_HOME", str(tmp_path / "home"))
     monkeypatch.setenv("NETCHECK_LLM_PROVIDER", "none")
+    monkeypatch.setenv("NETCHECK_TTS", "off")        # tests decide which voice exists (Piper may be installed here)
     from netcheck.web.app import app
     c = TestClient(app)
     c.get("/")                                     # session cookie for POST

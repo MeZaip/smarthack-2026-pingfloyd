@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+import ssl
 import urllib.error
 import urllib.request
 from typing import Protocol
@@ -41,24 +42,41 @@ def _api_error_detail(e: urllib.error.HTTPError, secrets: tuple[str, ...]) -> st
     return detail[:200]
 
 
+def _tls_broken(err) -> bool:
+    """The encrypted connection was damaged on the way (seen on Windows with antivirus "HTTPS scanning",
+    VPNs or captive Wi-Fi): worth one more try on a fresh connection."""
+    reason = getattr(err, "reason", err)
+    return isinstance(reason, (ssl.SSLError, ConnectionResetError, ConnectionAbortedError))
+
+
+TLS_HINT = (" - the secure connection to the Claude API was broken on the way; this is usually an antivirus/firewall"
+            " that inspects HTTPS, a VPN or the Wi-Fi. Try another network, turn off HTTPS scanning, or run the"
+            " gateway from WSL/another computer (the app then uses it automatically).")
+
+
 def _post_json(url: str, body: dict, headers: dict, timeout: float, label: str,
                secrets: tuple[str, ...] = (), local: bool = False) -> dict:
-    req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), method="POST",
-                                 headers={"content-type": "application/json", **headers})
+    data = json.dumps(body).encode("utf-8")
     # a local backend (Ollama) must never go through a system proxy
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({})) if local else urllib.request.build_opener()
-    try:
-        with opener.open(req, timeout=timeout) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        detail = _api_error_detail(e, secrets)
-        raise BackendError(f"{label} HTTP {e.code}" + (f" ({detail})" if detail else "")) from None
-    except urllib.error.URLError as e:
-        raise BackendError(f"{label} unreachable: {e.reason.__class__.__name__}: {str(e.reason)[:120]}") from None
-    except (TimeoutError, OSError) as e:
-        raise BackendError(f"{label} unreachable: {e.__class__.__name__}: {str(e)[:120]}") from None
-    except json.JSONDecodeError:
-        raise BackendError(f"{label} returned invalid JSON") from None
+    for attempt in range(2):
+        req = urllib.request.Request(url, data=data, method="POST",
+                                     headers={"content-type": "application/json", **headers})
+        try:
+            with opener.open(req, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            detail = _api_error_detail(e, secrets)
+            raise BackendError(f"{label} HTTP {e.code}" + (f" ({detail})" if detail else "")) from None
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            if attempt == 0 and _tls_broken(e):
+                continue                                  # one fresh connection, then give up
+            reason = getattr(e, "reason", e)
+            hint = TLS_HINT if _tls_broken(e) else ""
+            raise BackendError(f"{label} unreachable: {reason.__class__.__name__}: {str(reason)[:120]}{hint}") from None
+        except json.JSONDecodeError:
+            raise BackendError(f"{label} returned invalid JSON") from None
+    raise BackendError(f"{label} unreachable")  # pragma: no cover
 
 
 _SENTENCE_END = re.compile(r"[.!?…](?=\s|$)|\n")
@@ -109,6 +127,44 @@ class ClaudeBackend:
         if not text:
             raise BackendError(f"claude returned no text (stop_reason={stop})")
         return text
+
+    def guide(self, system: str, user: str, sites: list[str]) -> tuple[str, list[dict]]:
+        """One answer that may use Claude's web search, limited to the maker's official sites.
+        Returns (text, sources) where sources are the pages the answer cites (title + url)."""
+        body = {"model": self.cfg.claude_model, "max_tokens": self.cfg.max_output_tokens, "system": system,
+                "messages": [{"role": "user", "content": user}],
+                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": self.cfg.guide_searches,
+                           "allowed_domains": sites}],
+                "output_config": {"effort": self.cfg.claude_effort}}
+        if not self.cfg.claude_thinking:
+            body["thinking"] = {"type": "disabled"}
+        headers = {"x-api-key": self.cfg.anthropic_api_key, "anthropic-version": self.API_VERSION}
+        timeout = max(self.cfg.model_timeout_s, self.cfg.guide_timeout_s)
+        for _ in range(3):                       # a long search turn may pause; let it continue twice
+            data = _post_json(self.url, body, headers, timeout, "claude", secrets=(self.cfg.anthropic_api_key,))
+            if data.get("stop_reason") != "pause_turn":
+                break
+            body["messages"] = body["messages"][:1] + [{"role": "assistant", "content": data.get("content") or []}]
+        blocks = data.get("content") or []
+        # Only the text written after the last search is the answer; anything before it is the model
+        # thinking aloud ("I'll search the TP-Link site...", often in English) and is dropped.
+        last_tool = max((i for i, b in enumerate(blocks) if b.get("type") in ("server_tool_use", "web_search_tool_result")),
+                        default=-1)
+        text = "".join(b.get("text", "") for b in blocks[last_tool + 1:] if b.get("type") == "text").strip()
+        if data.get("stop_reason") == "max_tokens":
+            text = trim_to_last_sentence(text)
+        if not text:
+            raise BackendError(f"claude returned no text (stop_reason={data.get('stop_reason')})")
+        sources, seen = [], set()
+        cited = [c for b in blocks if b.get("type") == "text" for c in b.get("citations") or []]
+        found = [r for b in blocks if b.get("type") == "web_search_tool_result" and isinstance(b.get("content"), list)
+                 for r in b["content"] if r.get("type") == "web_search_result"]
+        for c in cited or found[:3]:
+            url = c.get("url") or ""
+            if url.startswith("https://") and url not in seen:
+                seen.add(url)
+                sources.append({"title": (c.get("title") or url)[:160], "url": url[:500]})
+        return text, sources[:4]
 
     def health(self) -> dict:
         # no API call here: health checks must not spend credits

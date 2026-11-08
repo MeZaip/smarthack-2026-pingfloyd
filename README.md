@@ -71,6 +71,7 @@ JSON API (read-only, formats from `service_data_contracts.md`): `GET /api/scans`
 ```bash
 python -m netcheck analyze <folder-with-xml> --out results     # -> results/findings.csv, results/scores.csv
 python -m netcheck report  scan.xml --lang ro                  # plain-language report
+python -m netcheck report  scan.xml --technical --out r.txt   # detailed technical report for IT (nmap style)
 python -m netcheck ask     scan.xml "Ce să repar primul?"      # AI assistant (falls back to built-in text)
 python -m netcheck chat    scan.xml                            # conversation with the assistant
 python -m netcheck diff    before.xml after.xml                # what changed / what got fixed
@@ -204,6 +205,13 @@ netcheck app (user, no key) --HTTPS--> gateway (team machine, has the key) --HTT
 * **Errors:** model errors (bad key, no credits, unknown model) are printed in the gateway console and
   shown by the app with the reason; the key is never included.
 * Optional: `NETCHECK_GATEWAY_BACKEND=ollama` runs a local model instead (no key needed).
+* **Steps for your device's maker** (`POST /v1/guide`): "Exact steps for TP-Link" in a device's sheet, or a chat
+  question like "How do I turn off UPnP on my TP-Link?", lets Claude search **only the maker's official site** (list in
+  `netcheck/ai/guide.py`). Only the maker, the model the device announces (page title / product), the device type and
+  the problem code are sent: no IP, MAC or hostname. The answer is checked like the chat (no IPs, ports, CVEs, phone
+  numbers or links), keeps only sources on the maker's site and is shown with them. Needs web search enabled for the
+  organisation in the Claude Console; without it (or with Ollama) the general built-in steps stay.
+  Settings: `NETCHECK_GATEWAY_GUIDE_SEARCHES` (default 3), `NETCHECK_GATEWAY_GUIDE_TIMEOUT` (default 60 s).
 
 ### Run the gateway (team machine)
 
@@ -239,7 +247,17 @@ python -m netcheck scan 8.8.8.8 --confirm         # ⛔ REFUZAT / REFUSED — gu
 python -m netcheck parse scans/scan_x.xml         # §1 Raw Parsed Data JSON (service_data_contracts.md)
 python -m netcheck verify scans/scan_x.xml 172.20.10.5 8080 --confirm   # „Dovedește!”: re-check one fix, no root
 python -m netcheck watch --confirm --interval 30  # „Paznic”: desktop alert for a new device / newly opened port
+python -m netcheck guard-test --confirm          # one look of the guard, step by step (what it sees and why)
 ```
+
+In the app the guard is a switch on Home, **„Paznicul casei” / House guard**, and it watches **only devices**: after the
+user confirms it is their network, it looks every 8 s on a hotspot-size network (20 s on a bigger one,
+`NETCHECK_GUARD_INTERVAL`) at who is connected (the hosts `nmap -sn` sees plus the ARP table after a ping sweep, no admin
+rights, a look takes a few seconds) and shows an alert for any device it does not know ("It's mine" / "I don't know it",
+maker from nmap's MAC list, private MACs shown as such). Its list of devices can be edited (mine / stranger / forget). Open
+doors are not its job: that is the full check ("Inspect the house"). Same guardrail as a check: only the connected network,
+it stops by itself on any other one; it waits while a full check runs. What it remembers (HMAC of the MAC, masked MAC,
+maker, the user's answer) lives in `~/.netcheck` and is removed by "Delete all data".
 
 Guardrail: refuses public IPs, carrier-NAT (100.64/10), loopback/multicast/link-local, ranges bigger than /22,
 anything outside the allowlist (default = the connected subnet; extra *private* ranges via `--allow` or

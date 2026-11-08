@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 
 from netcheck import cli
-from netcheck.core.analysis import analyze_folder, write_results
 from netcheck.core.models import Finding, Host, Port
 from netcheck.core.parser import ScanFileError, parse_bytes, parse_file
 from netcheck.core.rules import evaluate
