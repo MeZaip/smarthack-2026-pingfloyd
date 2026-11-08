@@ -1674,3 +1674,59 @@ table.results .mob-file { display: none; }
 
 .topo-fline { display: flex; align-items: flex-start; gap: 8px; }
 .topo-fline .ico { flex: none; width: 1.1em; height: 1.1em; margin-top: .2em; color: var(--c); }
+
+/* „Păzește casa": the guard card on Home and its alerts in the corner */
+.guard-card { margin-top: 24px; padding: 18px 22px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--outline); }
+.guard-card.is-on { border-color: color-mix(in srgb, var(--green-dot) 55%, transparent); }
+.guard-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.guard-head .grow { flex: 1; min-width: 220px; }
+.guard-head h3 { margin: 0; font-size: 1.2rem; }
+.guard-line { margin: .25rem 0 0; }
+.guard-recent { margin-top: 14px; border-top: 1px solid var(--outline); padding-top: 12px; }
+.guard-recent .eyebrow { margin: 0 0 6px; }
+.guard-recent ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.guard-recent li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.guard-recent li .ico { flex: none; width: 1.1em; height: 1.1em; }
+.guard-recent li span:first-of-type { flex: 1; min-width: 200px; }
+.guard-toasts { position: fixed; top: 88px; right: 20px; z-index: 60; display: grid; gap: 12px; width: min(380px, calc(100vw - 32px)); }
+.guard-toast { padding: 14px 16px; border-radius: 14px; background: #18181b; color: #f4f4f5;
+  border: 1px solid color-mix(in srgb, var(--primary) 50%, transparent); box-shadow: 0 12px 40px rgba(0, 0, 0, .45); animation: gtIn .35s ease-out both; }
+.guard-toast.risky { border-color: var(--red-dot); }
+.gt-head { display: flex; align-items: center; gap: 10px; }
+.gt-head strong { flex: 1; font-size: 1.05rem; }
+.gt-head > .ico { width: 1.3em; height: 1.3em; color: var(--primary); }
+.guard-toast.risky .gt-head > .ico { color: var(--red-dot); }
+.gt-name { margin: .5rem 0 0; font-weight: 600; overflow-wrap: anywhere; }
+.gt-risk { margin: .3rem 0 0; }
+.guard-toast.risky .gt-risk { color: var(--red-ink); font-weight: 600; }
+.gt-q { margin: .5rem 0 0; }
+.guard-toast .actions { margin-top: .7rem; gap: 8px; }
+.gt-x { margin-left: auto; }
+@keyframes gtIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .guard-toast { animation: none; } }
+@media (max-width: 760px) { .guard-toasts { top: auto; bottom: 150px; right: 16px; left: 16px; width: auto; } }
+
+:root[data-theme="light"] .guard-toast { background: #ffffff; color: #1f1f1f; }
+.guard-card { background: color-mix(in srgb, var(--surface, #18181b) 92%, transparent); }
+
+/* the guard as one row in the score card; its details open in a sheet */
+.guard-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 12px 14px; border-radius: 14px;
+  border: 1px solid var(--outline); text-align: left; }
+.guard-row.is-on { border-color: color-mix(in srgb, var(--green-dot) 60%, transparent); background: color-mix(in srgb, var(--green-dot) 8%, transparent); }
+.guard-row .grow { flex: 1; min-width: 0; }
+.guard-row strong { display: block; font-size: 1rem; }
+.guard-row .guard-line { margin: 2px 0 0; font-size: 1rem; line-height: 1.4; }
+.guard-dot { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); }
+.guard-dot .ico { width: 22px; height: 22px; }
+.guard-row.is-on .guard-dot { background: var(--green-bg); }
+.guard-row.is-on .guard-dot .ico { color: var(--green-ink); }
+.guard-row .btn { flex: none; white-space: nowrap; }
+.guard-more .badge { display: inline-grid; place-items: center; min-width: 1.5em; height: 1.5em; margin-right: 6px; padding: 0 .35em;
+  border-radius: 999px; background: var(--red-dot); color: #fff; font-size: 1rem; font-weight: 700; }
+.guard-sheet .guard-recent { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: 8px; }
+.guard-sheet .guard-recent li { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.guard-sheet .guard-recent li .ico { flex: none; width: 1.1em; height: 1.1em; margin-top: .25em; }
+.guard-sheet .guard-recent li span:first-of-type { flex: 1; min-width: 200px; }
+@media (max-width: 480px) { .guard-row { flex-wrap: wrap; } .guard-row .btn { width: 100%; justify-content: center; } }
+
+.guard-row .btn { padding-left: .9rem; padding-right: .9rem; }

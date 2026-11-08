@@ -10,7 +10,10 @@
   POST   /api/v1/upload              one or more nmap XML files -> analysed and saved (broken ones: error)
   POST   /api/v1/export              nmap XML files (e.g. a whole folder) -> ZIP with findings.csv + scores.csv (FR-15)
   POST   /api/v1/export/history      the same two CSVs for the files saved on this computer (unreadable: ERROR)
-  GET    /api/v1/report/{scan_id}    technical report of one saved check (.txt, nmap style, for an IT person)
+  POST   /api/v1/report/{scan_id}    technical report of one saved check (.txt, nmap style, for an IT person)
+  GET    /api/v1/guard               „Păzește casa": on/off, state, recent events (new device, new open door)
+  POST   /api/v1/guard               {"on": true, "confirm": true} start guarding THIS network / {"on": false} stop
+  POST   /api/v1/guard/ack           {"id", "mine"} "it is mine" / "I do not know it" for one event
   DELETE /api/v1/history             delete my history (one click, NFR-02)
   POST   /api/v1/heartbeat           the open page is alive (app mode)
   POST   /api/v1/shutdown            "Close SafeHouse" (app mode)
@@ -41,6 +44,15 @@ router = APIRouter(prefix="/api/v1", tags=["agent"])
 
 jobs = agent.ScanJobs()
 life = agent.AppLife()
+guard = None                 # „Păzește casa" (netcheck.net.watch.Guard), created on first use
+
+
+def _guard():
+    global guard
+    if guard is None:
+        from ..net.watch import Guard
+        guard = Guard(interval=int(os.environ.get("NETCHECK_GUARD_INTERVAL", "20")), busy=lambda: jobs.current() is not None)
+    return guard
 
 
 def _lang(request: Request) -> str:
@@ -122,8 +134,8 @@ def _verify_runner(cmd: list[str]) -> bytes:
     return proc.stdout
 
 
-VERIFY_RESCAN = ("Pentru această problemă e nevoie de o verificare completă: apasă „Verifică rețeaua din nou”.",
-                 "This problem needs a full check: press \"Check my network again\".")
+VERIFY_RESCAN = ("Pentru această problemă e nevoie de o verificare completă: apasă „Inspectează din nou”.",
+                 "This problem needs a full check: press \"Inspect again\".")
 
 
 @router.post("/verify")
@@ -357,7 +369,7 @@ def export_history(request: Request):
     return _export_response(results, lang)
 
 
-@router.get("/report/{scan_id}")
+@router.post("/report/{scan_id}")
 def technical_report(scan_id: int, request: Request):
     """The technical report of one saved check: a .txt file, also kept next to the CSV exports."""
     import re
@@ -390,6 +402,50 @@ def technical_report(scan_id: int, request: Request):
     })
 
 
+class GuardRequest(BaseModel):
+    on: bool
+    confirm: bool = False
+
+
+class GuardAck(BaseModel):
+    id: str = Field(max_length=20)
+    mine: bool
+
+
+@router.get("/guard")
+def guard_status():
+    return _guard().status()
+
+
+@router.post("/guard")
+def guard_switch(body: GuardRequest, request: Request):
+    """Start / stop guarding the network this computer is on. Same rules as a check: only this network,
+    only after the user says it is theirs; no admin rights needed (connect scan only)."""
+    lang = _lang(request)
+    g = _guard()
+    if not body.on:
+        g.stop()
+        return g.status()
+    if not body.confirm:
+        return _error(400, "need_consent", lang, "Confirmă întâi că e rețeaua ta." if lang == "ro"
+                      else "First confirm that this is your network.")
+    net = agent.network_info()
+    if not net.get("ok"):
+        return _error(403, net.get("code", "refused"), lang,
+                      "Această rețea nu poate fi păzită (nu pare o rețea de acasă)." if lang == "ro"
+                      else "This network cannot be guarded (it does not look like a home network).")
+    try:
+        g.start(net["subnet"], net.get("ip"))
+    except guardrail.ScopeError:
+        return _error(403, "refused", lang, "Această rețea nu poate fi păzită." if lang == "ro" else "This network cannot be guarded.")
+    return g.status()
+
+
+@router.post("/guard/ack")
+def guard_ack(body: GuardAck):
+    return {"ok": _guard().ack(body.id, body.mine)}
+
+
 # ------------------------------------------------------------------ privacy + app lifecycle
 @router.delete("/history")
 def delete_history():
@@ -397,6 +453,7 @@ def delete_history():
     history.delete_history()
     _cache.clear()
     _guides.clear()
+    _guard().forget()
     return {"deleted": True}
 
 
