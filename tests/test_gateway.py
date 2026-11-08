@@ -417,3 +417,16 @@ def test_broken_tls_is_retried_once_then_explained(monkeypatch):
     with pytest.raises(BackendError) as e:
         backends._post_json("https://api.example/v1", {}, {}, 5, "claude")
     assert len(calls) == 2 and "antivirus" in str(e.value) and "SSLError" in str(e.value)
+
+
+def test_ungrounded_twice_keeps_the_verified_sentences(gw, v2):
+    backend, url, _ = gw
+    backend.replies = ["Use a long password. Then open port 3389.", "Use a long password. Then open port 3389."]
+    ans = ask("?", v2, "en", provider=RemoteProvider(url=url))
+    assert ans.source == "ai" and ans.text == "Use a long password." and "3389" not in ans.text
+
+
+def test_scrub_drops_only_the_bad_sentence():
+    from netcheck.ai.grounding import scrub
+    text = "1. Open the app. Go to 192.168.4.1 there.\n2. Turn off Telnet."
+    assert scrub(text, set(), set(), "") == "1. Open the app.\n2. Turn off Telnet."

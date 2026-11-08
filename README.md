@@ -207,7 +207,9 @@ netcheck app (user, no key) --HTTPS--> gateway (team machine, has the key) --HTT
 * Optional: `NETCHECK_GATEWAY_BACKEND=ollama` runs a local model instead (no key needed).
 * **Steps for your device's maker** (`POST /v1/guide`): "Exact steps for TP-Link" in a device's sheet, or a chat
   question like "How do I turn off UPnP on my TP-Link?", lets Claude search **only the maker's official site** (list in
-  `netcheck/ai/guide.py`). Only the maker, the model the device announces (page title / product), the device type and
+  `netcheck/ai/guide.py`). For any other maker the search may use any site (no forums), the answer says so and every source
+  is shown; for Wi-Fi chip makers such as Espressif it explains that the brand is the chip inside and gives the steps of
+  the usual setup apps. Only the maker, the model the device announces (page title / product), the device type and
   the problem code are sent: no IP, MAC or hostname. The answer is checked like the chat (no IPs, ports, CVEs, phone
   numbers or links), keeps only sources on the maker's site and is shown with them. Needs web search enabled for the
   organisation in the Claude Console; without it (or with Ollama) the general built-in steps stay.

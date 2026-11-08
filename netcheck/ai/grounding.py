@@ -63,3 +63,32 @@ def check_evidence(answer: str, ips: set[str], ports: set[int], raw: str) -> Non
         digits = re.sub(r"\D", "", ph)
         if len(digits) >= 9 and not _IPV4.search(ph):
             raise GroundingError("mentions a phone-like number")
+
+
+_SENTENCE = re.compile(r"(?<=[.!?])\s+")
+
+
+def scrub(answer: str, ips: set[str], ports: set[int], raw: str) -> str:
+    """Drop only the sentences that fail the check; keep the rest (lines and numbered lists stay as they are)."""
+    kept_lines = []
+    for line in answer.splitlines():
+        parts = []
+        for sent in _SENTENCE.split(line):
+            try:
+                check_evidence(sent, ips, ports, raw)
+                parts.append(sent)
+            except GroundingError:
+                pass
+        if parts:
+            kept_lines.append(" ".join(parts))
+    text = "\n".join(kept_lines).strip()
+    check_evidence(text, ips, ports, raw)      # never return something that still fails
+    return text
+
+
+def scrub_analysis(answer: str, *analyses: Analysis) -> str:
+    return scrub(answer, *evidence_sets(*analyses))
+
+
+def words(text: str) -> int:
+    return len(re.findall(r"\w+", text))

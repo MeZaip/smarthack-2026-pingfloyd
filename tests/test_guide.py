@@ -67,7 +67,7 @@ def test_request_has_no_ip_mac_or_hostname():
     for secret in ("192.168.0.1", "AB:CD", "andrei-router"):
         assert secret not in blob
     with pytest.raises(ValueError):
-        build_guide_request({**ROUTER, "vendor": "Dell", "open_ports": []}, "TELNET_OPEN", [], "ro")
+        build_guide_request({**ROUTER, "vendor": None, "open_ports": []}, "TELNET_OPEN", [], "ro")   # nothing to name
 
 
 @pytest.mark.parametrize("mutate", [
@@ -245,3 +245,81 @@ def test_claude_guide_drops_the_text_written_before_the_search():
         assert text == "Pentru routerele TP-Link:\n1. Deschide „Advanced”."
     finally:
         api.srv.shutdown()
+
+
+
+# ------------------------------------------------------------------ any other maker (not in the list of official sites)
+PLUG = {"ip": "192.168.0.30", "mac": "XX:XX:XX:XX:12:34", "vendor": "Espressif Inc.", "type": "iot", "open_ports": []}
+
+
+@pytest.mark.parametrize("text,name", [("Espressif Inc.", "Espressif"), ("Shenzhen Bilian Electronic Co.,Ltd", "Shenzhen Bilian"),
+                                       ("AzureWave Technology Inc.", "AzureWave"), ("Unknown", None), (None, None)])
+def test_maker_name(text, name):
+    from netcheck.ai.guide import maker_name
+    assert maker_name(text) == name
+
+
+def test_any_maker_gets_steps_searched_on_any_site_with_sources():
+    from netcheck.ai.guide import is_chip_maker, vendor_for
+    assert vendor_for(PLUG) == "other:Espressif" and is_chip_maker("other:Espressif")
+    req = build_guide_request(PLUG, "MQTT_EXPOSED", ["Pas"], "en")
+    assert validate_guide_request(req)["vendor"] == "other:Espressif"
+    backend = GuideBackend(text="For Espressif-based plugs:\n1. Open the eWeLink app.",
+                           sources=[{"title": "eWeLink help", "url": "https://help.ewelink.cc/x"}])
+    srv, url = start(Config(port=0, anthropic_api_key=FAKE_KEY), backend)
+    try:
+        status, data = _post(url, req)
+        assert status == 200 and data["sources"] == [{"title": "eWeLink help", "url": "https://help.ewelink.cc/x"}]
+        system, user, sites = backend.guide_calls[0]
+        assert sites == [] and "Wi-Fi chip" in system and "official sites" in system
+    finally:
+        srv.shutdown()
+
+
+def test_claude_guide_without_a_site_list_searches_everywhere():
+    calls = []
+    api = JsonServer(lambda p, b, h: (calls.append(b) or 200, {"stop_reason": "end_turn", "content": [{"type": "text", "text": "1. Open the app."}]}))
+    try:
+        ClaudeBackend(Config(anthropic_api_key=FAKE_KEY), url=api.url + "/v1/messages").guide("S", "U", [])
+        assert "allowed_domains" not in calls[0]["tools"][0]
+    finally:
+        api.srv.shutdown()
+
+
+def test_chat_finds_a_maker_that_is_not_in_the_list():
+    from netcheck.ai.guide import device_steps_target
+    from netcheck.core.models import Finding
+    f = Finding("192.168.0.30", 1883, "tcp", "MQTT_EXPOSED", "medium", 10, "1883/tcp open")
+    got = device_steps_target("How do I fix this on the Espressif plug?", [PLUG], [f])
+    assert got and got[0]["ip"] == "192.168.0.30" and got[1] == "MQTT_EXPOSED"
+
+
+def test_chat_finds_the_device_by_its_kind():
+    from netcheck.ai.guide import device_steps_target
+    from netcheck.core.models import Finding
+    f = Finding("192.168.0.30", 1883, "tcp", "MQTT_EXPOSED", "medium", 10, "1883/tcp open")
+    got = device_steps_target("Cum repar priza inteligentă?", [PLUG], [f])
+    assert got and got[0]["ip"] == "192.168.0.30"
+    assert device_steps_target("Ce e MQTT?", [PLUG], [f]) is None                  # not asking for steps
+
+
+def test_guide_with_one_bad_sentence_keeps_the_rest_without_a_second_search():
+    long = "1. Open the maker's app on your phone and pick the device from the list of devices. " \
+           "2. Go to the device settings and find the remote access option there. " \
+           "3. Turn it off and save the settings, then restart the device. Or open 192.168.0.1 in the browser."
+    backend = GuideBackend(text=long)
+    srv, url = start(Config(port=0, anthropic_api_key=FAKE_KEY), backend)
+    try:
+        status, data = _post(url, build_guide_request(ROUTER, "TELNET_OPEN", [], "en"))
+        assert status == 200 and "192.168" not in data["answer"] and len(backend.guide_calls) == 1
+    finally:
+        srv.shutdown()
+
+
+def test_chat_steps_when_the_search_fails_answer_the_question(app_client):
+    c, sid, mp, api_v1 = app_client
+    mp.setattr(api_v1, "get_provider", lambda: object())                   # AI not running
+    r = c.post("/api/v1/ask?lang=ro", json={"scan_id": sid, "question": "Cum opresc telnet pe Netgear?"})
+    d = r.json()
+    assert r.status_code == 200 and d["mode"] == "offline"
+    assert d["answer"].startswith("Nu am reușit acum să caut pașii pentru Netgear") and "1. " in d["answer"]
