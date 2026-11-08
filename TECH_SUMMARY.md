@@ -1,6 +1,9 @@
 # SafeHouse — Technical Summary
 
-## Lab setup
+**Lab setup.** One phone runs hotspot `RSH-PingFloyd` (WPA2/3). Scanner laptop joins only the hotspot. Target laptop runs
+`lab/fake_services.py` (banner-only telnet, FTP vsFTPd 2.3.4, SSH OpenSSH 7.2, VNC, plain-HTTP "Admin Login") and optionally
+Docker Redis / Mosquitto 1.6 / nginx admin page. ≥ 6 catalog finding types. Before/after: `--fixed` turns off telnet, FTP and HTTP admin.
+Measured in our lab (iPhone hotspot `172.20.10.0/28`, MacBook scanner, Windows target; `tests/fixtures/lab/`): score **0 → 30 → 80** (all fake services + file sharing → `--fixed` → services and file sharing off).
 
 SafeHouse was designed and tested on a small, isolated Wi-Fi network owned by the
 team. A phone hotspot provides the private subnet; a scanner laptop runs the
@@ -24,14 +27,18 @@ produces an `ERROR` row without stopping the batch.
 plus a minimal scan context (device type, vendor, private IP, open ports, findings; never hostnames, MACs or raw XML) to our
 stateless **AI gateway**, which holds the key and calls Claude Haiku 5.5 (optional: a local Ollama model). Gateway limits: strict
 request contract, per-IP rate limit, daily cap, no logging of content. A **grounding validator** (in the gateway and again in the app)
-rejects any answer naming an IP, port, CVE, link or phone number not in the scan and shows the verified built-in text instead.
+drops any sentence naming an IP, port, CVE, link or phone number not in the scan; if nothing verified is left, the built-in text is shown instead.
 Gateway down / no key / timeout → built-in answers, same UX. Conversations keep the last 6 turns in the app only.
 "Exact steps for <maker>": the gateway lets Claude search **only the maker's official site** (any site, clearly flagged, for makers not on our list) for where the setting is,
 sends no IP/MAC/hostname, checks the answer the same way and shows it with its sources; the built-in steps stay visible.
 A technical report (.txt, nmap style) exports one check for an IT person (no AI).
+<<<<<<< HEAD
 =======
 ## Architecture
 >>>>>>> Stashed changes
+=======
+The team also used Claude Code as a coding assistant during development (code, tests and reviews); every change was reviewed by the team and the validation tests had to stay green.
+>>>>>>> ionut/extra-features
 
 The implementation is a Python 3 application with a shared domain model:
 

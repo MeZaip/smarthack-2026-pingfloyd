@@ -8,7 +8,7 @@ from netcheck.ai.grounding import GroundingError, check
 from netcheck.ai.providers import LLMUnavailable, NoProvider
 from netcheck.core.analysis import analyze_file
 
-V2 = Path(__file__).parent / "fixtures" / "synthetic" / "V2_smart_home.xml"
+V2 = Path(__file__).parent / "fixtures" / "validation" / "V2_smart_home.xml"
 
 
 class FakeGateway:

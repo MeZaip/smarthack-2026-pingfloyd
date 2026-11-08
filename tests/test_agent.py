@@ -13,7 +13,7 @@ from netcheck.core.analysis import analyze_file
 from netcheck.net import elevate, netdetect, scanner
 from netcheck.net.netdetect import NetworkInfo
 
-SYN = Path(__file__).parent / "fixtures" / "synthetic"
+SYN = Path(__file__).parent / "fixtures" / "validation"
 NET = NetworkInfo(interface="wlan0", ip="192.168.1.20", netmask="255.255.255.0", subnet="192.168.1.0/24",
                   gateway="192.168.1.1")
 

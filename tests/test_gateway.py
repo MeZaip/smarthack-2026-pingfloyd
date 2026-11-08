@@ -16,7 +16,7 @@ from netcheck.ai.contract import ContractError, build_request, validate_request
 from netcheck.ai.remote import RemoteProvider
 from netcheck.core.analysis import analyze_file
 
-FIX = Path(__file__).parent / "fixtures" / "synthetic"
+FIX = Path(__file__).parent / "fixtures" / "validation"
 FAKE_KEY = "test-key-not-real"
 
 

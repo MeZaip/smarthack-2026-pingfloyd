@@ -2,7 +2,7 @@
 
     python tools/export_ui_data.py [scan-folder] [--history before.xml after.xml] [--out ui/data.js]
 
-Defaults: every scan in tests/fixtures/synthetic, history = V6a_before -> V6b_after.
+Defaults: every scan in tests/fixtures/validation, history = V6a_before -> V6b_after.
 Everything comes from the same code as the CLI: rules, score, texts, diff.
 MAC addresses are already masked by Analysis.devices() (NFR-02).
 """
@@ -23,7 +23,7 @@ from netcheck.core.device import DEVICE_LABELS  # noqa: E402
 from netcheck.explain.simple_texts import GLOSSARY, SIMPLE, WHO  # noqa: E402
 from netcheck.explain.texts import LANGS, SEVERITY_LABELS, TEXTS, score_band  # noqa: E402
 
-SYN = ROOT / "tests" / "fixtures" / "synthetic"
+SYN = ROOT / "tests" / "fixtures" / "validation"
 
 
 def scan_entry(path: Path) -> dict:

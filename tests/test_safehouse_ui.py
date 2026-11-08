@@ -7,7 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 LAB = ROOT / "tests" / "fixtures" / "lab"
-SYN = ROOT / "tests" / "fixtures" / "synthetic"
+SYN = ROOT / "tests" / "fixtures" / "validation"
 FULL_MAC = re.compile(r"\b(?:[0-9A-F]{2}:){5}[0-9A-F]{2}\b", re.I)
 
 

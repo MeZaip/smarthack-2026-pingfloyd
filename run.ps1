@@ -2,7 +2,7 @@
   Start SafeHouse on Windows - the Windows version of ./run.sh.
 
     .\run.ps1                  AI gateway (if a key / Ollama is configured) + UI on http://127.0.0.1:8000
-    .\run.ps1 -Demo            same, with a separate demo history pre-loaded from tests\fixtures\synthetic
+    .\run.ps1 -Demo            same, with a separate demo history pre-loaded from tests\fixtures\validation
     .\run.ps1 -NoAI            UI only; the assistant answers from the built-in, verified texts
     .\run.ps1 -Port 9000       UI on another port
     .\run.ps1 -NoBrowser       do not open the browser
@@ -89,7 +89,7 @@ if ($Demo) {
     $env:NETCHECK_DB = Join-Path $HOME ".netcheck\demo.sqlite"
     Write-Host "* Demo history: $($env:NETCHECK_DB) (your real history is not touched)"
     & $Py -m netcheck history delete --yes *> $null
-    & $Py -m netcheck history add tests\fixtures\synthetic\ *> $null
+    & $Py -m netcheck history add tests\fixtures\validation\ *> $null
 }
 
 # ---------------------------------------------------------------- services

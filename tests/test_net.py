@@ -14,7 +14,7 @@ from netcheck.core.rules import evaluate
 from netcheck.net import contract, guardrail, netdetect, scanner, verify, watch
 
 REPO = Path(__file__).parent.parent
-FIX = Path(__file__).parent / "fixtures" / "synthetic"
+FIX = Path(__file__).parent / "fixtures" / "validation"
 GOOD = sorted(p for p in FIX.glob("*.xml") if "broken" not in p.name)
 NMAP_HEAD = (b'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE nmaprun>\n'
              b'<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>\n')

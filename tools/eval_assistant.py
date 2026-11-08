@@ -27,7 +27,7 @@ from netcheck.ai.contract import build_request  # noqa: E402
 from netcheck.ai.providers import load_dotenv  # noqa: E402
 from netcheck.core.analysis import analyze_file  # noqa: E402
 
-FIX = ROOT / "tests" / "fixtures" / "synthetic"
+FIX = ROOT / "tests" / "fixtures" / "validation"
 
 QUESTIONS = [
     ("V2_smart_home.xml", None, "ro", "Care e cel mai periculos dispozitiv și ce fac primul?"),
