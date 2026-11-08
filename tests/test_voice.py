@@ -20,7 +20,7 @@ from netcheck.ai.remote import RemoteProvider
 from netcheck.ai.voice import to_speech_text
 from netcheck.core.analysis import analyze_file
 
-FIX = Path(__file__).parent / "fixtures" / "synthetic"
+FIX = Path(__file__).parent / "fixtures" / "validation"
 TECH = re.compile(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[0-9A-FX]{2}:[0-9A-FX]{2}:|\d+/(tcp|udp)|[A-Z]+_[A-Z_]+")
 
 

@@ -1,110 +1,79 @@
-# SafeHouse — Technical Summary
+# SafeHouse: Technical Summary
 
-**Lab setup.** One phone runs hotspot `RSH-PingFloyd` (WPA2/3). Scanner laptop joins only the hotspot. Target laptop runs
-`lab/fake_services.py` (banner-only telnet, FTP vsFTPd 2.3.4, SSH OpenSSH 7.2, VNC, plain-HTTP "Admin Login") and optionally
-Docker Redis / Mosquitto 1.6 / nginx admin page. ≥ 6 catalog finding types. Before/after: `--fixed` turns off telnet, FTP and HTTP admin.
-Measured in our lab (iPhone hotspot `172.20.10.0/28`, MacBook scanner, Windows target; `tests/fixtures/lab/`): score **0 → 30 → 80** (all fake services + file sharing → `--fixed` → services and file sharing off).
+## Lab setup
 
-SafeHouse was designed and tested on a small, isolated Wi-Fi network owned by the
-team. A phone hotspot provides the private subnet; a scanner laptop runs the
-application; and a second laptop acts as the target. The target runs
-[`lab/fake_services.py`](./lab/fake_services.py), which exposes banner-only
-services and contains no login, shell, or real data: Telnet, FTP/vsftpd 2.3.4,
-OpenSSH 7.2, VNC, and a plain-HTTP page titled “Admin Login”. Optional Docker
-services add Redis, anonymous MQTT, and an nginx admin page
-([`lab/docker-compose.yml`](./lab/docker-compose.yml)). The `--fixed` mode turns
-off selected insecure services, providing a reproducible before/after experiment.
-The checked-in lab fixtures contain at least five finding types and test that the
-score improves across the repair steps.
+- **Network.** An iPhone runs the hotspot `RSH-PingFloyd` (WPA2/3, private subnet `172.20.10.0/28`). The scanner laptop joins only this hotspot. A Windows laptop is the target.
+- **Target services.** The target runs `lab/fake_services.py`. It exposes banner-only services with no login, shell or real data behind them:
+  - Telnet
+  - FTP (vsFTPd 2.3.4)
+  - OpenSSH 7.2
+  - VNC
+  - a plain-HTTP "Admin Login" page
+- **Optional Docker services.** `lab/docker-compose.yml` adds Redis, anonymous MQTT and an nginx admin page.
+- **Before/after experiment.** Windows file sharing stays on until the last step.
 
-Offline validation uses nmap XML fixtures, including home, smart-home, legacy,
-non-standard-port, before/after, and malformed inputs. The golden tests compare
-both missing and extra finding rows and exact network scores; malformed input
-produces an `ERROR` row without stopping the batch.
+| Step | Target state | Score |
+|---|---|---|
+| Before | all fake services, file sharing on | 0 |
+| Between | `--fixed`: Telnet, FTP and the admin page turned off | 30 |
+| Final | services and file sharing off | 80 |
 
-<<<<<<< Updated upstream
-**AI use (governed).** Findings, severities and scores never touch the LLM. The app holds **no API key**: it sends the question
-plus a minimal scan context (device type, vendor, private IP, open ports, findings; never hostnames, MACs or raw XML) to our
-stateless **AI gateway**, which holds the key and calls Claude Haiku 5.5 (optional: a local Ollama model). Gateway limits: strict
-request contract, per-IP rate limit, daily cap, no logging of content. A **grounding validator** (in the gateway and again in the app)
-drops any sentence naming an IP, port, CVE, link or phone number not in the scan; if nothing verified is left, the built-in text is shown instead.
-Gateway down / no key / timeout → built-in answers, same UX. Conversations keep the last 6 turns in the app only.
-"Exact steps for <maker>": the gateway lets Claude search **only the maker's official site** (any site, clearly flagged, for makers not on our list) for where the setting is,
-sends no IP/MAC/hostname, checks the answer the same way and shows it with its sources; the built-in steps stay visible.
-A technical report (.txt, nmap style) exports one check for an IT person (no AI).
-<<<<<<< HEAD
-=======
+The three scans are in `tests/fixtures/lab/`. The official Validation Set is in `tests/fixtures/validation/`. A golden test checks both sets on every run: no missing rows, no extra rows, exact scores.
+
 ## Architecture
->>>>>>> Stashed changes
-=======
-The team also used Claude Code as a coding assistant during development (code, tests and reviews); every change was reviewed by the team and the validation tests had to stay green.
->>>>>>> ionut/extra-features
 
-The implementation is a Python 3 application with a shared domain model:
-
-```text
-nmap (only privileged operation)
-        ↓ XML
-safe parser (defusedxml) → deterministic catalog rules and score
-        ↓
-SQLite history / CSV and technical report / FastAPI local agent / web UI
-                                      ↓ optional
-                              AI gateway → Claude or Ollama
+```
+nmap (the only privileged step) --XML--> safe parser (defusedxml, size limits)
+  --> deterministic rules + score --> SQLite history | CSV export | reports | local agent (FastAPI) --> web UI
+                                                                                  \--optional--> AI gateway --> Claude / Ollama
 ```
 
-The CLI and web UI call the same parser, analysis, rules, history, and reporting
-functions. A live scan uses nmap service/version detection, HTTP page titles,
-the top TCP ports, and a small UDP set. The guardrail permits only private,
-connected, allowlisted networks, limits the range to 1,024 addresses, caps the
-scan rate at 100 packets/second, and requires explicit confirmation. The Python
-agent and UI run unprivileged on `127.0.0.1`; only nmap may request elevation.
+**Single code path.** The CLI and the web UI share one Python package: parser, rules, score, history and reports. `netcheck analyze` and the UI's "Export CSV" produce identical `findings.csv` and `scores.csv`. An unreadable file gets `ERROR` and the batch continues.
 
-The rule engine recognizes the official catalog (for example Telnet, exposed
-databases, cleartext FTP/HTTP administration, SMB, MQTT, UPnP, SNMP, outdated
-software, and unknown devices). Only ports whose nmap state is exactly `open`
-are evaluated. The score is deterministic:
-`max(0, 100 − sum(finding points))`. MAC addresses are masked before they enter
-JSON, SQLite, reports, or the UI. History uses a keyed identifier to recognize a
-device without storing its full MAC.
+**Live scan.** The live scan runs `nmap -sS -sU -sV --version-light --script http-title --max-rate 100`. It covers nmap's top 1000 TCP ports and UDP 53, 123, 161, 1900 and 5353.
+
+**Guardrail.** Only the private subnet the computer is connected to is allowed. Public, carrier-NAT, loopback, multicast and link-local addresses, ranges larger than /22 and any scan without explicit confirmation are refused.
+
+**Least privilege.** Only nmap is elevated, through the operating system's permission dialog (UAC, osascript or pkexec). The analyser, UI, assistant and guard run unprivileged.
+
+**Local agent.** The agent listens on 127.0.0.1 only and checks the Host header against DNS rebinding. Requests that change state need a per-run SameSite cookie and a same-origin `Origin` header, so other websites cannot start a scan or delete data.
+
+**Score.** `max(0, 100 - sum of finding points)`, from the official catalog. Only ports whose state is exactly `open` count.
+
+**Privacy.**
+- MACs are masked everywhere. Devices are recognised by a keyed HMAC of the MAC, never the MAC itself.
+- History stays in `~/.netcheck/`, and "Delete all data" removes it.
+- Scan text (banners, titles) is untrusted: it is inserted into the UI only as text.
+
+**Beyond the brief.** A 3D house that reacts to a real scan; a network map; "I fixed it, check" (one-port re-check, no admin rights); a house guard that alerts within seconds when an unknown device joins the Wi-Fi; an nmap-style technical report with CIS Controls and OWASP IoT references; voice mode (browser speech recognition, answers spoken by Piper on the user's computer, browser voice as fallback).
 
 ## Assumptions
 
-Nmap service names and version evidence are treated as authoritative; therefore
-`http-proxy` is not silently treated as `http`. HTTPS is identified through
-Nmap’s `tunnel="ssl"` field. HTTP administration is reported only when the exact
-service is `http`, TLS is absent, and the page title contains an administration
-term such as “login”, “admin”, or “settings”. SMB creates one finding per
-device,
-preferring port 445. UDP-only findings require UDP. A version range such as
-`3.X - 4.X` is judged by its upper major version. Device type is a heuristic
-based on the available Nmap metadata, not an inventory guarantee.
+- **Service names.** Nmap service names are taken as reported, so `http-proxy` is not treated as `http`.
+- **HTTPS.** HTTPS is recognised by `tunnel="ssl"`.
+- **HTTP admin pages.** Reported only for service `http`, without TLS, with a page title containing an admin word (login, admin, settings).
+- **SMB.** One SMB finding per device, preferring port 445.
+- **Version ranges.** A range such as `3.X - 4.X` is judged by its upper major version.
+- **Device type.** The device type is a heuristic based on nmap data and the MAC vendor.
 
-## LLM use and safeguards
+## LLM use
 
-LLMs are optional enrichment, never the source of findings, severities, scores,
-or built-in remediation text. The application sends a minimal context
-(question, device type/vendor, private IP, open ports, and finding data) to a
-stateless gateway; it does not send raw XML, full MAC addresses, or hostnames.
-The API key exists only on the gateway. The default backend is Claude Haiku 5.5;
-an Ollama backend is available for local execution. The gateway applies a
-per-IP rate limit, daily request budget, bounded concurrency, request-size
-limits, and timeouts, and does not log request bodies or client IPs.
+**What the LLM never does.** It never produces findings, severities, scores or the built-in fix texts. Those come from fixed rules, identical on every run.
 
-Responses are checked both at the gateway and in the application. The grounding
-validator rejects unobserved IPs, ports, CVEs, external links, and phone-like
-numbers. If the gateway is unavailable, exceeds a limit, times out, or returns
-ungrounded text, SafeHouse uses deterministic Romanian/English fallback text.
-Maker-specific repair guidance may use Claude’s web search, restricted to the
-maker’s official domains, and is displayed with sources.
+**What the assistant receives.** The assistant (chat and voice) only explains the results. The app holds no API key. It sends the question plus device type, vendor, private IP, open ports and findings to the team's stateless gateway; never hostnames, MACs, raw XML or history.
 
-## Limitations
+**Gateway.** The gateway holds the key and calls Claude Haiku 5.5, or Ollama locally. It enforces a strict request contract, a per-IP rate limit, a daily cap and timeouts, and does not log request content or client IPs.
 
-The tool evaluates observed open ports, not filtered ports, vulnerabilities
-behind authentication, or the complete device inventory. Service fingerprinting,
-device classification, vendor identification, and page-title matching are
-heuristics and can miss non-standard implementations. The live scan is limited
-to the connected private subnet and requires nmap/Npcap plus suitable local
-permissions. AI guidance depends on gateway/model availability and is advisory;
-the deterministic report remains the authoritative result. Future work includes
-passive mDNS/SSDP discovery, broader protocol-specific checks, and signed PDF
-reports.
+**Grounding.** A grounding check runs in the gateway and again in the app. It removes any sentence that names an IP, port, CVE, link or phone number not present in the scan. If nothing verified is left, or the gateway is unreachable, SafeHouse shows its built-in Romanian/English texts and keeps working.
+
+**Maker-specific steps.** "Exact steps for <maker>" lets Claude search only the maker's official site. Unknown makers are clearly flagged. The request sends only the maker, model, device type and problem code. The answer is shown with its sources.
+
+**Development.** The team used Claude Code as a coding assistant (code, tests, reviews). Every change was reviewed by the team, and the validation tests had to stay green.
+
+## Limitations and next steps
+
+- **What is judged.** Only observed open ports are judged. Filtered ports, flaws behind a login and devices that do not answer are not covered.
+- **Heuristics.** Fingerprinting, device type and vendor detection are heuristics.
+- **Scope of the live scan.** The live scan needs nmap (and Npcap on Windows) and covers only the connected private subnet.
+- **Assistant availability.** AI answers depend on the gateway being reachable. The rule-based report remains the authoritative result.
+- **Next steps.** Device names through mDNS/SSDP, more protocol-specific checks, signed PDF reports.
