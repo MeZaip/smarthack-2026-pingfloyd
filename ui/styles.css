@@ -617,7 +617,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
    Semantic colours: safe #10B981, warning #F59E0B, danger #EF4444 - always with an SVG icon + words.
    ===================================================================================== */
 :root:not([data-theme="light"]) {
-  --bg: #131824;               /* a warm dark slate, not flat black: the house and the roof stand out */
+  --bg: #000000;               /* pure black */
   --surface: rgba(255, 255, 255, .03);
   --surface-1: rgba(255, 255, 255, .03);
   --surface-2: rgba(255, 255, 255, .06);
@@ -644,7 +644,7 @@ dialog.sheet::backdrop { background: rgba(0, 0, 0, .4); }
   --solid: #ffffff; --text-2: #1f1f1f; --line: #e5e7eb;
   --safe: #0d8a5f; --warn: #b45309; --danger: #b91c1c;
 }
-:root:not([data-theme="light"]) body { background: radial-gradient(1200px 600px at 70% -10%, rgba(56, 189, 248, .1), transparent 60%), var(--bg); }
+:root:not([data-theme="light"]) body { background: var(--bg); }
 
 body { font-family: Inter, "SF Pro Text", -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif; }
 h1, h2, h3, h4 { font-weight: 700; color: var(--text); }
@@ -1906,3 +1906,7 @@ table.results .mob-file { display: none; }
 .glass-ico.has-3d { background: transparent !important; overflow: visible; animation: none !important; box-shadow: none !important; }
 .glass-ico.has-3d > svg { display: none; }
 .glass-ico .glass-sign { width: 64px; height: 64px; margin: -6px; display: block; animation: none; }
+
+/* ---------- black frame (dark theme): sidebar / bottom bar and sticky header match the black page ---------- */
+:root:not([data-theme="light"]) .nav,
+:root:not([data-theme="light"]) .appbar { background: #000000; }
