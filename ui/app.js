@@ -28,7 +28,7 @@
       topoCore: "Casa ta", topoGateway: "Poarta spre internet", topoHint: "Apasă pe un aparat ca să vezi detaliile.",
       topoNet: "Rețea", topoWhy: "Ce înseamnă", closeEsc: "Închide (Esc)", portOpen: "Deschis", portVuln: "Vulnerabil", portSecure: "criptat",
       netTitle: "Rețeaua ta ({n} aparate)", netSub: "{n} aparate au uși deschise. Începe cu cel mai periculos sau apasă pe orice aparat.", netSub1: "Un aparat are uși deschise. Începe cu el sau apasă pe orice aparat.",
-      topoMore: "+{n} mai multe", topoBack: "Toată rețeaua", topoShow: "Filtrează după risc", topoSearch: "Caută IP sau nume", topoResults: "{n} rezultate", topoResult1: "Un rezultat", topoNoResults: "Niciun aparat găsit",
+      topoMore: "+{n} mai multe", fixNow: "Repară acum", moreProbs: "+{n} alte probleme", moreProb1: "+1 altă problemă", devDetails: "Vezi detalii", topoBack: "Toată rețeaua", topoShow: "Filtrează după risc", topoSearch: "Caută IP sau nume", topoResults: "{n} rezultate", topoResult1: "Un rezultat", topoNoResults: "Niciun aparat găsit",
       topoStart: "Începe cu cel mai periculos", topoPrev: "Aparatul anterior", topoNext: "Următorul", topoFound: "Ce am găsit",
       tourStep: "Aparatul {i} din {n}", tourPort: "port {p}", tourFirst: "Primul pas",
       tourEndT: "Ai parcurs tot traseul", tourEndS1: "Un aparat are uși deschise. Reparațiile, pas cu pas:", tourEndS: "{n} aparate au uși deschise. Reparațiile, pas cu pas:",
@@ -165,7 +165,7 @@
       topoCore: "Your home", topoGateway: "Gateway to the internet", topoHint: "Tap a device to see its details.",
       topoNet: "Network", topoWhy: "What it means", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
       netTitle: "Your network ({n} devices)", netSub: "{n} devices have open doors. Start with the most dangerous one or tap any device.", netSub1: "One device has open doors. Start with it or tap any device.",
-      topoMore: "+{n} more", topoBack: "Whole network", topoShow: "Filter by risk", topoSearch: "Search IP or name", topoResults: "{n} results", topoResult1: "One result", topoNoResults: "No device found",
+      topoMore: "+{n} more", fixNow: "Fix it now", moreProbs: "+{n} more problems", moreProb1: "+1 more problem", devDetails: "See details", topoBack: "Whole network", topoShow: "Filter by risk", topoSearch: "Search IP or name", topoResults: "{n} results", topoResult1: "One result", topoNoResults: "No device found",
       topoStart: "Start with the most dangerous", topoPrev: "Previous device", topoNext: "Next", topoFound: "What we found",
       tourStep: "Device {i} of {n}", tourPort: "port {p}", tourFirst: "First step",
       tourEndT: "That's the whole path", tourEndS1: "One device has open doors. The fixes, step by step:", tourEndS: "{n} devices have open doors. The fixes, step by step:",
@@ -1103,16 +1103,6 @@
       if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
     }
 
-    function portsOf(d, probs) {
-      const vuln = new Map(probs.filter((f) => f.port != null).map((f) => [f.port + "/" + f.protocol, f]));
-      return d.open_ports.map((p) => {
-        const f = vuln.get(p.port + "/" + p.protocol);
-        return h("li", { class: f ? "sev-" + f.severity : "" },
-          h("span", { class: "topo-port", text: `${p.port}/${p.protocol}` }),
-          h("span", { class: "topo-svc", text: (p.service || "?").toUpperCase() + (p.tls ? " · " + t("portSecure") : "") }),
-          h("span", { class: "topo-state" }, icon(f ? RISK[f.severity].icon : p.tls ? "lock" : "door"), f ? t("portVuln") : t("portOpen")));
-      });
-    }
     function navRow(it) {
       const ti = trail.indexOf(it);
       if (!trail.length) return null;
@@ -1133,8 +1123,10 @@
       selected = { it, btn };
       btn.setAttribute("aria-pressed", "true");
       const d = it.d, probs = it.probs, worst = probs[0], vendor = shortVendor(d.vendor), sev = it.sev;
-      const ports = portsOf(d, probs), ti = trail.indexOf(it);
-      const box = (title, i, ...kids) => h("section", { class: "topo-box grunge", style: `--i:${i}` }, h("p", { class: "topo-k", text: title }), kids);
+      // kept short on purpose: who it is, how bad, what we found (titles only) and one clear button to fix it.
+      // The technical part (IP, MAC, ports) and every step live in the device sheet behind the button.
+      const SHOW = 3, more = probs.length - SHOW;
+      const name = (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d);
       panel.className = `topo-panel grunge sev-${sev}`;
       panel.replaceChildren(...[                // filter: replaceChildren() would print a skipped part as "null"
         h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
@@ -1142,19 +1134,6 @@
           h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
             h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
         navRow(it),
-        h("div", { class: "topo-risk", style: "--i:2" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk"))),
-        probs.length ? box(t("topoFound"), 3, h("ul", { class: "topo-finds" }, probs.map((f) => {
-          const tx = simple(f.code);
-          return h("li", { class: "sev-" + f.severity }, h("strong", { text: tx.title }),
-            f.port != null ? h("span", { class: "topo-fport", text: t("tourPort", { p: `${f.port}/${f.protocol}` }) }) : null,
-            tx.steps[0] ? h("p", { class: "topo-fix" }, h("b", { text: t("tourFirst") + ": " }), tx.steps[0]) : null);
-        }))) : null,
-        box(t("topoNet"), 4, h("dl", { class: "topo-dl" }, h("dt", { text: t("ipLabel") }), h("dd", { text: d.ip }), h("dt", { text: t("macLabel") }), h("dd", { text: d.mac || t("unknown") }))),
-        box(t("ports"), 5, ports.length ? h("ul", { class: "topo-ports" }, ports) : h("p", { class: "muted", style: "margin:0", text: t("none") })),
-        box(t("topoWhy"), 6, h("p", { class: "topo-why", text: worst ? simple(worst.code).explain : t("devOkExplain") })),
-        ti >= 0 && ti === trail.length - 1 ? box(t("tourEndT"), 7, h("p", { class: "topo-why", text: trail.length === 1 ? t("tourEndS1") : t("tourEndS", { n: trail.length }) })) : null,
-        h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:8", onclick: (e) => openDevice(d, e.currentTarget) },
-          icon("shield"), h("span", { class: "grow", text: t("whatToDo") }), icon("chevron", "go")),
         h("div", { class: "topo-scan", "aria-hidden": "true" })].filter(Boolean));
       if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
       // replay the reveal (scan line + boxes one by one) for every device that is opened
