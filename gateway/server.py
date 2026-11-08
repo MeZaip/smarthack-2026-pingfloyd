@@ -28,11 +28,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Optional
 
 from netcheck.ai.contract import ContractError, evidence_from_context, validate_request
-from netcheck.ai.grounding import GroundingError, check_evidence
+from netcheck.ai.grounding import GroundingError, check_evidence, scrub, words
 
 from .backends import Backend, BackendError, make_backend
 from .config import Config
-from netcheck.ai.guide import domains, validate_guide_request, vendor_name
+from netcheck.ai.guide import domains, is_chip_maker, validate_guide_request, vendor_name
 from netcheck.explain.texts import text_for
 
 from .prompts import GUIDE_RETRY, RETRY_NOTE, build_guide, build_messages
@@ -155,7 +155,10 @@ def answer_question(cfg: Config, backend: Backend, slots: threading.BoundedSemap
                 check_evidence(text, *evidence)
                 return text, int((time.monotonic() - started) * 1000)
             except GroundingError as e:
-                if attempt == 1:
+                if attempt == 1:     # keep the verified sentences instead of no answer at all
+                    kept = scrub(text, *evidence)
+                    if words(kept) >= 4:
+                        return kept, int((time.monotonic() - started) * 1000)
                     raise GatewayError(502, "ungrounded", "the model answer could not be verified") from None
                 messages = messages + [
                     {"role": "assistant", "content": text},
@@ -179,7 +182,8 @@ def guide_answer(cfg: Config, backend: Backend, slots: threading.BoundedSemaphor
     if not hasattr(backend, "guide"):
         raise GatewayError(501, "not_supported", "this model cannot search the maker's site")
     tx = text_for(req["code"], req["lang"])
-    system, user = build_guide(req, tx["title"], tx["explain"], vendor_name(req["vendor"]))
+    system, user = build_guide(req, tx["title"], tx["explain"], vendor_name(req["vendor"]),
+                               official=bool(domains(req["vendor"])), chip=is_chip_maker(req["vendor"]))
     if not budget.take():
         raise GatewayError(503, "daily_limit", "the assistant reached today's limit, built-in answers still work")
     if not slots.acquire(timeout=cfg.queue_wait_s):
@@ -196,13 +200,18 @@ def guide_answer(cfg: Config, backend: Backend, slots: threading.BoundedSemaphor
                 check_evidence(text, set(), set(), "")
                 break
             except GroundingError as e:
+                kept = scrub(text, set(), set(), "")   # e.g. a default address in one sentence: drop that sentence
+                if words(kept) >= (8 if attempt else 25):
+                    text = kept                        # good enough: no second (slow) web search
+                    break
                 if attempt == 1:
                     raise GatewayError(502, "ungrounded", "the model answer could not be verified") from None
                 user = user + GUIDE_RETRY[req["lang"]].format(reason=str(e))
     finally:
         slots.release()
     allowed = tuple(domains(req["vendor"]))
-    sources = [s for s in sources if any((urllib_host(s["url"]) == d or urllib_host(s["url"]).endswith("." + d)) for d in allowed)]
+    if allowed:                               # a known maker: only its official sites
+        sources = [s for s in sources if any((urllib_host(s["url"]) == d or urllib_host(s["url"]).endswith("." + d)) for d in allowed)]
     return text, sources, int((time.monotonic() - started) * 1000)
 
 

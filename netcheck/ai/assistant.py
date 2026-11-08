@@ -15,7 +15,7 @@ from ..core.analysis import Analysis
 from ..core.device import DEVICE_LABELS
 from ..core.diff import compare
 from ..explain.texts import SEVERITY_LABELS, score_band, text_for
-from .grounding import GroundingError, check
+from .grounding import GroundingError, check, scrub_analysis, words
 from .language import detect as detect_language
 from .providers import LLMUnavailable, get_provider
 
@@ -95,7 +95,8 @@ def fallback_answer(tools: ScanTools) -> str:
     s = tools.get_summary()
     ro = tools.lang == "ro"
     lines = [
-        "Asistentul online nu răspunde acum. Pe scurt:" if ro else "The online assistant is not answering right now. In short:",
+        ("Asistentul online nu răspunde acum, așa că nu pot răspunde exact la întrebarea ta. Ce arată verificarea:" if ro
+         else "The online assistant is not answering right now, so I cannot answer your exact question. What the check shows:"),
         (f"Scorul casei tale: {s['standard_score']} din 100 ({s['band'].lower()})." if ro
          else f"Your home's score: {s['standard_score']} out of 100 ({s['band'].lower()})."),
     ]
@@ -142,6 +143,12 @@ def ask(question: str, analysis: Analysis, lang: str = "ro", previous: Optional[
         check(text, analysis, previous)   # never trust the network: verify again locally
         return Answer(text, "ai", tools_used=[getattr(provider, "name", "?")])
     except GroundingError as e:
+        try:                              # keep the verified sentences, drop only the one that failed
+            kept = scrub_analysis(text, analysis, previous)
+            if words(kept) >= 4:
+                return Answer(kept, "ai", f"scrubbed: {e}", tools_used=[getattr(provider, "name", "?")])
+        except GroundingError:
+            pass
         return Answer(fallback_answer(tools), "fallback", f"grounding: {e}")
     except LLMUnavailable as e:
         return Answer(fallback_answer(tools), "fallback", str(e))

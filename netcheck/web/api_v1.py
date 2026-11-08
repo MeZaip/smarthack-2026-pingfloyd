@@ -209,12 +209,27 @@ def ask(body: AskRequest, request: Request):
         try:
             g = _device_guide(target[0], target[1], qlang)
             return {"answer": g["answer"], "source": "ai", "mode": "guide", "scan_id": sid,
-                    "sources": g["sources"], "vendor": g["vendor"]}
-        except (ValueError, LLMUnavailable):
-            pass                          # no search right now: the normal assistant answers
+                    "sources": g["sources"], "vendor": g["vendor"], "official": g["official"]}
+        except ValueError:
+            pass                          # unknown maker: the normal assistant answers
+        except LLMUnavailable:            # the search failed: say so and give the general steps, not a scan summary
+            return {"answer": _guide_failed(target[0], target[1], qlang), "source": "fallback", "mode": "offline",
+                    "scan_id": sid}
     ans = ai_ask(body.question, a, lang, previous, history=turns or None)
     mode = "ai" if ans.source == "ai" else ("rejected" if (ans.reason or "").startswith("grounding") else "offline")
     return {"answer": ans.text, "source": ans.source, "mode": mode, "scan_id": sid}
+
+
+def _guide_failed(dev: dict, code: str, lang: str) -> str:
+    """Answer to "how do I do this on my <maker>?" when the maker's site could not be searched right now."""
+    from ..ai.guide import maker_name
+    from ..explain.texts import text_for
+    tx = text_for(code, lang)
+    maker = maker_name(dev.get("vendor") or "") or dev.get("vendor") or ""
+    ro = lang == "ro"
+    head = (f"Nu am reușit acum să caut pașii pentru {maker}. Încearcă din nou peste un minut. Până atunci, pașii generali:" if ro
+            else f"I could not look up the steps for {maker} right now. Try again in a minute. Meanwhile, the general steps:")
+    return "\n".join([head, *(f"{i}. {st}" for i, st in enumerate(tx["steps"][:3], 1))])
 
 
 class GuideRequest(BaseModel):
@@ -228,7 +243,7 @@ _guides: dict = {}          # (vendor, model, type, code, lang) -> answer; the s
 
 def _device_guide(dev: dict, code: str, lang: str) -> dict:
     """Steps for `code` on `dev`, for its maker (cached). Raises ValueError (unknown maker) or LLMUnavailable."""
-    from ..ai.guide import build_guide_request, vendor_name
+    from ..ai.guide import build_guide_request, domains, vendor_name
     from ..ai.providers import LLMUnavailable
     from ..explain.texts import text_for
     req = build_guide_request(dev, code, text_for(code, lang)["steps"], lang)
@@ -238,7 +253,8 @@ def _device_guide(dev: dict, code: str, lang: str) -> dict:
         if not hasattr(provider, "guide"):
             raise LLMUnavailable("AI disabled")
         _guides[key] = provider.guide(req)
-    return {**_guides[key], "vendor": vendor_name(req["vendor"]), "model": req["model"]}
+    return {**_guides[key], "vendor": vendor_name(req["vendor"]), "model": req["model"],
+            "official": bool(domains(req["vendor"]))}       # False: no list of official sites, any site was used
 
 
 @router.post("/guide")
