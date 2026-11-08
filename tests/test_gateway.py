@@ -401,3 +401,19 @@ def test_prompt_uses_the_app_name_and_asks_for_short_simple_answers():
     for lang in ("ro", "en"):
         assert "SafeHouse" in SYSTEM[lang] and "netcheck" not in SYSTEM[lang].lower()
         assert "60" in SYSTEM[lang]
+
+
+def test_broken_tls_is_retried_once_then_explained(monkeypatch):
+    import ssl
+    import urllib.request as ur
+    from gateway import backends
+    calls = []
+
+    class Opener:
+        def open(self, req, timeout=None):
+            calls.append(1)
+            raise urllib.error.URLError(ssl.SSLError("[SSL: SSLV3_ALERT_BAD_RECORD_MAC] sslv3 alert bad record mac"))
+    monkeypatch.setattr(ur, "build_opener", lambda *a: Opener())
+    with pytest.raises(BackendError) as e:
+        backends._post_json("https://api.example/v1", {}, {}, 5, "claude")
+    assert len(calls) == 2 and "antivirus" in str(e.value) and "SSLError" in str(e.value)

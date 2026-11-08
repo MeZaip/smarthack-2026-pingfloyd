@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+import ssl
 import urllib.error
 import urllib.request
 from typing import Protocol
@@ -41,24 +42,41 @@ def _api_error_detail(e: urllib.error.HTTPError, secrets: tuple[str, ...]) -> st
     return detail[:200]
 
 
+def _tls_broken(err) -> bool:
+    """The encrypted connection was damaged on the way (seen on Windows with antivirus "HTTPS scanning",
+    VPNs or captive Wi-Fi): worth one more try on a fresh connection."""
+    reason = getattr(err, "reason", err)
+    return isinstance(reason, (ssl.SSLError, ConnectionResetError, ConnectionAbortedError))
+
+
+TLS_HINT = (" - the secure connection to the Claude API was broken on the way; this is usually an antivirus/firewall"
+            " that inspects HTTPS, a VPN or the Wi-Fi. Try another network, turn off HTTPS scanning, or run the"
+            " gateway from WSL/another computer (the app then uses it automatically).")
+
+
 def _post_json(url: str, body: dict, headers: dict, timeout: float, label: str,
                secrets: tuple[str, ...] = (), local: bool = False) -> dict:
-    req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), method="POST",
-                                 headers={"content-type": "application/json", **headers})
+    data = json.dumps(body).encode("utf-8")
     # a local backend (Ollama) must never go through a system proxy
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({})) if local else urllib.request.build_opener()
-    try:
-        with opener.open(req, timeout=timeout) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        detail = _api_error_detail(e, secrets)
-        raise BackendError(f"{label} HTTP {e.code}" + (f" ({detail})" if detail else "")) from None
-    except urllib.error.URLError as e:
-        raise BackendError(f"{label} unreachable: {e.reason.__class__.__name__}: {str(e.reason)[:120]}") from None
-    except (TimeoutError, OSError) as e:
-        raise BackendError(f"{label} unreachable: {e.__class__.__name__}: {str(e)[:120]}") from None
-    except json.JSONDecodeError:
-        raise BackendError(f"{label} returned invalid JSON") from None
+    for attempt in range(2):
+        req = urllib.request.Request(url, data=data, method="POST",
+                                     headers={"content-type": "application/json", **headers})
+        try:
+            with opener.open(req, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            detail = _api_error_detail(e, secrets)
+            raise BackendError(f"{label} HTTP {e.code}" + (f" ({detail})" if detail else "")) from None
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            if attempt == 0 and _tls_broken(e):
+                continue                                  # one fresh connection, then give up
+            reason = getattr(e, "reason", e)
+            hint = TLS_HINT if _tls_broken(e) else ""
+            raise BackendError(f"{label} unreachable: {reason.__class__.__name__}: {str(reason)[:120]}{hint}") from None
+        except json.JSONDecodeError:
+            raise BackendError(f"{label} returned invalid JSON") from None
+    raise BackendError(f"{label} unreachable")  # pragma: no cover
 
 
 _SENTENCE_END = re.compile(r"[.!?…](?=\s|$)|\n")

@@ -173,34 +173,52 @@ def kill_running() -> None:
             pass
 
 
-def discover(subnet: str) -> dict[str, str]:
-    """Make every live host answer once (rate-limited, no admin rights) and return {ip: mac} of the ones nmap saw.
-    On Windows (Npcap) nmap does its own ARP, so the answers are NOT in the system ARP table: its list is needed;
-    without admin rights on Linux/macOS it uses normal connections and the ARP table fills itself."""
-    nmap = find_nmap()
-    last_look.clear()
-    last_look.update(subnet=subnet, nmap=nmap or None)
-    if nmap:
-        try:
-            done = _run([nmap, "-sn", "-n", "--max-rate", "100", "-oX", "-", subnet], timeout=120)
-            last_look.update(how="nmap", nmap_rc=done.returncode,
-                             nmap_err=done.stderr.decode("utf-8", "replace").strip()[:200])
-            if done.returncode == 0:
-                found = macs_from_xml(done.stdout, subnet)
-                up = done.stdout.count(b'state="up"')
-                last_look.update(from_nmap=len(found), nmap_up=up)
-                return found
-        except (OSError, subprocess.TimeoutExpired) as e:
-            last_look.update(how="nmap", nmap_err=f"{e.__class__.__name__}: {str(e)[:160]}")
-    last_look["how"] = "ping"
+def ping_sweep(subnet: str) -> None:
+    """One ping to every address (about 20 at a time, well under 100 packets/s). Even devices that do not
+    answer pings (phones, Windows firewall) answer the ARP question before it, so they land in the ARP table."""
     hosts = [str(h) for h in ipaddress.ip_network(subnet, strict=False).hosts()]
     system = platform.system()
     count = ["-n", "1"] if system == "Windows" else ["-c", "1"]
     wait = ["-W", "1000"] if system == "Darwin" else (["-w", "1000"] if system == "Windows" else ["-W", "1"])
-    with ThreadPoolExecutor(max_workers=20) as pool:  # ~20 in flight -> well under 100 pkt/s
-        list(pool.map(lambda h: subprocess.run(["ping", *count, *wait, h], capture_output=True, stdin=subprocess.DEVNULL,
-                                               creationflags=_NO_WINDOW), hosts))
-    return {}
+
+    def one(h):
+        try:
+            subprocess.run(["ping", *count, *wait, h], capture_output=True, stdin=subprocess.DEVNULL,
+                           creationflags=_NO_WINDOW, timeout=5)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    with ThreadPoolExecutor(max_workers=20) as pool:
+        list(pool.map(one, hosts))
+
+
+def discover(subnet: str) -> dict[str, str]:
+    """Find who is on the network, two ways, no admin rights:
+    1. nmap -sn: its list of hosts with their MAC (on Windows nmap does its own ARP, so these answers are
+       NOT in the system ARP table: its list is needed);
+    2. a ping sweep (small networks, or when nmap did not work): fills the system ARP table, read afterwards.
+    Returns {ip: mac} from nmap; the caller adds the ARP table."""
+    nmap = find_nmap()
+    last_look.clear()
+    last_look.update(subnet=subnet, nmap=nmap or None)
+    found: dict[str, str] = {}
+    t0 = time.monotonic()
+    if nmap:
+        try:
+            done = _run([nmap, "-sn", "-n", "--max-rate", "100", "-oX", "-", subnet], timeout=120)
+            last_look.update(nmap_rc=done.returncode, nmap_err=done.stderr.decode("utf-8", "replace").strip()[:200])
+            if done.returncode == 0:
+                found = macs_from_xml(done.stdout, subnet)
+                last_look.update(from_nmap=len(found), nmap_up=done.stdout.count(b'state="up"'))
+        except (OSError, subprocess.TimeoutExpired) as e:
+            last_look.update(nmap_err=f"{e.__class__.__name__}: {str(e)[:160]}")
+    t1 = time.monotonic()
+    last_look["nmap_s"] = round(t1 - t0, 1) if nmap else None
+    size = ipaddress.ip_network(subnet, strict=False).num_addresses
+    if size <= 256 or last_look.get("nmap_rc") != 0:
+        ping_sweep(subnet)
+        last_look["ping_s"] = round(time.monotonic() - t1, 1)
+    last_look["how"] = ("nmap + ping" if last_look.get("ping_s") is not None else "nmap") if last_look.get("nmap_rc") == 0 else "ping"
+    return found
 
 
 def quick_ports(ips: list[str]) -> dict[str, list[Port]]:
@@ -211,7 +229,7 @@ def quick_ports(ips: list[str]) -> dict[str, list[Port]]:
         return {}
     try:
         proc = _run([nmap, "-sT", "-Pn", "-n", "--top-ports", "100", "-T4", "--max-retries", "1",
-                     "--host-timeout", "45s", "--max-rate", "100", "-oX", "-", *ips], timeout=300)
+                     "--host-timeout", "45s", "--max-rate", "100", "-oX", "-", *ips], timeout=90)
     except (OSError, subprocess.TimeoutExpired):
         return {}
     try:
@@ -252,9 +270,15 @@ def compare(known: dict, observed: dict[str, str], ports: dict[str, list[Port]])
                 if (p.portid, p.protocol) not in old:
                     events.append(Event("new_port", did, ip, f"{p.portid}/{p.protocol} {p.service}",
                                         [r for r in risky if r.endswith(f":{p.portid}")]))
-        new_known[did] = {"ip": ip, "mac_masked": mask_mac(mac),
+        new_known[did] = {**known.get(did, {}), **_who(ip, mac),       # keeps what the user said ("mine")
                           "ports": sorted([p.portid, p.protocol] for p in plist)}
     return events, new_known
+
+
+def _who(ip: str, mac: str) -> dict:
+    """What the guard keeps about a device besides its doors: no full MAC, only the masked one and the maker."""
+    return {"ip": ip, "mac_masked": mask_mac(mac), "vendor": mac_vendor(mac), "private_mac": is_private(mac),
+            "last_seen": int(time.time())}
 
 
 def describe(e: Event, lang: str) -> tuple[str, str]:
@@ -381,36 +405,54 @@ def forget_all() -> None:
             pass
 
 
-# ------------------------------------------------------------------ the guard inside the app (one thread, no root)
+# ------------------------------------------------------------------ the guard inside the app (no root)
 class Guard:
-    """„Păzește casa": every `interval` seconds looks at who is on the network (unprivileged), tells about a new
-    device as soon as it is seen and, after a quick TCP check of its doors, about risky open doors. Only the
-    network this computer is connected to, only after the user's confirmation, paused on any other network."""
+    """„Păzește casa": every few seconds looks at WHO is on the network (no admin rights) and tells at once about a
+    device it does not know. Only devices: what doors they have open is the job of the full check ("Inspect the
+    house"). Only the network this computer is connected to, only after the user's confirmation; it stops by
+    itself on any other network."""
 
     MAX_EVENTS = 30
+    NET_EVERY = 5                    # seconds between "still on the same network?" checks
 
-    def __init__(self, interval: int = 20, detect=None, discover_fn=None, arp_fn=None, ports_fn=None, busy=None):
+    def __init__(self, interval: int | None = None, detect=None, discover_fn=None, arp_fn=None, busy=None):
         import threading
-        self.interval = interval
+        self._interval = interval    # None: 8 s on a small network (a look takes ~3 s there), 20 s on a bigger one
         self._detect = detect or netdetect.detect
         self._discover = discover_fn or discover
         self._arp = arp_fn or read_arp_table
-        self._ports = ports_fn or quick_ports
         self._busy = busy or (lambda: False)
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._thread = None
         self.on = False
         self.subnet = self.my_ip = None
-        self.state = "off"           # off | learning | watching | paused | error
-        self.last_check = None
-        self.known: dict = {}
-        self.events: list[dict] = []
-        self.phase = None            # looking | doors (what the current look is doing)
-        self.seen = 0                # devices seen at the last look
+        self.state = "off"           # off | learning | watching | paused | moved | error
+        self.phase = None            # looking | waiting (a full check runs)
         self.error = None            # short reason when state == "error"
-        self.net_now = None          # the network seen by the last network check
-        self.arp_count = None        # devices in the system ARP table at the last look
+        self.last_check = None
+        self.known: dict = {}        # device id (HMAC of the MAC) -> {ip, mac_masked, vendor, private_mac, last_seen, mine?}
+        self.events: list[dict] = []
+        self.online: set = set()     # ips seen at the last look
+        self.seen = 0
+        self.looks = 0
+        self.learned = False         # the first, quiet look of this network is done
+        self.net_now = None
+        self.arp_count = None
+
+    @property
+    def interval(self) -> int:
+        if self._interval:
+            return self._interval
+        try:
+            small = ipaddress.ip_network(self.subnet or "0.0.0.0/32", strict=False).num_addresses <= 64
+        except ValueError:
+            small = False
+        return 8 if small else 20
+
+    @interval.setter
+    def interval(self, value) -> None:
+        self._interval = value
 
     # ---------------------------------------------------------- control
     def start(self, subnet: str, my_ip: str | None) -> None:
@@ -420,9 +462,12 @@ class Guard:
             if self.on and self.subnet == subnet:
                 return
             self.stop_locked()
-            self.on, self.subnet, self.my_ip = True, subnet, my_ip
+            self.on, self.subnet, self.my_ip, self.looks = True, subnet, my_ip, 0
             self.known = load_state(subnet)
-            self.state = "watching" if self.known else "learning"
+            # "learned" = this network was looked at before (even if every device was forgotten one by one since):
+            # only the very first look is quiet, after that every device not in the list is told
+            self.learned = _state_path(subnet).exists()
+            self.state, self.error = ("watching" if self.learned else "learning"), None
             self._stop = threading.Event()
             self._thread = threading.Thread(target=self._loop, name="safehouse-guard", daemon=True)
             self._thread.start()
@@ -436,16 +481,48 @@ class Guard:
         self._stop.set()
         self.on = False
         self.state, self.phase = "off", None
-        if self._discover is discover or self._ports is quick_ports:
+        if self._discover is discover:
             kill_running()                    # stop a running nmap right away
 
     def forget(self) -> None:
+        """„Delete my history": everything the guard knows, on every network."""
         with self._lock:
             self.stop_locked()
-            self.known, self.events = {}, []
+            self.known, self.events, self.online, self.learned = {}, [], set(), False
         forget_all()
 
+    def forget_network(self) -> None:
+        """„Forget all devices": the next look learns this network from zero, quietly (saved checks untouched)."""
+        with self._lock:
+            subnet = self.subnet
+            self.known, self.events, self.online, self.seen, self.learned = {}, [], set(), 0, False
+            if self.on:
+                self.state = "learning"
+        if subnet:
+            try:
+                _state_path(subnet).unlink()
+            except OSError:
+                pass
+
+    def device(self, did: str, action: str) -> bool:
+        """The user about one device: "mine", "stranger" or "forget" (out of the list; if it is still
+        connected, the next look tells about it again as a new device)."""
+        with self._lock:
+            if did not in self.known or action not in ("mine", "stranger", "forget"):
+                return False
+            if action == "forget":
+                del self.known[did]
+            else:
+                self.known[did]["mine"] = action == "mine"
+                for ev in self.events:
+                    if ev["device"] == did and ev["status"] == "new":
+                        ev["status"] = "mine" if action == "mine" else "stranger"
+            if self.subnet:
+                save_state(self.subnet, self.known)
+            return True
+
     def ack(self, event_id: str, mine: bool) -> bool:
+        """Answer to an alert: "It's mine" / "I don't know it"."""
         with self._lock:
             ev = next((e for e in self.events if e["id"] == event_id), None)
             if ev is None:
@@ -459,16 +536,25 @@ class Guard:
 
     def status(self) -> dict:
         with self._lock:
-            diag = {**last_look, "net_now": self.net_now, "arp": self.arp_count} if self._discover is discover else {}
-            return {"on": self.on, "state": self.state, "phase": self.phase, "seen": self.seen, "error": self.error, "diag": diag,
-                    "subnet": self.subnet, "interval": self.interval, "last_check": self.last_check,
-                    "known": len(self.known), "events": [dict(e) for e in reversed(self.events)]}
+            diag = ({**last_look, "net_now": self.net_now, "arp": self.arp_count, "looks": self.looks}
+                    if self._discover is discover else {})
+            return {"on": self.on, "state": self.state, "phase": self.phase, "seen": self.seen, "error": self.error,
+                    "diag": diag, "devices": self._devices_locked(), "subnet": self.subnet, "interval": self.interval,
+                    "last_check": self.last_check, "known": len(self.known),
+                    "events": [dict(e) for e in reversed(self.events)]}
+
+    def _devices_locked(self) -> list[dict]:
+        """Every device the guard knows on this network: online ones first, then the rest (newest seen first)."""
+        out = [{"id": did, "ip": d.get("ip"), "mac": d.get("mac_masked"), "vendor": d.get("vendor"),
+                "private_mac": bool(d.get("private_mac")), "mine": d.get("mine"), "online": d.get("ip") in self.online,
+                "last_seen": d.get("last_seen")}
+               for did, d in self.known.items()]
+        out.sort(key=lambda d: (not d["online"], -(d["last_seen"] or 0), d["ip"] or ""))
+        return out
 
     # ---------------------------------------------------------- work
-    NET_EVERY = 5
-
     def _net_loop(self, stop) -> None:
-        """Every few seconds, even while a look is running: still on the network the user confirmed?"""
+        """Every few seconds, even while a look runs: still on the network the user confirmed?"""
         while not stop.wait(self.NET_EVERY):
             try:
                 now = self._detect()
@@ -500,18 +586,19 @@ class Guard:
                         self.state, self.error = "error", f"{e.__class__.__name__}: {str(e)[:160]}"
             stop.wait(self.interval)
 
-    def _event(self, kind: str, did: str, ip: str, mac: str, ports: list | None = None, risks: list | None = None) -> dict:
+    def _event(self, did: str, ip: str, mac: str) -> dict:
         import uuid
-        ev = {"id": uuid.uuid4().hex[:10], "kind": kind, "when": int(time.time()), "device": did, "ip": ip,
-              "mac": mask_mac(mac), "vendor": mac_vendor(mac), "private_mac": is_private(mac),
-              "ports": ports or [], "risks": risks or [], "status": "new", "checking": kind == "new_device"}
+        ev = {"id": uuid.uuid4().hex[:10], "kind": "new_device", "when": int(time.time()), "device": did, "ip": ip,
+              "mac": mask_mac(mac), "vendor": mac_vendor(mac), "private_mac": is_private(mac), "status": "new"}
         self.events.append(ev)
         del self.events[:-self.MAX_EVENTS]
         return ev
 
     def check_once(self, stop=None) -> None:
+        """One look: who is on the network now? A device not in the list is added and told at once
+        (except on the very first, quiet look of a network)."""
         stop = stop or self._stop
-        if self._busy():                      # a full check is running: do not scan at the same time
+        if self._busy():                      # a full check is running: do not look at the same time
             with self._lock:
                 self.phase = "waiting"
             return
@@ -520,7 +607,7 @@ class Guard:
         except netdetect.NetworkDetectError:
             now = None
         with self._lock:
-            subnet, my_ip, learning = self.subnet, self.my_ip, not self.known
+            subnet, my_ip, learning = self.subnet, self.my_ip, not self.learned
             if now is None:
                 self.state, self.phase = "paused", None       # no network for a moment (Wi-Fi reconnecting)
                 return
@@ -532,50 +619,24 @@ class Guard:
             self.phase, self.error = "looking", None
         found = self._discover(subnet) or {}
         table = parse_arp(self._arp(), subnet)
-        self.arp_count = len(table)
         observed = {**found, **table}
         observed.pop(my_ip, None)
         if now.ip:
             observed.pop(now.ip, None)
-        if stop.is_set():
-            return
         with self._lock:
             if stop.is_set():
-                return
-            self.seen = len(observed)
-            if learning:              # remember who is here right away; their doors are checked next
-                for ip, mac in observed.items():
-                    self.known.setdefault(device_id(mac, ip), {"ip": ip, "mac_masked": mask_mac(mac), "ports": None})
-                save_state(subnet, self.known)
-                self.state = "watching"
-            self.phase = "doors"
-        # 1. a new device is told right away; its doors are checked next
-        fresh = {}
-        with self._lock:
-            for ip, mac in sorted(observed.items()):
+                return                        # turned off (or another network) meanwhile: keep nothing
+            self.arp_count = len(table)
+            self.seen, self.online, self.looks = len(observed), set(observed), self.looks + 1
+            for ip, mac in sorted(observed.items(), key=lambda x: ipaddress.ip_address(x[0])):
                 did = device_id(mac, ip)
-                if did not in self.known and not learning:
-                    fresh[did] = self._event("new_device", did, ip, mac)
-        ports = self._ports(sorted(observed))
-        if stop.is_set():
-            return
-        events, known = compare(self.known, observed, ports)
-        with self._lock:
-            if stop.is_set():                 # turned off (or another network) meanwhile: keep nothing
-                return
-            for did, data in known.items():          # keep what the user said about a device
-                if "mine" in self.known.get(did, {}):
-                    data["mine"] = self.known[did]["mine"]
-            for e in events:
-                plist = [f"{p.portid}/{p.protocol} {p.service}".strip() for p in ports.get(e.ip, [])]
-                if e.kind == "new_device" and e.device_id in fresh:
-                    fresh[e.device_id].update(ports=plist, risks=[r.split(":")[0] for r in e.risks], checking=False)
-                elif e.kind == "new_port" and not learning:
-                    self._event("new_port", e.device_id, e.ip, observed.get(e.ip, ""), ports=[e.detail],
-                                risks=[r.split(":")[0] for r in e.risks])["checking"] = False
-            for ev in fresh.values():
-                ev["checking"] = False
-            self.known = known
-            save_state(subnet, known)
+                if did in self.known:
+                    self.known[did].update(_who(ip, mac))       # still here: "last seen"
+                else:                                           # new (or forgotten): in the list and told at once
+                    self.known[did] = _who(ip, mac)
+                    if not learning:
+                        self._event(did, ip, mac)
+            save_state(subnet, self.known)
+            self.learned = True
             self.last_check = int(time.time())
             self.state, self.phase = "watching", None
