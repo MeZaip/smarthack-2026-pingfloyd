@@ -15,7 +15,7 @@ from netcheck.ai.remote import RemoteProvider
 from netcheck.core.analysis import analyze_file
 from tests.test_gateway import FAKE_KEY, FakeBackend, JsonServer, start
 
-SYN = Path(__file__).parent / "fixtures" / "synthetic"
+SYN = Path(__file__).parent / "fixtures" / "validation"
 ROUTER = {"ip": "192.168.0.1", "mac": "XX:XX:XX:XX:AB:CD", "hostname": "andrei-router", "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
           "type": "router", "open_ports": [{"port": 80, "protocol": "tcp", "service": "http", "product": "TP-LINK WR841N WAP http config",
                                             "version": "", "tls": False, "title": "TL-WR841N"}]}

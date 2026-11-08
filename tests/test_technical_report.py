@@ -11,7 +11,7 @@ from netcheck.core.analysis import analyze_file
 from netcheck.explain.technical import technical_report
 
 ROOT = Path(__file__).resolve().parent.parent
-SYN = ROOT / "tests" / "fixtures" / "synthetic"
+SYN = ROOT / "tests" / "fixtures" / "validation"
 LAB = ROOT / "tests" / "fixtures" / "lab"
 FULL_MAC = re.compile(r"\b(?:[0-9A-F]{2}:){5}[0-9A-F]{2}\b", re.I)
 

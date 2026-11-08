@@ -95,7 +95,7 @@ python -m netcheck report scan.xml --technical --out r.txt   # detailed report f
 python -m netcheck diff before.xml after.xml                 # what changed between two scans
 ```
 
-Example scans are in `tests/fixtures/synthetic/`.
+The official Validation Set (with its expected answers) is in `tests/fixtures/validation/`; our own hotspot lab scans, with a before/after pair, are in `tests/fixtures/lab/`.
 
 ## AI assistant (optional)
 

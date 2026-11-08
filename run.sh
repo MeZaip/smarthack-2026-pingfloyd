@@ -2,7 +2,7 @@
 # Start SafeHouse locally: the AI gateway (optional) + the web UI / JSON API.
 #
 #   ./run.sh                 gateway (if an API key / Ollama is configured) + UI on http://127.0.0.1:8000
-#   ./run.sh --demo          same, with a separate demo history pre-loaded from tests/fixtures/synthetic
+#   ./run.sh --demo          same, with a separate demo history pre-loaded from tests/fixtures/validation
 #   ./run.sh --no-ai         UI only; the assistant uses the built-in, verified texts
 #   ./run.sh --port 9000     UI on another port
 #   ./run.sh --host 0.0.0.0  UI on another address, e.g. "$(tailscale ip -4)" (no login: keep it private)
@@ -59,7 +59,7 @@ if [[ $DEMO -eq 1 ]]; then
   export NETCHECK_DB="$HOME/.netcheck/demo.sqlite"
   echo "• Demo history: $NETCHECK_DB (your real history is not touched)"
   "$PY" -m netcheck history delete --yes >/dev/null 2>&1 || true
-  "$PY" -m netcheck history add tests/fixtures/synthetic/ >/dev/null || true
+  "$PY" -m netcheck history add tests/fixtures/validation/ >/dev/null || true
 fi
 
 gw_healthy() {   # the gateway answers /health (curl if present, else Python - no extra tools needed)

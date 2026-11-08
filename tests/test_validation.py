@@ -1,7 +1,6 @@
 """Golden test: the tool must reproduce the expected answers exactly (no missing, no extra rows).
 
-Uses tests/fixtures/validation/ (the real Validation Set, once released) if it
-contains expected_findings.csv, otherwise the synthetic look-alikes.
+Uses the official Validation Set (tests/fixtures/validation/) and our own hotspot lab scans (tests/fixtures/lab/).
 """
 import csv
 from pathlib import Path
@@ -11,7 +10,7 @@ import pytest
 from netcheck.core.analysis import analyze_folder, write_results
 
 FIX = Path(__file__).parent / "fixtures"
-SETS = [d for d in (FIX / "validation", FIX / "synthetic", FIX / "lab") if (d / "expected_findings.csv").exists()]
+SETS = [d for d in (FIX / "validation", FIX / "lab") if (d / "expected_findings.csv").exists()]
 
 
 def _rows(path):
@@ -40,7 +39,7 @@ def test_deterministic(folder, tmp_path):
 def test_before_after_shows_three_resolved():
     from netcheck.core.analysis import analyze_file
     from netcheck.core.diff import compare
-    d = FIX / "synthetic"
+    d = FIX / "validation"
     diff = compare(analyze_file(d / "V6a_before.xml"), analyze_file(d / "V6b_after.xml"))
     assert len(diff["resolved_findings"]) == 3
     assert diff["score_before"] == 60 and diff["score_after"] == 100

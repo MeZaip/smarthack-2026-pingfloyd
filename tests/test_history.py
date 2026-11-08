@@ -10,7 +10,7 @@ from netcheck.core.diff import compare
 from netcheck.core.models import Host, Port, ScanResult
 from netcheck.core.rules import evaluate, network_score
 
-SYN = Path(__file__).parent / "fixtures" / "synthetic"
+SYN = Path(__file__).parent / "fixtures" / "validation"
 
 
 @pytest.fixture

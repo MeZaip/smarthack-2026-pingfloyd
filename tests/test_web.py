@@ -12,7 +12,7 @@ from netcheck.core.device import mask_mac
 from netcheck.core.diff import compare
 
 REPO = Path(__file__).parent.parent
-SYN = Path(__file__).parent / "fixtures" / "synthetic"
+SYN = Path(__file__).parent / "fixtures" / "validation"
 GOOD = sorted(p for p in SYN.glob("*.xml") if "broken" not in p.name)
 
 _BLOCKS = re.findall(r"```json\n(.*?)```", (REPO / "service_data_contracts.md").read_text(encoding="utf-8"), re.S)
