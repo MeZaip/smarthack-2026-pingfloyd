@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Callable, Optional
 
 from .. import history
+from ..ai.guide import vendor_for, vendor_name
 from ..core.analysis import Analysis
 from ..core.device import DEVICE_LABELS
 from ..explain.simple_texts import GLOSSARY, SIMPLE, WHO
@@ -52,6 +53,8 @@ def scan_entry(a: Analysis, row: dict, changes: Optional[dict], me_ip: Optional[
     devices = a.devices()
     for d in devices:
         d["me"] = bool(me_ip) and d["ip"] == me_ip
+        maker = vendor_for(d)
+        d["guide"] = vendor_name(maker) if maker else None     # "steps for your <maker>" is offered
     return {
         "scan_id": row["scan_id"],
         "file": a.file,

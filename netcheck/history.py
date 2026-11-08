@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS scans (
     scanned_at    INTEGER,            -- nmap start time (unix), may be missing
     saved_at      INTEGER NOT NULL,
     network_score INTEGER NOT NULL,
-    error         TEXT                -- set for a file that could not be read (kept so exports show ERROR)
+    error         TEXT,               -- set for a file that could not be read (kept so exports show ERROR)
+    args          TEXT                -- the nmap command line (for the technical report)
 );
 CREATE TABLE IF NOT EXISTS devices (
     device_id   INTEGER PRIMARY KEY,
@@ -51,6 +52,7 @@ CREATE TABLE IF NOT EXISTS devices (
     vendor      TEXT,
     hostname    TEXT,
     device_type TEXT    NOT NULL,
+    os_guess    TEXT,
     UNIQUE (scan_id, device_key)
 );
 CREATE TABLE IF NOT EXISTS ports (
@@ -59,7 +61,11 @@ CREATE TABLE IF NOT EXISTS ports (
     protocol TEXT    NOT NULL,
     port     INTEGER NOT NULL,
     service  TEXT    NOT NULL,
-    tls      INTEGER NOT NULL DEFAULT 0
+    tls      INTEGER NOT NULL DEFAULT 0,
+    product  TEXT,                    -- product / version / extra info / web page title as nmap saw them,
+    version  TEXT,                    -- kept for the technical report (untrusted text, already clipped)
+    extrainfo TEXT,
+    title    TEXT
 );
 CREATE TABLE IF NOT EXISTS findings (
     finding_id   INTEGER PRIMARY KEY,
@@ -97,10 +103,12 @@ def connect(path: Optional[str | os.PathLike] = None) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")   # off by default in SQLite; needed for ON DELETE CASCADE
     conn.executescript(SCHEMA)
-    if "tls" not in {r["name"] for r in conn.execute("PRAGMA table_info(ports)")}:
-        conn.execute("ALTER TABLE ports ADD COLUMN tls INTEGER NOT NULL DEFAULT 0")   # databases made before tls
-    if "error" not in {r["name"] for r in conn.execute("PRAGMA table_info(scans)")}:
-        conn.execute("ALTER TABLE scans ADD COLUMN error TEXT")                        # databases made before errors
+    # databases made by older versions: add the columns they do not have yet (old rows keep NULL)
+    for table, col, decl in (("ports", "tls", "INTEGER NOT NULL DEFAULT 0"), ("scans", "error", "TEXT"),
+                             ("scans", "args", "TEXT"), ("devices", "os_guess", "TEXT"), ("ports", "product", "TEXT"),
+                             ("ports", "version", "TEXT"), ("ports", "extrainfo", "TEXT"), ("ports", "title", "TEXT")):
+        if col not in {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
     return conn
 
 
@@ -136,19 +144,21 @@ def save(conn: sqlite3.Connection, a: Analysis) -> tuple[int, bool]:
 
         key = _key_fn(_salt(conn))
         cur = conn.execute(
-            "INSERT INTO scans (file, scanned_at, saved_at, network_score) VALUES (?, ?, ?, ?)",
-            (a.file, a.scan.start_time, int(time.time()), a.score),
+            "INSERT INTO scans (file, scanned_at, saved_at, network_score, args) VALUES (?, ?, ?, ?, ?)",
+            (a.file, a.scan.start_time, int(time.time()), a.score, a.scan.args or None),
         )
         scan_id = cur.lastrowid
         hosts = a.scan.up_hosts
         conn.executemany(
-            "INSERT OR IGNORE INTO devices (scan_id, device_key, ip, masked_mac, vendor, hostname, device_type)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [(scan_id, key(h), h.ip, mask_mac(h.mac), h.vendor, h.hostname, guess_type(h)) for h in hosts],
+            "INSERT OR IGNORE INTO devices (scan_id, device_key, ip, masked_mac, vendor, hostname, device_type, os_guess)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [(scan_id, key(h), h.ip, mask_mac(h.mac), h.vendor, h.hostname, guess_type(h), h.os_guess) for h in hosts],
         )
         conn.executemany(
-            "INSERT INTO ports (scan_id, ip, protocol, port, service, tls) VALUES (?, ?, ?, ?, ?, ?)",
-            [(scan_id, h.ip, p.protocol, p.portid, p.service, int(p.tunnel == "ssl"))
+            "INSERT INTO ports (scan_id, ip, protocol, port, service, tls, product, version, extrainfo, title)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [(scan_id, h.ip, p.protocol, p.portid, p.service, int(p.tunnel == "ssl"), p.product or None,
+              p.version or None, p.extrainfo or None, p.http_title or None)
              for h in hosts for p in h.open_ports],
         )
         conn.executemany(
@@ -235,28 +245,30 @@ def previous_id(conn: sqlite3.Connection, scan_id: int) -> Optional[int]:
 def load_analysis(conn: sqlite3.Connection, scan_id: int) -> Analysis:
     """Rebuild an Analysis from the stored rows (for the UI / JSON API after a restart).
 
-    Only what the history keeps comes back: open ports with service + TLS flag (no product,
-    version or banners) and the stored findings. `Host.mac` holds the *masked* MAC
+    Only what the history keeps comes back: open ports with service, TLS flag, product, version, extra
+    info and web page title (no other script output) and the stored findings. `Host.mac` holds the *masked* MAC
     (mask_mac is idempotent); never save() such an analysis again.
     """
-    s = conn.execute(f"SELECT file, scanned_at, network_score FROM scans WHERE scan_id = ? AND {_READABLE}",
+    s = conn.execute(f"SELECT file, scanned_at, network_score, args FROM scans WHERE scan_id = ? AND {_READABLE}",
                      (scan_id,)).fetchone()
     if not s:
         raise KeyError(f"no saved scan with id {scan_id}")
     ports: dict[str, list[Port]] = {}
-    for r in conn.execute("SELECT ip, protocol, port, service, tls FROM ports WHERE scan_id = ?"
-                          " ORDER BY rowid", (scan_id,)):
+    for r in conn.execute("SELECT ip, protocol, port, service, tls, product, version, extrainfo, title"
+                          " FROM ports WHERE scan_id = ? ORDER BY rowid", (scan_id,)):
         ports.setdefault(r["ip"], []).append(
-            Port(r["protocol"], r["port"], "open", r["service"], tunnel="ssl" if r["tls"] else ""))
-    hosts = [Host(ip=r["ip"], mac=r["masked_mac"], vendor=r["vendor"],
+            Port(r["protocol"], r["port"], "open", r["service"], product=r["product"] or "", version=r["version"] or "",
+                 extrainfo=r["extrainfo"] or "", tunnel="ssl" if r["tls"] else "",
+                 scripts={"http-title": r["title"]} if r["title"] else {}))
+    hosts = [Host(ip=r["ip"], mac=r["masked_mac"], vendor=r["vendor"], os_guess=r["os_guess"],
                   hostnames=[r["hostname"]] if r["hostname"] else [], ports=ports.get(r["ip"], []))
-             for r in conn.execute("SELECT ip, masked_mac, vendor, hostname FROM devices WHERE scan_id = ?"
+             for r in conn.execute("SELECT ip, masked_mac, vendor, hostname, os_guess FROM devices WHERE scan_id = ?"
                                    " ORDER BY device_id", (scan_id,))]
     findings = [Finding(r["ip"], r["port"], r["protocol"], r["finding_code"], r["severity"], r["points"],
                         r["evidence"])
                 for r in conn.execute("SELECT ip, port, protocol, finding_code, severity, points, evidence"
                                       " FROM findings WHERE scan_id = ? ORDER BY finding_id", (scan_id,))]
-    scan = ScanResult(source=s["file"], hosts=hosts, start_time=s["scanned_at"])
+    scan = ScanResult(source=s["file"], hosts=hosts, start_time=s["scanned_at"], args=s["args"] or "")
     return Analysis(file=s["file"], scan=scan, findings=findings, score=s["network_score"])
 
 

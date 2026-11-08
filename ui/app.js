@@ -22,7 +22,7 @@
     ro: {
       skip: "Sari la conținut", close: "Închide", scanFile: "Verificarea afișată",
       navHome: "Acasă", navDevices: "Aparate", navResults: "Rezultate", navFindings: "Reparații", navHistory: "Istoric", navAsk: "Întreabă",
-      footer: "Nu păstrăm nimic pe internet: tot ce vezi rămâne pe acest calculator. Adresele aparatelor sunt ascunse pe jumătate, ca să-ți protejăm intimitatea.",
+      footer: "Verificările tale rămân pe acest calculator. Adresele aparatelor sunt ascunse parțial, pentru intimitatea ta.",
       hello: "Bună!", helloSub: "Apasă butonul și verificăm împreună dacă rețeaua din casa ta e sigură.",
       inspect: "Inspectează casa", inspectAgain: "Inspectează din nou",
       topoCore: "Casa ta", topoGateway: "Poarta spre internet", topoHint: "Apasă pe un aparat ca să vezi detaliile.",
@@ -35,10 +35,10 @@
       stIdleT: "Casa ta digitală", stIdleS: "Apasă „Inspectează casa” ca să verificăm fiecare ușă.",
       stScanT: "Inspectez casa…", stScanS: "Verific fiecare aparat și fiecare ușă. Durează câteva secunde.",
       stSafeT: "Casa este sigură", stSafeS: "Toate ușile sunt închise. Nu ai nimic de reparat.",
-      stVulnT: "Atenție: O ușă este deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
+      stVulnT: "Atenție: o ușă e deschisă", stVulnS: "Am găsit {n} lucruri de reparat. Mai jos vezi ce poți face.", stVulnS1: "Am găsit un lucru de reparat. Mai jos vezi ce poți face.",
       stErrT: "Nu am putut citi verificarea", stErrS: "Fișierul verificării e stricat. Alege altă verificare din lista de sus.",
       houseLabel: "Casă 3D într-o grădină. Când o verificăm, o lumină trece peste ea, iar la final ferestrele se aprind.", errorWord: "EROARE",
-      devicesFound: "Aparate găsite ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "EN", whatToDo: "Ce pot face",
+      devicesFound: "Aparate găsite ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "EN", whatToDo: "Ce poți face",
       doorsOpen: "Uși lăsate deschise ({n})", doorsSub: "Fiecare card spune ce s-a întâmplat și ce faci, pas cu pas. Cel mai periculos e primul.",
       doorsNone: "Nicio ușă lăsată deschisă. Toate aparatele tale sunt în siguranță.",
       devicesSub2: "Toate aparatele conectate la rețeaua ta. Apasă pe un aparat ca să vezi ce poți face.",
@@ -62,12 +62,12 @@
       mostDangerous: "Aparatul cu cea mai mare problemă", thisDevice: "Aparatul",
       doThis: "Ce faci",
       btnDone: "Am făcut asta", btnSkip: "Arată-mi altceva",
-      progress: "Lucrul {i} din {n}",
+      progress: "Reparația {i} din {n}",
       doneNote: "Bravo! Ai rezolvat: {title}. Verifică din nou rețeaua mai târziu ca să vezi scorul nou.",
       allDone: "Ai trecut prin toate. Verifică din nou rețeaua ca să vezi cât de sigură e acum.",
       restart: "Ia-o de la capăt",
       noProblems: "Nu am găsit nimic de reparat. Felicitări! Verifică din nou din când în când.",
-      helpNote: "Ești copil? Arată această pagină unui părinte înainte să schimbi ceva. Nu te descurci? Arată-o cuiva de încredere: un nepot, un prieten sau firma care ți-a pus internetul.",
+      helpNote: "Dacă ești copil, arată pagina unui părinte înainte să schimbi ceva. Dacă ți se pare greu, cere ajutorul cuiva de încredere.",
       yourDevices: "Aparatele tale", seeAll: "Vezi toate",
       glossaryTitle: "Cuvinte utile",
       devicesTitle: "Aparate și reparații", devicesSub: "Toate aparatele din rețeaua ta, cel mai periculos primul. Apasă pe un aparat ca să vezi ce problemă are și cum o repari, pas cu pas.",
@@ -81,11 +81,11 @@
       sumHigh: "Risc înalt", sumMedium: "Risc mediu", sumLow: "Risc mic", sumInfo: "Doar de știut",
       cardHint: "Apasă Enter ca să vezi detaliile tehnice.",
       codeLabel: "Cod",
-      techMore: "Detalii pentru cine se pricepe (sau pentru firma IT)",
-      techTitle: "Numele tehnic", techSteps: "Pași detaliați", techWhere: "Unde (adresă și ușă)",
+      techMore: "Detalii avansate",
+      techTitle: "Numele tehnic", techSteps: "Pași detaliați", techWhere: "Unde",
       evidence: "Ce a văzut verificarea", refs: "Standarde de securitate",
-      ip: "Adresă (IP)", mac: "Adresă fizică (MAC, ascunsă pe jumătate)", vendor: "Producător", hostname: "Nume în rețea",
-      ports: "Uși deschise (porturi)", none: "niciuna", unknown: "nu știm",
+      ip: "Adresă IP", mac: "Adresă MAC", vendor: "Producător", hostname: "Nume în rețea",
+      ports: "Porturi deschise", none: "niciunul", unknown: "necunoscut",
       errorTitle: "Nu am putut citi această verificare",
       errorBody: "Fișierul verificării este stricat sau incomplet, așa că nu arătăm nimic pentru el. Alege altă verificare din lista de sus sau fă una nouă.",
       errorDetail: "Detaliu tehnic",
@@ -95,7 +95,7 @@
       worse: "Atenție: scorul a scăzut. Uită-te la lucrurile noi de reparat.", same: "Scorul a rămas la fel.",
       events: "Ce s-a întâmplat",
       evFixed: "Ai reparat: {title}", evNew: "Lucru nou de reparat: {title}",
-      evSecured: "Setările se deschid acum pe drumul sigur", evSecuredSub: "Din ușa {from} în ușa sigură {to}",
+      evSecured: "Pagina de setări folosește acum legătura sigură", evSecuredSub: "Ușa {from} a fost înlocuită cu ușa sigură {to}",
       evNewDev: "Aparat nou în rețea", evGoneDev: "Un aparat nu mai e în rețea",
       evQuiet: "Niciun aparat nou și nicio ușă nouă periculoasă",
       evFirst: "Verificarea de dinainte: scor {s}, {f} lucruri de reparat",
@@ -127,9 +127,9 @@
       aClean: "Verificarea nu arată nimic de reparat. Totul e bine!",
       // live app (local agent)
       noScan: "Încă nu ai verificat casa", needScan: "Încă nu avem nicio verificare. Verifică acum rețeaua la care ești conectat sau încarcă o verificare.", goHome: "Mergi la Acasă", scanNow: "Verifică rețeaua acum",
-      cfTitle: "Verificăm rețeaua ta?", cfNet: "Ești conectat la:", cfAsk: "Este rețeaua ta (de acasă sau a echipei tale)? Verificăm doar rețeaua la care ești conectat acum, nimic altceva.",
+      cfTitle: "Verificăm rețeaua ta?", cfNet: "Ești conectat la:", cfAsk: "Este rețeaua ta, de acasă sau a echipei? Verificăm doar rețeaua la care ești conectat acum.",
       cfYes: "Da, e rețeaua mea", cfNo: "Nu, renunț", cfPrep: "Mă pregătesc…",
-      cfPerm: "Calculatorul te va întreba dacă permiți aplicației să facă modificări. Apasă „Da”: doar programul de verificare (Nmap) primește permisiunea, doar pentru această verificare.",
+      cfPerm: "Calculatorul îți va cere permisiunea. Apasă „Da”: o primește doar programul de verificare, Nmap, și doar pentru această verificare.",
       scanElapsed: "A trecut {t}. De obicei durează 1–3 minute.",
       probT: "Verificarea nu s-a putut face", tryAgain: "Încearcă din nou",
       nmapT: "Lipsește programul de verificare", nmapLink: "Deschide pagina de descărcare Nmap",
@@ -138,18 +138,18 @@
       histNeedTwo: "Avem o singură verificare. Repară un lucru, apoi apasă din nou „Inspectează casa” ca să vedem dacă rețeaua a devenit mai sigură.",
       thinking: "Mă gândesc…", newChat: "Conversație nouă",
       mode_ai: "Răspuns scris de inteligența artificială, doar din ce a văzut verificarea.",
-      mode_offline: "Răspuns din textele noastre (asistentul online nu e disponibil acum).",
+      mode_offline: "Asistentul online nu e disponibil acum, așa că îți răspund din textele noastre.",
       mode_rejected: "Răspunsul inteligenței artificiale nu a trecut verificarea, așa că îți arăt textele noastre.",
       closeApp: "Închide aplicația", closedApp: "Aplicația s-a închis. Poți închide această fereastră.",
       thisPc: "acest calculator", connErr: "Nu pot vorbi cu aplicația. Reîncarcă pagina și încearcă din nou.",
-      askSubLive: "Îți răspund scurt, doar din verificarea afișată sus. Ca să-ți răspund, trimit întrebarea și un rezumat al verificării, iar noi nu păstrăm nimic.",
+      askSubLive: "Îți răspund scurt, doar pe baza verificării afișate sus. Trimit întrebarea și un rezumat al verificării, fără să păstrăm nimic.",
       resTitle: "Toate verificările", resSub: "Fiecare verificare salvată pe acest calculator, cu scorul și cât de sigură e rețeaua. Apasă pe un rând ca să vezi tot ce a găsit.",
       colNo: "Nr.", colWhen: "Verificare", colFile: "Fișier", colRating: "Siguranță", colDevices: "Aparate", colProblems: "Probleme",
-      resFindings: "Ce a găsit verificarea", colIp: "Adresă (IP)", colPort: "Ușă (port)", colCode: "Cod", colSeverity: "Gravitate",
-      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă",
-      resNoDetail: "Detaliile acestei verificări vechi nu mai sunt afișate aici; exportă CSV-ul ca să le vezi.",
-      resDelete: "Șterge toate datele", resDeleteAsk: "Ștergi toate verificările și rezultatele salvate pe acest calculator? Nu le mai poți aduce înapoi. Fișierele CSV exportate deja rămân.",
-      exportBtn: "Exportă CSV", exportT: "Exportă rezultatele (CSV)",
+      resFindings: "Ce a găsit verificarea", colIp: "Adresă IP", colPort: "Port", colCode: "Cod", colSeverity: "Gravitate",
+      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă", techReport: "Raport tehnic", guideBtn: "Pași exacți pentru {v}", guideWait: "Caut pe site-ul {v} pașii pentru aparatul tău…", guideT: "Pași pentru {v}", guideNote: "Găsiți de asistent pe site-ul oficial {v}. Meniurile pot diferi puțin de la un model la altul.", guideSrc: "Sursa", guideNone: "Asistentul nu a dat surse, așa că urmează pașii cu grijă.", techReporting: "Pregătesc raportul tehnic…", techReportDoneT: "Gata, raportul tehnic e descărcat", techReportDone: "Un fișier text cu toate aparatele, porturile, versiunile și problemele găsite, pe care îl poți trimite unui specialist IT.", techReportWhere: "L-am salvat și aici:",
+      resNoDetail: "Detaliile acestei verificări vechi nu mai apar aici. Exportă CSV-ul ca să le vezi.",
+      resDelete: "Șterge toate datele", resDeleteAsk: "Ștergi toate verificările și rezultatele salvate pe acest calculator? Nu le mai poți aduce înapoi. Fișierele CSV și rapoartele tehnice exportate deja rămân.",
+      exportBtn: "Exportă CSV", exportT: "Exportă rezultatele în CSV",
       exportS: "Fac cele două fișiere standard, findings.csv și scores.csv, pentru un folder întreg de verificări Nmap (.xml). Un fișier care nu poate fi citit primește ERROR.",
       exportFolder: "Alege un folder", exportFiles: "Alege fișiere", exportSaved: "Exportă verificările salvate ({n})",
       exporting: "Pregătesc fișierele…", exportDoneT: "Gata, fișierele CSV sunt descărcate",
@@ -159,9 +159,9 @@
     en: {
       skip: "Skip to content", close: "Close", scanFile: "Check shown",
       navHome: "Home", navDevices: "Devices", navResults: "Results", navFindings: "Fixes", navHistory: "History", navAsk: "Ask",
-      footer: "We keep nothing on the internet: everything you see stays on this computer. Device addresses are half hidden to protect your privacy.",
+      footer: "Your checks stay on this computer. Device addresses are partly hidden, for your privacy.",
       hello: "Hi!", helloSub: "Press the button and we will check together if the network in your home is safe.",
-      inspect: "Inspect house", inspectAgain: "Inspect again",
+      inspect: "Inspect the house", inspectAgain: "Inspect again",
       topoCore: "Your home", topoGateway: "Gateway to the internet", topoHint: "Tap a device to see its details.",
       topoNet: "Network", topoWhy: "What it means", closeEsc: "Close (Esc)", portOpen: "Open", portVuln: "Vulnerable", portSecure: "encrypted",
       netTitle: "Your network ({n} devices)", netSub: "{n} devices have open doors. Start with the most dangerous one or tap any device.", netSub1: "One device has open doors. Start with it or tap any device.",
@@ -169,13 +169,13 @@
       topoStart: "Start with the most dangerous", topoPrev: "Previous device", topoNext: "Next", topoFound: "What we found",
       tourStep: "Device {i} of {n}", tourPort: "port {p}", tourFirst: "First step",
       tourEndT: "That's the whole path", tourEndS1: "One device has open doors. The fixes, step by step:", tourEndS: "{n} devices have open doors. The fixes, step by step:",
-      stIdleT: "Your digital home", stIdleS: "Press “Inspect house” so we can check every door.",
+      stIdleT: "Your digital home", stIdleS: "Press “Inspect the house” so we can check every door.",
       stScanT: "Inspecting the house…", stScanS: "Checking every device and every door. It takes a few seconds.",
       stSafeT: "The house is safe", stSafeS: "All doors are closed. You have nothing to fix.",
-      stVulnT: "Warning: A door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
+      stVulnT: "Warning: a door is open", stVulnS: "We found {n} things to fix. See below what you can do.", stVulnS1: "We found one thing to fix. See below what you can do.",
       stErrT: "We could not read the check", stErrS: "The check file is broken. Pick another check from the list at the top.",
       houseLabel: "3D house in a garden. When we check it, a light passes over it and at the end the windows light up.", errorWord: "ERROR",
-      devicesFound: "Devices found ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "RO", whatToDo: "What I can do",
+      devicesFound: "Devices found ({n})", ipLabel: "IP", macLabel: "MAC", otherLang: "RO", whatToDo: "What you can do",
       doorsOpen: "Doors left open ({n})", doorsSub: "Each card says what is wrong and what to do, step by step. The most dangerous one comes first.",
       doorsNone: "No door left open. All your devices are safe.",
       devicesSub2: "All the devices connected to your network. Tap a device to see what you can do.",
@@ -199,12 +199,12 @@
       mostDangerous: "The device with the biggest problem", thisDevice: "Device",
       doThis: "What to do",
       btnDone: "I did this", btnSkip: "Show me something else",
-      progress: "Thing {i} of {n}",
+      progress: "Fix {i} of {n}",
       doneNote: "Well done! You fixed: {title}. Check the network again later to see the new score.",
       allDone: "You went through everything. Check the network again to see how safe it is now.",
       restart: "Start again",
       noProblems: "We found nothing to fix. Congratulations! Check again from time to time.",
-      helpNote: "Are you a child? Show this page to a parent before you change anything. Finding it hard? Show it to someone you trust: a grandchild, a friend or the company that set up your internet.",
+      helpNote: "If you are a child, show this page to a parent before you change anything. If it feels hard, ask someone you trust for help.",
       yourDevices: "Your devices", seeAll: "See all",
       glossaryTitle: "Useful words",
       devicesTitle: "Devices and fixes", devicesSub: "Every device on your network, the most dangerous first. Tap a device to see its problem and how to fix it, step by step.",
@@ -218,11 +218,11 @@
       sumHigh: "High risk", sumMedium: "Medium risk", sumLow: "Low risk", sumInfo: "Just so you know",
       cardHint: "Press Enter to see the technical details.",
       codeLabel: "Code",
-      techMore: "Details for people who know computers (or for the IT company)",
-      techTitle: "Technical name", techSteps: "Detailed steps", techWhere: "Where (address and door)",
+      techMore: "Advanced details",
+      techTitle: "Technical name", techSteps: "Detailed steps", techWhere: "Where",
       evidence: "What the check saw", refs: "Security standards",
-      ip: "Address (IP)", mac: "Physical address (MAC, half hidden)", vendor: "Maker", hostname: "Network name",
-      ports: "Open doors (ports)", none: "none", unknown: "we don't know",
+      ip: "IP address", mac: "MAC address", vendor: "Maker", hostname: "Network name",
+      ports: "Open ports", none: "none", unknown: "unknown",
       errorTitle: "We could not read this check",
       errorBody: "The check file is broken or incomplete, so we show nothing for it. Pick another check from the list at the top or make a new one.",
       errorDetail: "Technical detail",
@@ -232,7 +232,7 @@
       worse: "Careful: the score went down. Look at the new things to fix.", same: "The score stayed the same.",
       events: "What happened",
       evFixed: "You fixed: {title}", evNew: "New thing to fix: {title}",
-      evSecured: "The settings now open on the safe road", evSecuredSub: "From door {from} to safe door {to}",
+      evSecured: "The settings page now uses the secure connection", evSecuredSub: "Door {from} was replaced by the secure door {to}",
       evNewDev: "New device on the network", evGoneDev: "A device is no longer on the network",
       evQuiet: "No new device and no dangerous new door",
       evFirst: "The check before: score {s}, {f} things to fix",
@@ -264,29 +264,29 @@
       aClean: "The check shows nothing to fix. All good!",
       // live app (local agent)
       noScan: "You have not checked the house yet", needScan: "There is no check yet. Check the network you are connected to now, or upload a check.", goHome: "Go to Home", scanNow: "Check my network now",
-      cfTitle: "Shall we check your network?", cfNet: "You are connected to:", cfAsk: "Is this your network (at home or your team's)? We only check the network you are connected to right now, nothing else.",
+      cfTitle: "Shall we check your network?", cfNet: "You are connected to:", cfAsk: "Is this your network, at home or your team's? We only check the network you are connected to right now.",
       cfYes: "Yes, it is my network", cfNo: "No, cancel", cfPrep: "Getting ready…",
-      cfPerm: "The computer will ask if you allow the app to make changes. Press “Yes”: only the checking program (Nmap) gets permission, only for this check.",
+      cfPerm: "The computer will ask for permission. Press “Yes”: only the checking program, Nmap, gets it, and only for this check.",
       scanElapsed: "{t} so far. It usually takes 1–3 minutes.",
       probT: "The check could not be done", tryAgain: "Try again",
       nmapT: "The checking program is missing", nmapLink: "Open the Nmap download page",
       upload: "Upload a check", uploading: "Uploading…", uploadBad: "The file cannot be read: it is broken or not an Nmap check.",
       verifyBtn: "I fixed it, check", verifying: "Checking…",
-      histNeedTwo: "We have only one check. Fix one thing, then press “Inspect house” again so we can see if the network got safer.",
+      histNeedTwo: "We have only one check. Fix one thing, then press “Inspect the house” again to see if the network got safer.",
       thinking: "Thinking…", newChat: "New conversation",
       mode_ai: "Answer written by artificial intelligence, only from what the check saw.",
-      mode_offline: "Answer from our own texts (the online assistant is not available right now).",
+      mode_offline: "The online assistant is not available right now, so I answer from our own texts.",
       mode_rejected: "The AI answer did not pass the check, so I show you our own texts.",
       closeApp: "Close the app", closedApp: "The app is closed. You can close this window.",
       thisPc: "this computer", connErr: "I cannot reach the app. Reload the page and try again.",
-      askSubLive: "I answer briefly, only from the check shown at the top. To answer, I send your question and a summary of the check, and we keep nothing.",
+      askSubLive: "I answer briefly, only from the check shown at the top. I send your question and a summary of the check, and we keep nothing.",
       resTitle: "All checks", resSub: "Every check saved on this computer, with its score and how safe the network is. Tap a row to see everything it found.",
       colNo: "No.", colWhen: "Check", colFile: "File", colRating: "Safety", colDevices: "Devices", colProblems: "Problems",
-      resFindings: "What the check found", colIp: "Address (IP)", colPort: "Door (port)", colCode: "Code", colSeverity: "Severity",
-      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home",
-      resNoDetail: "The details of this older check are not shown here; export the CSV to see them.",
-      resDelete: "Delete all data", resDeleteAsk: "Delete all checks and results saved on this computer? You cannot get them back. CSV files you already exported stay.",
-      exportBtn: "Export CSV", exportT: "Export the results (CSV)",
+      resFindings: "What the check found", colIp: "IP address", colPort: "Port", colCode: "Code", colSeverity: "Severity",
+      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home", techReport: "Technical report", guideBtn: "Exact steps for {v}", guideWait: "Looking on the {v} website for the steps for your device…", guideT: "Steps for {v}", guideNote: "Found by the assistant on the official {v} website. Menus can differ a little from model to model.", guideSrc: "Source", guideNone: "The assistant gave no sources, so follow the steps carefully.", techReporting: "Preparing the technical report…", techReportDoneT: "Done, the technical report is downloaded", techReportDone: "A text file with every device, port, version and problem found, ready to send to an IT specialist.", techReportWhere: "I also saved it here:",
+      resNoDetail: "The details of this older check are not shown here. Export the CSV to see them.",
+      resDelete: "Delete all data", resDeleteAsk: "Delete all checks and results saved on this computer? You cannot get them back. CSV files and technical reports you already exported stay.",
+      exportBtn: "Export CSV", exportT: "Export the results as CSV",
       exportS: "I make the two standard files, findings.csv and scores.csv, for a whole folder of Nmap checks (.xml). A file that cannot be read gets ERROR.",
       exportFolder: "Choose a folder", exportFiles: "Choose files", exportSaved: "Export the saved checks ({n})",
       exporting: "Preparing the files…", exportDoneT: "Done, the CSV files are downloaded",
@@ -329,6 +329,7 @@
     chatOpen: false,     // the floating assistant panel
     resSel: null,        // Results tab: the check whose findings are shown
     verify: {},          // "ip|port|code" -> {status, message}
+    guides: {},          // "scan|ip|code" -> {status, answer?, sources?, message?}
     justDeleted: false,
   };
 
@@ -590,8 +591,17 @@
   function refreshVerify(key, s, f) {
     document.querySelectorAll(`[data-verify="${CSS.escape(key)}"]`).forEach((el) => {
       const fresh = verifyRow(s, f);
-      if (fresh) el.replaceWith(fresh);
+      if (fresh) swapKeepFocus(el, fresh);
     });
+  }
+  // replace a block that may hold the keyboard focus: the focus moves to the new block (its button, else the block)
+  function swapKeepFocus(el, fresh) {
+    const had = el.contains(document.activeElement);
+    el.replaceWith(fresh);
+    if (!had) return;
+    const target = fresh.querySelector("button:not([disabled])") || fresh;
+    if (target === fresh) fresh.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
   }
 
   // Score ring (Fing) + labelled traffic light.
@@ -732,7 +742,7 @@
     const res = await api("DELETE", "/api/v1/history");
     state.confirmDelete = false;
     if (!res.ok) { problemSheet(t("probT"), errText(res)); return; }
-    state.broken = []; state.chat = []; state.verify = {}; state.justDeleted = true;
+    state.broken = []; state.chat = []; state.verify = {}; state.guides = {}; state.justDeleted = true;
     await reloadData(-1);
     render();
   }
@@ -1130,9 +1140,19 @@
       panel.className = `topo-panel grunge sev-${sev}`;
       panel.replaceChildren(...[                // filter: replaceChildren() would print a skipped part as "null"
         h("div", { class: "topo-ph", style: "--i:0" }, devIco(d.type, worst ? toneOf(worst.severity) : "green", false, d),
-          h("div", { class: "grow" }, h("h4", { text: (vendor ? `${vendor} · ${deviceLabel(d.type)}` : deviceLabel(d.type)) + meSuffix(d) }), d.hostname ? h("p", { class: "muted", text: d.hostname }) : null),
-          h("div", { class: "topo-xwrap" }, h("kbd", { class: "topo-esc", "aria-hidden": "true", text: "Esc" }),
-            h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x")))),
+          h("div", { class: "grow" }, h("h4", { text: name }),
+            h("div", { class: "topo-risk" }, worst ? riskPill(worst.severity) : h("span", { class: "pill p-green" }, icon("check"), t("devOk")))),
+          h("button", { type: "button", class: "btn-hud icon topo-x", "aria-label": t("closeEsc"), title: t("closeEsc"), onclick: () => close() }, icon("x"))),
+        h("p", { class: "topo-why", style: "--i:1", text: worst ? simple(worst.code).explain : t("devOkExplain") }),
+        // every problem: icon + title, so the colour is never the only sign of how bad it is (NFR-08)
+        probs.length ? h("ul", { class: "topo-finds", style: "--i:2" }, probs.slice(0, SHOW).map((f) =>
+          h("li", { class: "sev-" + f.severity, "aria-label": `${RISK[f.severity][state.lang]}: ${simple(f.code).title}` },
+            h("span", { class: "topo-fline" }, icon(RISK[f.severity].icon), h("strong", { text: simple(f.code).title }))))) : null,
+        more > 0 ? h("p", { class: "topo-more-probs", style: "--i:2", text: more === 1 ? t("moreProb1") : t("moreProbs", { n: more }) }) : null,
+        worst ? h("button", { type: "button", class: "btn-hud primary topo-cta", style: "--i:3", onclick: (e) => openDevice(d, e.currentTarget) },
+            icon("shield"), h("span", { class: "grow", text: t("fixNow") }), icon("chevron", "go"))
+          : h("button", { type: "button", class: "btn-hud topo-cta topo-cta-soft", style: "--i:3", onclick: (e) => openDevice(d, e.currentTarget) },
+            h("span", { class: "grow", text: t("devDetails") }), icon("chevron", "go")),
         navRow(it),
         h("div", { class: "topo-scan", "aria-hidden": "true" })].filter(Boolean));
       if (window.Device3D) window.Device3D.scan(panel);     // 3D model in the panel header
@@ -1274,8 +1294,39 @@
       h("p", { class: "lead", style: "margin-top:.5rem", text: tx.explain }),
       tx.steps.length ? [h("h4", { text: t("doThis") + ":" }), steps(tx.steps)] : null,
       f.severity !== "info" ? whoLine(f.code) : null,
+      guideRow(s, f),
       verifyRow(s, f),
       techFor(f));
+  }
+  // "Exact steps for TP-Link": the assistant looks on the maker's official site (live app, known maker only)
+  function guideRow(s, f) {
+    const d = LIVE && f.severity !== "info" && s.scan_id != null ? deviceByIp(s, f.ip) : null;
+    if (!d || !d.guide) return null;
+    const key = `${s.scan_id}|${f.ip}|${f.code}`, g = state.guides[key], v = d.guide;
+    const wrap = h("div", { class: "guide-row", "data-guide": key, style: "margin-top:1rem" });
+    if (!g || g.status === "error") {
+      wrap.append(h("button", { type: "button", class: "btn btn-tonal", onclick: async (e) => {
+        e.stopPropagation();
+        state.guides[key] = { status: "pending" }; refreshGuide(key, s, f);
+        const res = await api("POST", "/api/v1/guide", { scan_id: s.scan_id, ip: f.ip, code: f.code });
+        state.guides[key] = res.ok ? { status: "ok", answer: res.data.answer, sources: res.data.sources || [] } : { status: "error", message: errText(res) };
+        refreshGuide(key, s, f);
+      } }, icon("bot"), t("guideBtn", { v })));
+      if (g) wrap.append(h("p", { class: "note with-ico", role: "status" }, icon("info"), h("span", { text: g.message })));
+    } else if (g.status === "pending") {
+      wrap.append(h("p", { class: "note with-ico", role: "status" }, icon("search"), h("span", { text: t("guideWait", { v }) })));
+    } else {
+      wrap.append(h("div", { class: "guide-box", role: "status" },
+        h("h4", { class: "with-ico" }, icon("bot"), h("span", { text: t("guideT", { v }) })),
+        h("p", { class: "guide-text", text: g.answer }),
+        g.sources.length ? h("ul", { class: "guide-src" }, g.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
+          h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : h("p", { class: "muted", text: t("guideNone") }),
+        h("p", { class: "muted guide-note", text: t("guideNote", { v }) })));
+    }
+    return wrap;
+  }
+  function refreshGuide(key, s, f) {
+    document.querySelectorAll(`[data-guide="${CSS.escape(key)}"]`).forEach((el) => { const fresh = guideRow(s, f); if (fresh) swapKeepFocus(el, fresh); });
   }
   function openDevice(d, opener) {
     const s = scan(), probs = problemsOf(s, d), worst = probs[0], vendor = shortVendor(d.vendor);
@@ -1557,7 +1608,7 @@
     renderChatPanel();
     const res = await api("POST", "/api/v1/ask", { question: q, scan_id: s.scan_id, history: turns });
     state.busy = false;
-    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source });
+    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source, sources: res.data.sources || [], vendor: res.data.vendor });
     else Object.assign(item, { a: errText(res), mode: "error", source: "error" });
     renderChatPanel();
     if (state.chatOpen) focusSel("#ask-input");
@@ -1573,8 +1624,11 @@
       if (m.q !== undefined) {               // live answer
         card.append(h("div", { class: "bubble me", text: m.q }));
         card.append(h("div", { class: "bot-name with-ico" }, icon("bot"), h("span", { text: t("botName") })));
-        card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a })));
-        if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
+        card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a }),
+          m.sources && m.sources.length ? h("ul", { class: "guide-src" }, m.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
+            h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : null));
+        if (m.mode === "guide") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("guideNote", { v: m.vendor || "" }) }));
+        else if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
         return;
       }
       card.append(h("div", { class: "bubble me", text: m.text }));
@@ -1676,8 +1730,29 @@
           h("td", { class: "c-colCode mono", text: f.code }));
       })))));
     if (x && !sel.error) box.append(h("div", { class: "actions" }, h("button", { type: "button", class: "btn btn-tonal", onclick: () => {
-      const i = allScans().indexOf(x); if (i >= 0) { state.scan = i; state.chat = []; } setTab("home"); } }, icon("home"), t("resOpen"))));
+      const i = allScans().indexOf(x); if (i >= 0) { state.scan = i; state.chat = []; } setTab("home"); } }, icon("home"), t("resOpen")),
+      LIVE && x.scan_id != null ? h("button", { type: "button", class: "btn", onclick: () => techReport(x.scan_id) }, icon("code"), t("techReport")) : null));
     root.append(box);
+  }
+
+  // the technical report of one saved check (.txt, nmap style): downloaded and also kept on disk by the agent
+  async function techReport(scanId) {
+    showSheet(h("p", { class: "lead", role: "status", text: t("techReporting") }));
+    let r;
+    try { r = await fetch(`/api/v1/report/${scanId}?lang=${state.lang}`, { credentials: "same-origin" }); }
+    catch (e) { problemSheet(t("techReport"), t("connErr")); return; }
+    if (!r.ok) { let data = {}; try { data = await r.json(); } catch (e) { /* not JSON */ } problemSheet(t("techReport"), errText({ data })); return; }
+    const blob = await r.blob();
+    const name = ((r.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/) || [])[1] || "safehouse_report.txt";
+    const a = h("a", { href: URL.createObjectURL(blob), download: name, style: "display:none" });
+    document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    let where = "";
+    try { where = decodeURIComponent(r.headers.get("X-SafeHouse-Saved-To") || ""); } catch (e) { /* keep empty */ }
+    showSheet(h("div", { role: "status" },
+      h("div", { class: "sheet-head" }, h("div", { class: "dev-ico green", "aria-hidden": "true" }, icon("check")), h("h2", { id: "sheet-title", text: t("techReportDoneT") })),
+      h("p", { class: "lead", style: "margin-top:.6rem", text: t("techReportDone") }),
+      where ? [h("p", { class: "muted", text: t("techReportWhere") }), h("p", { class: "evidence mono", text: where })] : null,
+      h("div", { class: "actions" }, h("button", { type: "button", class: "btn", onclick: closeSheet }, t("close")))));
   }
 
   // ---------------------------------------------------------------- the assistant: a floating button + chat panel

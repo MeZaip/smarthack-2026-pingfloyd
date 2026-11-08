@@ -107,6 +107,7 @@ def open_window(url: str, mode: str) -> bool:
             import webview  # type: ignore  # optional: pip install pywebview
             if hasattr(webview, "settings"):           # pywebview 5+: let "Export CSV" save its ZIP
                 webview.settings["ALLOW_DOWNLOADS"] = True
+                webview.settings["OPEN_EXTERNAL_LINKS_IN_BROWSER"] = True   # maker support pages (target=_blank)
             webview.create_window("SafeHouse", url, width=1150, height=850, min_size=(420, 600))
             webview.start()
             return True

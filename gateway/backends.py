@@ -110,6 +110,44 @@ class ClaudeBackend:
             raise BackendError(f"claude returned no text (stop_reason={stop})")
         return text
 
+    def guide(self, system: str, user: str, sites: list[str]) -> tuple[str, list[dict]]:
+        """One answer that may use Claude's web search, limited to the maker's official sites.
+        Returns (text, sources) where sources are the pages the answer cites (title + url)."""
+        body = {"model": self.cfg.claude_model, "max_tokens": self.cfg.max_output_tokens, "system": system,
+                "messages": [{"role": "user", "content": user}],
+                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": self.cfg.guide_searches,
+                           "allowed_domains": sites}],
+                "output_config": {"effort": self.cfg.claude_effort}}
+        if not self.cfg.claude_thinking:
+            body["thinking"] = {"type": "disabled"}
+        headers = {"x-api-key": self.cfg.anthropic_api_key, "anthropic-version": self.API_VERSION}
+        timeout = max(self.cfg.model_timeout_s, self.cfg.guide_timeout_s)
+        for _ in range(3):                       # a long search turn may pause; let it continue twice
+            data = _post_json(self.url, body, headers, timeout, "claude", secrets=(self.cfg.anthropic_api_key,))
+            if data.get("stop_reason") != "pause_turn":
+                break
+            body["messages"] = body["messages"][:1] + [{"role": "assistant", "content": data.get("content") or []}]
+        blocks = data.get("content") or []
+        # Only the text written after the last search is the answer; anything before it is the model
+        # thinking aloud ("I'll search the TP-Link site...", often in English) and is dropped.
+        last_tool = max((i for i, b in enumerate(blocks) if b.get("type") in ("server_tool_use", "web_search_tool_result")),
+                        default=-1)
+        text = "".join(b.get("text", "") for b in blocks[last_tool + 1:] if b.get("type") == "text").strip()
+        if data.get("stop_reason") == "max_tokens":
+            text = trim_to_last_sentence(text)
+        if not text:
+            raise BackendError(f"claude returned no text (stop_reason={data.get('stop_reason')})")
+        sources, seen = [], set()
+        cited = [c for b in blocks if b.get("type") == "text" for c in b.get("citations") or []]
+        found = [r for b in blocks if b.get("type") == "web_search_tool_result" and isinstance(b.get("content"), list)
+                 for r in b["content"] if r.get("type") == "web_search_result"]
+        for c in cited or found[:3]:
+            url = c.get("url") or ""
+            if url.startswith("https://") and url not in seen:
+                seen.add(url)
+                sources.append({"title": (c.get("title") or url)[:160], "url": url[:500]})
+        return text, sources[:4]
+
     def health(self) -> dict:
         # no API call here: health checks must not spend credits
         return {"backend": self.name, "configured": True}
