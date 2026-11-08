@@ -175,7 +175,7 @@
       resTitle: "Toate verificările", resSub: "Fiecare verificare salvată pe acest calculator, cu scorul și cât de sigură e rețeaua. Apasă pe un rând ca să vezi tot ce a găsit.",
       colNo: "Nr.", colWhen: "Verificare", colFile: "Fișier", colRating: "Siguranță", colDevices: "Aparate", colProblems: "Probleme",
       resFindings: "Ce a găsit verificarea", colIp: "Adresă IP", colPort: "Port", colCode: "Cod", colSeverity: "Gravitate",
-      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă", techReport: "Raport tehnic", guideBtn: "Pași exacți pentru {v}", guideWait: "Caut pe site-ul {v} pașii pentru aparatul tău…", guideT: "Pași pentru {v}", guideNote: "Găsiți de asistent pe site-ul oficial {v}. Meniurile pot diferi puțin de la un model la altul.", guideSrc: "Sursa", guideNone: "Asistentul nu a dat surse, așa că urmează pașii cu grijă.", techReporting: "Pregătesc raportul tehnic…", techReportDoneT: "Gata, raportul tehnic e descărcat", techReportDone: "Un fișier text cu toate aparatele, porturile, versiunile și problemele găsite, pe care îl poți trimite unui specialist IT.", techReportWhere: "L-am salvat și aici:",
+      colProblem: "Problema", colDevice: "Aparat", resNone: "Verificarea nu a găsit nimic de reparat.", resOpen: "Arată pe Acasă", techReport: "Raport tehnic", guideBtn: "Pași exacți pentru {v}", guideWait: "Caut pe site-ul {v} pașii pentru aparatul tău…", guideT: "Pași pentru {v}", guideNote: "Găsiți de asistent pe site-ul oficial {v}. Meniurile pot diferi puțin de la un model la altul.", guideNoteWeb: "Găsiți de asistent pe internet, pentru că nu avem site-ul oficial {v} în listă. Verifică sursele de mai sus înainte să schimbi ceva.", guideSrc: "Sursa", guideNone: "Asistentul nu a dat surse, așa că urmează pașii cu grijă.", techReporting: "Pregătesc raportul tehnic…", techReportDoneT: "Gata, raportul tehnic e descărcat", techReportDone: "Un fișier text cu toate aparatele, porturile, versiunile și problemele găsite, pe care îl poți trimite unui specialist IT.", techReportWhere: "L-am salvat și aici:",
       resNoDetail: "Detaliile acestei verificări vechi nu mai apar aici. Exportă CSV-ul ca să le vezi.",
       resDelete: "Șterge toate datele", resDeleteAsk: "Ștergi toate verificările și rezultatele salvate pe acest calculator? Nu le mai poți aduce înapoi. Fișierele CSV și rapoartele tehnice exportate deja rămân.",
       exportBtn: "Exportă CSV", exportT: "Exportă rezultatele în CSV",
@@ -354,7 +354,7 @@
       resTitle: "All checks", resSub: "Every check saved on this computer, with its score and how safe the network is. Tap a row to see everything it found.",
       colNo: "No.", colWhen: "Check", colFile: "File", colRating: "Safety", colDevices: "Devices", colProblems: "Problems",
       resFindings: "What the check found", colIp: "IP address", colPort: "Port", colCode: "Code", colSeverity: "Severity",
-      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home", techReport: "Technical report", guideBtn: "Exact steps for {v}", guideWait: "Looking on the {v} website for the steps for your device…", guideT: "Steps for {v}", guideNote: "Found by the assistant on the official {v} website. Menus can differ a little from model to model.", guideSrc: "Source", guideNone: "The assistant gave no sources, so follow the steps carefully.", techReporting: "Preparing the technical report…", techReportDoneT: "Done, the technical report is downloaded", techReportDone: "A text file with every device, port, version and problem found, ready to send to an IT specialist.", techReportWhere: "I also saved it here:",
+      colProblem: "Problem", colDevice: "Device", resNone: "The check found nothing to fix.", resOpen: "Show on Home", techReport: "Technical report", guideBtn: "Exact steps for {v}", guideWait: "Looking on the {v} website for the steps for your device…", guideT: "Steps for {v}", guideNote: "Found by the assistant on the official {v} website. Menus can differ a little from model to model.", guideNoteWeb: "Found by the assistant on the web, because the official {v} website is not on our list. Check the sources above before you change anything.", guideSrc: "Source", guideNone: "The assistant gave no sources, so follow the steps carefully.", techReporting: "Preparing the technical report…", techReportDoneT: "Done, the technical report is downloaded", techReportDone: "A text file with every device, port, version and problem found, ready to send to an IT specialist.", techReportWhere: "I also saved it here:",
       resNoDetail: "The details of this older check are not shown here. Export the CSV to see them.",
       resDelete: "Delete all data", resDeleteAsk: "Delete all checks and results saved on this computer? You cannot get them back. CSV files and technical reports you already exported stay.",
       exportBtn: "Export CSV", exportT: "Export the results as CSV",
@@ -1372,7 +1372,7 @@
         e.stopPropagation();
         state.guides[key] = { status: "pending" }; refreshGuide(key, s, f);
         const res = await api("POST", "/api/v1/guide", { scan_id: s.scan_id, ip: f.ip, code: f.code });
-        state.guides[key] = res.ok ? { status: "ok", answer: res.data.answer, sources: res.data.sources || [] } : { status: "error", message: errText(res) };
+        state.guides[key] = res.ok ? { status: "ok", answer: res.data.answer, sources: res.data.sources || [], official: res.data.official !== false } : { status: "error", message: errText(res) };
         refreshGuide(key, s, f);
       } }, icon("bot"), t("guideBtn", { v })));
       if (g) wrap.append(h("p", { class: "note with-ico", role: "status" }, icon("info"), h("span", { text: g.message })));
@@ -1384,7 +1384,7 @@
         h("p", { class: "guide-text", text: g.answer }),
         g.sources.length ? h("ul", { class: "guide-src" }, g.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
           h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : h("p", { class: "muted", text: t("guideNone") }),
-        h("p", { class: "muted guide-note", text: t("guideNote", { v }) })));
+        h("p", { class: "muted guide-note", text: t(g.official ? "guideNote" : "guideNoteWeb", { v }) })));
     }
     return wrap;
   }
@@ -1671,7 +1671,7 @@
     renderChatPanel();
     const res = await api("POST", "/api/v1/ask", { question: q, scan_id: s.scan_id, history: turns, style: style || "text" });
     state.busy = false;
-    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source, sources: res.data.sources || [], vendor: res.data.vendor });
+    if (res.ok) Object.assign(item, { a: res.data.answer, mode: res.data.mode, source: res.data.source, sources: res.data.sources || [], vendor: res.data.vendor, official: res.data.official !== false });
     else Object.assign(item, { a: errText(res), mode: "error", source: "error" });
     renderChatPanel();
     if (state.chatOpen && !state.voice.mode) focusSel("#ask-input");
@@ -1964,7 +1964,7 @@
         card.append(h("div", { class: "bubble bot", "aria-busy": String(m.a == null) }, h("span", { class: "txt", style: "white-space:pre-line", text: m.a == null ? t("thinking") : m.a }),
           m.sources && m.sources.length ? h("ul", { class: "guide-src" }, m.sources.map((x) => h("li", null, h("span", { text: t("guideSrc") + ": " }),
             h("a", { href: x.url, target: "_blank", rel: "noopener noreferrer", text: x.title })))) : null));
-        if (m.mode === "guide") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("guideNote", { v: m.vendor || "" }) }));
+        if (m.mode === "guide") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t(m.official ? "guideNote" : "guideNoteWeb", { v: m.vendor || "" }) }));
         else if (m.mode && m.mode !== "error") card.append(h("div", { class: "muted", style: "margin-left:6px", text: t("mode_" + m.mode) }));
         if (m.a != null) card.append(speakBtn(m));
         return;

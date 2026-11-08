@@ -82,10 +82,39 @@ def model_hint(device: dict) -> str:
     return _clean(" · ".join(parts), MAX_MODEL)
 
 
+# Any other maker is searched too ("other:<Name>"): without a list of official sites, the search may use any site
+# and every source is shown. Some makers only make the Wi-Fi chip inside other brands' devices (an "Espressif"
+# smart plug is a Sonoff, Shelly, Tuya...): the answer says so and gives the steps of the usual setup apps.
+CHIP_MAKERS = ("espressif", "realtek", "mediatek", "azurewave", "murata", "liteon", "lite-on", "hon hai", "foxconn",
+               "quectel", "silicon labs", "texas instruments", "nordic", "beken", "bouffalo", "universal global")
+_SUFFIX = re.compile(r"\b(inc|incorporated|co|corp|corporation|ltd|limited|llc|gmbh|ag|sa|srl|bv|oy|ab|plc|pte|"
+                     r"technology|technologies|tech|systems|electronics|electronic|international|company)\b\.?", re.I)
+_OTHER = re.compile(r"other:[A-Za-z0-9][A-Za-z0-9 .&+!-]{1,39}")
+
+
+def maker_name(vendor_text: Optional[str]) -> Optional[str]:
+    """'Espressif Inc.' -> 'Espressif'; 'Shenzhen Bilian Electronic Co.,Ltd' -> 'Shenzhen Bilian'."""
+    text = re.sub(r"[^A-Za-z0-9 .&+!-]+", " ", vendor_text or "")
+    text = _SUFFIX.sub(" ", text)
+    words = [w.strip(".-") for w in text.split() if w.strip(".-")]
+    name = " ".join(words[:3])[:40]
+    return name if len(name) >= 2 and name.lower() not in ("unknown", "private") else None
+
+
+def is_chip_maker(vendor: str) -> bool:
+    low = vendor_name(vendor).lower()
+    return any(w in low for w in CHIP_MAKERS)
+
+
 def vendor_for(device: dict) -> Optional[str]:
+    """A key of VENDORS, "other:<Name>" for any other maker we can name, or None (e.g. a private MAC)."""
     products = [p.get("product") for p in device.get("open_ports") or []]
     titles = [p.get("title") for p in device.get("open_ports") or []]
-    return match_vendor(device.get("vendor"), *products, *titles)
+    known = match_vendor(device.get("vendor"), *products, *titles)
+    if known:
+        return known
+    name = maker_name(device.get("vendor"))
+    return f"other:{name}" if name else None
 
 
 def build_guide_request(device: dict, code: str, steps: list[str], lang: str = "ro") -> dict:
@@ -105,7 +134,7 @@ def validate_guide_request(body) -> dict:
     if lang not in LANGS:
         raise ContractError("lang must be ro or en")
     vendor = body.get("vendor")
-    if vendor not in VENDORS:
+    if vendor not in VENDORS and not (isinstance(vendor, str) and _OTHER.fullmatch(vendor)):
         raise ContractError("unknown vendor")
     code = body.get("code")
     if code not in CATALOG:
@@ -119,11 +148,12 @@ def validate_guide_request(body) -> dict:
 
 
 def domains(vendor: str) -> list[str]:
-    return list(VENDORS[vendor][2])
+    """Official sites the search is limited to; [] = no list known, any site (sources are always shown)."""
+    return list(VENDORS[vendor][2]) if vendor in VENDORS else []
 
 
 def vendor_name(vendor: str) -> str:
-    return VENDORS[vendor][0]
+    return VENDORS[vendor][0] if vendor in VENDORS else vendor.split(":", 1)[-1]
 
 
 # ---------------------------------------------------------------- the chat: "how do I do it on my TP-Link?"
@@ -131,6 +161,8 @@ _ASKS_STEPS = re.compile(
     r"pa[sș]i|cum\b|unde\b|meniu|set[aă]ri|instruc[tț]iun|exact|specific|model|dezactivez|opresc|repar|apas|apăs"
     r"|steps?\b|\bhow\b|\bwhere\b|menu|setting|instruction|disable|turn off|\bfix\b|click", re.I)
 _ROUTER_WORDS = re.compile(r"\brouter", re.I)
+_TYPE_WORDS = [("iot", r"priz|\bbec|senzor|smart|plug|bulb|sensor|întrerup|switch"), ("camera", r"camer"),
+               ("printer", r"imprimant|printer"), ("tv", r"televizor|\btv\b"), ("nas", r"\bnas\b|stocare|storage")]
 # a problem named in the question -> its code (otherwise the device's most dangerous problem is used)
 _CODE_WORDS = [
     ("TELNET_OPEN", r"telnet"), ("UPNP_EXPOSED", r"upnp"), ("SNMP_EXPOSED", r"snmp"), ("FTP_CLEARTEXT", r"\bftp"),
@@ -150,8 +182,19 @@ def device_steps_target(question: str, devices: list[dict], findings: list, earl
     known = [d for d in devices if vendor_for(d)]
     maker = match_vendor(question) or match_vendor(earlier)
     device = next((d for d in known if maker and vendor_for(d) == maker), None)
+    if device is None:                       # "cum fac pe Espressif?": any maker's name in the question
+        low = f" {re.sub(r'[^a-z0-9]+', ' ', text.lower())} "
+        device = next((d for d in known if vendor_for(d).startswith("other:")
+                       and f" {vendor_name(vendor_for(d)).split()[0].lower()} " in low), None)
     if device is None and _ROUTER_WORDS.search(text):
         device = next((d for d in known if d.get("type") == "router"), None)
+    if device is None:                       # "cum repar priza / camera / imprimanta?": the only device of that kind
+        for typ, words in _TYPE_WORDS:
+            if re.search(words, text, re.I):
+                same = [d for d in known if d.get("type") == typ]
+                if len(same) == 1:
+                    device = same[0]
+                    break
     if device is None:
         return None
     mine = [f for f in findings if f.ip == device["ip"] and f.severity != "info"]

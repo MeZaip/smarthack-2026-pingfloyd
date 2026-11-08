@@ -134,7 +134,7 @@ class ClaudeBackend:
         body = {"model": self.cfg.claude_model, "max_tokens": self.cfg.max_output_tokens, "system": system,
                 "messages": [{"role": "user", "content": user}],
                 "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": self.cfg.guide_searches,
-                           "allowed_domains": sites}],
+                           **({"allowed_domains": sites} if sites else {})}],      # no list: any site, sources shown
                 "output_config": {"effort": self.cfg.claude_effort}}
         if not self.cfg.claude_thinking:
             body["thinking"] = {"type": "disabled"}
